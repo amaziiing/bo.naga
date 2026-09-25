@@ -19,9 +19,11 @@
 <style>
 html:has(body.dashboard-shell),body.dashboard-shell{height:100%;overflow:hidden!important}
 body.dashboard-shell .report-main{height:100vh;min-height:0;overflow:hidden!important}
-.dashboard-workspace{padding:0!important;width:100%!important;max-width:100%!important;min-width:0!important;height:calc(100vh - 42px);min-height:0;background:transparent;overflow:hidden!important}
-.dashboard-workspace-frame{display:block;width:100%!important;max-width:100%!important;min-width:0!important;height:100%;min-height:0;border:0;background:transparent;overflow:hidden}
+.dashboard-workspace{padding:0!important;width:100%!important;max-width:100%!important;min-width:0!important;height:calc(100vh - 42px);min-height:0;background:transparent;overflow:hidden!important;position:relative!important}
+.dashboard-workspace-frame{display:block;position:absolute!important;inset:0;width:100%!important;max-width:100%!important;min-width:0!important;height:100%!important;min-height:0;border:0;background:transparent;overflow:hidden;opacity:0;pointer-events:none;z-index:1;transition:opacity .15s ease}
 .dashboard-workspace-frame[hidden]{display:none!important}
+.dashboard-workspace-frame.is-bo-frame-active{opacity:1;pointer-events:auto;z-index:2}
+.dashboard-workspace-frame.is-bo-frame-pending{opacity:0!important;pointer-events:none!important;transition:none!important}
 
 /* Dashboard shell only: remove the old top header and keep the sidebar toggle inside the sidebar. */
 .dashboard-hidden-topbar{display:none!important;height:0!important;min-height:0!important;padding:0!important;margin:0!important;border:0!important}
@@ -67,6 +69,7 @@ body.dashboard-shell .report-main{height:100vh;min-height:0;overflow:hidden!impo
     <header class="report-topbar dashboard-hidden-topbar" aria-hidden="true"></header>
     <section class="report-content dashboard-workspace">
       <iframe id="dashboardWorkspaceFrame" class="dashboard-workspace-frame" title="Dashboard selected page" hidden></iframe>
+      <iframe id="dashboardWorkspaceFrameB" class="dashboard-workspace-frame" title="Dashboard selected page buffer" hidden></iframe>
     </section>
   </main>
 </div>
@@ -75,7 +78,7 @@ body.dashboard-shell .report-main{height:100vh;min-height:0;overflow:hidden!impo
 <script src="assets/js/main-currency-runtime.js?v=bc97a89c"></script>
 <script src="assets/js/currency-runtime.js?v=71496e4c"></script>
 <script src="assets/js/reports.js?v=063b42e4"></script>
-<script src="assets/js/auth.js?v=71df68cd"></script>
+<script src="assets/js/auth.js?v=bo-frame-swap"></script>
 <script defer src="assets/js/bo-ui-standard.js?v=e18e682d"></script>
 <script src="assets/js/operation-global-notification.js?v=3e3a4090"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>

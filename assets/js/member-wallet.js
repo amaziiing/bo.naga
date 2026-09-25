@@ -63,17 +63,27 @@
     const body=document.getElementById('memberWalletBody');
     const table=body?.closest('table');
     if(!body||!table) return;
+    delete table.dataset.boEvenKey;
     table.classList.remove('bo-tx-evenfill');
     table.style.height='';
     body.querySelectorAll('tr.bo-table-fill').forEach(r=>r.remove());
     [...body.querySelectorAll('tr')].forEach(tr=>{
       tr.style.height='';
+      /* Clear any legacy per-cell heights from older builds. */
       tr.querySelectorAll('td').forEach(td=>{td.style.height='';td.style.minHeight='';});
     });
   }
   let autofitReloading=false;
+  /* Mute ResizeObserver-driven evenFill during first paint / reveal — reset→restretch is the remaining flicker. */
+  let evenFillPaused=false;
+  let evenFillPauseTimer=0;
+  function pauseEvenFill(ms){
+    evenFillPaused=true;
+    clearTimeout(evenFillPauseTimer);
+    if(ms>0) evenFillPauseTimer=setTimeout(function(){ evenFillPaused=false; }, ms);
+  }
   function shrinkAutofitIfOverflow(){
-    if(autofitReloading) return;
+    if(evenFillPaused || autofitReloading) return;
     if(!isAutoPageSize(document.getElementById('walletSize')?.value)) return;
     const scroll=tableBodyScroll();
     if(!scroll) return;
@@ -90,22 +100,34 @@
     const scroll=tableBodyScroll();
     const table=body?.closest('table');
     if(!body||!scroll||!table) return;
-    resetEvenFill();
-    if(!isAutoPageSize(document.getElementById('walletSize')?.value)) return;
+    if(!isAutoPageSize(document.getElementById('walletSize')?.value)){ resetEvenFill(); return; }
     const rows=[...body.querySelectorAll('tr')].filter(tr=>!isPlaceholderRow(tr));
-    if(!rows.length) return;
-    void table.offsetHeight;
+    if(!rows.length){ resetEvenFill(); return; }
     const avail=Math.max(0, Math.floor(scroll.clientHeight));
+    if(avail<40) return;
+    const evenKey=avail+'|'+rows.length+'|'+page+'|'+pageSize;
+    /* Same viewport + row count: skip reset→restretch (visible flicker source). */
+    if(table.dataset.boEvenKey===evenKey && table.classList.contains('bo-tx-evenfill')) return;
+    body.querySelectorAll('tr.bo-table-fill').forEach(r=>r.remove());
+    /* Clear only row height — do not touch td (Provider Balance buttons reflow/flash otherwise). */
+    rows.forEach(tr=>{ tr.style.height=''; });
+    table.classList.remove('bo-tx-evenfill');
+    table.style.height='';
+    void table.offsetHeight;
     const natural=rows.reduce((sum,tr)=>sum+Math.ceil(tr.getBoundingClientRect().height),0);
     const rowH=Math.max(38, Math.round(natural/rows.length)||44);
     const gap=avail-natural;
     /* Overflow: too many rows for viewport — drop one and reload (Show `-` must not scroll). */
     if(natural>avail+1){
+      delete table.dataset.boEvenKey;
       shrinkAutofitIfOverflow();
       return;
     }
     /* Stretch only when leftover is a seam (not enough for one more full row). */
-    if(gap<2||gap>=rowH) return;
+    if(gap<2||gap>=rowH){
+      delete table.dataset.boEvenKey;
+      return;
+    }
     const base=Math.floor(avail/rows.length);
     let rem=avail-(base*rows.length);
     if(base<=0) return;
@@ -113,7 +135,6 @@
       const h=base+(rem>0?1:0);
       if(rem>0) rem-=1;
       tr.style.height=h+'px';
-      tr.querySelectorAll('td').forEach(td=>{td.style.height=h+'px';});
     });
     table.classList.add('bo-tx-evenfill');
     table.style.height=avail+'px';
@@ -123,13 +144,15 @@
       rows.forEach(tr=>{
         const h=Math.max(rowH, (parseFloat(tr.style.height)||base)-shrink);
         tr.style.height=h+'px';
-        tr.querySelectorAll('td').forEach(td=>{td.style.height=h+'px';});
       });
       table.style.height=Math.max(0, avail-over)+'px';
     }
+    table.dataset.boEvenKey=evenKey;
   }
   function scheduleEvenFill(){
+    if(evenFillPaused) return;
     requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      if(evenFillPaused) return;
       evenFillRowHeights();
       shrinkAutofitIfOverflow();
     }));
@@ -177,8 +200,12 @@
     const scroll=tableBodyScroll();
     if(!scroll||scroll._boEvenFillObs) return;
     scroll._boEvenFillObs=new ResizeObserver(()=>{
+      if(evenFillPaused) return;
       clearTimeout(scroll._boEvenFillTimer);
-      scroll._boEvenFillTimer=setTimeout(evenFillRowHeights,32);
+      scroll._boEvenFillTimer=setTimeout(function(){
+        if(evenFillPaused) return;
+        evenFillRowHeights();
+      },48);
     });
     scroll._boEvenFillObs.observe(scroll);
   }
@@ -303,6 +330,31 @@
     metric('mwBetTotal', rows.reduce((s,r)=>s+num(r.totalBet),0));
     metric('mwWinLossTotal', rows.reduce((s,r)=>s+num(r.winLoss),0));
   }
+  function notifyDashboardReady(){
+    try{
+      document.documentElement.classList.add('bo-embed-ready');
+      if(window.parent && window.parent !== window){
+        window.parent.postMessage({type:'bo:dashboard-panel-ready', page:'member-wallet'}, '*');
+      }
+    }catch(_e){
+      document.documentElement.classList.add('bo-embed-ready');
+    }
+  }
+
+  function settleAndReveal(rows){
+    const embedded=document.documentElement.classList.contains('dashboard-embedded-page');
+    pauseEvenFill(0);
+    const table=document.getElementById('memberWalletBody')?.closest('table');
+    if(table) delete table.dataset.boEvenKey;
+    evenFillRowHeights();
+    requestAnimationFrame(function(){
+      evenFillRowHeights();
+      notifyDashboardReady();
+      pauseEvenFill(embedded?200:80);
+      refreshVisibleProviderBalances(rows||[]);
+    });
+  }
+
   function render(rows, pagination){
     const body = document.getElementById('memberWalletBody');
     if(!body) return;
@@ -343,12 +395,12 @@
     document.getElementById('walletPrevBtn').disabled = page <= 1;
     document.getElementById('walletNextBtn').disabled = page >= totalPages;
     syncAutofitMode();
-    scheduleEvenFill();
-    refreshVisibleProviderBalances(rows);
+    settleAndReveal(rows);
   }
 
-  async function syncMemberProviderBalance(row){
-    if(!row || num(row.providerWalletBalance) <= 0) return;
+  async function syncMemberProviderBalance(row,opts){
+    if(!row || num(row.providerWalletBalance) <= 0) return false;
+    const quiet=!!(opts&&opts.quiet);
     try{
       const json = await api(url('PROVIDER_WALLET_BALANCE')+'?memberId='+encodeURIComponent(row.memberId));
       const data = json.data || {};
@@ -357,24 +409,43 @@
       row.totalBalance = num(row.mainWalletBalance) + providerTotal;
       const providerCell=document.querySelector('[data-provider-total-cell="'+CSS.escape(String(row.memberId))+'"]');
       const totalCell=document.querySelector('[data-total-balance-cell="'+CSS.escape(String(row.memberId))+'"]');
-      if(providerCell) providerCell.textContent=money(providerTotal);
-      if(totalCell) totalCell.textContent=money(row.totalBalance);
-      updateMetrics(currentRows);
+      if(providerCell){
+        const next=money(providerTotal);
+        if(providerCell.textContent!==next) providerCell.textContent=next;
+      }
+      if(totalCell){
+        const next=money(row.totalBalance);
+        if(totalCell.textContent!==next) totalCell.textContent=next;
+      }
+      if(!quiet) updateMetrics(currentRows);
+      return true;
     }catch(e){
       console.warn('Provider balance live sync failed for member', row.memberId, e);
+      return false;
     }
   }
 
   async function refreshVisibleProviderBalances(rows){
     // Only members with a locally tracked provider balance need an external refresh.
-    // Keep this sequential so opening the wallet page does not burst provider APIs.
-    for(const row of rows){
-      if(num(row.providerWalletBalance) > 0) await syncMemberProviderBalance(row);
+    // Keep sequential to avoid bursting provider APIs; update KPI totals once at the end
+    // so the summary cards do not flicker per row.
+    const targets=(rows||[]).filter(row=>num(row.providerWalletBalance)>0);
+    if(!targets.length) return;
+    let changed=false;
+    for(const row of targets){
+      if(await syncMemberProviderBalance(row,{quiet:true})) changed=true;
     }
+    if(changed) updateMetrics(currentRows);
   }
 
   async function load(){
-    const body=document.getElementById('memberWalletBody'); if(body) body.innerHTML='<tr><td colspan="16">Loading wallet list...</td></tr>';
+    const body=document.getElementById('memberWalletBody');
+    const embedded=document.documentElement.classList.contains('dashboard-embedded-page');
+    const hasRows=!!(body&&body.querySelector('tr[data-member-wallet-row]'));
+    /* Embedded: stay blank while hidden. Standalone: keep rows on refetch, else show Loading. */
+    if(body && !hasRows && !embedded) body.innerHTML='<tr><td colspan="16">Loading wallet list...</td></tr>';
+    const card=document.querySelector('.table-card');
+    if(card && !embedded){card.classList.add('is-tx-busy');card.setAttribute('aria-busy','true');}
     try{
       /* When a column sort is active, fetch the full filtered set once, sort A↔Z locally,
          then paginate — so order is correct across pages even if the API ignores sort. */
@@ -397,6 +468,9 @@
     }catch(e){
       updateMetrics([]);
       if(body) body.innerHTML='<tr><td colspan="16" class="text-danger">'+esc(e.message || 'Load failed')+'</td></tr>';
+      notifyDashboardReady();
+    }finally{
+      if(card){card.classList.remove('is-tx-busy');card.setAttribute('aria-busy','false');}
     }
   }
 

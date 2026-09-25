@@ -1399,6 +1399,12 @@ body.bo-wallet-tx .bo-tx-tab{
   box-shadow:none!important;
   transition:color .16s ease,background .16s ease!important;
 }
+/* Soft busy while list refetch — keep rows visible, no Loading wipe flash. */
+body.bo-wallet-tx .table-card.is-tx-busy .bo-tx-table-body,
+body.bo-wallet-tx .table-card.is-tx-busy .bo-tx-table-head{
+  opacity:.78;
+  pointer-events:none;
+}
 body.bo-wallet-tx .bo-tx-tab[data-bo-tx-type="deposit"]::before,
 body.bo-wallet-tx .bo-tx-tab[data-bo-tx-type="withdraw"]::before{
   content:""!important;
@@ -4503,6 +4509,65 @@ body.bo-wallet-tx.member-wallet-page .bo-tx-sort-btn,
 body.bo-wallet-tx.member-wallet-page .bo-tx-action-btn,
 body.bo-wallet-tx.member-wallet-page .wallet-total-link{
   cursor:pointer!important;
+}
+/* Provider balance: text link (amber + underline), matches Adjustment/Bonus affordance. */
+body.bo-wallet-tx.member-wallet-page button.wallet-total-link.provider-wallet-total-link{
+  appearance:none!important;
+  -webkit-appearance:none!important;
+  display:inline-block!important;
+  padding:0!important;
+  margin:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  outline:none!important;
+  color:#B45309!important;
+  font:inherit!important;
+  font-weight:700!important;
+  line-height:inherit!important;
+  white-space:nowrap!important;
+  text-decoration:none!important;
+  border-bottom:1px solid rgba(180,83,9,.4)!important;
+  cursor:pointer!important;
+  transform:none!important;
+  transition:color .12s ease,border-color .12s ease!important;
+}
+body.bo-wallet-tx.member-wallet-page button.wallet-total-link.provider-wallet-total-link::after{
+  content:none!important;
+  display:none!important;
+}
+body.bo-wallet-tx.member-wallet-page button.wallet-total-link.provider-wallet-total-link:hover,
+body.bo-wallet-tx.member-wallet-page button.wallet-total-link.provider-wallet-total-link:focus,
+body.bo-wallet-tx.member-wallet-page button.wallet-total-link.provider-wallet-total-link:focus-visible{
+  color:#D97706!important;
+  border-bottom-color:#D97706!important;
+  background:transparent!important;
+  text-decoration:none!important;
+  box-shadow:none!important;
+  outline:none!important;
+  transform:none!important;
+}
+body.bo-wallet-tx.member-wallet-page button.wallet-total-link.provider-wallet-total-link:active{
+  color:#92400E!important;
+  border-bottom-color:#92400E!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  outline:none!important;
+  transform:none!important;
+}
+html[data-bo-theme="dark"] body.bo-wallet-tx.member-wallet-page button.wallet-total-link.provider-wallet-total-link{
+  color:#FBBF24!important;
+  background:transparent!important;
+  border:0!important;
+  border-bottom:1px solid rgba(251,191,36,.45)!important;
+}
+html[data-bo-theme="dark"] body.bo-wallet-tx.member-wallet-page button.wallet-total-link.provider-wallet-total-link:hover,
+html[data-bo-theme="dark"] body.bo-wallet-tx.member-wallet-page button.wallet-total-link.provider-wallet-total-link:focus-visible{
+  color:#F59E0B!important;
+  border-bottom-color:#F59E0B!important;
+  background:transparent!important;
+  box-shadow:none!important;
 }
 /* Panel pill scrollbar on Member Wallet body ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ beat standardized-listing slate 14px recipe */
 html body.bo-wallet-tx.standardized-listing-page.member-wallet-page .table-card > .table-wrap > .bo-tx-table-body,

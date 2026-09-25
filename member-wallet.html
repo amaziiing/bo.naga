@@ -13,15 +13,44 @@
 <link href="assets/css/reports.css?v=fbce71f2" rel="stylesheet"/>
 <link href="assets/css/table-pagination-horizontal.css?v=50c582bf" rel="stylesheet"/>
 <link href="assets/css/bo-ui-standard.css?v=a796b0f3" rel="stylesheet">
-<link href="assets/css/bo-targeted-fixes.css?v=7542fd4c" rel="stylesheet"/>
-<link href="assets/css/bo-wallet-transaction-amber.css?v=7cf43b54" rel="stylesheet"/>
+<link href="assets/css/bo-targeted-fixes.css?v=mw-btn-3" rel="stylesheet"/>
+<link href="assets/css/bo-wallet-transaction-amber.css?v=mw-btn-3" rel="stylesheet"/>
 <script>
 (function(){
   try{
     if(localStorage.getItem('bo_theme')==='dark') document.documentElement.setAttribute('data-bo-theme','dark');
   }catch(e){}
+  /* Dashboard iframe: mark embed before first paint so sidebar margin never slides in. */
+  try{
+    if(window.parent && window.parent !== window){
+      document.documentElement.classList.add('dashboard-embedded-page');
+    }
+  }catch(e){}
 })();
 </script>
+<style>
+html.dashboard-embedded-page .report-sidebar,
+html.dashboard-embedded-page .sidebar-overlay,
+html.dashboard-embedded-page .report-topbar{display:none!important}
+html.dashboard-embedded-page,
+html.dashboard-embedded-page body{
+  height:100%!important;width:100%!important;max-width:100%!important;overflow:hidden!important
+}
+html.dashboard-embedded-page .report-shell{
+  display:flex!important;flex-direction:column!important;height:100%!important;width:100%!important;max-width:100%!important;margin:0!important;padding:0!important;min-height:0!important
+}
+html.dashboard-embedded-page .report-main{
+  display:flex!important;flex-direction:column!important;flex:1 1 auto!important;min-height:0!important;
+  margin:0!important;padding:0!important;width:100%!important;max-width:100%!important;transition:none!important;overflow:hidden!important
+}
+html.dashboard-embedded-page .report-content{
+  flex:1 1 auto!important;min-height:0!important;width:100%!important;max-width:100%!important;
+  margin:0!important;padding:12px 20px 20px!important;overflow:hidden!important;display:flex!important;flex-direction:column!important;gap:16px!important
+}
+html.dashboard-embedded-page .report-content > .table-card{
+  flex:1 1 auto!important;min-height:0!important
+}
+</style>
 </head>
 <body class="report-body standardized-listing-page member-wallet-page bo-wallet-tx">
 <div class="report-shell">
@@ -123,7 +152,7 @@
 <script src="assets/js/currency-runtime.js?v=71496e4c"></script>
 <script src="assets/js/auth.js?v=71df68cd"></script>
 <script src="assets/js/reports.js?v=063b42e4"></script>
-<script src="assets/js/member-wallet.js?v=80d08624"></script>
+<script src="assets/js/member-wallet.js?v=mw-btn-1"></script>
 <!-- Global live-chat listener: keeps the custom MP3 notification active throughout the BO. -->
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>

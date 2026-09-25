@@ -229,4 +229,46 @@ body.provider-session-page .bo-range-trigger,
 .wallet-total-link{display:inline-block;font-weight:700;color:#1e3a5f;text-decoration:none;white-space:nowrap}
 .wallet-total-link:hover,.wallet-total-link:focus{color:#0d6efd;text-decoration:underline}
 
-.provider-wallet-total-link{border:0;background:transparent;padding:0;font:inherit;cursor:pointer}
+/* Provider balance: same clickable-number language as Adjustment / Bonus links. */
+.provider-wallet-total-link{
+  appearance:none!important;
+  -webkit-appearance:none!important;
+  display:inline-block!important;
+  padding:0!important;
+  margin:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  outline:none!important;
+  color:#B45309!important;
+  font:inherit!important;
+  font-weight:700!important;
+  line-height:inherit!important;
+  white-space:nowrap!important;
+  text-decoration:none!important;
+  border-bottom:1px solid rgba(180,83,9,.4)!important;
+  cursor:pointer!important;
+  transform:none!important;
+  transition:color .12s ease,border-color .12s ease!important;
+}
+.provider-wallet-total-link::after{content:none!important;display:none!important}
+.provider-wallet-total-link:hover,
+.provider-wallet-total-link:focus,
+.provider-wallet-total-link:focus-visible{
+  color:#D97706!important;
+  border-bottom-color:#D97706!important;
+  background:transparent!important;
+  text-decoration:none!important;
+  box-shadow:none!important;
+  outline:none!important;
+  transform:none!important;
+}
+.provider-wallet-total-link:active{
+  color:#92400E!important;
+  border-bottom-color:#92400E!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  outline:none!important;
+  transform:none!important;
+}

@@ -1181,7 +1181,10 @@
   }
 
   (async function(){
-    await loadBrandOptions();
-    await loadAdmins();
+    // These are independent read-only requests. Starting them together avoids making
+    // the administrator table wait for the role filter request on every tab visit.
+    await Promise.all([loadBrandOptions(), loadAdmins()]);
+    // Re-apply once both are ready so role labels/filtering always use the completed map.
+    applyFilters();
   })();
 })();

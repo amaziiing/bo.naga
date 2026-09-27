@@ -435,14 +435,19 @@
       // Provider directory is the source of truth for the Provider tab. The settlement
       // report only contains providers that have report activity, so using it as the
       // directory incorrectly reduced the list (for example 15 instead of all 31).
-      const directoryRaw=await api('/admin/main/provider-directory');
+      // All three reads are independent. They used to run one after another, so this
+      // tab paid the sum of all API latencies. Run them concurrently and keep the same
+      // fallback behavior for the optional report/settlement summaries.
+      const [directoryRaw, providerReport, settlementSummary]=await Promise.all([
+        api('/admin/main/provider-directory'),
+        api('/admin/main/reports/provider-settlement?from='+encodeURIComponent(from)+'&to='+encodeURIComponent(to)).catch(()=>({providers:[]})),
+        api('/admin/main/settlements/provider-summary').catch(()=>({providers:[]}))
+      ]);
       const providersData=listOf(directoryRaw);
-      const providerReport=await api('/admin/main/reports/provider-settlement?from='+encodeURIComponent(from)+'&to='+encodeURIComponent(to)).catch(()=>({providers:[]}));
       const reportByProvider=new Map(listOf(providerReport&&providerReport.providers||[]).map(x=>[providerKey(x),x]));
       // Provider overview is a summary of the real settlement ledger, not a second
       // independent balance. Include open balances from every settlement month so an
       // August balance still appears in September until it is paid/waived/carried.
-      const settlementSummary=await api('/admin/main/settlements/provider-summary').catch(()=>({providers:[]}));
       const settlementByProvider=new Map();
       listOf(settlementSummary&&settlementSummary.providers||[]).forEach(x=>{
         const k=providerKey(x); if(!k)return;

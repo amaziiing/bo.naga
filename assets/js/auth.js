@@ -1256,10 +1256,30 @@
 
   if(!location.pathname.endsWith('/login.html')) window.BO_AUTH.requireLogin();
 
+  // Warm the small set of sibling workspace tabs in the browser cache. Tabs remain
+  // normal links/full navigations; this only removes avoidable HTML wait when users
+  // switch between Admin/Merchant/Provider/Report tabs. No UI or routing is replaced.
+  function warmWorkspaceTabs(){
+    const seen=new Set();
+    document.querySelectorAll('.mad-tabs a[href]').forEach(function(a){
+      let u;
+      try{ u=new URL(a.getAttribute('href'),location.href); }catch(e){ return; }
+      if(u.origin!==location.origin || u.href===location.href || seen.has(u.href)) return;
+      seen.add(u.href);
+      const link=document.createElement('link');
+      link.rel='prefetch';
+      link.as='document';
+      link.href=u.href;
+      document.head.appendChild(link);
+    });
+  }
+
   document.addEventListener('DOMContentLoaded', function(){
     if(location.pathname.endsWith('/login.html')) return;
     window.BO_AUTH.injectProfile();
     window.BO_AUTH.bindDynamicSidebarEvents();
+    if('requestIdleCallback' in window) requestIdleCallback(warmWorkspaceTabs,{timeout:1200});
+    else setTimeout(warmWorkspaceTabs,250);
     // Sidebar is intentionally rendered only after fresh DB-backed /me + menu-group data returns.
     window.BO_AUTH.refreshMe(true).then(function(){ return window.BO_AUTH.loadUiSetting(); }).catch(function(){ window.BO_AUTH.loadUiSetting(); });
     document.addEventListener('click', function(e){

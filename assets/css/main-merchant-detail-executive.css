@@ -876,26 +876,17 @@ body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-avatar
   border:0!important;
   box-shadow:none!important;
 }
-/* Light role pills */
+/* Light role chip — one chip for every role, the Access Control recipe:
+   surface `#FFF8EB`, listing border `#EADCC8`, ink `#57534E`. The hue-coded
+   reference palette (violet owner/master, blue regional/tech/support, red risk)
+   is rejected; see DESIGN.md → Role chip. `border-box` holds the 26px. */
 body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-role{
-  background:#F3F4F6!important;
-  color:#4B5563!important;
+  background:#FFF8EB!important;
+  border:1px solid #EADCC8!important;
+  color:#57534E!important;
   border-radius:999px!important;
-}body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-role.is-super,
-body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-role.is-partner,
-body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-role.is-merchant{
-  /* Soft fluorescent lilac — luminous but not violet glare */
-  background:#F0ECFA!important;
-  color:#6B5B95!important;
-}body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-role.is-support,
-body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-role.is-tech,
-body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-role.is-regional{
-  background:#DBEAFE!important;
-  color:#1D4ED8!important;
-}body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-role.is-risk{
-  background:#FEE2E2!important;
-  color:#B91C1C!important;
-}/* Light credit */
+}
+/* Light credit */
 html:not([data-bo-theme="dark"]) body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-table .mad-money{
   font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace!important;
   font-variant-numeric:tabular-nums!important;
@@ -1126,24 +1117,12 @@ html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_me
   border-color:rgba(245,158,11,.55)!important;
   color:#F59E0B!important;
   background:rgba(245,158,11,.08)!important;
-}/* Role pills */
+}/* Role chip, dark — the charcoal well inside the listing border. */
 html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-role{
-  background:rgba(255,255,255,.08)!important;
+  background:#2A2C36!important;
+  border:1px solid rgba(255,255,255,.12)!important;
   color:#D4D4D8!important;
   border-radius:999px!important;
-}html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-role.is-super,
-html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-role.is-partner,
-html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-role.is-merchant{
-  background:rgba(124,58,237,.22)!important;
-  color:#C4B5FD!important;
-}html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-role.is-support,
-html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-role.is-tech,
-html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-role.is-regional{
-  background:rgba(37,99,235,.22)!important;
-  color:#93C5FD!important;
-}html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-role.is-risk{
-  background:rgba(239,68,68,.18)!important;
-  color:#FCA5A5!important;
 }/* Credit */
 html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-table .mad-money,
 html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-table td[data-label="Credit Balance"] .mad-money{

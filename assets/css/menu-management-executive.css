@@ -278,6 +278,11 @@ body.menu-mgmt-page .menu-mgmt-toolbar.user-toolbar{
 html:not([data-bo-theme="dark"]) body.menu-mgmt-page .user-toolbar.menu-mgmt-toolbar,
 html[data-bo-theme="dark"] body.menu-mgmt-page .user-toolbar.menu-mgmt-toolbar{
   padding:6px 10px!important;
+  /* The frame (background + border) is drawn by `bo-charcoal-legacy.css`'s shared `.user-toolbar`
+     rule, which carries no radius — so this strip rendered square while the `.table-wrap` directly
+     below it keeps reports.css's 12px. Measured on this page: toolbar 0px against table-wrap 12px,
+     both themes. Same radius here, page-scoped for the same reason as the padding above. */
+  border-radius:12px!important;
 }
 body.menu-mgmt-page .menu-mgmt-toolbar .menu-panel-tabs{margin:0}
 body.menu-mgmt-page .menu-mgmt-toolbar .menu-count-inline{

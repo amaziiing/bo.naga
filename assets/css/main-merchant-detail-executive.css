@@ -2853,12 +2853,16 @@ color:var(--bo-text-secondary)!important;
 html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .ref-cal-week span{
 color:var(--bo-muted)!important
 }
-html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .ref-cal-days button{
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .ref-cal-days button:not(.selected){
 background:transparent!important;
   color:var(--bo-text)!important;
 }
-html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .ref-cal-days button.muted{
-color:var(--bo-muted)!important
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .ref-cal-days button.muted,
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .ref-cal-days button.out,
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .ref-cal-days button:disabled{
+  color:#A1A1AA!important;
+  background:transparent!important;
+  opacity:1!important;
 }
 html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .ref-cal-month-grid button,
 html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .ref-cal-year-grid button{
@@ -2883,7 +2887,7 @@ html:not([data-bo-theme="dark"]) body.main-admin-detail-page[data-access-page="m
 }
 html:not([data-bo-theme="dark"]) body.main-admin-detail-page[data-access-page="main_merchant_detail"] .ref-cal-month-grid button,
 html:not([data-bo-theme="dark"]) body.main-admin-detail-page[data-access-page="main_merchant_detail"] .ref-cal-year-grid button,
-html:not([data-bo-theme="dark"]) body.main-admin-detail-page[data-access-page="main_merchant_detail"] .ref-cal-days button,
+html:not([data-bo-theme="dark"]) body.main-admin-detail-page[data-access-page="main_merchant_detail"] .ref-cal-days button:not(.selected),
 html:not([data-bo-theme="dark"]) body.main-admin-detail-page[data-access-page="main_merchant_detail"] .ref-head-pick,
 html:not([data-bo-theme="dark"]) body.main-admin-detail-page[data-access-page="main_merchant_detail"] .ref-cal-head button{
   background:transparent!important;
@@ -2892,7 +2896,7 @@ html:not([data-bo-theme="dark"]) body.main-admin-detail-page[data-access-page="m
 }
 html:not([data-bo-theme="dark"]) body.main-admin-detail-page[data-access-page="main_merchant_detail"] .ref-cal-month-grid button:hover,
 html:not([data-bo-theme="dark"]) body.main-admin-detail-page[data-access-page="main_merchant_detail"] .ref-cal-year-grid button:hover,
-html:not([data-bo-theme="dark"]) body.main-admin-detail-page[data-access-page="main_merchant_detail"] .ref-cal-days button:hover{
+html:not([data-bo-theme="dark"]) body.main-admin-detail-page[data-access-page="main_merchant_detail"] .ref-cal-days button:hover:not(.selected){
   background:rgba(217,119,6,.10)!important;
   color:#B45309!important;
 }
@@ -2933,7 +2937,7 @@ html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_me
 }
 html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .ref-cal-month-grid button,
 html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .ref-cal-year-grid button,
-html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .ref-cal-days button,
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .ref-cal-days button:not(.selected),
 html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .ref-head-pick,
 html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .ref-cal-head button{
   background:transparent!important;
@@ -2942,13 +2946,16 @@ html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_me
 }
 html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .ref-cal-month-grid button:hover,
 html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .ref-cal-year-grid button:hover,
-html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .ref-cal-days button:hover{
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .ref-cal-days button:hover:not(.selected){
   background:rgba(245,158,11,.14)!important;
   color:#FBBF24!important;
 }
-html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .ref-cal-days .muted{
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .ref-cal-days .muted,
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .ref-cal-days button.muted,
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .ref-cal-days button:disabled{
   color:#A1A1AA!important;
   background:transparent!important;
+  opacity:1!important;
 }
 html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .ref-cal-week span{
   color:#A1A1AA!important;
@@ -2973,24 +2980,121 @@ html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_me
   color:#FBBF24!important;
 }
 
-/* Settlement payment modal + picker active states — last handful. */
-html:not([data-bo-theme="dark"]) body.main-admin-detail-page[data-access-page="main_merchant_detail"] #settlementPaymentDatePicker button,
+/* Settlement payment modal form controls — do NOT paint calendar day cells.
+   `#settlementPaymentDatePicker button` used to force a solid well on every day,
+   which made the payment calendar look like a grid of chips instead of matching
+   `#reportRangePicker` (flat transparent cells + amber selected). */
 html:not([data-bo-theme="dark"]) body.main-admin-detail-page[data-access-page="main_merchant_detail"] #settlementPaymentForm .mac-input-group > input,
 html:not([data-bo-theme="dark"]) body.main-admin-detail-page[data-access-page="main_merchant_detail"] #settlementPaymentForm .mac-input-group > .form-control,
-html:not([data-bo-theme="dark"]) body.main-admin-detail-page[data-access-page="main_merchant_detail"] #settlementPaymentNote{
+html:not([data-bo-theme="dark"]) body.main-admin-detail-page[data-access-page="main_merchant_detail"] #settlementPaymentNote,
+html:not([data-bo-theme="dark"]) body.main-admin-detail-page[data-access-page="main_merchant_detail"] #settlementPaymentDatePicker .msr-pay-date-foot button{
   background-color:#FFF8EB!important;
   background:#FFF8EB!important;
   border-color:#DCC9A8!important;
   color:#18191C!important;
 }
-html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] #settlementPaymentDatePicker button,
 html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] #settlementPaymentForm .mac-input-group > input,
 html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] #settlementPaymentForm .mac-input-group > .form-control,
-html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] #settlementPaymentNote{
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] #settlementPaymentNote,
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] #settlementPaymentDatePicker .msr-pay-date-foot button{
   background-color:#2A2C36!important;
   background:#2A2C36!important;
   border-color:rgba(255,255,255,.12)!important;
   color:#F5F5F4!important;
+}
+
+/* Payment calendar ≡ page range calendar (Image 1): flat cells, amber selected. */
+html:not([data-bo-theme="dark"]) body.main-admin-detail-page[data-access-page="main_merchant_detail"] #settlementPaymentDatePicker{
+  background:#FFF8EB!important;
+  border-color:#EADCC8!important;
+}
+html:not([data-bo-theme="dark"]) body.main-admin-detail-page[data-access-page="main_merchant_detail"] #settlementPaymentDatePicker .ref-cal-head button,
+html:not([data-bo-theme="dark"]) body.main-admin-detail-page[data-access-page="main_merchant_detail"] #settlementPaymentDatePicker .ref-head-pick{
+  background:transparent!important;
+  border-color:transparent!important;
+  color:#374151!important;
+  box-shadow:none!important;
+}
+html:not([data-bo-theme="dark"]) body.main-admin-detail-page[data-access-page="main_merchant_detail"] #settlementPaymentDatePicker .ref-cal-head .ref-head-pick:hover,
+html:not([data-bo-theme="dark"]) body.main-admin-detail-page[data-access-page="main_merchant_detail"] #settlementPaymentDatePicker .ref-cal-head .ref-head-pick:focus{
+  border-color:#D97706!important;
+  color:#B45309!important;
+  background:rgba(217,119,6,.10)!important;
+}
+html:not([data-bo-theme="dark"]) body.main-admin-detail-page[data-access-page="main_merchant_detail"] #settlementPaymentDatePicker .ref-cal-week span{
+  color:#71717A!important;
+}
+html:not([data-bo-theme="dark"]) body.main-admin-detail-page[data-access-page="main_merchant_detail"] #settlementPaymentDatePicker .ref-cal-days button:not(.selected){
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  color:#374151!important;
+}
+html:not([data-bo-theme="dark"]) body.main-admin-detail-page[data-access-page="main_merchant_detail"] #settlementPaymentDatePicker .ref-cal-days button.muted,
+html:not([data-bo-theme="dark"]) body.main-admin-detail-page[data-access-page="main_merchant_detail"] #settlementPaymentDatePicker .ref-cal-days button:disabled{
+  color:#57534E!important;
+  background:transparent!important;
+  opacity:1!important;
+}
+html:not([data-bo-theme="dark"]) body.main-admin-detail-page[data-access-page="main_merchant_detail"] #settlementPaymentDatePicker .ref-cal-days button.selected{
+  background:#D97706!important;
+  color:#FFFFFF!important;
+  border-radius:8px!important;
+  box-shadow:none!important;
+}
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] #settlementPaymentDatePicker{
+  background:#383A46!important;
+  border-color:rgba(255,255,255,.14)!important;
+}
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] #settlementPaymentDatePicker .ref-cal-head button,
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] #settlementPaymentDatePicker .ref-head-pick{
+  background:transparent!important;
+  border-color:transparent!important;
+  color:#E7E5E4!important;
+  box-shadow:none!important;
+}
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] #settlementPaymentDatePicker .ref-cal-head .ref-head-pick:hover,
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] #settlementPaymentDatePicker .ref-cal-head .ref-head-pick:focus{
+  border-color:#F59E0B!important;
+  color:#FBBF24!important;
+  background:rgba(245,158,11,.14)!important;
+}
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] #settlementPaymentDatePicker .ref-cal-week span{
+  color:#A1A1AA!important;
+}
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] #settlementPaymentDatePicker .ref-cal-days button:not(.selected){
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  color:#F5F5F4!important;
+}
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] #settlementPaymentDatePicker .ref-cal-days button.muted,
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] #settlementPaymentDatePicker .ref-cal-days button.out,
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] #settlementPaymentDatePicker .ref-cal-days button:disabled{
+  color:#A1A1AA!important;
+  background:transparent!important;
+  opacity:1!important;
+}
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] #settlementPaymentDatePicker .ref-cal-days button.selected{
+  background:#F59E0B!important;
+  color:#2A2C36!important;
+  border-radius:8px!important;
+  box-shadow:none!important;
+}
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] #settlementPaymentDatePicker .ref-cal-days button:hover:not(.selected):not(:disabled){
+  background:rgba(245,158,11,.14)!important;
+  color:#FBBF24!important;
+}
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] #settlementPaymentDatePicker .ref-cal-month-grid button,
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] #settlementPaymentDatePicker .ref-cal-year-grid button{
+  background:transparent!important;
+  border-color:transparent!important;
+  color:#E7E5E4!important;
+}
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] #settlementPaymentDatePicker .ref-cal-month-grid button.active,
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] #settlementPaymentDatePicker .ref-cal-year-grid button.active{
+  background:#F59E0B!important;
+  color:#2A2C36!important;
 }
 
 /* picker / option selected states still carried the retired cyan in dark */
@@ -4541,4 +4645,20 @@ html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_me
 }
 html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .msr-amount-group:focus-within .mac-input-addon{
   border-right-color:#F59E0B;
+}
+
+/* Payment-date single select — keep amber fill above the transparent day-cell reset. */
+html:not([data-bo-theme="dark"]) body.main-admin-detail-page[data-access-page="main_merchant_detail"] #settlementPaymentDatePicker .ref-cal-days button.selected,
+html:not([data-bo-theme="dark"]) body.main-admin-detail-page[data-access-page="main_merchant_detail"] .msr-pay-date-picker .ref-cal-days button.selected{
+  background:#D97706!important;
+  color:#FFFFFF!important;
+  border-radius:8px!important;
+  box-shadow:none!important;
+}
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] #settlementPaymentDatePicker .ref-cal-days button.selected,
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .msr-pay-date-picker .ref-cal-days button.selected{
+  background:#F59E0B!important;
+  color:#2A2C36!important;
+  border-radius:8px!important;
+  box-shadow:none!important;
 }

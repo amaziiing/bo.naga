@@ -545,8 +545,9 @@ html[data-bo-theme="dark"] body.main-report-exec-page .ref-cal-year-grid button{
 html[data-bo-theme="dark"] body.main-report-exec-page .ref-cal-days button.muted,
 html[data-bo-theme="dark"] body.main-report-exec-page .ref-cal-days button.out,
 html[data-bo-theme="dark"] body.main-report-exec-page .ref-cal-days button:disabled{
-  color:rgba(255,255,255,.28)!important;
+  color:var(--bo-muted,#A1A1AA)!important;
   background:transparent!important;
+  opacity:1!important;
 }
 html[data-bo-theme="dark"] body.main-report-exec-page .ref-cal-days button:hover:not(:disabled),
 html[data-bo-theme="dark"] body.main-report-exec-page .ref-cal-month-grid button:hover,

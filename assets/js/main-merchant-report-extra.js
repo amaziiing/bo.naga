@@ -11,15 +11,15 @@ async function api(path,opt={}){const base=String((window.API_CONFIG&&window.API
 function addDay(v){const a=String(v||'').split('-').map(Number);if(a.length!==3||!a[0])return v;return new Date(Date.UTC(a[0],a[1]-1,a[2]+1)).toISOString().slice(0,10)}
 function qs(){return '?from='+encodeURIComponent($('reportDateFrom').value)+'&to='+encodeURIComponent(addDay($('reportDateTo').value))}
 function today(){const d=new Date(),p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`}
-function monthFromDate(v){return /^\d{4}-\d{2}/.test(String(v||''))?String(v).slice(0,7):today().slice(0,7)}
-// The settlement API returns a month key for the period ("2026-08"). This column shows a
-// real date (y/m/d): if a row ever carries its own timestamp that wins, otherwise the
-// period's first day is used — the key itself has no day component to show.
-function periodDate(x){
-  const raw=String((x&&(x.settlementAt||x.dueAt||x.createdAt||x.periodStart))||(x&&x.month)||'');
-  const iso=raw.slice(0,10);
-  if(!iso) return '';
-  return /^\d{4}-\d{2}$/.test(iso)?iso+'-01':iso;
+function monthFromDate(v){return /^\d{4}-\d{2}/.test(String(v||''))?String(v).slice(0,7):today().slice(0,7)}
+// The settlement API returns a month key for the period ("2026-08"). This column shows a
+// real date (y/m/d): if a row ever carries its own timestamp that wins, otherwise the
+// period's first day is used — the key itself has no day component to show.
+function periodDate(x){
+  const raw=String((x&&(x.settlementAt||x.dueAt||x.createdAt||x.periodStart))||(x&&x.month)||'');
+  const iso=raw.slice(0,10);
+  if(!iso) return '';
+  return /^\d{4}-\d{2}$/.test(iso)?iso+'-01':iso;
 }
 function pageButtons(current,total){total=Math.max(1,Number(total)||1);current=Math.max(1,Math.min(Number(current)||1,total));const pages=[],addPage=n=>{if(n>=1&&n<=total&&!pages.includes(n))pages.push(n)};addPage(1);for(let n=current-2;n<=current+2;n++)addPage(n);addPage(total);pages.sort((a,b)=>a-b);let h=`<button type="button" class="smart-page nav-text" data-page="${Math.max(1,current-1)}" ${current<=1?'disabled':''}>Previous</button>`,prev=0;pages.forEach(n=>{if(prev&&n-prev>1)h+='<span class="smart-page-ellipsis">…</span>';h+=`<button type="button" class="smart-page ${n===current?'active':''}" data-page="${n}" ${n===current?'aria-current="page"':''}>${n}</button>`;prev=n});return h+`<button type="button" class="smart-page nav-text" data-page="${Math.min(total,current+1)}" ${current>=total?'disabled':''}>Next</button>`}
 function summaryCard(label,value,note){return `<div class="report-summary-card"><small>${esc(label)}</small><strong>${esc(value)}</strong><span>${esc(note||'')}</span></div>`}
@@ -55,11 +55,11 @@ function prefillSettlement(btn){document.querySelector('[data-report-tab="settle
 function openMsrModal(id){const m=$(id);if(!m)return;m.classList.add('show');m.removeAttribute('hidden');m.setAttribute('aria-hidden','false');document.body.classList.add('modal-open')}
 function closeMsrModal(id){const m=$(id);if(!m)return;m.classList.remove('show');m.setAttribute('hidden','');m.setAttribute('aria-hidden','true');if(id==='settlementPaymentModal')closePayDatePicker();if(!document.querySelector('.modal-clean.show'))document.body.classList.remove('modal-open')}
 
-const payDateState={view:new Date(),mode:'days',yearPageStart:new Date().getFullYear()-5,bound:false};
+const payDateState={view:new Date(),mode:'days',yearPageStart:new Date().getFullYear()-5,bound:false,selected:''};
 function payDatePad(n){return String(n).padStart(2,'0')}
 function payDateYmd(d){return d.getFullYear()+'-'+payDatePad(d.getMonth()+1)+'-'+payDatePad(d.getDate())}
 function payDateLabel(v){if(!v)return 'Select date';const a=String(v).split('-');if(a.length!==3)return v;return `${a[2]} ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][Number(a[1])-1]} ${a[0]}`}
-function setPayDate(v){if($('settlementPaymentDate'))$('settlementPaymentDate').value=v||'';if($('settlementPaymentDateLabel'))$('settlementPaymentDateLabel').textContent=payDateLabel(v)}
+function setPayDate(v){payDateState.selected=String(v||'');if($('settlementPaymentDate'))$('settlementPaymentDate').value=payDateState.selected;if($('settlementPaymentDateLabel'))$('settlementPaymentDateLabel').textContent=payDateLabel(payDateState.selected)}
 function closePayDatePicker(){const p=$('settlementPaymentDatePicker'),t=$('settlementPaymentDateTrigger');if(p)p.classList.remove('show');if(t)t.setAttribute('aria-expanded','false')}
 function renderPayDateCalendar(){
   const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -72,17 +72,22 @@ function renderPayDateCalendar(){
   monthGrid.classList.toggle('show',payDateState.mode==='months');
   yearGrid.classList.toggle('show',payDateState.mode==='years');
   dayView.classList.toggle('hide',payDateState.mode!=='days');
-  const y=payDateState.view.getFullYear(),m=payDateState.view.getMonth(),first=new Date(y,m,1),last=new Date(y,m+1,0),start=first.getDay(),total=last.getDate(),selected=$('settlementPaymentDate')?.value||'';
+  const y=payDateState.view.getFullYear(),m=payDateState.view.getMonth(),first=new Date(y,m,1),last=new Date(y,m+1,0),start=first.getDay(),total=last.getDate();
+  const selected=String(payDateState.selected||$('settlementPaymentDate')?.value||'').slice(0,10);
   let html='',prevLast=new Date(y,m,0).getDate();
   for(let i=0;i<start;i++) html+=`<button type="button" class="muted" disabled>${prevLast-start+i+1}</button>`;
-  for(let d=1;d<=total;d++){const val=payDateYmd(new Date(y,m,d));html+=`<button type="button" data-msr-pay-day="${val}" class="${val===selected?'selected':''}">${d}</button>`}
+  for(let d=1;d<=total;d++){
+    const val=payDateYmd(new Date(y,m,d));
+    const isSel=val===selected;
+    html+=`<button type="button" data-msr-pay-day="${val}" class="${isSel?'selected':''}" aria-pressed="${isSel?'true':'false'}">${d}</button>`;
+  }
   for(let i=1;i<=42-(start+total);i++) html+=`<button type="button" class="muted" disabled>${i}</button>`;
   days.innerHTML=html;
 }
 function setupPayDatePicker(){
   if(payDateState.bound||!$('settlementPaymentDateTrigger'))return;
   payDateState.bound=true;
-  $('settlementPaymentDateTrigger').addEventListener('click',e=>{e.preventDefault();e.stopPropagation();const p=$('settlementPaymentDatePicker');const open=!p?.classList.contains('show');if(open){payDateState.mode='days';const cur=$('settlementPaymentDate')?.value;if(cur)payDateState.view=new Date(cur+'T00:00:00');renderPayDateCalendar();p.classList.add('show');$('settlementPaymentDateTrigger').setAttribute('aria-expanded','true')}else closePayDatePicker()});
+  $('settlementPaymentDateTrigger').addEventListener('click',e=>{e.preventDefault();e.stopPropagation();const p=$('settlementPaymentDatePicker');const open=!p?.classList.contains('show');if(open){payDateState.mode='days';const cur=String(payDateState.selected||$('settlementPaymentDate')?.value||'').slice(0,10);if(cur){payDateState.selected=cur;payDateState.view=new Date(cur+'T00:00:00')}renderPayDateCalendar();p.classList.add('show');$('settlementPaymentDateTrigger').setAttribute('aria-expanded','true')}else closePayDatePicker()});
   document.addEventListener('click',e=>{if(!e.target.closest('.msr-pay-date-field'))closePayDatePicker()});
   $('msrPayCalPrev')?.addEventListener('click',e=>{e.stopPropagation();if(payDateState.mode==='years')payDateState.yearPageStart-=12;else payDateState.view=new Date(payDateState.view.getFullYear(),payDateState.view.getMonth()-1,1);renderPayDateCalendar()});
   $('msrPayCalNext')?.addEventListener('click',e=>{e.stopPropagation();if(payDateState.mode==='years')payDateState.yearPageStart+=12;else payDateState.view=new Date(payDateState.view.getFullYear(),payDateState.view.getMonth()+1,1);renderPayDateCalendar()});
@@ -90,7 +95,7 @@ function setupPayDatePicker(){
   $('msrPayCalYear')?.addEventListener('click',e=>{e.stopPropagation();payDateState.mode=payDateState.mode==='years'?'days':'years';renderPayDateCalendar()});
   $('msrPayCalMonthGrid')?.addEventListener('click',e=>{e.stopPropagation();const b=e.target.closest('[data-msr-pay-month]');if(!b)return;payDateState.view=new Date(payDateState.view.getFullYear(),Number(b.dataset.msrPayMonth),1);payDateState.mode='days';renderPayDateCalendar()});
   $('msrPayCalYearGrid')?.addEventListener('click',e=>{e.stopPropagation();const b=e.target.closest('[data-msr-pay-year]');if(!b)return;payDateState.view=new Date(Number(b.dataset.msrPayYear),payDateState.view.getMonth(),1);payDateState.mode='days';renderPayDateCalendar()});
-  $('msrPayCalDays')?.addEventListener('click',e=>{e.stopPropagation();const b=e.target.closest('[data-msr-pay-day]');if(!b)return;setPayDate(b.dataset.msrPayDay);closePayDatePicker()});
+  $('msrPayCalDays')?.addEventListener('click',e=>{e.stopPropagation();const b=e.target.closest('[data-msr-pay-day]');if(!b)return;setPayDate(b.getAttribute('data-msr-pay-day')||b.dataset.msrPayDay);renderPayDateCalendar();closePayDatePicker()});
   document.querySelector('[data-msr-pay-today]')?.addEventListener('click',e=>{e.stopPropagation();const now=new Date();setPayDate(payDateYmd(now));payDateState.view=new Date(now.getFullYear(),now.getMonth(),1);closePayDatePicker()});
 }
 function openPayment(btn){$('settlementPaymentId').value=btn.dataset.paymentId;const unit=window.BO_MAIN_CURRENCY?.code?.()||'MYR';if($('settlementPaymentUnit'))$('settlementPaymentUnit').textContent=unit;$('settlementPaymentContext').innerHTML=`<div class="msr-pay-context-main"><strong>${esc(btn.dataset.paymentName)}</strong><small>${String(btn.dataset.paymentDirection||'').toUpperCase()==='PAY'?'To Pay':'To Collect'}</small></div><div class="msr-pay-context-bal"><span>Outstanding</span><b>${esc(unit)} ${money(btn.dataset.paymentBalance)}</b></div>`;$('settlementPaymentAmount').value=Number(btn.dataset.paymentBalance||0).toFixed(2);$('settlementPaymentAmount').max=btn.dataset.paymentBalance;setPayDate(today());$('settlementPaymentNote').value='';setupPayDatePicker();openMsrModal('settlementPaymentModal');setTimeout(()=>$('settlementPaymentAmount')?.focus(),40)}

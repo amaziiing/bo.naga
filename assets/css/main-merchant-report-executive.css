@@ -298,6 +298,16 @@ body.main-merchant-report-page[data-report-view="settlement"] .settlement-table 
 body.main-merchant-report-page[data-report-view="settlement"] .settlement-table td:nth-child(2){
   white-space:normal;
 }
+/* Merchant sub-label (`<small class="d-block text-muted">`) — Bootstrap .text-muted is
+   light-theme only (rgba(33,37,41,.75)) and disappears on the charcoal canvas. */
+body.main-merchant-report-page .settlement-table tbody td small,
+body.main-merchant-report-page .settlement-table tbody td .text-muted{
+  color:#57534E!important;
+}
+html[data-bo-theme="dark"] body.main-merchant-report-page .settlement-table tbody td small,
+html[data-bo-theme="dark"] body.main-merchant-report-page .settlement-table tbody td .text-muted{
+  color:#D4D4D8!important;
+}
 body.main-merchant-report-page[data-report-view="settlement"] .settlement-table th:nth-child(3),
 body.main-merchant-report-page[data-report-view="settlement"] .settlement-table td:nth-child(3){width:12%}
 body.main-merchant-report-page[data-report-view="settlement"] .settlement-table th:nth-child(4),
@@ -684,6 +694,51 @@ body.main-merchant-report-page .msr-pay-date-picker .ref-cal-days button{
   height:28px!important;
   border-radius:7px;
   font-size:11px!important;
+  font-weight:800;
+  opacity:1!important;
+}
+/* Align payment calendar day ink with the page range picker (same secondary muted).
+   Transparent base must NOT match .selected — that override is what killed the amber fill. */
+html:not([data-bo-theme="dark"]) body.main-merchant-report-page .msr-pay-date-picker .ref-cal-week span{
+  color:#71717A!important;
+}
+html:not([data-bo-theme="dark"]) body.main-merchant-report-page .msr-pay-date-picker .ref-cal-days button:not(.selected){
+  color:#374151!important;
+  background:transparent!important;
+}
+html:not([data-bo-theme="dark"]) body.main-merchant-report-page .msr-pay-date-picker .ref-cal-days button.muted,
+html:not([data-bo-theme="dark"]) body.main-merchant-report-page .msr-pay-date-picker .ref-cal-days button:disabled{
+  color:#57534E!important;
+  background:transparent!important;
+  opacity:1!important;
+}
+html:not([data-bo-theme="dark"]) body.main-merchant-report-page #settlementPaymentDatePicker .ref-cal-days button.selected,
+html:not([data-bo-theme="dark"]) body.main-merchant-report-page .msr-pay-date-picker .ref-cal-days button.selected{
+  background:#D97706!important;
+  color:#fff!important;
+  border-radius:8px!important;
+  box-shadow:none!important;
+}
+html[data-bo-theme="dark"] body.main-merchant-report-page .msr-pay-date-picker .ref-cal-week span{
+  color:#A1A1AA!important;
+}
+html[data-bo-theme="dark"] body.main-merchant-report-page .msr-pay-date-picker .ref-cal-days button:not(.selected){
+  color:#F5F5F4!important;
+  background:transparent!important;
+}
+html[data-bo-theme="dark"] body.main-merchant-report-page .msr-pay-date-picker .ref-cal-days button.muted,
+html[data-bo-theme="dark"] body.main-merchant-report-page .msr-pay-date-picker .ref-cal-days button.out,
+html[data-bo-theme="dark"] body.main-merchant-report-page .msr-pay-date-picker .ref-cal-days button:disabled{
+  color:#A1A1AA!important;
+  background:transparent!important;
+  opacity:1!important;
+}
+html[data-bo-theme="dark"] body.main-merchant-report-page #settlementPaymentDatePicker .ref-cal-days button.selected,
+html[data-bo-theme="dark"] body.main-merchant-report-page .msr-pay-date-picker .ref-cal-days button.selected{
+  background:#F59E0B!important;
+  color:#2A2C36!important;
+  border-radius:8px!important;
+  box-shadow:none!important;
 }
 body.main-merchant-report-page .msr-pay-date-picker .ref-cal-month-grid,
 body.main-merchant-report-page .msr-pay-date-picker .ref-cal-year-grid{

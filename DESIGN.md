@@ -5110,3 +5110,163 @@ still carries `!important`**, and reports the unguarded-rule debt without failin
 `scripts/check-search-standard.py` now includes this sheet in its `SHEETS` list, so its exclusion
 list is checked against every search frame in the markup too. The new sheet is loaded last on
 156 pages, and `scripts/stamp-asset-pins.py` carries its content hash.
+
+### One button recipe for the three chrome roles — Back, footer Cancel and footer Save (2026-09-28, owner 「帮我检查全站 我图里全起的设计是否统一css 没有的话 请帮我去统一」)
+
+Owner ringed three controls on **Edit Merchant** (`main-merchant-detail.html`, edit workspace): the
+section-head **Back to List**, the footer **Close**, and the footer **Save Merchant**. The request was
+whether the same three read the same everywhere, and if not, to make them.
+
+**Measured, not read.** A headless-Chrome sweep read `getComputedStyle` for all three roles on every page
+that carries one — **49 pages × light and dark** — because a source reading cannot tell you which of ~100
+sheets won. Baseline, distinct rendered shapes: **Back 12 (light) / 11 (dark) · footer secondary 16 ·
+footer primary 15 (16 dark)**. Heights were split across 32/36/38/40/42/44px, weights across 700/750/800,
+and the primary fill across amber-gradient, flat `#D97706` and one **solid navy `#18191C`**.
+
+**What was wrong, and its cause.**
+
+| # | Defect | Cause | Fix |
+|---|---|---|---|
+| 1 | **34 of 35 primary controls carried a drop shadow** | each family re-stated the amber recipe with its own `box-shadow` + inset highlight, which `system.md -> Primary CTA` forbids outright ("Do **not** add amber glow, inset highlight, `translateY` lift, or any `box-shadow` on Primary") | 101 declaration blocks flattened to `box-shadow:none` across 22 sheets; focus rings drawn with `box-shadow` were identified and **kept** |
+| 2 | the ghost's resting fill shipped in **three** shapes at once — three-stop form cream, an undocumented **two-stop** `#FFFCF7→#F5EBDC`, and the two-stop **listing** cream | `.mad-btn-ghost` had two competing owners (`bo-charcoal-shell.css` listing cream, `bo-charcoal-primitives.css` two-stop form cream) and the winner was "whichever sheets this page loads" | 8 starting-point owners converged on the locked three-stop `#FFFCF7 0% → #F5EBDC 55% → #EDE4D4 100%` with border `#DCC9A8` |
+| 3 | **Back rendered 12 different ways** — 40px and weight 800 on Create Role, 38px on the banner/category/slider editors, 32px with no chrome at all on Live Chat, a bare 21px `14px/400` text link on Balance Adjustment | the back control never had one owner; each family styled whatever class its own markup happened to carry | one documented recipe stated per family (below) |
+| 4 | **`.mad-btn-navy` rendered solid navy on three pages and amber on six** | `main-admin-detail-executive.css` painted `var(--bo-navy)` while `bo-charcoal-primitives.css` painted the gradient; source order and the `bo-charcoal` marker decided which. `system.md:501` says "**Never** restore navy fill as primary" | the navy rule is now the amber gradient, so the class name no longer decides the colour |
+| 5 | labels split across 700/750/800 and 12.5/13/13.5px | per-family freestyle | normalised to **700**, and 13.5px (outside the documented band) to 13px |
+
+**The locked recipe for all three roles** (light · dark):
+
+```
+Back control (page chrome)  36px · radius 8 · pad 0 14px · 12.5px/700
+Footer secondary (Close)    the bar's own measured rung · radius 8 · 12.5–13px/700
+Footer primary (Save)       the bar's own measured rung · radius 8 · 12.5–13px/700
+
+secondary fill   #FFFCF7 0% → #F5EBDC 55% → #EDE4D4 100%   |  #4A4C58 0% → #383A46 48% → #2C2E38 100%
+secondary border #DCC9A8 · ink #18191C                     |  rgba(255,255,255,.12) · ink #F5F5F4
+secondary hover  reverse cream #FFF8EB→#F3E8D6 · lift -1px |  #383A46→#2C2E38 · lift -1px
+
+primary fill     #FBBF24 0% → #F59E0B 42% → #EA8608 100%    |  #FBBF24 0% → #F59E0B 45% → #D97706 100%
+primary border   #E8901A · ink #FFFFFF                     |  #F59E0B · ink #2A2C36
+primary hover    reverse stops on the same axis, no lift,  |  same
+                 and NO shadow in either theme
+```
+
+**Heights were deliberately NOT unified.** An earlier note in this file (2026-09-23) put the form footer
+on the 36px listing tier, and the **2026-09-24 entry measured that change back out**: a 36px button makes
+`.mac-footer-actions` 65px against the 73px sidebar-account block that `bo-ui-standard.css` pins whenever
+the bar is present, which is the pair-of-parallel-hairlines defect that pin exists to prevent. The owner
+chose "unify the look, keep each bar's measured height", so only the *paint* converged. Likewise the Back
+control is stated **separately** from its family's footer rule where the two share one declaration
+(`.mrc-btn-ghost` is 40px because `.mrc-sticky-footer` is pinned at 69px = 14×2 + 40 + 1) — narrowing the
+shared rule would have taken that bar off its pinned height.
+
+**Measured after** (same harness): Back **5 shapes light / 6 dark** from 12/11; and by paint alone —
+- Back **42 of 44 controls** on one paint (3-stop cream · `#DCC9A8` · `#18191C` · lift)
+- footer primary **66 of 70** on one paint (amber gradient · `#E8901A` · white · **no shadow**)
+- footer secondary **66 of 84** on one paint (3-stop cream · `#DCC9A8` · `#18191C` · lift)
+
+The residual controls are **not** style drift and were left alone: they sit in quiet quick-action strips
+(`game-provider.html`'s `data-wallet-action` row, `game.html`'s Reset/Download strip) whose chrome is
+deliberately removed, and `backup_provider.html` — a 3.4 KB stub that **links no stylesheet at all**, so
+its buttons are browser defaults. Listing filter strips are also untouched by design: they carry their own
+locked 36px/no-lift spec, and `main-stat-detail.html`'s "Back" is a filter-row control, so it keeps that
+spec rather than the back-control one.
+
+**One self-inflicted bug worth recording.** The first cut of the back-control patch emitted a multi-line
+selector list with the scope written once — `A,\nB:hover{...}` — which attaches `:hover` to **B only**, so
+**A shipped the hover paint at rest**, and `html[data-bo-theme="dark"] A,\nB{...}` painted B with the dark
+fill in light mode. The browser face of it was unambiguous once asked directly (`computed
+background-image` on `.mrc-back-list` was the reverse-cream hover value at rest); the rule is that every
+scope in a generated rule must be repeated per selector, and the sweep must be re-run before believing a
+patch. Pins were re-stamped with `scripts/stamp-asset-pins.py` (940 references, `--check` clean) so no page
+serves a stale vintage.
+
+### Status pills: `All` moves to the end, and the Access Control listings get the control (2026-09-28, owner: “report所有页面的table上方all按键切换要放在末端” and “其他页面比如bo的access control的table active，suspended，all 类似这样的设计需求”)
+
+**The order was the odd one out, not the design.** `Components` has documented `Status pills (Active/Suspend/All)` since the
+merchant listing, and every other page that carries the group already ends on `All` — `main-merchant-detail.html`,
+`main-admin-detail.html`, the `bo-tx-tabs` family (`Deposit → Withdraw → All`), Agent Management. The report family was the
+one place `All` led, so the ten pages that show the group above a table now read **`Active → <off state> → All`**, with `All`
+still the arrival selection: the same rows appear on load as before, so the change is positional only.
+
+| pages | before | after |
+|---|---|---|
+| `main-win-lose-report`, `main_merchant_report`, `main-merchant-{balance,transactions,settlement}` | All · Active · Suspended | Active · Suspended · **All** |
+| `main_provider_report`, `main-provider-{balance,transactions,settlement}` | All · Active · Maintenance | Active · Maintenance · **All** |
+| `main-provider-detail` | All · Active · Maintenance · Suspended | Active · Maintenance · Suspended · **All** |
+
+Deliberately untouched, and worth stating because the request said "all": the **transaction-type** group on the same pages
+(`All / Transactions / Settlements / …`), `main-merchant-profit.html`'s ledger-type group, and the strip's own `All Status`
+`<select>`. Only the status group above the table was in scope. No CSS or JS moved with these ten edits — every handler keys
+off `data-*-status`, not DOM position, and `bo-seg-bounce.js` positions the thumb from whichever pill carries `is-active`.
+
+**Access Control's three listings got the same control** — `admin-user.html` (Active / **Disabled**), `role.html` (Active /
+**Inactive**), `ip-whitelist-security.html` (Active / **Disabled**) — counts in `(n)`, `All` last and selected, each page's
+own word for the off state so a pill and the badge in the row it filters can never disagree. The buttons carry the shared
+recipe's own vocabulary (`data-mad-status="active" | "suspended" | "all"`), so `bo-charcoal-shell.css` and
+`bo-charcoal-primitives.css` paint them unchanged in both themes. Two things per page did have to be added: the
+`bo-seg-bounce.css` / `bo-seg-bounce.js` pair (**without them the selected pill has no frame at all** — the Profit Report
+trap recorded above), and a `.ac-status-pills` placement block in `access-control-executive.css`, because the strip here is
+`.user-toolbar` (fields left, actions right), not the report family's `.mad-filter-bar`. The family's caption-hiding and
+36px-control rules are keyed to `.field` / `label` / `select`, so nothing in that sheet reaches a `.mad-pill`.
+
+**Three defects surfaced while wiring them up.**
+
+1. **Admin Management's status `<select>` became redundant.** The pills own status now: `applyFilters()` reads `statusTerm`,
+   which the buttons set, and `#adminStatusFilter` is gone from the page (the CSV export rides `filteredAdmins`, unchanged).
+   The same numbers the metric cards above the strip carry are written back onto the pills, so the two cannot disagree.
+2. **IP Whitelist Security never rendered its table.** `ip-whitelist-security.js` writes `ipwBadge.textContent`, but no element
+   with that id existed anywhere in the repo — so `render()` threw a `ReferenceError` inside `load()`'s own try/catch, which
+   painted `ipwBadge is not defined` into the tbody and left the page reading "Loading…" forever. The page now carries the
+   family's count chip (`<span class="users-found-badge" id="ipwBadge">0 Rules</span>`, the same shape as `#roleCountBadge`
+   and `#adminCountBadge`) and the rules render. A status filter over a table that could not paint a row would have been dead
+   control.
+3. **The listings' filter pass only understood the search.** In `access-control-listing.js`, the "hide what the filter
+   rejected" step was keyed on `this.term`, so a status filter re-counted the footer to `Showing 1 to 6 of 6 entries` while
+   the rejected rows stayed on screen. It is keyed on `rows.length !== all.length` now, which covers both filters.
+   `fitRows()` also skips rows with no layout when it samples a row height: a hidden row measures 0 tall, and a 0 sample
+   fits three rows too many on the `-` page size.
+
+**Verified** on local harnesses (`.tmp-verify/`, gitignored — `BO_AUTH` + `fetch` stubbed, CDN vendored because the headless
+browser in this sandbox has no outbound network): pills in the requested order with `All` framed, counts matching the metric
+cards above them (Admin 5/3/8, Staff Permission 6/3/9, IP Whitelist 3/2/5), each click re-counting the footer *and* the row
+set (Active → 6 rows, the off state → 3, All → 9), both themes, and `scripts/stamp-asset-pins.py --check` clean for every
+asset this change touched.
+
+#### "create provider 没有hover" — and the two site-wide hover defects behind it (2026-09-28, owner 「没有hover」)
+
+The owner pointed at `main-provider-create.html`'s footer. Every resting property on that page already
+matched its siblings to the pixel — **Cancel 160×44, Create Provider 160×44, Back to List 117×36, the
+band 1322×73, identical fills and borders** — so the first pass of this investigation read the page as
+correct. It was not. **Hover had never been measured**, because the verification sweep read
+`getComputedStyle` with no pointer over the element, and in that state a dead hover, a losing hover and
+a working one are byte-identical.
+
+Forcing the real pseudo-state over the DevTools protocol (`CSS.forcePseudoState`) found **two defects,
+both site-wide, both invisible to a resting-state sweep**:
+
+**1. The primary's hover was dead on every `bo-charcoal` page.** `bo-charcoal-legacy.css` restates the
+primary's resting paint at one ID level so it cannot lose to the ghost base in the same file — its own
+comment explains why ("one ID level so the outcome cannot depend on which rule happens to sit later").
+The restatements had **no `:hover` counterpart**, so they pinned the *resting* gradient at **(1,4,2)**
+while the strongest hover rule anywhere is **(0,4,1)**. A hover can never beat that. Measured:
+`main-provider-create.html`'s **Create Provider changed 0 properties on hover**, while its three
+non-`bo-charcoal` siblings changed 3. Fixed by restating `:hover` and `:active` at the same ID level,
+with the locked reverse-gradient hover and **no lift, no shadow** (Primary keeps neither).
+
+**2. The footer Cancel/Close hovered the forbidden amber wash.** Three rules pinned the ghost hover to
+`#FFFBEB → #FEF3C7` with a `#D97706` border at **(0,5,3)**, out-ranking the correct reverse-cream rule
+at (0,4,1). `system.md → Ghost / Export` locks that hover to reverse cream `#FFF8EB → #F3E8D6` with
+border `#E0D0B8`, lift `-1px`, and **no amber fill wash**. All three were restated as the locked hover.
+A **fourth** owner (`main-report-charcoal.css`) was found only by the new guard, after the first three
+had been fixed by hand from a four-page sample — which is the argument for having the guard.
+
+**Measured after**, all nine create-family pages in light and dark: **zero dead hovers**, on every
+selector whose element the page actually renders.
+
+**Two lessons worth keeping.** First: a resting-state sweep cannot certify a component. It has to be
+paired with a forced-state check, and both now exist — `scripts/check-button-standard.py` for what is
+decidable from the source, `scripts/check-button-hover.mjs` for what is not. Second: the guard was
+written to catch the dead-hover case and **that check was then removed on purpose** — as a static rule
+it flagged 22 rules on a tree whose hovers all work, because whether a hover wins needs the DOM's
+cascade. A guard that cries wolf on a clean tree is worse than no guard; the docstring records the
+removal and points at the runtime checker instead.

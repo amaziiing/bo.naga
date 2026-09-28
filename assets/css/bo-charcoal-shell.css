@@ -3940,16 +3940,16 @@ html[data-bo-theme="dark"] body.report-body.bo-charcoal .mprr-label b{
    rgba(255,255,255,.12) in dark; focus #D97706 + rgba(217,119,6,.12) light and
    #F59E0B + rgba(245,158,11,.18) dark.
    ----------------------------------------------------------------------------- */
-body.report-body.bo-charcoal .mprr-field .form-control,
+body.report-body.bo-charcoal .mprr-field .form-control:not(#mprrAmount),
 body.report-body.bo-charcoal .mprr-field .form-select,
-body.report-body.bo-charcoal .report-content .mprr-field .form-control,
+body.report-body.bo-charcoal .report-content .mprr-field .form-control:not(#mprrAmount),
 body.report-body.bo-charcoal .report-content .mprr-field .form-select{
   background:#FFF8EB!important;
   border-color:#DCC9A8!important;
   color:#18191C!important;
   box-shadow:none!important;
 }
-body.report-body.bo-charcoal .mprr-field .form-control:focus,
+body.report-body.bo-charcoal .mprr-field .form-control:focus:not(#mprrAmount),
 body.report-body.bo-charcoal .mprr-field .form-select:focus{
   border-color:#D97706!important;
   box-shadow:0 0 0 3px rgba(217,119,6,.12)!important;
@@ -3958,9 +3958,9 @@ body.report-body.bo-charcoal .mprr-field .form-control::placeholder{
   color:#78716C!important;
   -webkit-text-fill-color:#78716C;
 }
-html[data-bo-theme="dark"] body.report-body.bo-charcoal .mprr-field .form-control,
+html[data-bo-theme="dark"] body.report-body.bo-charcoal .mprr-field .form-control:not(#mprrAmount),
 html[data-bo-theme="dark"] body.report-body.bo-charcoal .mprr-field .form-select,
-html[data-bo-theme="dark"] body.report-body.bo-charcoal .report-content .mprr-field .form-control,
+html[data-bo-theme="dark"] body.report-body.bo-charcoal .report-content .mprr-field .form-control:not(#mprrAmount),
 html[data-bo-theme="dark"] body.report-body.bo-charcoal .report-content .mprr-field .form-select{
   background:#2A2C36!important;
   border-color:rgba(255,255,255,.12)!important;
@@ -3971,7 +3971,7 @@ html[data-bo-theme="dark"] body.report-body.bo-charcoal .report-content .mprr-fi
   caret-color:#F5F5F4!important;
   -webkit-text-fill-color:#F5F5F4;
 }
-html[data-bo-theme="dark"] body.report-body.bo-charcoal .mprr-field .form-control:focus,
+html[data-bo-theme="dark"] body.report-body.bo-charcoal .mprr-field .form-control:focus:not(#mprrAmount),
 html[data-bo-theme="dark"] body.report-body.bo-charcoal .mprr-field .form-select:focus{
   border-color:#F59E0B!important;
   box-shadow:0 0 0 3px rgba(245,158,11,.18)!important;
@@ -3985,14 +3985,16 @@ html[data-bo-theme="dark"] body.report-body.bo-charcoal .mprr-field .form-contro
    var(--mprr-muted); dark (:613-617) #132337 / #334155 / #8A95A8. Kept on the control
    well with the sibling border so the join with the input reads as one field. */
 body.report-body.bo-charcoal .mprr-amount-prefix{
-  background:#F5EBDC!important;
-  border-color:#DCC9A8!important;
+  background:transparent!important;
+  border:0!important;
+  border-color:transparent!important;
   color:#57534E!important;
 }
 html[data-bo-theme="dark"] body.report-body.bo-charcoal .mprr-amount-prefix{
-  background:#2A2C36!important;
-  border-color:rgba(255,255,255,.12)!important;
-  color:#D4D4D8!important;
+  background:transparent!important;
+  border:0!important;
+  border-color:transparent!important;
+  color:#A1A1AA!important;
 }
 
 

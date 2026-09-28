@@ -3781,16 +3781,16 @@ html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_me
    rgba(255,255,255,.12) in dark; focus #D97706 + rgba(217,119,6,.12) light and
    #F59E0B + rgba(245,158,11,.18) dark.
    ----------------------------------------------------------------------------- */
-body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mprr-field .form-control,
+body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mprr-field .form-control:not(#mprrAmount),
 body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mprr-field .form-select,
-body.main-admin-detail-page[data-access-page="main_merchant_detail"] .report-content .mprr-field .form-control,
+body.main-admin-detail-page[data-access-page="main_merchant_detail"] .report-content .mprr-field .form-control:not(#mprrAmount),
 body.main-admin-detail-page[data-access-page="main_merchant_detail"] .report-content .mprr-field .form-select{
   background:#FFF8EB!important;
   border-color:#DCC9A8!important;
   color:#18191C!important;
   box-shadow:none!important;
 }
-body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mprr-field .form-control:focus,
+body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mprr-field .form-control:focus:not(#mprrAmount),
 body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mprr-field .form-select:focus{
   border-color:#D97706!important;
   box-shadow:0 0 0 3px rgba(217,119,6,.12)!important;
@@ -3799,9 +3799,9 @@ body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mprr-field
   color:#78716C!important;
   -webkit-text-fill-color:#78716C;
 }
-html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mprr-field .form-control,
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mprr-field .form-control:not(#mprrAmount),
 html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mprr-field .form-select,
-html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .report-content .mprr-field .form-control,
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .report-content .mprr-field .form-control:not(#mprrAmount),
 html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .report-content .mprr-field .form-select{
   background:#2A2C36!important;
   border-color:rgba(255,255,255,.12)!important;
@@ -3812,7 +3812,7 @@ html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_me
   caret-color:#F5F5F4!important;
   -webkit-text-fill-color:#F5F5F4;
 }
-html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mprr-field .form-control:focus,
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mprr-field .form-control:focus:not(#mprrAmount),
 html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mprr-field .form-select:focus{
   border-color:#F59E0B!important;
   box-shadow:0 0 0 3px rgba(245,158,11,.18)!important;
@@ -3822,18 +3822,127 @@ html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_me
   -webkit-text-fill-color:#71717A;
 }
 
-/* Amount addon (the currency prefix chip, :391-402) — legacy #F5F8FB / #d0d5dd /
-   var(--mprr-muted); dark (:613-617) #132337 / #334155 / #8A95A8. Kept on the control
-   well with the sibling border so the join with the input reads as one field. */
-body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mprr-amount-prefix{
-  background:#F5EBDC!important;
-  border-color:#DCC9A8!important;
-  color:#57534E!important;
+/* Amount addon (the currency prefix chip, :391-402) — match Credit
+   (`mac-input-group.is-prefix` + `.mac-input-addon`): one joined well, muted unit,
+   primary value ink. Legacy painted the prefix as a separate chip that drifted from
+   the Credit lockup on merchant create/detail. */
+body.main-admin-detail-page[data-access-page="main_merchant_detail"].main-merchant-profit-record-page .mprr-amount-wrap.mac-input-group,
+body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mprr-amount-wrap{
+  position:relative;
+  display:flex;
+  align-items:stretch;
+  width:100%;
+  min-width:0;
+  height:42px;
+  border:1px solid #DCC9A8;
+  border-radius:8px;
+  background:#FFF8EB;
+  overflow:visible;
+  box-sizing:border-box;
 }
-html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mprr-amount-prefix{
+body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mprr-amount-prefix,
+body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mprr-amount-wrap .mac-input-addon{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 auto;
+  min-width:52px;
+  padding:0 12px;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  color:#71717A!important;
+  font-size:12px;
+  font-weight:700;
+  line-height:1;
+  white-space:nowrap;
+  box-sizing:border-box;
+}
+body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mprr-amount-wrap > .form-control,
+body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mprr-field .mprr-amount-wrap > .form-control,
+body.main-admin-detail-page[data-access-page="main_merchant_detail"] .report-content .mprr-field .mprr-amount-wrap > .form-control,
+body.main-admin-detail-page[data-access-page="main_merchant_detail"] #mprrAmount,
+body.main-admin-detail-page[data-access-page="main_merchant_detail"] #mprrAmount:focus,
+body.main-admin-detail-page[data-access-page="main_merchant_detail"] #mprrAmount:focus-visible,
+body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mprr-amount-wrap > .form-control:focus,
+body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mprr-amount-wrap > .form-control:focus-visible{
+  flex:1 1 auto;
+  min-width:0;
+  height:100%!important;
+  min-height:0!important;
+  margin:0!important;
+  border:0!important;
+  border-width:0!important;
+  border-style:none!important;
+  border-color:transparent!important;
+  border-radius:0!important;
+  border-top-left-radius:0!important;
+  border-bottom-left-radius:0!important;
+  border-top-right-radius:0!important;
+  border-bottom-right-radius:0!important;
+  outline:0!important;
+  background:transparent!important;
+  background-color:transparent!important;
+  box-shadow:none!important;
+  color:#18191C!important;
+  -webkit-text-fill-color:#18191C!important;
+  caret-color:#18191C!important;
+  padding-right:52px!important;
+}
+body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mprr-amount-wrap:focus-within,
+body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mprr-amount-wrap.mac-input-group:focus-within,
+body.main-admin-detail-page[data-access-page="main_merchant_detail"].main-merchant-profit-record-page .mprr-amount-wrap.mac-input-group:focus-within{
+  border-color:#D97706!important;
+  box-shadow:0 0 0 3px rgba(217,119,6,.16)!important;
+  outline:0!important;
+}
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"].main-merchant-profit-record-page .mprr-amount-wrap.mac-input-group,
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mprr-amount-wrap{
   background:#2A2C36!important;
   border-color:rgba(255,255,255,.12)!important;
-  color:#D4D4D8!important;
+}
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mprr-amount-prefix,
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mprr-amount-wrap .mac-input-addon{
+  background:transparent!important;
+  border:0!important;
+  color:#A1A1AA!important;
+}
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mprr-amount-wrap > .form-control,
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mprr-field .mprr-amount-wrap > .form-control,
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .report-content .mprr-field .mprr-amount-wrap > .form-control,
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] #mprrAmount,
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] #mprrAmount:focus,
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] #mprrAmount:focus-visible,
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mprr-amount-wrap > .form-control:focus,
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mprr-amount-wrap > .form-control:focus-visible{
+  background:transparent!important;
+  background-color:transparent!important;
+  border:0!important;
+  border-width:0!important;
+  border-style:none!important;
+  border-color:transparent!important;
+  border-radius:0!important;
+  border-top-left-radius:0!important;
+  border-bottom-left-radius:0!important;
+  border-top-right-radius:0!important;
+  border-bottom-right-radius:0!important;
+  outline:0!important;
+  box-shadow:none!important;
+  color:#F5F5F4!important;
+  -webkit-text-fill-color:#F5F5F4!important;
+  caret-color:#F5F5F4!important;
+  color-scheme:dark;
+}
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mprr-amount-wrap:focus-within,
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mprr-amount-wrap.mac-input-group:focus-within,
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"].main-merchant-profit-record-page .mprr-amount-wrap.mac-input-group:focus-within{
+  border-color:#F59E0B!important;
+  box-shadow:0 0 0 3px rgba(245,158,11,.22)!important;
+  outline:0!important;
+}
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mprr-amount-wrap .form-control::placeholder{
+  color:#71717A!important;
+  -webkit-text-fill-color:#71717A!important;
 }
 
 
@@ -3891,7 +4000,7 @@ html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_me
 html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"].main-merchant-profit-record-page .mprr-field .rounded-select-wrap .rounded-select-btn.open,
 html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"].main-merchant-profit-record-page .mprr-field .rounded-select-wrap .rounded-select-btn:focus{
   border-color:#F59E0B!important;
-  box-shadow:0 0 0 3px rgba(245,158,11,.18)!important;
+  box-shadow:0 0 0 3px rgba(245,158,11,.22)!important;
 }
 html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"].main-merchant-profit-record-page .mprr-field .rounded-select-wrap .rounded-select-menu{
   background:#383A46!important;

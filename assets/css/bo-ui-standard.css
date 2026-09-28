@@ -769,6 +769,25 @@ body:not(#bo-filter-standard-off):not(#bo-filter-standard-legacy) .report-main .
    owner decision. */
 .report-sidebar .report-nav{scrollbar-width:none}
 .report-sidebar .report-nav::-webkit-scrollbar{display:none}
+
+/* The rail toggle and the retirement of the topbar hamburger, mirrored from `reports.css`
+   (same block, values kept in sync) because three BO pages that boot auth.js -
+   index.html, member-detail.html, online-users.html - and layout-section.html render the
+   shell from this sheet instead of that one. See the reports.css copy for the whole story:
+   the rail's 42px chip is the desktop control wherever auth.js mounts it, it must be styled
+   before the first paint so it is born in place, and the topbar copy must not appear first
+   and hand over ("sidebar的收起按键会闪烁出现两次"). The canonical copy in
+   `bo-global-quicknav.css` stays as the runtime backstop. */
+@media(min-width:992px){
+  body.report-body:not(.agent-modern):not(.dashboard-shell) .report-topbar .hamb{display:none!important}
+  .report-sidebar .report-brand.dashboard-sidebar-brand{justify-content:space-between;gap:10px}
+  body.sidebar-mini .report-sidebar .report-brand.dashboard-sidebar-brand{justify-content:center;padding:0 12px}
+  .report-sidebar .report-brand .dashboard-sidebar-toggle{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:42px;height:42px;min-width:42px;padding:0;border:1px solid #EADCC8;border-radius:11px;background:#FFF8EB;color:#18191C;box-shadow:none;cursor:pointer}
+  .report-sidebar .report-brand .dashboard-sidebar-toggle i{font-size:22px;line-height:1}
+  .report-sidebar .report-brand .dashboard-sidebar-toggle:hover{background:#FFF1DC;color:#18191C}
+  html[data-bo-theme="dark"] .report-sidebar .report-brand .dashboard-sidebar-toggle{border-color:rgba(255,255,255,.10);background:#383A46;color:#F5F5F4}
+  html[data-bo-theme="dark"] .report-sidebar .report-brand .dashboard-sidebar-toggle:hover{background:#40424E;color:#F5F5F4}
+}
 .bo-sidebar-account-footer{flex:0 0 auto;padding:10px;border-top:1px solid var(--line,#EADCC8);background:#FFF8EB}
 
 /* ==========================================================================

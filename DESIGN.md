@@ -1408,6 +1408,70 @@ assets still hash to the pre-merge versions (`reports.css 9b0bb6de`, twin `ff6b5
 the old hover-expand on `bo.titanx7.com` until a deploy from `main` happens. That is the one step this
 audit cannot do: the repo's own rule is that the server is a deploy target, not a workstation.
 
+### The rail toggle appeared twice on every load (2026-09-28, owner: “sidebar的收起按键会闪烁出现两次”)
+
+Owner, switching the Provider section tabs (Providers → Settlement → Activity Logs): “那个sidebar的收起
+按键会闪烁出现两次”.
+
+**It was one control, painted twice in sequence.** The pass above moved the toggle into the rail and
+retired the topbar hamburger with a rule in `bo-global-quicknav.css` — a sheet `auth.js` injects *inside*
+`renderSidebar()`, i.e. only after `/me` → `menu-groups` → `/ui-setting` had all returned. The topbar
+hamburger is static markup that `reports.css` shows (`display:inline-flex`), so on every load the visible
+control was the topbar one until that chain finished; then it disappeared and the same button — same
+`bi-list` chip, same cream fill, ~200px to the left — reappeared in the rail. Measured with a 25ms
+sampler against a stubbed backend (both API hops given a realistic 1.2s RTT): topbar chip visible
+94–1326ms, rail chip from 1357ms, and **no frame ever showed both**, which is why it read as a flicker
+rather than a duplicate.
+
+**Site-wide, not a Provider-family bug.** 130 of the 153 real pages carry that exact markup shape
+(`report-body` + `reports.css` + `auth.js` + topbar hamburger + no rail chip in markup), and the sampler
+found the same sequence on `admin-user`, `index.html` (no `reports.css`), `layout-section.html` (no
+`bo-ui-standard.css`), `menu-management.html` and the agent-shell pages. The Settlement tab is only where
+the owner noticed it. `dashboard.html` was the one page that never flickered — its chip is in its markup
+and its values in the page's own `<style>`; every other page got the button from JS.
+
+**Fix: a mount and a guard that do not wait for the menu data.** `mountSidebarToggle()` in `auth.js`
+injects the sheet and mounts the rail chip at boot, before the round trip — idempotent, still called by
+`renderSidebar()` for a sidebar that appears later, and no longer requiring `.report-nav` to exist. The
+guard (`body.report-body:not(.agent-modern):not(.dashboard-shell) .report-topbar .hamb{display:none}`,
+`min-width:992px`) and the chip's own values are restated in `reports.css` and `bo-ui-standard.css`,
+because only a sheet already in the cascade at first paint can retire the topbar copy from the first
+frame. Both sheets carry it: `reports.css` misses `index.html`/`member-detail.html`/`online-users.html`,
+`bo-ui-standard.css` misses `layout-section.html`. Values stay in sync with the canonical copy in
+`bo-global-quicknav.css`, which remains the runtime backstop.
+
+**Consequences, deliberate:**
+
+- **The Agent Portal keeps the topbar control.** The guard is scoped `:not(.agent-modern)`; those twelve
+  pages boot no `auth.js`, so the rail chip never exists there. Verified with two probe pages that differ
+  only in `<body>` class: `agent-modern` → hamburger `flex`, plain BO → `none`, no `report-body` → `flex`.
+- **This reverses the 2026-09-24 reasoning for keeping the hide out of `reports.css`.** The four scratch
+  `_verify-*` copies boot no `auth.js` either, so on desktop they now show neither control. They are
+  screenshot scaffolds, not deployed pages; `agent-modern` on their `<body>` restores the old behaviour.
+- The sidebar **menu** still arrives after the DB round trip — `auth.js` documents why (menus must come
+  from the DB). Only the button stops changing place.
+- Below 992px nothing changes: the guard is inside `min-width:992px`, the injected sheet hides the rail
+  chip there, and the topbar hamburger stays the drawer's opener.
+
+**Verified** (25ms sampler, 10 pages; re-checked after the change):
+
+| Page | Topbar chip, before | After |
+| --- | --- | --- |
+| `main-provider-credentials.html` (Settlement) | 94–1326ms | **never**; rail chip at 177ms |
+| `main-provider-detail.html` / `-health.html` | 59–856ms | **never**; 57 / 63ms |
+| `admin-user`, `index`, `layout-section`, `menu-management` | 131–1402ms / 229–933ms | **never**; 153–240ms |
+| `agent-management.html` (agent shell, boots `auth.js`) | same shape | **never**; 162ms |
+| `dashboard.html` | never | never (unchanged) |
+
+Samples showing both controls: **0** on every page. Functional: rail chip click → 72px rail +
+`bo_sidebar_mini=1`, click again → 260px + `0`; chip is `#383A46`/`#F5F5F4` in dark; at 480px the rail
+chip is hidden, the topbar opener is visible and its handler opens the drawer (`.show` +
+`body.sidebar-open`); two consecutive `renderSidebar()` calls still leave exactly one chip.
+
+**Pins:** `reports.css`, `bo-ui-standard.css` and `auth.js` re-stamped
+(`stamp-asset-pins.py --check` clean). The same run refreshed `main-admin-detail.js` and
+`main-provider-detail.js`, which had drifted before this pass.
+
 ### 8. Report regularised — items 8.1 … 8.11 (2026-09-22, owner request)
 
 “把图里的 8. report 从8.1至8.11 重新整顿一遍”. Eleven pages, brought onto the locked chrome

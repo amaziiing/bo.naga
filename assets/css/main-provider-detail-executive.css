@@ -307,6 +307,23 @@ html:not([data-bo-theme="dark"]) body.main-admin-detail-page.main-provider-famil
 html[data-bo-theme="dark"] body.main-admin-detail-page.main-provider-family-page:not(.main-report-exec-page) .mpv-table td:nth-child(6){
   color:#F59E0B!important;
 }
+/* Outstanding is the money column — right-align header + cells like .mre-num. */
+body.main-admin-detail-page.main-provider-family-page:not(.main-report-exec-page) .mpv-table th:nth-child(6),
+body.main-admin-detail-page.main-provider-family-page:not(.main-report-exec-page) .mpv-table td:nth-child(6){
+  text-align:right!important;
+}
+/* Actions — center header + edit control. */
+body.main-admin-detail-page.main-provider-family-page:not(.main-report-exec-page) .mpv-table th:nth-child(7),
+body.main-admin-detail-page.main-provider-family-page:not(.main-report-exec-page) .mpv-table td:nth-child(7){
+  text-align:center!important;
+}
+body.main-admin-detail-page.main-provider-family-page:not(.main-report-exec-page) .mpv-actions{
+  display:inline-flex!important;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  gap:4px;
+}
 /* Actions cell. main-provider-detail.js renders the edit control as <a class="mad-icon-btn">;
    no rule anywhere kills Bootstrap's a{text-decoration:underline}, and the anchor's only child
    is an icon, so the underline paints a stray rule under the glyph. Colour and hover belong to

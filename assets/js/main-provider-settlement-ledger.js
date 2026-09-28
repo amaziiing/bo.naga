@@ -47,15 +47,6 @@ function fillProviderSettlementProviders(){
   sel.innerHTML='<option value="">Select Provider</option>'+rows.map(x=>`<option value="${esc(providerCode(x))}" data-name="${esc(providerDisplay(x))}" data-currency="${esc(providerCurrency(x))}">${esc(providerDisplay(x))} (${esc(providerCode(x))})</option>`).join('');
 }
 function syncProviderSettlementCurrency(){const o=$('providerSettlementProvider')?.selectedOptions?.[0],u=$('providerSettlementCreateUnit');if(u)u.textContent=o?.dataset?.currency||'MYR'}
-async function openProviderSettlementCreate(){
-  try{await ensureDirectory();fillProviderSettlementProviders();if($('providerSettlementCreateMonth'))$('providerSettlementCreateMonth').value=$('settlementMonth')?.value||today().slice(0,7);if($('providerSettlementCreateAmount'))$('providerSettlementCreateAmount').value='';if($('providerSettlementCreateNote'))$('providerSettlementCreateNote').value='';syncProviderSettlementCurrency();openMsrModal('providerSettlementCreateModal')}catch(e){alert(e.message)}
-}
-async function createProviderSettlement(e){
-  e.preventDefault();const sel=$('providerSettlementProvider'),o=sel?.selectedOptions?.[0],amount=Number($('providerSettlementCreateAmount')?.value||0),month=$('providerSettlementCreateMonth')?.value,btn=$('providerSettlementCreateSave');
-  if(!o?.value){alert('Please select a provider');return}if(!month){alert('Please select a settlement month');return}if(!(amount>0)){alert('Amount due must be greater than 0');return}
-  if(btn)btn.disabled=true;
-  try{await api('/admin/main/settlements',{method:'POST',body:{month,counterpartyType:'PROVIDER',counterpartyKey:o.value,counterpartyName:o.dataset.name||o.textContent,direction:$('providerSettlementDirection')?.value||'COLLECT',amount,note:$('providerSettlementCreateNote')?.value||'',currency:o.dataset.currency||'MYR'}});closeMsrModal('providerSettlementCreateModal');if($('settlementMonth'))$('settlementMonth').value=month;await loadSettlements()}catch(err){alert(err.message)}finally{if(btn)btn.disabled=false}
-}
 
 function updateSyncLabel(){
   const el=$('reportSyncLabel');
@@ -113,7 +104,61 @@ function exportCsv(){
 }
 
 function openMsrModal(id){const m=$(id);if(!m)return;m.classList.add('show');m.removeAttribute('hidden');m.setAttribute('aria-hidden','false');document.body.classList.add('modal-open')}
-function closeMsrModal(id){const m=$(id);if(!m)return;m.classList.remove('show');m.setAttribute('hidden','');m.setAttribute('aria-hidden','true');if(id==='settlementPaymentModal')closePayDatePicker();if(!document.querySelector('.modal-clean.show'))document.body.classList.remove('modal-open')}
+function closeMsrModal(id){const m=$(id);if(!m)return;m.classList.remove('show');m.setAttribute('hidden','');m.setAttribute('aria-hidden','true');if(id==='settlementPaymentModal')closePayDatePicker();if(id==='providerSettlementCreateModal')closePscMonthPicker();if(!document.querySelector('.modal-clean.show'))document.body.classList.remove('modal-open')}
+
+const MONTHS_SHORT=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const pscMonthState={view:new Date(),mode:'months',yearPageStart:new Date().getFullYear()-5,bound:false};
+function pscMonthYm(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')}
+function pscMonthLabel(v){if(!v||!/^\d{4}-\d{2}/.test(String(v)))return 'Select month';const a=String(v).slice(0,7).split('-');return `${MONTHS_SHORT[Number(a[1])-1]} ${a[0]}`}
+function setPscMonth(v){if($('providerSettlementCreateMonth'))$('providerSettlementCreateMonth').value=v||'';if($('pscMonthLabel'))$('pscMonthLabel').textContent=pscMonthLabel(v)}
+function closePscMonthPicker(){const p=$('pscMonthPicker'),t=$('pscMonthTrigger');if(p)p.classList.remove('show');if(t)t.setAttribute('aria-expanded','false')}
+function renderPscMonthPicker(){
+  const monthBtn=$('pscCalMonth'),yearBtn=$('pscCalYear'),monthGrid=$('pscCalMonthGrid'),yearGrid=$('pscCalYearGrid');
+  if(!monthBtn||!yearBtn||!monthGrid||!yearGrid)return;
+  const y=pscMonthState.view.getFullYear(),m=pscMonthState.view.getMonth(),selected=$('providerSettlementCreateMonth')?.value||'';
+  const selY=selected?Number(selected.slice(0,4)):null,selM=selected?Number(selected.slice(5,7))-1:null;
+  monthBtn.innerHTML=MONTHS_SHORT[m]+' <i class="bi bi-chevron-down"></i>';
+  yearBtn.innerHTML=y+' <i class="bi bi-chevron-down"></i>';
+  monthGrid.innerHTML=MONTHS_SHORT.map((name,i)=>`<button type="button" data-psc-month="${i}" class="${selY===y&&selM===i?'active':''}">${name}</button>`).join('');
+  yearGrid.innerHTML=Array.from({length:12},(_,i)=>pscMonthState.yearPageStart+i).map(yy=>`<button type="button" data-psc-year="${yy}" class="${yy===y?'active':''}">${yy}</button>`).join('');
+  monthGrid.classList.toggle('show',pscMonthState.mode==='months');
+  yearGrid.classList.toggle('show',pscMonthState.mode==='years');
+}
+function setupPscMonthPicker(){
+  if(pscMonthState.bound||!$('pscMonthTrigger'))return;
+  pscMonthState.bound=true;
+  $('pscMonthTrigger').addEventListener('click',e=>{
+    e.preventDefault();e.stopPropagation();
+    const p=$('pscMonthPicker'),open=!p?.classList.contains('show');
+    if(open){
+      const cur=$('providerSettlementCreateMonth')?.value;
+      if(cur&&/^\d{4}-\d{2}/.test(cur)){pscMonthState.view=new Date(Number(cur.slice(0,4)),Number(cur.slice(5,7))-1,1);pscMonthState.yearPageStart=pscMonthState.view.getFullYear()-5}
+      pscMonthState.mode='months';
+      renderPscMonthPicker();
+      p.classList.add('show');
+      $('pscMonthTrigger').setAttribute('aria-expanded','true');
+    }else closePscMonthPicker();
+  });
+  document.addEventListener('click',e=>{if(!e.target.closest('.psc-month-field'))closePscMonthPicker()});
+  $('pscCalPrev')?.addEventListener('click',e=>{e.stopPropagation();if(pscMonthState.mode==='years')pscMonthState.yearPageStart-=12;else pscMonthState.view=new Date(pscMonthState.view.getFullYear()-1,pscMonthState.view.getMonth(),1);renderPscMonthPicker()});
+  $('pscCalNext')?.addEventListener('click',e=>{e.stopPropagation();if(pscMonthState.mode==='years')pscMonthState.yearPageStart+=12;else pscMonthState.view=new Date(pscMonthState.view.getFullYear()+1,pscMonthState.view.getMonth(),1);renderPscMonthPicker()});
+  $('pscCalMonth')?.addEventListener('click',e=>{e.stopPropagation();pscMonthState.mode='months';renderPscMonthPicker()});
+  $('pscCalYear')?.addEventListener('click',e=>{e.stopPropagation();pscMonthState.mode=pscMonthState.mode==='years'?'months':'years';renderPscMonthPicker()});
+  $('pscCalMonthGrid')?.addEventListener('click',e=>{e.stopPropagation();const b=e.target.closest('[data-psc-month]');if(!b)return;const next=new Date(pscMonthState.view.getFullYear(),Number(b.dataset.pscMonth),1);pscMonthState.view=next;setPscMonth(pscMonthYm(next));closePscMonthPicker()});
+  $('pscCalYearGrid')?.addEventListener('click',e=>{e.stopPropagation();const b=e.target.closest('[data-psc-year]');if(!b)return;pscMonthState.view=new Date(Number(b.dataset.pscYear),pscMonthState.view.getMonth(),1);pscMonthState.mode='months';renderPscMonthPicker()});
+}
+
+async function openProviderSettlementCreate(){
+  try{await ensureDirectory();fillProviderSettlementProviders();const month=$('settlementMonth')?.value||today().slice(0,7);setPscMonth(month);if($('providerSettlementCreateAmount'))$('providerSettlementCreateAmount').value='';if($('providerSettlementCreateNote'))$('providerSettlementCreateNote').value='';syncProviderSettlementCurrency();setupPscMonthPicker();openMsrModal('providerSettlementCreateModal')}catch(e){alert(e.message)}
+}
+async function createProviderSettlement(e){
+  e.preventDefault();const sel=$('providerSettlementProvider'),o=sel?.selectedOptions?.[0],amount=Number($('providerSettlementCreateAmount')?.value||0),month=$('providerSettlementCreateMonth')?.value,btn=$('providerSettlementCreateSave');
+  if(!o?.value){alert('Please select a provider');return}
+  if(!month||!/^\d{4}-\d{2}$/.test(month)){alert('Please select a settlement month');return}
+  if(!(amount>0)){alert('Amount due must be greater than 0');return}
+  if(btn)btn.disabled=true;
+  try{await api('/admin/main/settlements',{method:'POST',body:{month,counterpartyType:'PROVIDER',counterpartyKey:o.value,counterpartyName:o.dataset.name||o.textContent,direction:$('providerSettlementDirection')?.value||'COLLECT',amount,note:$('providerSettlementCreateNote')?.value||'',currency:o.dataset.currency||'MYR'}});closeMsrModal('providerSettlementCreateModal');if($('settlementMonth'))$('settlementMonth').value=month;await loadSettlements()}catch(err){alert(err.message)}finally{if(btn)btn.disabled=false}
+}
 
 const payDateState={view:new Date(),mode:'days',yearPageStart:new Date().getFullYear()-5,bound:false};
 function payDatePad(n){return String(n).padStart(2,'0')}

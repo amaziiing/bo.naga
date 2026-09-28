@@ -258,15 +258,29 @@
     // Deposit and Withdraw deliberately use their normal href. This prevents
     // stale listeners / late requests from one tab overwriting another tab.
   },true);
-  function init(){
+  async function waitForDateRangeReady(){
+    // Dashboard pinned pages run inside an iframe. On an iframe tab navigation the
+    // dynamically appended transaction script can execute while bo-date-range is
+    // still building the hidden From/To controls. The visible picker may already
+    // say "Today" while the hidden values are still blank for a few frames. An All
+    // request made in that gap is unfiltered and returns historical rows.
+    //
+    // Do not guess a date here: wait for the shared date-range component to finish
+    // so the table, counters and right-side filters all use the exact same values.
+    const from=$(id('From')),to=$(id('To'));
+    if(!from||!to)return;
+    const allowEmpty=from.dataset.rangeAllowEmpty==='1';
+    if(allowEmpty)return;
+    const started=Date.now();
+    while((!from.value||!to.value) && Date.now()-started<1500){
+      await new Promise(resolve=>requestAnimationFrame(()=>resolve()));
+    }
+  }
+  async function init(){
     if(state.type!=='all')return;
-    // bo-date-range.js initializes the hidden From/To inputs on DOMContentLoaded.
-    // Starting the All request before that point sends no dateFrom/dateTo, so an
-    // unfiltered historical response can be rendered while the tab counters are
-    // already using today's initialized date. That produced e.g. All (2) while
-    // old Deposit rows were still visible below it after refresh.
     setTableShape();
     installCleanListeners();
+    await waitForDateRangeReady();
     reload();
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});

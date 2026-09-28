@@ -54,7 +54,7 @@ body.bo-login-body{
   content:"";
   position:absolute;
   inset:0 0 auto;
-  height:10px;
+  height:3px;
   border-radius:16px 16px 0 0;
   background:linear-gradient(90deg,#FBBF24,#D97706);
   opacity:1;
@@ -495,13 +495,13 @@ html[data-bo-theme="dark"] .auth-submit.btn:hover{
   border-color:#FBBF24;
   color:#2A2C36;
 }
-/* The theme toggle, top-right, at the locked 36x36 / 8px. The page already loaded bo-theme.js
-   but had nowhere to put the button, so dark mode was unreachable from the login screen. */
+/* Theme toggle sits fixed on the page corner — not inside the card — so the brand
+   row can occupy the card header the way the local live design does. */
 .auth-theme-slot{
-  position:absolute;
-  top:18px;
-  right:18px;
-  z-index:2;
+  position:fixed;
+  top:20px;
+  right:22px;
+  z-index:5;
 }
 .auth-theme-slot .bo-theme-btn{
   width:36px;height:36px;border-radius:8px;background:transparent;

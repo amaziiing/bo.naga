@@ -834,12 +834,15 @@ Deposit / Withdraw reuse the same recipe: Deposit = green when selected · Withd
 |------|-------|------|
 | Admin `.mad-avatar` | cool indigo tile `#EEF2FF`/`#3730A3` · **self** amber `#FEF3C7`/`#B45309` | charcoal `#383A46`/`#A1A1AA` · self amber tint |
 | Merchant `.mad-avatar` | **neutral** `#F5EBDC`/`#6b360c` · suspended red only | `#2A2C36`/`#E7E5E4` · suspended red wash |
-| Status active | `#D1FAE5` / `#047857` | green wash / bright green |
+| Status active (`.mad-status.is-active` · `.mad-status-chip.is-active` · `.mas-status.is-success` · `.mpv-status.is-active`) | soft fluorescent mint `#EAF7F0` / `#1A8A5C` · dot `#3CB87A` · hover `#D8F0E4` | green wash / bright green |
 | Status suspended | `#FEE2E2` / `#B91C1C` | red wash / `#FCA5A5` |
-| Role pills (Admin) | semantic pastels (super purple, risk red, …) | semantic dark washes |
+| Role Brand Owner (`.mad-role.is-super` / `.is-partner` / `.is-merchant`) | soft fluorescent lilac `#F0ECFA` / `#6B5B95` | purple wash / `#C4B5FD` |
+| Role pills (other Admin) | support/tech/regional blue `#DBEAFE`/`#1D4ED8` · risk red `#FEE2E2`/`#B91C1C` · default grey `#F3F4F6`/`#4B5563` | semantic dark washes |
 | Money + | `#B45309` | `#F59E0B` |
 | Money 0 | `#71717A` | `#A1A1AA` |
 | `.mad-you` self badge | `#FEF3C7` / `#B45309` | amber wash / `#F59E0B` |
+
+**Soft fluorescent (locked 2026-09-28, Merchant + Provider lists):** luminous pastel wash + calm mid ink — not neon mint `#D1FAE5`/`#10B981` (too glare on cream) and not dusty `#E6E2F0`/`#1B5C45` (too dark). Sources: `main-merchant-detail-executive.css`, `main-provider-detail-executive.css` (`.mpv-status`), `main-provider-family-executive.css` (`.mad-status`).
 
 ### Modals (locked light/dark)
 
@@ -1055,6 +1058,7 @@ Report-family listing specimen for provider bet / event rows. Marker: `body.bo-r
 | Merchant Detail migrated to Charcoal + Amber (new `assets/css/main-merchant-detail-executive.css`, scoped to `.main-admin-detail-page.main-merchant-detail-page`, loads after the shared file) | Page still ran retired navy; matches Admin Detail reference. Scope by page class, not `data-access-page` — 8 pages share `main_merchant_detail` | 2026-09-15 |
 | Merchant family runs the Charcoal block: scope widened to `body.main-admin-detail-page[data-access-page="main_merchant_detail"]`; `main-merchant-create.html` migrated | One block serves the whole family (detail/create/security/profit/profit-record/repayments/settlement); roles pages share the attribute but load a different stylesheet, so they stay untouched | 2026-09-15 |
 | Merchant row avatar = neutral tile `#F5EBDC` / `#2A2C36`; every-third-row tint deleted; colour only on suspended rows; initials from the company name | User approved. The tint encoded row position, not data, and the indigo tile repeated the code printed beside it. Admin Detail keeps the old vocabulary | 2026-09-15 |
+| **Row Role / Status pills = soft fluorescent** — Brand Owner `#F0ECFA`/`#6B5B95` · Active `#EAF7F0`/`#1A8A5C` · dot `#3CB87A` · hover `#D8F0E4` (not neon `#EDE9FE`/`#D1FAE5`/`#10B981`, not dusty dark). Merchants (`.mad-status` / `.mad-status-chip` / `.mas-status.is-success`) + Providers (`.mpv-status.is-active` · family `.mad-status`). CSS: `main-merchant-detail-executive.css` · `main-provider-detail-executive.css` · `main-provider-family-executive.css` | User: Role/Status 太亮刺眼 → 柔荧光锁定 · Providers 统一 | 2026-09-28 |
 | Date range picker: preset active = amber wash + amber text; ghost head; cream panel `12px` | User locked to listing reference (not solid amber preset / not filled well head) | 2026-09-15 |
 | Transaction table frame = Admin Detail mad-panel (viewport-locked, inner scroll, table-layout fixed) | User: Deposit table 框 must match main-admin-detail fixed frame | 2026-09-15 |
 | Transaction table light paint = peach-cream zebra (`#FFF8EB`/`#FFF1DC`/`#FFE8CC` head) · no pure white · thead corners square · cell weight `bold` · PENDING orange | User: white rows刺眼; muddy parchment 违和; then locked cream family | 2026-09-15 |

@@ -54,7 +54,7 @@ body.bo-login-body{
   content:"";
   position:absolute;
   inset:0 0 auto;
-  height:3px;
+  height:10px;
   border-radius:16px 16px 0 0;
   background:linear-gradient(90deg,#FBBF24,#D97706);
   opacity:1;
@@ -268,20 +268,20 @@ body.bo-login-body{
   align-items:center;
   padding:10px 13px;
   border:1px solid #EADCC8;
-  background:rgba(217,119,6,.9);
-  color:#57534E;
+  background:#FFF8EB;
+  color:#57534E!important;
 }
 
 .upload-status.error{
-  border-color:#fecaca;
-  background:#fff1f2;
-  color:#b42318;
+  border-color:#FECACA;
+  background:#FFF1F2;
+  color:#B42318!important;
 }
 
 .upload-status.success{
-  border-color:#bbf7d0;
-  background:#f0fdf4;
-  color:#087a2f;
+  border-color:#BBF7D0;
+  background:#F0FDF4;
+  color:#087A2F!important;
 }
 
 .auth-submit.btn{
@@ -467,6 +467,23 @@ html[data-bo-theme="dark"] .auth-input-icon,
 html[data-bo-theme="dark"] .password-toggle{color:#A1A1AA}
 html[data-bo-theme="dark"] .secure-note{color:#D4D4D8}
 html[data-bo-theme="dark"] .secure-note svg{color:#F59E0B}
+/* Status notice: charcoal primitives force a single .upload-status color with !important,
+   which washed the light error surface into pale-on-pale in dark mode. Theme both sides. */
+html[data-bo-theme="dark"] body.bo-login-body .upload-status:not(:empty){
+  border-color:rgba(255,255,255,.14);
+  background:rgba(255,255,255,.06);
+  color:#D4D4D8!important;
+}
+html[data-bo-theme="dark"] body.bo-login-body .upload-status.error{
+  border-color:rgba(248,113,113,.4);
+  background:rgba(127,29,29,.42);
+  color:#FCA5A5!important;
+}
+html[data-bo-theme="dark"] body.bo-login-body .upload-status.success{
+  border-color:rgba(74,222,128,.35);
+  background:rgba(20,83,45,.42);
+  color:#86EFAC!important;
+}
 html[data-bo-theme="dark"] .auth-submit.btn{
   background:linear-gradient(180deg,#FBBF24 0%,#F59E0B 45%,#D97706 100%);
   border-color:#F59E0B;
@@ -481,10 +498,10 @@ html[data-bo-theme="dark"] .auth-submit.btn:hover{
 /* The theme toggle, top-right, at the locked 36x36 / 8px. The page already loaded bo-theme.js
    but had nowhere to put the button, so dark mode was unreachable from the login screen. */
 .auth-theme-slot{
-  position:fixed;
-  top:20px;
-  right:22px;
-  z-index:5;
+  position:absolute;
+  top:18px;
+  right:18px;
+  z-index:2;
 }
 .auth-theme-slot .bo-theme-btn{
   width:36px;height:36px;border-radius:8px;background:transparent;

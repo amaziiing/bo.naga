@@ -5270,3 +5270,55 @@ written to catch the dead-hover case and **that check was then removed on purpos
 it flagged 22 rules on a tree whose hovers all work, because whether a hover wins needs the DOM's
 cascade. A guard that cries wolf on a clean tree is worse than no guard; the docstring records the
 removal and points at the runtime checker instead.
+
+### Status pills arrive on the first pill — `Active` — not on `All` (2026-09-28, owner: “许多页面的pill active在末端 需要统一像图二那样pill active在第一个”)
+
+**The order was settled earlier today; the arrival state was the leftover.** The `All`-to-the-end pass moved the group's
+members and deliberately kept `All` as the arrival selection (“positional only”). The owner's reference this time is
+`main-merchant-detail.html` — `Active` first **and** framed — so the rule is now the component's own: the selection
+arrives on, and `Reset` returns to, the **first** pill. That is what `main-admin-detail.js`
+(`statusPill='active'`, and the `Reset` handler that re-selects `active`) and `main-merchant-detail.js` already did; the
+thirteen pages below were the ones still arriving on the last pill.
+
+| pages | group | arrival before | arrival after |
+|---|---|---|---|
+| `admin-user`, `role`, `ip-whitelist-security` | Active · *off word* · All | **All** | **Active** |
+| `main-provider-detail` | Active · Maintenance · Suspended · All | **All** | **Active** |
+| `main-win-lose-report` | Active · Suspended · All | **All** | **Active** |
+| `main_provider_report` / `main_merchant_report` | Active · *off word* · All | **All** | **Active** |
+| `main-{provider,merchant}-{balance,settlement,transactions}` | Active · *off word* · All (in a panel, see below) | **All** | **Active** |
+
+**Two halves had to move together, or the pill and the rows it filters would disagree.** The markup is the arrival —
+`bo-seg-bounce.js` positions the thumb from whichever pill carries `is-active` — and the script variable is what the row
+filter reads, so the thirteen pages got the `is-active` / `aria-pressed` move *and* the six handlers got
+`statusPill`/`statusTerm` (and their `Reset`) changed from `'all'` to `'active'`: `main-provider-detail.js`,
+`main-win-lose-report.js`, `main-provider-report.js`, `main-merchant-report.js`, `admin-user.js`,
+`access-control-listing.js`. Nothing about the groups' order, geometry or paint changed with them, and no CSS moved.
+
+**The 8 report pages carry their strip inside a panel, and on 6 of them that panel never shows.** `main_provider_report`
+and `main_merchant_report` display it on arrival; on `main-provider-{balance,settlement,transactions}` and
+`main-merchant-{balance,settlement,transactions}` the strip lives in the `provider`/`merchant` panel while `brand` /
+`balance` / `settlement` / `history` is the panel that is shown, and `setupTabs()` returns early for the anchor tabs
+(`if(b.tagName==='A' && b.getAttribute('href')) return;`) — those tabs navigate to the report page instead. Their markup
+is kept consistent anyway so the panel cannot arrive on a different pill if it is ever bound to an in-page tab. Those
+pages' *visible* group is the transaction-type strip, which still leads on `All` and was not touched.
+
+**Deliberately untouched.** The transaction-type group (`All / Transactions / Settlements / …`) and
+`main-merchant-profit`'s ledger-type group: those are not status groups and `All` **is** their first pill, so they
+already satisfy the rule. The two Security & Audit pages' log-category strip (`.mas-cats`) also stays: `All Logs` sits
+last *and* remains its arrival selection, because its first pill is a category, not a state — arriving there would drop
+Security Events from a security page's landing view. That one asks for its own decision from the owner. The strip's own
+`All Status` `<select>` also stays.
+
+**Verified in the browser** on the live pages at `127.0.0.1:8099` (both themes): on all seven pages whose status strip
+is displayed, the first pill is the one carrying `is-active`, and the thumb's box lands on it —
+`main-provider-detail` measured `left 300.8 / width 105` over the Active pill's `300.8 / 105.3`, and the same alignment
+holds in dark mode. With a fixture of four providers (2 Active / 1 Maintenance / 1 Suspended) the arrival paints
+**2 rows**, counts `2 / 1 / 1 / 4`, footer `Showing 1 to 2 of 2 providers`; clicking `All` paints 4 and moves the thumb
+to the fourth pill (`701.8`, matched to the pixel); `Reset` returns to the first pill. `main-admin-detail` and
+`main-merchant-detail` were re-measured unchanged, and a click there still moves the thumb, so the shared control did
+not regress. Two conditions were found and left alone, both pre-existing and neither caused by this change: the six
+panel pages mount their hidden strip at width 0 — so the thumb has no width until something re-syncs — and the
+provider/merchant `*_report` pages keep a second, hidden group for transaction types. The six edited scripts were
+re-stamped with `scripts/stamp-asset-pins.py`'s own recipe, scoped to those six (`--check` clean for each; the remaining
+40 stale assets and 156 real pages are the drift main already carried, left for a separate pass).

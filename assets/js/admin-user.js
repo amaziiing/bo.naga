@@ -33,7 +33,7 @@
      values are the ones the shared pill recipe already speaks — `active` /
      `suspended` / `all` — so the dots, the cream frame and the dark-theme colours all
      come from `bo-charcoal-shell.css` rather than from a second copy here. */
-  let statusTerm = 'all';
+  let statusTerm = 'active';
 
   function statusPills(){
     return document.querySelectorAll('.ac-status-pills [data-mad-status]');

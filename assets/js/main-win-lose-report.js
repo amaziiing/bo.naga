@@ -48,7 +48,7 @@
     }
     return Math.max(1, Number(raw) || 10);
   }
-  let statusPill = 'all';
+  let statusPill = 'active';
   let searchQ = '';
   let currency = 'MYR';
   let range = null;
@@ -801,10 +801,10 @@
       if ($('wlTierFilter')) $('wlTierFilter').value = '';
       if ($('wlStatusFilter')) $('wlStatusFilter').value = '';
       searchQ = '';
-      statusPill = 'all';
+      statusPill = 'active';
       expanded.clear();
       document.querySelectorAll('[data-wl-status]').forEach((b) => {
-        const on = b.getAttribute('data-wl-status') === 'all';
+        const on = b.getAttribute('data-wl-status') === 'active';
         b.classList.toggle('is-active', on);
         b.setAttribute('aria-pressed', on ? 'true' : 'false');
       });

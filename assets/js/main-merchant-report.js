@@ -11,7 +11,7 @@ let currentMerchants=[];
 let merchantMeta=[];
 let filteredMerchants=[];
 let merchantPage=1;
-let statusPill='all';
+let statusPill='active';
 let syncedAt=Date.now();
 let currency=(sessionStorage.getItem('bo_main_report_currency')||'MYR').toUpperCase();
 
@@ -311,8 +311,8 @@ function setupFilters(){
     if($('mmrSearchInput')) $('mmrSearchInput').value='';
     if($('mmrTierFilter')) $('mmrTierFilter').value='';
     if($('mmrStatusFilter')) $('mmrStatusFilter').value='';
-    statusPill='all';
-    document.querySelectorAll('[data-mmr-status]').forEach(b=>b.classList.toggle('is-active',b.getAttribute('data-mmr-status')==='all'));
+    statusPill='active';
+    document.querySelectorAll('[data-mmr-status]').forEach(b=>b.classList.toggle('is-active',b.getAttribute('data-mmr-status')==='active'));
     applyFilters();
   });
   $('mmrPager')?.addEventListener('click',e=>{

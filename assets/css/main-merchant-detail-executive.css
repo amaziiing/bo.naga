@@ -1962,6 +1962,40 @@ html[data-bo-theme="dark"] body.standardized-listing-page.main-admin-detail-page
   border-color:rgba(255,255,255,.12)!important;
   color:#F59E0B!important;
 }
+/* Create Merchant uses #merchantCurrencyModal. The ID block above only named
+   #madCurrencyModal, so Added/Available rows kept the legacy navy fill
+   rgba(15,23,42,.7) inside the charcoal modal. */
+html[data-bo-theme="dark"] body.standardized-listing-page.main-admin-detail-page[data-access-page="main_merchant_detail"] #merchantCurrencyModal .mac-currency-pane-head strong,
+html[data-bo-theme="dark"] body.standardized-listing-page.main-admin-detail-page[data-access-page="main_merchant_detail"] #merchantCurrencyModal .mac-currency-pane-item-code{
+  color:#F5F5F4!important;
+}
+html[data-bo-theme="dark"] body.standardized-listing-page.main-admin-detail-page[data-access-page="main_merchant_detail"] #merchantCurrencyModal .mac-currency-pane-item{
+  background:#2A2C36!important;
+  color:#F5F5F4!important;
+  border-color:rgba(255,255,255,.10)!important;
+  box-shadow:none!important;
+}
+html[data-bo-theme="dark"] body.standardized-listing-page.main-admin-detail-page[data-access-page="main_merchant_detail"] #merchantCurrencyModal .mac-currency-pane-item:hover{
+  background:#32343E!important;
+  border-color:rgba(245,158,11,.35)!important;
+}
+html[data-bo-theme="dark"] body.standardized-listing-page.main-admin-detail-page[data-access-page="main_merchant_detail"] #merchantCurrencyModal .mac-currency-pane-item.is-selected{
+  background:rgba(245,158,11,.14)!important;
+  border-color:#F59E0B!important;
+  box-shadow:none!important;
+}
+html[data-bo-theme="dark"] body.standardized-listing-page.main-admin-detail-page[data-access-page="main_merchant_detail"] #merchantCurrencyModal .mac-currency-pane-item-tag{
+  background:rgba(245,158,11,.10)!important;
+  color:#A1A1AA!important;
+}
+html[data-bo-theme="dark"] body.standardized-listing-page.main-admin-detail-page[data-access-page="main_merchant_detail"] #merchantCurrencyModal .mac-currency-pane-item-remove{
+  background:rgba(255,255,255,.08)!important;
+  color:#A1A1AA!important;
+}
+html[data-bo-theme="dark"] body.standardized-listing-page.main-admin-detail-page[data-access-page="main_merchant_detail"] #merchantCurrencyModal .mac-currency-pane-item-remove:hover{
+  background:rgba(248,113,113,.18)!important;
+  color:#F87171!important;
+}
 html[data-bo-theme="dark"] body.standardized-listing-page.main-admin-detail-page[data-access-page="main_merchant_detail"] #madEditWorkspace .mac-provider-chip{
   background:#2A2C36!important;
   border-color:rgba(255,255,255,.10)!important;
@@ -2285,6 +2319,9 @@ html:not([data-bo-theme="dark"]) body.main-admin-detail-page[data-access-page="m
   background:#FFF8EB!important;
   border-color:#D97706!important;
 }
+html:not([data-bo-theme="dark"]) body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mac-section .mac-provider-chip.is-selected b{
+  color:#B45309!important;
+}
 
 /* ---- Dark ---- */
 html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mac-section .mac-field .form-control,
@@ -2322,6 +2359,10 @@ html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_me
 html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mac-section .mac-provider-chip.is-selected{
   background:rgba(245,158,11,.14)!important;
   border-color:rgba(245,158,11,.55)!important;
+  box-shadow:none!important;
+}
+html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mac-section .mac-provider-chip.is-selected b{
+  color:#FBBF24!important;
 }
 
 /* ==========================================================================

@@ -1,0 +1,96 @@
+/* ==========================================================================
+   Field standard — one theme for every text field, on every page
+   ==========================================================================
+
+   Owner-directed (2026-09-28): take the design of the Member -> Create User dialog's input, in
+   NIGHT MODE (amber border + `0 0 0 3px rgba(245,158,11,.18)` ring on a #2A2C36 well), and make
+   it the site-wide answer. The owner's words: 夜间模式 那个 input 给出的设计要统一到全站页面.
+
+   WHY A SHEET AND NOT A VALUE SWAP. The dialog's own look was already correct — it lives on
+   index.html, which is one of the NINE pages that do not load reports.css. Everywhere else the
+   fields were painted by a rule with no theme guard at all: `.report-content
+   input/select/textarea` in reports.css declared the light values once (fill #FFF8EB, border
+   #EADCC8, focus border #78716C grey, ring rgba(217,119,6,.12)) and, because its selector list
+   carries nine `:not(#…)` steps, it out-specified every properly themed dark rule. Measured on
+   the real pages with headless Chrome before this landing, dark theme: 318 fields on the grey
+   focus border with the light amber ring, 300+ more keeping the cream fill on the #2C2E38 canvas.
+   reports.css was theme-split in the same pass (see the comment there); this sheet is the
+   backstop for the rest — 85 more unguarded field rules across the shipped stylesheets, found by
+   scripts/check-field-standard.py, which now guards the result.
+
+   WHAT IT SETS — only theme-owned properties, never geometry:
+     fill · border colour · ink · ::placeholder · focus border · focus ring
+   Height, radius, padding and type scale are NOT touched. The panel has deliberate size tiers
+   (listing filters 36px, filter rows and dialogs 42px, form fields 44px; radius 8/10/11px) and
+   this sheet leaves every one of them alone.
+
+   WHAT IT LEAVES ALONE, on purpose:
+     · the inner `<input>` of every search frame — the frame owns that control's ring, and a ring
+       on the bare inner input draws the "double-walled box" the repo already fixed once
+       (DESIGN.md -> Search field). The exclusion list below is the same one bo-input-fill.css
+       uses, and scripts/check-search-standard.py asserts it stays complete.
+     · date-range triggers, select buttons, checkboxes, switches and the inline row buttons —
+       each has its own documented focus recipe (the checkbox is .22 in dark, for instance).
+     · text editors (`layout-code-input-wrap`, `.pc-rich-source`) — these are code surfaces, not
+       fields, and are deliberately dark-on-dark in both themes.
+     · :disabled and [readonly] — locked fields keep their own dead state.
+
+   WHY `:not(#field-standard-off)` CHAINS: nothing in the markup carries those ids. They are the
+   specificity escalation this repo already uses (bo-input-fill.css -> `:not(#bo-input-fill-legacy)`,
+   bo-wallet-transaction-amber.css -> `:not(#bo-filter-standard-off)`), and the step count is
+   measured rather than guessed: six steps is what beats the furthest-out-ranking unguarded rule,
+   access-control-executive.css's three-`:not(#…)` tier, while staying below the tier that
+   bo-charcoal-legacy.css uses for its own dark rules — those already agree with these values, so
+   there is no reason to out-rank them and make the next change harder.
+
+   Colours are the panel's existing canonical pair, not new ones: light #FFF8EB / #DCC9A8 /
+   #18191C / focus #D97706 + rgba(217,119,6,.14) — bo-charcoal-cms.css:5-15 and
+   bo-charcoal-legacy.css:121-139; dark #2A2C36 / rgba(255,255,255,.12) / #F5F5F4 / #A1A1AA /
+   focus #F59E0B + rgba(245,158,11,.18) — the same files' dark halves.
+   -------------------------------------------------------------------------- */
+
+:root{
+  --bo-field-fill:#FFF8EB;
+  --bo-field-border:#DCC9A8;
+  --bo-field-ink:#18191C;
+  --bo-field-placeholder:#78716C;
+  --bo-field-focus-border:#D97706;
+  --bo-field-focus-ring:rgba(217,119,6,.14);
+}
+html[data-bo-theme="dark"]{
+  --bo-field-fill:#2A2C36;
+  --bo-field-border:rgba(255,255,255,.12);
+  --bo-field-ink:#F5F5F4;
+  --bo-field-placeholder:#A1A1AA;
+  --bo-field-focus-border:#F59E0B;
+  --bo-field-focus-ring:rgba(245,158,11,.18);
+}
+
+/* `background-color`, never the `background` shorthand: a select draws its caret with a
+   background-image and the shorthand would wipe it. */
+/* `!important` on every declaration, deliberately. This is a backstop, and it competes with
+   rules that already carry it: the unguarded legacy rules this sheet exists to correct all
+   declare `!important`, and an `!important` declaration beats a normal one no matter how
+   specific the normal one is. Without it this sheet loads, parses, matches — and changes
+   nothing. (Measured: with plain declarations the focus ring still computed to the legacy
+   sheet's value on member-detail.html even though this sheet's selector out-ranked it 7 ids
+   to 0.) */
+html body:not(#field-standard-off):not(#field-standard-legacy):not(#bo-charcoal-off):not(#bo-filter-standard-off):not(#bo-input-fill-legacy):not(#bo-input-fill-legacy-2) input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]):not([type="color"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not(:disabled):not([readonly]):not(#providerSearchInput):not(.game-search-control input):not(.category-search-control input):not(.banner-search input):not(.input-icon-wrap input):not(.ref-input-icon input):not(.mad-search input):not(.agent-search-box input):not(.agent-assign-search input):not(.mac-provider-search input):not(.provider-list-search input):not(.livechat-search input):not(.dup-search-control input):not(.mp-search input):not(.mrc-search input):not(.mas-search input):not(.bonus-title-search input):not(.bo-search-control input),
+html body:not(#field-standard-off):not(#field-standard-legacy):not(#bo-charcoal-off):not(#bo-filter-standard-off):not(#bo-input-fill-legacy):not(#bo-input-fill-legacy-2) select:not(:disabled),
+html body:not(#field-standard-off):not(#field-standard-legacy):not(#bo-charcoal-off):not(#bo-filter-standard-off):not(#bo-input-fill-legacy):not(#bo-input-fill-legacy-2) textarea:not(:disabled):not([readonly]):not(.layout-code-pane textarea):not(.pc-rich-source):not(#pcRichSource){
+  background-color:var(--bo-field-fill)!important;
+  border-color:var(--bo-field-border)!important;
+  color:var(--bo-field-ink)!important;
+}
+html body:not(#field-standard-off):not(#field-standard-legacy):not(#bo-charcoal-off):not(#bo-filter-standard-off):not(#bo-input-fill-legacy):not(#bo-input-fill-legacy-2) input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]):not([type="color"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not(:disabled):not([readonly]):not(#providerSearchInput):not(.game-search-control input):not(.category-search-control input):not(.banner-search input):not(.input-icon-wrap input):not(.ref-input-icon input):not(.mad-search input):not(.agent-search-box input):not(.agent-assign-search input):not(.mac-provider-search input):not(.provider-list-search input):not(.livechat-search input):not(.dup-search-control input):not(.mp-search input):not(.mrc-search input):not(.mas-search input):not(.bonus-title-search input):not(.bo-search-control input)::placeholder,
+html body:not(#field-standard-off):not(#field-standard-legacy):not(#bo-charcoal-off):not(#bo-filter-standard-off):not(#bo-input-fill-legacy):not(#bo-input-fill-legacy-2) textarea:not(:disabled):not([readonly]):not(.layout-code-pane textarea):not(.pc-rich-source):not(#pcRichSource)::placeholder{
+  color:var(--bo-field-placeholder)!important;
+  opacity:1!important;
+}
+html body:not(#field-standard-off):not(#field-standard-legacy):not(#bo-charcoal-off):not(#bo-filter-standard-off):not(#bo-input-fill-legacy):not(#bo-input-fill-legacy-2) input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]):not([type="color"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not(:disabled):not([readonly]):not(#providerSearchInput):not(.game-search-control input):not(.category-search-control input):not(.banner-search input):not(.input-icon-wrap input):not(.ref-input-icon input):not(.mad-search input):not(.agent-search-box input):not(.agent-assign-search input):not(.mac-provider-search input):not(.provider-list-search input):not(.livechat-search input):not(.dup-search-control input):not(.mp-search input):not(.mrc-search input):not(.mas-search input):not(.bonus-title-search input):not(.bo-search-control input):focus,
+html body:not(#field-standard-off):not(#field-standard-legacy):not(#bo-charcoal-off):not(#bo-filter-standard-off):not(#bo-input-fill-legacy):not(#bo-input-fill-legacy-2) select:not(:disabled):focus,
+html body:not(#field-standard-off):not(#field-standard-legacy):not(#bo-charcoal-off):not(#bo-filter-standard-off):not(#bo-input-fill-legacy):not(#bo-input-fill-legacy-2) textarea:not(:disabled):not([readonly]):not(.layout-code-pane textarea):not(.pc-rich-source):not(#pcRichSource):focus{
+  border-color:var(--bo-field-focus-border)!important;
+  box-shadow:0 0 0 3px var(--bo-field-focus-ring)!important;
+  outline:0!important;
+}

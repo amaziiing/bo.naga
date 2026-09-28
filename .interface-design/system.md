@@ -560,8 +560,28 @@ Hover motion is **gradient reverse only** (stop order flipped on `180deg`). Do *
 
 ### Forms
 
-- Inputs: dark soft charcoal `#2A2C36` on dark; light well `#F5EBDC` on light — **never** `#FFFFFF` chrome
-- Focus: amber ring (never cyan) — e.g. `0 0 0 3px rgba(217,119,6,.12)`
+**Owner (2026-09-28): `assets/css/bo-field-standard.css`.** One sheet states the field theme for
+both themes, is loaded LAST on every page, and carries `!important` on every declaration. It
+sets only theme-owned properties — fill, border colour, ink, placeholder, focus border, focus
+ring — and never geometry: the size tiers below stand.
+
+| Token | Light | Dark |
+|-------|-------|------|
+| fill | `#FFF8EB` | `#2A2C36` |
+| border | `#DCC9A8` | `rgba(255,255,255,.12)` |
+| ink | `#18191C` | `#F5F5F4` |
+| placeholder | `#78716C` | `#A1A1AA` |
+| focus border | `#D97706` | `#F59E0B` |
+| focus ring | `0 0 0 3px rgba(217,119,6,.14)` | `0 0 0 3px rgba(245,158,11,.18)` |
+
+- Inputs: dark soft charcoal `#2A2C36` on dark; light surface `#FFF8EB` on light — **never**
+  `#FFFFFF` chrome
+- Focus: amber border plus the ring above (never cyan, never a grey `#78716C` border). The **ring
+  alpha differs per theme** — `.14` light, `.18` dark. A single `.12`/`.16` value for both is the
+  drift this standard exists to remove
+- `!important` is load-bearing, not decoration: the legacy rules this sheet competes with all
+  declare it, and an important declaration beats a normal one at any specificity. The sheet
+  loads, parses and matches without it, and changes nothing
 - **Create/Edit hierarchy:** never one flat cream — use the layer ladder below so Save CTA and sections read clearly
 
 #### Create / Edit Admin Account — light form hierarchy

@@ -1431,8 +1431,8 @@ html:not([data-bo-theme="dark"]) body.promotion-edit-page.report-body.bo-charcoa
   border:1px solid #E8901A!important;
   background-color:#F59E0B!important;
   background-image:linear-gradient(180deg,#FBBF24 0%,#F59E0B 42%,#EA8608 100%)!important;
-  color:#fff!important;font-size:13px!important;font-weight:800!important;
-  box-shadow:0 1px 2px rgba(217,119,6,.2),0 4px 12px rgba(217,119,6,.18),inset 0 1px 0 rgba(255,255,255,.35)!important;
+  color:#fff!important;font-size:13px!important;font-weight:700!important;
+  box-shadow:none!important;
 }
 html:not([data-bo-theme="dark"]) body.promotion-edit-page.report-body.bo-charcoal:not(#bo-charcoal-off) .promo-edit-footer-actions .clean-btn.primary:hover{
   background-image:linear-gradient(0deg,#FCD34D 0%,#FBBF24 38%,#F59E0B 72%,#EA8608 100%)!important;
@@ -1444,8 +1444,8 @@ html[data-bo-theme="dark"] body.promotion-edit-page.report-body.bo-charcoal:not(
 html[data-bo-theme="dark"] body.promotion-edit-page.report-body.bo-charcoal:not(#bo-charcoal-off) a.clean-btn.mad-btn-ghost{
   height:40px!important;min-height:40px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;
   gap:6px!important;padding:0 16px!important;border-radius:8px!important;text-decoration:none!important;
-  background-image:linear-gradient(180deg,#4A4C58 0%,#383A46 55%,#2C2E38 100%)!important;
-  border:1px solid rgba(255,255,255,.14)!important;color:#F5F5F4!important;
+  background-image:linear-gradient(180deg,#4A4C58 0%,#383A46 48%,#2C2E38 100%)!important;
+  border:1px solid rgba(255,255,255,.12)!important;color:#F5F5F4!important;
   font-size:13px!important;font-weight:700!important;
 }
 html[data-bo-theme="dark"] body.promotion-edit-page.report-body.bo-charcoal:not(#bo-charcoal-off) .promo-edit-footer-actions .clean-btn.primary{
@@ -1453,7 +1453,7 @@ html[data-bo-theme="dark"] body.promotion-edit-page.report-body.bo-charcoal:not(
   gap:6px!important;padding:0 16px!important;border-radius:8px!important;
   border:1px solid #F59E0B!important;
   background-image:linear-gradient(180deg,#FBBF24 0%,#F59E0B 50%,#D97706 100%)!important;
-  color:#2A2C36!important;font-size:13px!important;font-weight:800!important;
+  color:#2A2C36!important;font-size:13px!important;font-weight:700!important;
 }
 
 @media (max-width:1439px){

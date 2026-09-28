@@ -490,8 +490,11 @@ body.report-body.bo-charcoal #madExportBtn,
 body.report-body.bo-charcoal .mad-chrome-actions .mad-btn-ghost{
   border-radius:8px!important;
   background-color:#F3E8D6!important;
-  background-image:linear-gradient(180deg,#FFF8EB 0%,#F3E8D6 100%)!important;
-  border:1px solid #EADCC8!important;
+  /* Three stops, the locked form ghost (system.md -> Ghost / Export). The two-stop
+     listing cream is only for the listing Export, and this rule also paints Back,
+     Cancel and Close, so it read a rung short of every create-page ghost. */
+  background-image:linear-gradient(180deg,#FFFCF7 0%,#F5EBDC 55%,#EDE4D4 100%)!important;
+  border:1px solid #DCC9A8!important;
   color:#18191C!important;
   box-shadow:0 1px 2px rgba(24,25,28,.06),0 2px 6px rgba(24,25,28,.05)!important;
   transition:transform .14s ease,box-shadow .14s ease,background-image .14s ease,border-color .14s ease!important;

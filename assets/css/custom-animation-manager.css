@@ -328,7 +328,7 @@
   min-height:38px;padding:0 16px;border-radius:8px;font-weight:800;
 }
 .cam-actions .clean-btn.primary{
-  box-shadow:0 2px 8px rgba(217,119,6,.28);
+  box-shadow:none;
 }
 .cam-status{
   min-height:16px;

@@ -161,8 +161,8 @@ body.member-detail-page .report-topbar{
   transition:border-color .15s ease, background .15s ease, box-shadow .15s ease;
 }
 .md-btn-ghost{
-  border-color:#EADCC8;
-  background:linear-gradient(180deg,#FFFCF7 0%,#F5EBDC 100%);
+  border-color:#DCC9A8;
+  background:linear-gradient(180deg,#FFFCF7 0%,#F5EBDC 55%,#EDE4D4 100%);
   color:#18191C;
 }
 .md-btn-ghost:hover{ border-color:#DCC9A8; background:#FFFCF7; }
@@ -170,7 +170,7 @@ body.member-detail-page .report-topbar{
   border-color:#E8901A;
   background:linear-gradient(180deg,#FBBF24 0%,#F59E0B 45%,#EA8608 100%);
   color:#fff;
-  box-shadow:0 1px 0 rgba(255,255,255,.25) inset, 0 4px 12px rgba(217,119,6,.22);
+  box-shadow:none;
 }
 .md-btn-primary:hover{ filter:brightness(1.03); }
 

@@ -653,24 +653,24 @@ html:not([data-bo-theme="dark"]) body.page-customize-page.report-body.bo-charcoa
 html:not([data-bo-theme="dark"]) body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-actions .clean-btn.primary{
   color:#fff!important;border:1px solid #E8901A!important;
   background:linear-gradient(180deg,#FBBF24 0%,#F59E0B 42%,#EA8608 100%)!important;
-  box-shadow:0 8px 18px rgba(217,119,6,.22),inset 0 1px 0 rgba(255,255,255,.35)!important;
+  box-shadow:none!important;
 }
 html:not([data-bo-theme="dark"]) body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-card-head .clean-btn.primary:hover,
 html:not([data-bo-theme="dark"]) body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-actions .clean-btn.primary:hover{
   color:#fff!important;border-color:#F59E0B!important;
   background:linear-gradient(0deg,#FCD34D 0%,#FBBF24 28%,#F59E0B 62%,#EA8608 100%)!important;
-  box-shadow:0 10px 22px rgba(217,119,6,.28),inset 0 1px 0 rgba(255,255,255,.4)!important;
+  box-shadow:none!important;
 }
 html:not([data-bo-theme="dark"]) body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-card-head .clean-btn.primary:active,
 html:not([data-bo-theme="dark"]) body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-actions .clean-btn.primary:active{
   background:linear-gradient(180deg,#F59E0B 0%,#EA8608 100%)!important;
-  box-shadow:0 4px 10px rgba(217,119,6,.18)!important;
+  box-shadow:none!important;
 }
 html[data-bo-theme="dark"] body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-card-head .clean-btn.primary,
 html[data-bo-theme="dark"] body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-actions .clean-btn.primary{
   color:#2A2C36!important;border:1px solid #F59E0B!important;
   background:linear-gradient(180deg,#FBBF24 0%,#F59E0B 45%,#D97706 100%)!important;
-  box-shadow:0 8px 20px rgba(0,0,0,.35),0 0 0 1px rgba(245,158,11,.2),inset 0 1px 0 rgba(255,255,255,.25)!important;
+  box-shadow:none!important;
 }
 html[data-bo-theme="dark"] body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-card-head .clean-btn.primary:hover,
 html[data-bo-theme="dark"] body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-actions .clean-btn.primary:hover{

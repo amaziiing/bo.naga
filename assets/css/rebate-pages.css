@@ -177,7 +177,7 @@
   background:linear-gradient(180deg,#FBBF24 0%,#F59E0B 42%,#EA8608 100%);
   border-color:#E8901A;
   color:#fff;
-  box-shadow:0 1px 2px rgba(180,83,9,.28),inset 0 1px 0 rgba(255,255,255,.35);
+  box-shadow:none;
 }
 .modal-clean-foot .clean-btn{height:40px;min-height:40px;padding:0 16px}
 

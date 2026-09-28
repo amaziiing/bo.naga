@@ -40,7 +40,8 @@ SKIP_DIRS = {'.git', 'node_modules', '_preview', '_verify', '.interface-design',
 # The tree also carries untracked scratch: dot-directories such as `.tmp-ac-before/` hold
 # pre-change snapshots of the pages, and checking those reports drift that no longer exists.
 SHEETS = ['assets/css/reports.css', 'assets/css/bo-charcoal-legacy.css',
-          'assets/css/bo-ui-standard.css', 'assets/css/bo-input-fill.css']
+          'assets/css/bo-ui-standard.css', 'assets/css/bo-input-fill.css',
+          'assets/css/bo-field-standard.css']
 CANONICAL = 'bo-search-control'
 CLAUSE = re.compile(r':not\(\.[a-z0-9-]+ input\)')
 INPUT = re.compile(r'<input\b[^>]*>', re.I)

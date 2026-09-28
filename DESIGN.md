@@ -5038,3 +5038,75 @@ cards above them (Admin 5/3/8, Staff Permission 6/3/9, IP Whitelist 3/2/5), each
 set (Active → 6 rows, the off state → 3, All → 9) and the two Security & Audit pages (log-category clicks: 12 events → 2
 permission / 1 credit / 2 security, All Logs back to 12), both themes, and `scripts/stamp-asset-pins.py --check` clean for
 every asset this change touched.
+
+### One field theme, site-wide — the Create User input, in both themes (2026-09-28, owner: "member的夜间模式 在create user 用户点选框后 那个input给出的设计 要统一到全站页面")
+
+The reference the owner pointed at is the Member → **Create User** dialog's input in night mode:
+a `#2A2C36` well, `1px` `rgba(255,255,255,.12)` border, `#F5F5F4` ink, `#A1A1AA` placeholder, and
+on focus an **amber border `#F59E0B` with a `0 0 0 3px rgba(245,158,11,.18)` ring**. The ask was
+to make that the site's answer.
+
+**Why that dialog was right and the rest of the panel was not.** `index.html` is one of the
+**nine** pages that do not load `reports.css`. Everywhere else, the rule that actually painted the
+fields was `.report-content input/select/textarea` in `reports.css` — declared **once, with no
+theme guard**, so it applied its light values in dark mode too: fill `#FFF8EB`, border `#EADCC8`,
+focus border `#78716C` (grey) and ring `rgba(217,119,6,.12)`. Its selector list carries **nine
+`:not(#…)` steps**, so it out-specified every properly themed dark rule in the library.
+
+**Measured on the real pages** (headless Chrome, the auth/API stub, both themes) before the fix:
+
+| Theme | Symptom | Fields |
+|---|---|---|
+| dark | grey focus border + light amber `.12` ring | **318** |
+| dark | light `#FFF8EB` cream fill kept on the `#2C2E38` canvas | **300+** |
+| light | focus border grey `#78716C` instead of amber `#D97706` | **295** |
+
+**The fix, in two mechanisms — the same pair `bo-input-fill.css` documents for the light fill:**
+
+1. **`reports.css`, value-split at the source.** That one rule pair became a guarded light pair
+   and a dark pair. The dark branch **repeats the nine `:not(#…)` steps on purpose**: that
+   escalation is what makes the rule win, and a slimmer dark selector would hand the fields back
+   to a lower tier. Light also moved to the reference pair (`#DCC9A8` border, `#D97706` +
+   `rgba(217,119,6,.14)` focus), which is what `bo-charcoal-legacy.css:121` /
+   `bo-charcoal-cms.css:13` already stated.
+2. **`bo-field-standard.css`, the backstop.** A new last-in-cascade standard covering
+   `input` / `select` / `textarea` on every page, with the light/dark token pair, the search-frame
+   exclusion list, and `!important`. It also clears the **85** further unguarded field rules the
+   guard found across the library.
+
+**`!important` is load-bearing here.** The first draft had none, and the sheet loaded, parsed and
+matched while changing nothing: the legacy rules it competes with all declare `!important`, and an
+important declaration beats a normal one **at any specificity**. Measured on `member-detail.html`
+— the sheet's selector out-ranked the legacy rule 7 ids to 0 and still lost.
+
+**Also learned, and worth not re-learning:** two probe artefacts made this drift look larger than
+it was, and both are now documented in the harness rather than in my head. A focus ring is usually
+**transitioned**, so reading `getComputedStyle` synchronously after `.focus()` returns the
+transition's *start* value — a transparent, zero-spread shadow — and the sweep reported a missing
+ring that a screenshot of the same page showed plainly. And some controls **refuse focus** (the
+code panes on `page-customize.html`), so their "missing ring" is unreachable by a user.
+
+**Result at landing**, per element, focused, both themes, the auth/API stub, 154 real pages:
+
+| | dark | light |
+|---|---|---|
+| canonical, standalone fields | **160** | **172** |
+| frame-owned (correctly bare inner inputs) | 226 | 228 |
+| remaining | **18** | **16** |
+
+The residual is inside wrapper components whose **own** sheets still carry unthemed rules — the
+debt `scripts/check-field-standard.py` reports (85 rules today). They are the next pass, not a
+regression.
+
+**Updated:** the owner's scope was explicit — **text inputs, selects and textareas**; the
+date-range trigger, select trigger, checkbox, switch and inline row buttons keep their own
+documented focus recipes (the checkbox is `.22` in dark). And **theme treatment only**: the size
+tiers are untouched (listing filters `36px`, filter rows and dialogs `42px`, form fields `44px`;
+radius `8/10/11px`).
+
+**Guarded:** `scripts/check-field-standard.py` asserts the sheet is present and loaded **last** on
+every real page, that the token pair still holds the canonical values, that **every declaration
+still carries `!important`**, and reports the unguarded-rule debt without failing on it.
+`scripts/check-search-standard.py` now includes this sheet in its `SHEETS` list, so its exclusion
+list is checked against every search frame in the markup too. The new sheet is loaded last on
+156 pages, and `scripts/stamp-asset-pins.py` carries its content hash.

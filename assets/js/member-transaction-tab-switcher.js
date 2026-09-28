@@ -215,12 +215,14 @@
   }
   document.addEventListener('click',e=>{
     const tab=e.target.closest?.('.bo-tx-tab[data-bo-tx-type]');
-    if(tab){e.preventDefault();switchTab(tab.dataset.boTxType);return;}
-    if(e.target.closest?.('[data-tab-approve],[data-tab-reject]')){
+    if(!tab)return;
+    const type=tab.dataset.boTxType;
+    if(type==='all'){
       e.preventDefault();
-      // The page-specific approval handlers remain available on the original tab.
-      // Preventing navigation here keeps the tab switch itself table-only.
+      if(state.type!=='all')switchTab('all');
     }
+    // Deposit and Withdraw deliberately use their normal href. This prevents
+    // stale listeners / late requests from one tab overwriting another tab.
   },true);
   if(state.type==='all'){
     setTableShape();

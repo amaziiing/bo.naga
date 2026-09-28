@@ -25,7 +25,7 @@
     document.querySelectorAll('.bo-tx-head-table colgroup,.bo-tx-body-table colgroup').forEach(c=>c.innerHTML='<col class="bo-tx-col-date"/><col class="bo-tx-col-member"/><col class="bo-tx-col-amount"/><col class="bo-tx-col-bank"/><col class="bo-tx-col-ref"/><col class="bo-tx-col-remark"/><col class="bo-tx-col-status"/><col class="bo-tx-col-processed"/><col class="bo-tx-col-action"/>');
     const tr=document.querySelector('.bo-tx-head-table thead tr');if(tr)tr.innerHTML='<th>Date</th><th>Member</th><th>Amount</th><th>Bank</th><th>Reference</th><th>Remark</th><th>Status</th><th>Processed</th><th>Action</th>';
     const body=document.getElementById('withdrawBody');if(body)body.innerHTML='<tr><td colspan="9">Loading...</td></tr>';
-    loadScript('assets/js/member-withdraw.js?v=1.0.40');
+    loadScript('assets/js/member-withdraw.js?v=1.0.41');
     return;
   }
 
@@ -36,12 +36,12 @@
     document.querySelectorAll('[data-bo-tx-type]').forEach(a=>{const on=a.dataset.boTxType==='all';a.classList.toggle('is-active',on);if(on)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
     // Load Deposit support only for the bank summary; member-deposit.js detects
     // tab=all and does not attach a competing table loader.
-    loadScript('assets/js/member-deposit.js?v=1.0.42');
-    loadScript('assets/js/member-transaction-tab-switcher.js?v=1.0.8');
+    loadScript('assets/js/member-deposit.js?v=1.0.43');
+    loadScript('assets/js/member-transaction-tab-switcher.js?v=1.0.9');
     return;
   }
 
   // Deposit owns the page exclusively. Other transaction types are reached by
   // their normal href, giving every tab exactly one data loader and one state.
-  loadScript('assets/js/member-deposit.js?v=1.0.42');
+  loadScript('assets/js/member-deposit.js?v=1.0.43');
 })();

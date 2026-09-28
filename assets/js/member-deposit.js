@@ -517,6 +517,12 @@
       },180);
     });
   };
+  window.addEventListener('pagehide',()=>{loadGeneration++;txCountGeneration++;});
+  window.addEventListener('pageshow',e=>{
+    if(!e.persisted)return;
+    if(new URLSearchParams(location.search).get('tab')==='all')return;
+    page=1;clearLockedAutoSize();load();renderBankCards();
+  });
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',initDepositPage,{once:true});
   else initDepositPage();
 })();

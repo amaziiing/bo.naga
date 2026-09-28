@@ -275,6 +275,16 @@
     while((!from.value||!to.value) && Date.now()-started<1500){
       await new Promise(resolve=>requestAnimationFrame(()=>resolve()));
     }
+    // This page's default range is Today. If a browser history/BFCache restore
+    // brings the document back before bo-date-range has re-synchronised the
+    // hidden inputs, never allow an unfiltered All request to escape.
+    if(!from.value||!to.value){
+      const now=new Date();
+      const pad=n=>String(n).padStart(2,'0');
+      const today=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+      if(!from.value)from.value=today;
+      if(!to.value)to.value=today;
+    }
   }
   async function init(){
     if(state.type!=='all')return;
@@ -283,6 +293,18 @@
     await waitForDateRangeReady();
     reload();
   }
+  // A normal tab click can restore member-deposit.html from the browser's
+  // back/forward cache. In that case the old table DOM is restored too, while
+  // the header/tab counters may already refresh to the current filters. That
+  // produced e.g. All (1) with old Aug/Sep rows until Ctrl+F5. Always rebuild
+  // the All table from the current controls after a BFCache restore.
+  window.addEventListener('pagehide',()=>{reloadGeneration++;countGeneration++;});
+  window.addEventListener('pageshow',async e=>{
+    if(!e.persisted||state.type!=='all')return;
+    await waitForDateRangeReady();
+    state.page=1;
+    reload();
+  });
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
   else init();
 })();

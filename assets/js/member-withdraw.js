@@ -249,6 +249,11 @@
       },180);
     });
   };
+  window.addEventListener('pagehide',()=>{loadGeneration++;txCountGeneration++;});
+  window.addEventListener('pageshow',e=>{
+    if(!e.persisted)return;
+    page=1;clearLockedAutoSize();load();renderBankCards();
+  });
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',initWithdrawPage,{once:true});
   else initWithdrawPage();
 })();

@@ -5322,3 +5322,22 @@ panel pages mount their hidden strip at width 0 — so the thumb has no width un
 provider/merchant `*_report` pages keep a second, hidden group for transaction types. The six edited scripts were
 re-stamped with `scripts/stamp-asset-pins.py`'s own recipe, scoped to those six (`--check` clean for each; the remaining
 40 stale assets and 156 real pages are the drift main already carried, left for a separate pass).
+
+### Menu Management's toolbar wears the radius of the block under it (2026-09-28, owner: “没有border radius 要统一下面的border radius”)
+
+**A framed strip with square corners.** `.user-toolbar` gets its frame — background and border — from the shared rule
+in `bo-charcoal-legacy.css`, and that rule carries no `border-radius`. On `menu-management.html` the MAIN/BO strip
+therefore rendered square while the `.table-wrap` directly beneath it keeps `reports.css`'s 12px: measured toolbar
+`0px` against table-wrap `12px`, in both themes.
+
+The fix is one declaration in the page-scoped block that already owns this strip's padding — page-scoped for the
+reason that block's own comment gives (`.user-toolbar` is a shared component, and the pages whose toolbar is
+legitimately square are not touched). Measured after: toolbar `12px` = table-wrap `12px`, with the same paint in light
+(`#FFF8EB` / `#EADCC8`) and dark (`#383A46` / `rgba(255,255,255,.14)`).
+
+**Left alone, with the measurement.** The sibling `.user-search-grid` in the same shared rule is unframed on the pages
+that carry it (`frequently-played-games`, `casino-breakdown-report` measure a transparent background), so it has no
+square frame to match; the report pages' own cards and table-wraps there sit at 0px (`bank-deposit-usage`,
+`admin-login-log` at 8px), so no single value would unify that stack. The Access Control strip is deliberately
+unframed — `access-control-executive.css` gives it `background:transparent; border:0`. The changed sheet's pin was
+re-stamped with `scripts/stamp-asset-pins.py`'s recipe (`--check` clean for it).

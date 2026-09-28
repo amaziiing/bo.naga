@@ -1146,24 +1146,14 @@ body.report-body.bo-charcoal .mad-avatar{
   border:0!important;
   box-shadow:none!important;
 }
-/* Light role pills */
+/* Light role chip — one chip for every role (DESIGN.md → Role chip). Inert on the
+   pages that load this sheet (no `.mad-role` element is rendered there); kept 1:1
+   with `main-merchant-detail-executive.css`, this file's rescope source. */
 body.report-body.bo-charcoal .mad-role{
-  background:#F3F4F6!important;
-  color:#4B5563!important;
+  background:#FFF8EB!important;
+  border:1px solid #EADCC8!important;
+  color:#57534E!important;
   border-radius:999px!important;
-}body.report-body.bo-charcoal .mad-role.is-super,
-body.report-body.bo-charcoal .mad-role.is-partner,
-body.report-body.bo-charcoal .mad-role.is-merchant{
-  background:#EDE9FE!important;
-  color:#5B21B6!important;
-}body.report-body.bo-charcoal .mad-role.is-support,
-body.report-body.bo-charcoal .mad-role.is-tech,
-body.report-body.bo-charcoal .mad-role.is-regional{
-  background:#DBEAFE!important;
-  color:#1D4ED8!important;
-}body.report-body.bo-charcoal .mad-role.is-risk{
-  background:#FEE2E2!important;
-  color:#B91C1C!important;
 }/* Light credit */
 html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal .mad-table .mad-money{
   font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace!important;
@@ -1395,24 +1385,12 @@ html[data-bo-theme="dark"] body.report-body.bo-charcoal .mad-avatar{
   border-color:rgba(245,158,11,.55)!important;
   color:#F59E0B!important;
   background:rgba(245,158,11,.08)!important;
-}/* Role pills */
+}/* Role chip, dark — the charcoal well inside the listing border. */
 html[data-bo-theme="dark"] body.report-body.bo-charcoal .mad-role{
-  background:rgba(255,255,255,.08)!important;
+  background:#2A2C36!important;
+  border:1px solid rgba(255,255,255,.12)!important;
   color:#D4D4D8!important;
   border-radius:999px!important;
-}html[data-bo-theme="dark"] body.report-body.bo-charcoal .mad-role.is-super,
-html[data-bo-theme="dark"] body.report-body.bo-charcoal .mad-role.is-partner,
-html[data-bo-theme="dark"] body.report-body.bo-charcoal .mad-role.is-merchant{
-  background:rgba(124,58,237,.22)!important;
-  color:#C4B5FD!important;
-}html[data-bo-theme="dark"] body.report-body.bo-charcoal .mad-role.is-support,
-html[data-bo-theme="dark"] body.report-body.bo-charcoal .mad-role.is-tech,
-html[data-bo-theme="dark"] body.report-body.bo-charcoal .mad-role.is-regional{
-  background:rgba(37,99,235,.22)!important;
-  color:#93C5FD!important;
-}html[data-bo-theme="dark"] body.report-body.bo-charcoal .mad-role.is-risk{
-  background:rgba(239,68,68,.18)!important;
-  color:#FCA5A5!important;
 }/* Credit */
 html[data-bo-theme="dark"] body.report-body.bo-charcoal .mad-table .mad-money,
 html[data-bo-theme="dark"] body.report-body.bo-charcoal .mad-table td[data-label="Credit Balance"] .mad-money{
@@ -3356,15 +3334,15 @@ html[data-bo-theme="dark"] body.standardized-listing-page.report-body.bo-charcoa
    thumb, deep amber hover).
    -------------------------------------------------------------------------- */
 body.report-body.bo-charcoal .mas-table-body-scroll{
-  scrollbar-color:#EADCC8 transparent!important;
+  scrollbar-color:#8B6B4A transparent!important;
 }
 body.report-body.bo-charcoal .mas-table-body-scroll::-webkit-scrollbar-thumb{
-  background:#EADCC8!important;
-  background-color:#EADCC8!important;
+  background:#8B6B4A!important;
+  background-color:#8B6B4A!important;
 }
 body.report-body.bo-charcoal .mas-table-body-scroll::-webkit-scrollbar-thumb:hover{
-  background:#DCC9A8!important;
-  background-color:#DCC9A8!important;
+  background:#5C4A30!important;
+  background-color:#5C4A30!important;
 }
 html[data-bo-theme="dark"] body.report-body.bo-charcoal .mas-table-body-scroll{
   scrollbar-color:#F59E0B transparent!important;
@@ -4018,10 +3996,10 @@ body.report-body.bo-charcoal.main-merchant-profit-record-page .mprr-field .round
   box-shadow:0 12px 30px rgba(60,48,32,.14)!important;
 }
 body.report-body.bo-charcoal.main-merchant-profit-record-page .mprr-field .rounded-select-wrap .rounded-select-menu::-webkit-scrollbar-thumb{
-  background:#EADCC8!important;
+  background:#8B6B4A!important;
 }
 body.report-body.bo-charcoal.main-merchant-profit-record-page .mprr-field .rounded-select-wrap .rounded-select-menu::-webkit-scrollbar-thumb:hover{
-  background:#DCC9A8!important;
+  background:#5C4A30!important;
 }
 /* Light option states: the legacy hover/active rules are 4 class-levels (page class +
    .mprr-field + .rounded-select-option + pseudo) while the shared block's generic
@@ -4048,10 +4026,10 @@ html[data-bo-theme="dark"] body.report-body.bo-charcoal.main-merchant-profit-rec
   box-shadow:0 16px 38px rgba(0,0,0,.4)!important;
 }
 html[data-bo-theme="dark"] body.report-body.bo-charcoal.main-merchant-profit-record-page .mprr-field .rounded-select-wrap .rounded-select-menu::-webkit-scrollbar-thumb{
-  background:#57534E!important;
+  background:#F59E0B!important;
 }
 html[data-bo-theme="dark"] body.report-body.bo-charcoal.main-merchant-profit-record-page .mprr-field .rounded-select-wrap .rounded-select-menu::-webkit-scrollbar-thumb:hover{
-  background:#78716C!important;
+  background:#D97706!important;
 }
 html[data-bo-theme="dark"] body.report-body.bo-charcoal.main-merchant-profit-record-page .mprr-field .rounded-select-wrap .rounded-select-menu .rounded-select-option:hover{
   background:rgba(245,158,11,.12)!important;

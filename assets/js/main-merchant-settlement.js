@@ -276,9 +276,9 @@ function msrSetRange(a,b,preset){
 }
 function setupSettlementDatePicker(){
   if(!$('msrDateTrigger')) return;
-  const [a,b]=presetRange('lastMonth');
+  const [a,b]=presetRange('today');
   msrPicker.view=new Date(a+'T00:00:00');
-  msrSetRange(a,b,'lastMonth');
+  msrSetRange(a,b,'today');
   $('msrDateTrigger').addEventListener('click',e=>{e.stopPropagation();$('msrRangePicker').classList.toggle('show');msrPicker.mode='days';msrRenderCalendar();});
   document.addEventListener('click',e=>{if(!e.target.closest('#msrRangePicker')&&!e.target.closest('#msrDateTrigger')) $('msrRangePicker')?.classList.remove('show');});
   document.querySelectorAll('[data-msr-preset]').forEach(btn=>btn.addEventListener('click',e=>{

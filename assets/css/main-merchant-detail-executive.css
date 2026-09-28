@@ -876,25 +876,17 @@ body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-avatar
   border:0!important;
   box-shadow:none!important;
 }
-/* Light role pills */
+/* Light role chip — one chip for every role, the Access Control recipe:
+   surface `#FFF8EB`, listing border `#EADCC8`, ink `#57534E`. The hue-coded
+   reference palette (violet owner/master, blue regional/tech/support, red risk)
+   is rejected; see DESIGN.md → Role chip. `border-box` holds the 26px. */
 body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-role{
-  background:#F3F4F6!important;
-  color:#4B5563!important;
+  background:#FFF8EB!important;
+  border:1px solid #EADCC8!important;
+  color:#57534E!important;
   border-radius:999px!important;
-}body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-role.is-super,
-body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-role.is-partner,
-body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-role.is-merchant{
-  background:#EDE9FE!important;
-  color:#5B21B6!important;
-}body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-role.is-support,
-body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-role.is-tech,
-body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-role.is-regional{
-  background:#DBEAFE!important;
-  color:#1D4ED8!important;
-}body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-role.is-risk{
-  background:#FEE2E2!important;
-  color:#B91C1C!important;
-}/* Light credit */
+}
+/* Light credit */
 html:not([data-bo-theme="dark"]) body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-table .mad-money{
   font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace!important;
   font-variant-numeric:tabular-nums!important;
@@ -947,15 +939,15 @@ html:not([data-bo-theme="dark"]) body.main-admin-detail-page[data-access-page="m
   background:#F0E4D0!important;
   border-color:#D97706!important;
   color:#18191C!important;
-}/* Light status */
+}/* Light status — soft fluorescent mint (bright wash, calm ink; avoids neon #D1FAE5 / #10B981 glare) */
 body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-status.is-active,
 body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-table td[data-label="Status"] .mad-status.is-active{
-  background:#D1FAE5!important;
-  color:#047857!important;
+  background:#EAF7F0!important;
+  color:#1A8A5C!important;
   padding:0 10px!important;
   border-radius:999px!important;
 }body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-status.is-active i{
-  background:#10B981!important;
+  background:#3CB87A!important;
   box-shadow:none!important;
 }body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-status.is-suspended,
 body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-table td[data-label="Status"] .mad-status.is-suspended{
@@ -964,7 +956,7 @@ body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-table 
   padding:0 10px!important;
   border-radius:999px!important;
 }body.main-admin-detail-page[data-access-page="main_merchant_detail"] button.mad-status.is-active:hover{
-  background:#A7F3D0!important;
+  background:#D8F0E4!important;
 }body.main-admin-detail-page[data-access-page="main_merchant_detail"] button.mad-status.is-suspended:hover{
   background:#FECACA!important;
 }/* Light pager inactive */
@@ -1125,24 +1117,12 @@ html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_me
   border-color:rgba(245,158,11,.55)!important;
   color:#F59E0B!important;
   background:rgba(245,158,11,.08)!important;
-}/* Role pills */
+}/* Role chip, dark — the charcoal well inside the listing border. */
 html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-role{
-  background:rgba(255,255,255,.08)!important;
+  background:#2A2C36!important;
+  border:1px solid rgba(255,255,255,.12)!important;
   color:#D4D4D8!important;
   border-radius:999px!important;
-}html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-role.is-super,
-html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-role.is-partner,
-html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-role.is-merchant{
-  background:rgba(124,58,237,.22)!important;
-  color:#C4B5FD!important;
-}html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-role.is-support,
-html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-role.is-tech,
-html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-role.is-regional{
-  background:rgba(37,99,235,.22)!important;
-  color:#93C5FD!important;
-}html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-role.is-risk{
-  background:rgba(239,68,68,.18)!important;
-  color:#FCA5A5!important;
 }/* Credit */
 html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-table .mad-money,
 html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-table td[data-label="Credit Balance"] .mad-money{
@@ -1620,21 +1600,21 @@ body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-status
   vertical-align:middle;
 }
 body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-status-chip.is-active{
-  background:#D1FAE5!important;
-  color:#047857!important;
+  background:#EAF7F0!important;
+  color:#1A8A5C!important;
 }
 body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-status-chip.is-suspended{
   background:#FEE2E2!important;
   color:#B91C1C!important;
 }
 body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-status-chip.is-active:hover{
-  background:#A7F3D0!important;
+  background:#D8F0E4!important;
 }
 body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-status-chip.is-suspended:hover{
   background:#FECACA!important;
 }
 body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-status-chip.is-active .mad-status-dot{
-  background:#10B981!important;
+  background:#3CB87A!important;
 }
 html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-status-chip.is-active{
   background:rgba(16,185,129,.14)!important;
@@ -3051,15 +3031,15 @@ html[data-bo-theme="dark"] body.standardized-listing-page.main-admin-detail-page
    thumb, deep amber hover).
    -------------------------------------------------------------------------- */
 body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mas-table-body-scroll{
-  scrollbar-color:#EADCC8 transparent!important;
+  scrollbar-color:#8B6B4A transparent!important;
 }
 body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mas-table-body-scroll::-webkit-scrollbar-thumb{
-  background:#EADCC8!important;
-  background-color:#EADCC8!important;
+  background:#8B6B4A!important;
+  background-color:#8B6B4A!important;
 }
 body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mas-table-body-scroll::-webkit-scrollbar-thumb:hover{
-  background:#DCC9A8!important;
-  background-color:#DCC9A8!important;
+  background:#5C4A30!important;
+  background-color:#5C4A30!important;
 }
 html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mas-table-body-scroll{
   scrollbar-color:#F59E0B transparent!important;
@@ -3089,15 +3069,12 @@ html:not([data-bo-theme="dark"]) body.main-admin-detail-page[data-access-page="m
 
 /* --------------------------------------------------------------------------
    3. Status pills in the audit table
-   main-admin-detail-executive.css:3911/3913 (near-white mint / pink fills with
-   the retired green and maroon ink) and 3990/3991 (dark mint and red washes) are
-   the exact pill values the family already replaced on `.mad-status.is-active` /
-   `.mad-status.is-suspended` — main-merchant-detail-executive.css:944-965 and
-   1150-1170. Copied verbatim so the Merchant list and the Security list agree.
+   Kept in sync with `.mad-status.is-active` / `.mad-status.is-suspended` above
+   (muted sage / soft pink) so the Merchant list and the Security list agree.
    -------------------------------------------------------------------------- */
 body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mas-status.is-success{
-  background:#D1FAE5!important;
-  color:#047857!important;
+  background:#EAF7F0!important;
+  color:#1A8A5C!important;
 }
 body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mas-status.is-blocked,
 body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mas-status.is-failed{
@@ -3716,10 +3693,10 @@ body.main-admin-detail-page[data-access-page="main_merchant_detail"].main-mercha
   box-shadow:0 12px 30px rgba(60,48,32,.14)!important;
 }
 body.main-admin-detail-page[data-access-page="main_merchant_detail"].main-merchant-profit-record-page .mprr-field .rounded-select-wrap .rounded-select-menu::-webkit-scrollbar-thumb{
-  background:#EADCC8!important;
+  background:#8B6B4A!important;
 }
 body.main-admin-detail-page[data-access-page="main_merchant_detail"].main-merchant-profit-record-page .mprr-field .rounded-select-wrap .rounded-select-menu::-webkit-scrollbar-thumb:hover{
-  background:#DCC9A8!important;
+  background:#5C4A30!important;
 }
 /* Light option states: the legacy hover/active rules are 4 class-levels (page class +
    .mprr-field + .rounded-select-option + pseudo) while the shared block's generic
@@ -3746,10 +3723,10 @@ html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_me
   box-shadow:0 16px 38px rgba(0,0,0,.4)!important;
 }
 html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"].main-merchant-profit-record-page .mprr-field .rounded-select-wrap .rounded-select-menu::-webkit-scrollbar-thumb{
-  background:#57534E!important;
+  background:#F59E0B!important;
 }
 html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"].main-merchant-profit-record-page .mprr-field .rounded-select-wrap .rounded-select-menu::-webkit-scrollbar-thumb:hover{
-  background:#78716C!important;
+  background:#D97706!important;
 }
 html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"].main-merchant-profit-record-page .mprr-field .rounded-select-wrap .rounded-select-menu .rounded-select-option:hover{
   background:rgba(245,158,11,.12)!important;

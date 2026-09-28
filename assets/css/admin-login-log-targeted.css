@@ -1,3 +1,14 @@
+/* Login Time: the date in the cell, the time in the hover tip (`boAc.dtCell`). The tip itself is
+   the global `.um-time-tip` (bo-charcoal-legacy.css), so all this carries is the cell's own
+   affordance - the same four properties the member listing's and Wallet Ledger's date cells use.
+   No colour: the cell reads like every other cell in this table, in both themes. */
+.table-card .bo-tx-datetime{
+  display:inline-block;
+  white-space:nowrap;
+  font-variant-numeric:tabular-nums;
+  cursor:help;
+}
+
 /* Admin Login Log: Referral Network style date-range filter. */
 .login-log-filter-grid{
   grid-template-columns:minmax(330px,1.45fr) minmax(180px,1fr) minmax(150px,.7fr) minmax(180px,1fr) minmax(245px,1.15fr)!important;

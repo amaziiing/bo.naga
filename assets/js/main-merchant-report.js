@@ -423,9 +423,9 @@ function setRange(a,b,preset){
   renderCalendar();
 }
 function setupDatePicker(){
-  const [a,b]=presetRange('thisMonth');
+  const [a,b]=presetRange('today');
   pickerState.view=new Date(a+'T00:00:00');
-  setRange(a,b,'thisMonth');
+  setRange(a,b,'today');
   $('reportDateTrigger').addEventListener('click',e=>{e.stopPropagation();$('reportRangePicker').classList.toggle('show');pickerState.mode='days';pickerState.hover='';renderCalendar();});
   document.addEventListener('click',e=>{if(!e.target.closest('.ref-range-wrap')) $('reportRangePicker').classList.remove('show');});
   document.querySelectorAll('[data-report-preset]').forEach(btn=>btn.addEventListener('click',e=>{

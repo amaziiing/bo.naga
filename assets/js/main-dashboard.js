@@ -585,11 +585,12 @@
   }
   function initDatePicker() {
     const trigger = $('mainDateTrigger'), picker = $('mainRangePicker');
-    // Dashboard defaults to month-to-date: first day of the current month through today.
-    // Example: Sep 9 => 01 Sep 2026 - 09 Sep 2026.
-    const [a, b] = presetRange('thisMonth');
+    // Dashboard opens on today (owner: 全站bo/main 日期 默认当日). It used to open on
+    // month-to-date - 01 Sep 2026 - 09 Sep 2026 on Sep 9 - which is what the This Month
+    // preset still gives when it is clicked.
+    const [a, b] = presetRange('today');
     pickerState.view = new Date(a + 'T00:00:00');
-    setRange(a, b, 'thisMonth', false);
+    setRange(a, b, 'today', false);
     trigger.addEventListener('click', e => {
       e.stopPropagation();
       picker.classList.toggle('show');

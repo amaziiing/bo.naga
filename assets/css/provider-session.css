@@ -663,11 +663,11 @@ html body.provider-session-page .table-footer .entries-control .rounded-select-m
   background:transparent;
 }
 html body.provider-session-page .table-footer .entries-control .rounded-select-menu::-webkit-scrollbar-thumb{
-  background:#98A2B3;
+  background:#8B6B4A;
   border-radius:999px;
 }
 html body.provider-session-page .table-footer .entries-control .rounded-select-menu::-webkit-scrollbar-thumb:hover{
-  background:#667085;
+  background:#5C4A30;
 }
 html body.provider-session-page .table-footer .table-info{
   text-align:center;

@@ -262,20 +262,20 @@ html body.vip-exp-log-page .table-footer .entries-control .rounded-select-menu::
 }
 html body.vip-exp-log-page .vip-log-filters .rounded-select-menu::-webkit-scrollbar-thumb,
 html body.vip-exp-log-page .table-footer .entries-control .rounded-select-menu::-webkit-scrollbar-thumb{
-  background:#98A2B3 !important;
+  background:#8B6B4A !important;
   border-radius:999px !important;
   border:0 !important;
   min-height:28px !important;
 }
 html body.vip-exp-log-page .vip-log-filters .rounded-select-menu::-webkit-scrollbar-thumb:hover,
 html body.vip-exp-log-page .table-footer .entries-control .rounded-select-menu::-webkit-scrollbar-thumb:hover{
-  background:#667085 !important;
+  background:#5C4A30 !important;
 }
 @supports not selector(::-webkit-scrollbar){
   html body.vip-exp-log-page .vip-log-filters .rounded-select-menu,
   html body.vip-exp-log-page .table-footer .entries-control .rounded-select-menu{
     scrollbar-width:thin;
-    scrollbar-color:#98A2B3 transparent;
+    scrollbar-color:#8B6B4A transparent;
   }
 }
 html[data-bo-theme="dark"] body.vip-exp-log-page .vip-log-filters .rounded-select-btn{

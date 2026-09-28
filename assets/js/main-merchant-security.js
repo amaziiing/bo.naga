@@ -705,9 +705,9 @@
     const picker = document.getElementById('masRangePicker');
     if(!trigger || !picker || !fromEl || !toEl) return;
 
-    const [a, b] = presetRange('thisMonth');
+    const [a, b] = presetRange('today');
     pickerState.view = new Date(a + 'T00:00:00');
-    setRange(a, b, 'thisMonth', false);
+    setRange(a, b, 'today', false);
 
     trigger.addEventListener('click', e => {
       e.stopPropagation();
@@ -1327,10 +1327,10 @@
     if(searchEl) searchEl.value = '';
     if(eventTypeEl) eventTypeEl.value = '';
     if(statusEl) statusEl.value = '';
-    const [a, b] = presetRange('thisMonth');
+    const [a, b] = presetRange('today');
     pickerState.view = new Date(a + 'T00:00:00');
     pickerState.selectingStart = true;
-    setRange(a, b, 'thisMonth', false);
+    setRange(a, b, 'today', false);
     category = 'all';
     document.querySelectorAll('[data-mas-cat]').forEach(b => {
       b.classList.toggle('is-active', b.getAttribute('data-mas-cat') === 'all');

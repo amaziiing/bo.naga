@@ -9,7 +9,18 @@
   const body=document.getElementById('loginLogBody'), search=document.getElementById('loginLogSearch'), status=document.getElementById('loginLogStatus'), ip=document.getElementById('loginLogIp'), size=document.getElementById('loginLogPageSize');
   let all=[], filtered=[], page=1;
   const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const dt=v=>{if(!v)return '-'; const d=new Date(v); return isNaN(d)?String(v).replace('T',' '):d.toLocaleString('en-GB',{hour12:false}).replace(',','');};
+  function dt(value){
+    if(!value)return '-';
+    const d=new Date(value);
+    if(isNaN(d.getTime()))return String(value).replace('T',' ').replace(/\.\d+.*$/,'');
+    const pad=n=>String(n).padStart(2,'0');
+    return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());
+  }
+  /* The date in the cell, the time on hover - `boAc.dtCell`, this family's listing pattern
+     (Admin Management's Last Login / Created use the same helper). The date stays ISO: this
+     family's timestamp format, and the column's own sort compares cell text, so it has to
+     read as a date. Falls back to the plain stamp if the shared helper is absent. */
+  const dateCell=v=>(window.boAc&&boAc.dtCell)?boAc.dtCell(dt(v)):esc(dt(v));
   async function apiJson(url){const r=await fetch(url,{headers:{...BO_AUTH.authHeader()}}); const j=await r.json().catch(()=>({})); if(!r.ok||j.status==='error')throw new Error(j.message||'Request failed'); return j;}
   function stats(){const today=ymd(new Date()); document.getElementById('logStatTotal').textContent=all.length; document.getElementById('logStatSuccess').textContent=all.filter(x=>x.status==='SUCCESS').length; document.getElementById('logStatFailed').textContent=all.filter(x=>x.status==='FAILED').length; document.getElementById('logStatToday').textContent=all.filter(x=>loginDateKey(x.loginAt)===today).length;}
   function loginDateKey(v){
@@ -30,7 +41,7 @@
     });
     page=1; render();
   }
-  function render(){const ps=(window.boAc?boAc.resolve(size.value,document.querySelector('.table-card')):(Number(size.value)>0?Number(size.value):10)), pages=Math.max(1,Math.ceil(filtered.length/ps)); page=Math.min(Math.max(1,page),pages); const rows=filtered.slice((page-1)*ps,page*ps); body.innerHTML=rows.length?rows.map((x,i)=>'<tr><td>'+((page-1)*ps+i+1)+'</td><td>'+esc(dt(x.loginAt))+'</td><td><b>'+esc(x.username||'-')+'</b><br><small>'+esc(x.displayName||'')+'</small></td><td><span class="admin-status-pill '+(x.status==='SUCCESS'?'active':'disabled')+'"><i></i>'+(x.status==='SUCCESS'?'Success':'Failed')+'</span></td><td>'+esc(x.ipAddress||'-')+'</td><td title="'+esc(x.userAgent||'')+'" style="max-width:320px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(x.userAgent||'-')+'</td><td>'+esc(x.failureReason||'-')+'</td></tr>').join(''):'<tr><td colspan="7">No login records found.</td></tr>'; document.getElementById('loginLogCount').textContent=filtered.length+' Records'; document.getElementById('loginLogInfo').textContent=filtered.length?'Showing '+((page-1)*ps+1)+' to '+Math.min(page*ps,filtered.length)+' of '+filtered.length+' entries':'Showing 0 to 0 of 0 entries'; document.getElementById('loginLogPager').innerHTML=pageButtons(page,pages);
+  function render(){const ps=(window.boAc?boAc.resolve(size.value,document.querySelector('.table-card')):(Number(size.value)>0?Number(size.value):10)), pages=Math.max(1,Math.ceil(filtered.length/ps)); page=Math.min(Math.max(1,page),pages); const rows=filtered.slice((page-1)*ps,page*ps); body.innerHTML=rows.length?rows.map((x,i)=>'<tr><td>'+((page-1)*ps+i+1)+'</td><td>'+dateCell(x.loginAt)+'</td><td><b>'+esc(x.username||'-')+'</b><br><small>'+esc(x.displayName||'')+'</small></td><td><span class="admin-status-pill '+(x.status==='SUCCESS'?'active':'disabled')+'"><i></i>'+(x.status==='SUCCESS'?'Success':'Failed')+'</span></td><td>'+esc(x.ipAddress||'-')+'</td><td title="'+esc(x.userAgent||'')+'" style="max-width:320px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(x.userAgent||'-')+'</td><td>'+esc(x.failureReason||'-')+'</td></tr>').join(''):'<tr><td colspan="7">No login records found.</td></tr>'; document.getElementById('loginLogCount').textContent=filtered.length+' Records'; document.getElementById('loginLogInfo').textContent=filtered.length?'Showing '+((page-1)*ps+1)+' to '+Math.min(page*ps,filtered.length)+' of '+filtered.length+' entries':'Showing 0 to 0 of 0 entries'; document.getElementById('loginLogPager').innerHTML=pageButtons(page,pages);
   // settled after the paint: `-` is verified on real rows, not the placeholder
   // one post-paint verification pass so `-` is exact (see access-control-listing.js)
   if (window.boAc && boAc.settle) boAc.settle(document.querySelector('.table-card'), render);if(window.boAc&&String(size.value)===boAc.FIT&&!render._refit&&filtered.length){const fit=boAc.resolve(size.value,document.querySelector('.table-card'));if(fit!==ps){render._refit=true;render();render._refit=false;return;}}}

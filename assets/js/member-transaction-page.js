@@ -18,7 +18,7 @@
   }else{script.src='assets/js/member-deposit.js?v=1.0.38';}
   script.addEventListener('load',()=>{
     const switcher=document.createElement('script');
-    switcher.src='assets/js/member-transaction-tab-switcher.js?v=1.0.0';
+    switcher.src='assets/js/member-transaction-tab-switcher.js?v=1.0.2';
     document.body.appendChild(switcher);
   },{once:true});
   document.body.appendChild(script);

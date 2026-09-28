@@ -146,6 +146,16 @@ Theme toggle: `data-bo-theme` / `localStorage.bo_theme`. Prefer `--bo-*` tokens 
 | Control well | `#F5EBDC` | `rgba(255,255,255,.06)` |
 | Placeholder | `#78716C` (on cream wells) | `#A1A1AA` |
 
+### Row status / role pills (soft fluorescent — locked 2026-09-28)
+
+Luminous pastel wash + calm mid ink on cream table rows. Specimen: Merchants list (`.mad-role` · `.mad-status`) · Providers list (`.mpv-status`). Sources: `assets/css/main-merchant-detail-executive.css`, `assets/css/main-provider-detail-executive.css`, `assets/css/main-provider-family-executive.css`.
+
+| Part | Light fill / ink | Notes |
+|------|------------------|-------|
+| Role Brand Owner (`.mad-role.is-super` / `.is-partner` / `.is-merchant`) | `#F0ECFA` / `#6B5B95` | Soft fluorescent lilac — not neon violet `#EDE9FE`/`#5B21B6`, not dusty dark |
+| Status Active (`.mad-status.is-active` · `.mad-status-chip.is-active` · `.mas-status.is-success` · `.mpv-status.is-active`) | `#EAF7F0` / `#1A8A5C` · dot `#3CB87A` · hover `#D8F0E4` | Soft fluorescent mint — not neon `#D1FAE5`/`#10B981`. Providers + Merchants share this. |
+| Status Suspended | `#FEE2E2` / `#B91C1C` | Unchanged |
+
 ### Sidebar & canvas continuum
 
 **Rule:** Only the **canvas** does sidebar→page transition. Sidebar itself is **opaque** (covers content when expanded). Panels/tables stay solid surface. Source: `assets/css/bo-charcoal-shell.css`.
@@ -567,6 +577,8 @@ Two pages needed their closing tags handled by hand because `</main>` and the sh
 test — match with `in`, not `==`.
 
 **Row avatar (2026-09-15 — merchant AND admin, unified).** The tile is a neutral index marker, not a colour-coded one: light `#F5EBDC` / `#6b360c`, dark `#2A2C36` / `#E7E5E4`. The every-third-row tint is **deleted** — it encoded row position, not data, and a colour that means nothing teaches the eye to ignore the ones that do (the Status pill, the money columns). Colour survives on exactly one avatar variant: a **suspended** row (`#FEE2E2` / `#B91C1C` light, `rgba(239,68,68,.14)` / `#FCA5A5` dark), which agrees with the Status pill instead of contradicting it. Initials come from the company **name** (`avatarInitials()` in `main-merchant-detail.js`), not the code — the code is already printed beside the tile, so repeating it made a 40×40 saturated block carry no information.
+
+**Row Role / Status pills (2026-09-28 — soft fluorescent, owner locked).** Brand Owner lilac `#F0ECFA`/`#6B5B95` and Active mint `#EAF7F0`/`#1A8A5C` (dot `#3CB87A`) — luminous enough to read as fluorescent chips on cream zebra, calm enough not to glare. Do not revert to neon `#EDE9FE`/`#5B21B6` or `#D1FAE5`/`#10B981`, and do not darken to dusty sage/plum. Same values on `.mad-status-chip`, Security `.mas-status.is-success`, and Providers `.mpv-status.is-active` / family `.mad-status`. See Colors → Row status / role pills.
 **Unified across both families.** The same treatment is applied to the Admin list (`main-admin-detail.html`) in `main-admin-detail-executive.css`, where one thing differs: `.is-self` is **kept amber** because on that page it means "this is your own account" — that is real information, so the neutral rule is written `:not(.is-self)` and the amber tile survives. Its previous every-third-row sky tint is deleted there too, which also removes the light-only-rule leak into dark mode recorded above.
 
 A different component, and already consistent: **`.mas-avatar`** on the Security & Audit pages reads `--bo-cyan-tint` / `--bo-cyan-deep` in light and `rgba(245,158,11,.16)` / `#FBBF24` in dark, so it sits on the amber palette. The `.is-alt` class its JS still applies on every other row is **already neutralised** — a later override block gives `.mas-avatar` and `.mas-avatar.is-alt` the same wash, so it does not encode row position. Its shape is `12px`, not the legacy `50%` circle; a later block sets the radius. The only difference left from the list tile is that it carries a wash at all, which is one quiet tint rather than an encoding, so it is defensible as-is. Decide separately if it should go fully neutral.
@@ -695,7 +707,7 @@ Three inherited defects fixed with page-scoped overrides (the shared files were 
 - **Responsive table** on health (two independent breaks): `…:671-676` and `…:707-716` hide only `th` for some columns, so the header slid off the body; and `…:1331-1360` switches to a card layout keyed to `tr.mad-row` / `td[data-label]`, neither of which `main-provider-activity.js` emits. Fixed by keeping a real table at every width. **Restoring `thead`/`tbody`/`th`/`td` is not enough — the row level is blockified too, so `tr` must be forced back to `display:table-row`**; without it each row lands in its own anonymous table (measured 379px header/cell offset at a 980px viewport).
 - **Modal head/foot dividers**: `reports.css` paints `.modal-clean-head` / `.modal-clean-foot` with the cool `--line` token, and neither the Admin Detail block nor the merchant block migrated that layer (they style `.mad-modal-*` and `.modal-clean-close/-panel`). On charcoal the divider read as a light seam in **both** themes; now warm `#EADCC8` / `rgba(255,255,255,.14)`.
 
-Inherited-but-inert, do not "fix" without checking: `--bo-secondary:#2563EB` is declared by all three family files and consumed by none; the `.mad-role.is-support|is-tech|is-regional` chips keep the reference's `#DBEAFE`/`#1D4ED8` palette and no `.mad-role` element exists on these pages.
+Inherited-but-inert, do not "fix" without checking: `--bo-secondary:#2563EB` is declared by all three family files and consumed by none; the `.mad-role.is-support|is-tech|is-regional` chips kept the reference's `#DBEAFE`/`#1D4ED8` palette and no `.mad-role` element exists on these pages — that palette is gone as of 2026-09-28 (both rules and tone classes, → Role chip below).
 
 Verification: per-element colour sweep (canvas, sidebar, topbar, content, modals, both pickers) in light and dark — 0 retired or saturated-blue hits on all three pages. Credentials pickers checked for default range, first-click-stays-open, hover strip and refetch (`month=2026-09`); health table checked aligned (`maxLeftDelta 0`) at 1440/1270/1190/980/420px with its page-size popover opening in-viewport.
 
@@ -1359,6 +1371,107 @@ stops intercepting the call, the page gets a real 401 and logs itself out to `lo
 exactly like “this page has no sidebar”. Four pages were mis-diagnosed that way before the regex was
 printed back.
 
+#### Follow-up audit: does the collapsed rail move on hover anywhere? (2026-09-24)
+
+Owner: “继续审核sidebar收起后还会自动展开问题”, with a screenshot of the **deployed** site
+(`bo.titanx7.com/dashboard.html`) whose rail was expanded on hover — that is the pre-merge build, and
+the merge above is the fix (see the deploy gap below). The follow-up asked the harder question: with
+the width rules gone, does anything else still make the collapsed rail *react* like an expander?
+
+**Static sweep.** Every rule in `assets/css/` whose selector mentions the sidebar and `:hover` /
+`:focus*` / `.is-mini-hover` / `:has()`, checked for any `width` / `max-width` / `min-width` that is not
+`--rail-w`: the BO has **none** left. The only hits are `agent-portal.css` (the Agent Portal's own
+shell, which already pins its 72px rail on hover) and the `:not(:hover):not(.is-mini-hover)` collapsed
+rules that were kept deliberately. The same sweep over every page's **inline `<style>`** found exactly
+one real leftover, below.
+
+**The leftover was on the dashboard shell** (`dashboard.html`, its own inline block):
+`body.sidebar-mini .report-sidebar:hover .dashboard-sidebar-brand > div{display:block!important;
+opacity:1!important;visibility:visible!important;width:auto!important}` — the brand row's text
+(“Backoffice / Admin Panel”) resurrected itself on hover *inside* the 72px rail, clipped. It never
+changed the rail's width, but it is the one place the collapsed rail still visibly reacted to the
+pointer, which is what “自动展开” describes. Both reveal rules are now scoped to
+`body:not(.sidebar-mini)`, so they still apply in the expanded rail (where the text is visible anyway)
+and never fire in the collapsed one. `dashboard-mini-hold` and its script are left in place: that block
+forces the collapsed width and hides the same reveals, so it is now redundant but harmless.
+
+**Dynamic sweep** (stub-backend harness, 1400×880, each page rested → hover the toggle → hover the
+first row): rail width, `.report-main` margin, nav label `font-size`, brand visibility, toggle `x`,
+rail `box-shadow` — measured identical in all three states on `dashboard.html` (its own shell),
+`index.html` (twin sheet), `member-deposit.html` (base), `livechat.html` and
+`main-merchant-security.html` (main-admin-detail family). The only thing that changes is the panel or
+rail label appearing, which is the intended hover response.
+
+**Deploy gap, still open at the time of writing.** The four restored sheets are only in `main`; the live
+assets still hash to the pre-merge versions (`reports.css 9b0bb6de`, twin `ff6b5448`,
+`bo-charcoal-legacy ae99f4cf`, `main-admin-detail-executive 0bfec462`), so the owner will keep seeing
+the old hover-expand on `bo.titanx7.com` until a deploy from `main` happens. That is the one step this
+audit cannot do: the repo's own rule is that the server is a deploy target, not a workstation.
+
+### The rail toggle appeared twice on every load (2026-09-28, owner: “sidebar的收起按键会闪烁出现两次”)
+
+Owner, switching the Provider section tabs (Providers → Settlement → Activity Logs): “那个sidebar的收起
+按键会闪烁出现两次”.
+
+**It was one control, painted twice in sequence.** The pass above moved the toggle into the rail and
+retired the topbar hamburger with a rule in `bo-global-quicknav.css` — a sheet `auth.js` injects *inside*
+`renderSidebar()`, i.e. only after `/me` → `menu-groups` → `/ui-setting` had all returned. The topbar
+hamburger is static markup that `reports.css` shows (`display:inline-flex`), so on every load the visible
+control was the topbar one until that chain finished; then it disappeared and the same button — same
+`bi-list` chip, same cream fill, ~200px to the left — reappeared in the rail. Measured with a 25ms
+sampler against a stubbed backend (both API hops given a realistic 1.2s RTT): topbar chip visible
+94–1326ms, rail chip from 1357ms, and **no frame ever showed both**, which is why it read as a flicker
+rather than a duplicate.
+
+**Site-wide, not a Provider-family bug.** 130 of the 153 real pages carry that exact markup shape
+(`report-body` + `reports.css` + `auth.js` + topbar hamburger + no rail chip in markup), and the sampler
+found the same sequence on `admin-user`, `index.html` (no `reports.css`), `layout-section.html` (no
+`bo-ui-standard.css`), `menu-management.html` and the agent-shell pages. The Settlement tab is only where
+the owner noticed it. `dashboard.html` was the one page that never flickered — its chip is in its markup
+and its values in the page's own `<style>`; every other page got the button from JS.
+
+**Fix: a mount and a guard that do not wait for the menu data.** `mountSidebarToggle()` in `auth.js`
+injects the sheet and mounts the rail chip at boot, before the round trip — idempotent, still called by
+`renderSidebar()` for a sidebar that appears later, and no longer requiring `.report-nav` to exist. The
+guard (`body.report-body:not(.agent-modern):not(.dashboard-shell) .report-topbar .hamb{display:none}`,
+`min-width:992px`) and the chip's own values are restated in `reports.css` and `bo-ui-standard.css`,
+because only a sheet already in the cascade at first paint can retire the topbar copy from the first
+frame. Both sheets carry it: `reports.css` misses `index.html`/`member-detail.html`/`online-users.html`,
+`bo-ui-standard.css` misses `layout-section.html`. Values stay in sync with the canonical copy in
+`bo-global-quicknav.css`, which remains the runtime backstop.
+
+**Consequences, deliberate:**
+
+- **The Agent Portal keeps the topbar control.** The guard is scoped `:not(.agent-modern)`; those twelve
+  pages boot no `auth.js`, so the rail chip never exists there. Verified with two probe pages that differ
+  only in `<body>` class: `agent-modern` → hamburger `flex`, plain BO → `none`, no `report-body` → `flex`.
+- **This reverses the 2026-09-24 reasoning for keeping the hide out of `reports.css`.** The four scratch
+  `_verify-*` copies boot no `auth.js` either, so on desktop they now show neither control. They are
+  screenshot scaffolds, not deployed pages; `agent-modern` on their `<body>` restores the old behaviour.
+- The sidebar **menu** still arrives after the DB round trip — `auth.js` documents why (menus must come
+  from the DB). Only the button stops changing place.
+- Below 992px nothing changes: the guard is inside `min-width:992px`, the injected sheet hides the rail
+  chip there, and the topbar hamburger stays the drawer's opener.
+
+**Verified** (25ms sampler, 10 pages; re-checked after the change):
+
+| Page | Topbar chip, before | After |
+| --- | --- | --- |
+| `main-provider-credentials.html` (Settlement) | 94–1326ms | **never**; rail chip at 177ms |
+| `main-provider-detail.html` / `-health.html` | 59–856ms | **never**; 57 / 63ms |
+| `admin-user`, `index`, `layout-section`, `menu-management` | 131–1402ms / 229–933ms | **never**; 153–240ms |
+| `agent-management.html` (agent shell, boots `auth.js`) | same shape | **never**; 162ms |
+| `dashboard.html` | never | never (unchanged) |
+
+Samples showing both controls: **0** on every page. Functional: rail chip click → 72px rail +
+`bo_sidebar_mini=1`, click again → 260px + `0`; chip is `#383A46`/`#F5F5F4` in dark; at 480px the rail
+chip is hidden, the topbar opener is visible and its handler opens the drawer (`.show` +
+`body.sidebar-open`); two consecutive `renderSidebar()` calls still leave exactly one chip.
+
+**Pins:** `reports.css`, `bo-ui-standard.css` and `auth.js` re-stamped
+(`stamp-asset-pins.py --check` clean). The same run refreshed `main-admin-detail.js` and
+`main-provider-detail.js`, which had drifted before this pass.
+
 ### 8. Report regularised — items 8.1 … 8.11 (2026-09-22, owner request)
 
 “把图里的 8. report 从8.1至8.11 重新整顿一遍”. Eleven pages, brought onto the locked chrome
@@ -1475,7 +1588,8 @@ these.
 **Still open, and named as such rather than quietly dropped:** the *page-level* scrollbar (far
 right of the viewport) is still the OS default. It is not this family’s to change — it belongs to
 every page of the app, so it needs one repo-wide decision, the way `bo-table-zebra.css` was made
-a shared layer. Also still open: the footer’s `Show N entries` select stays a native `<select>`
+a shared layer. **Closed 2026-09-25** — see “One scrollbar palette, site-wide”: the decision is the
+house pill, in `assets/css/bo-scrollbar.css`, linked from every page. Also still open: the footer’s `Show N entries` select stays a native `<select>`
 because `bo-ui-standard.js` only upgrades selects inside `.bo-filter-row`, so it does not get the
 Role-select cream chrome.
 **Third defect from the same render (owner report: “日期外围有一个很丑的border”).** The date
@@ -1713,6 +1827,72 @@ non-family scope still measured 17px because `bo-global-quicknav.css?v=PIN` was 
 `bo-global-quicknav.css` 1.1.3 → **1.1.4** (auth.js ×2 and `menu-management.html`), `auth.js`
 1.0.86 → **1.0.87** on all 130 pages, and `bo-report-family.css` 1.0.7 → **1.0.8** on the eleven —
 the last one because that sheet had rules *removed*, and a stale copy would keep applying them.
+
+### One scrollbar palette, site-wide — and the page-level bar joins it (2026-09-25)
+
+Owner: “全站main/bo 的scrollbar颜色要统一”.
+
+**The palette was never in doubt; four others had grown beside it.** A linear scan of every sheet
+plus every page's inline `<style>` (494 scrollbar rules — *not* a regex: `bo-charcoal-legacy.css`
+is 12.7 MB and a `[^{}]*?` pattern over it backtracks for minutes) found the locked **Panel pill**
+pair — light `#8B6B4A` / hover `#5C4A30`, dark `#F59E0B` / `#D97706` — alongside four competing
+palettes on the same components in different families:
+
+| Beside it | Where | Count |
+| --- | --- | --- |
+| cool slate `#98A2B3` / `#667085` | `bo-charcoal-primitives`, `provider-session`, `vip-exp/reward-log`, `main-merchant-profit-record`, `menu-permission-executive`, `main-admin-detail-executive`, `bo-wallet-transaction-amber` | 25 rules |
+| zinc dark `#A1A1AA` / `#D4D4D8` / `#71717A` | `bo-wallet-transaction-amber`, `main-merchant-profit-record`, `reports.css` | 6 |
+| tan `#EADCC8` / `#DCC9A8` | `bo-charcoal-shell`, `main-merchant-detail-executive`, `main-report-charcoal`, `reports.css`, `reports-dashboard-original.css`, `vip-management` | 18 |
+| warm grey `#57534E` / `#78716C` | same three sheets, dark branches | 8 |
+
+**The sweep is colour-only, by ROLE, and was verified as such.** 78 declarations across 14 sheets
+now state the house pair; widths, radii, borders, arrow rules, `!important` flags and `var()`
+fallbacks are untouched, and every declaration was checked to have actually changed (this repo's
+trap 5 — `str.replace()` cannot fail). Two bugs in the first pass, both caught by reading the diff
+rather than the transform's report: `html:not([data-bo-theme="dark"])` is a **light** rule that
+contains the word `dark`, so the first version flipped the family's light thumbs to amber; and the
+`@supports not selector(::-webkit-scrollbar)` branches hold a light and a dark rule inside one
+block, so judging the block by its last inner selector got half of them wrong. Also excluded:
+rules that only declare `scrollbar-gutter`/`scrollbar-width` (a panel reserving a gutter also
+declares its own surface `background`, and rewriting that would have painted the panel chocolate),
+and `var()`-valued colours — which is not a dodge: all four such vars (`--lc-thumb`,
+`--lc-thumb-hover`, `--bo-cyan`, `--bo-cyan-deep`) resolve inside the house palette already, and
+the rendered check below covers them.
+
+**The page-level bar was the piece DESIGN.md had left open** (“it belongs to every page of the app,
+so it needs one repo-wide decision”): `scrollbar-color: auto`, default width, **OS arrows**, on every
+BO and Main Portal page — measured, not assumed. It now has the house pill in a small shared layer,
+`assets/css/bo-scrollbar.css`, linked from all **150** real pages (the four that are meta-refresh
+shells have no CSS at all, so they are excluded, and `backup_provider.html` is a fragment with no
+`<head>`). The file carries three things: the document scroller, a `*` **fallback** for anything no
+family sheet has coloured — a fallback, not an override: every family rule out-specifies it, and a
+deliberately hidden bar still hides because `scrollbar-width:none` is a standard property — and the
+Firefox branch under `@supports not selector(::-webkit-scrollbar)`, never `scrollbar-color` for
+WebKit (Chromium would paint OS arrows and ignore every `::-webkit-scrollbar` rule).
+`::-webkit-scrollbar-button:single-button` is in there beside the plain variant, because the plain
+one does not cover Chromium's single-button state (the trap from the “scrollbar corner” note above).
+
+**Verified by rendering, both themes, on 23 page renders** — every changed sheet measured on a page
+that actually loads it (`account-lock`, `bank-deposit-usage`, `player-provider-session`,
+`vip-exp-log`, `vip-reward-log`, `main-merchant-profit-record`, `main-merchant-balance`,
+`main-merchant-create`, `admin-user-create`, `main-admin-role-create`, `index`, plus the earlier
+twelve): every scrollable element was forced to overflow and its **effective** colour read —
+`scrollbar-color` when it is not `auto`, otherwise `::-webkit-scrollbar-thumb`, since Chromium
+honours the former over the latter. Result: **light 149–152 of 149–152 scrollers
+`rgb(139,107,74)`, dark the same count `rgb(245,158,11)`, 0 off-palette.**
+
+**The gutter gate, as the note above asks for it** (`offsetWidth − clientWidth`, the width Chromium
+actually reserved — 15–17px is the OS bar, 6–8px is the pill): **no scroller anywhere in the sample
+reserves more than 11px.** 134 non-root scrollers in each theme: 94 at 8px (6px pill + two 1px
+borders), 17 at 6px, 12 at 0px (deliberately hidden), the rest the family's locked 9/10px horizontal
+bars. Before/after of the page bar, same page and viewport, produced by disabling only this one
+sheet: OS grey with up/down arrows → 6px chocolate pill, no arrows, no track lane.
+
+**Two things this pass deliberately did not touch.** The hidden sidebar (`scrollbar-width:none`) stays
+hidden — that was an owner decision, not drift — and the six pages that load neither `reports.css`
+nor `bo-ui-standard.css` keep an OS-width sidebar scrollbar, which is a *visibility* difference, not
+a colour one; the new layer colours it but does not hide it.
+
 
 ### 8.1–8.11 viewport-locked — the table header now stays put (2026-09-22)
 
@@ -4279,6 +4459,41 @@ the date alone, tip the time, and stay one line (≤26px). Both assertions are s
 the member listing's own DD/MM/YYYY cells are not judged — which the first run proved by firing on
 `index.html` before I scoped it. Light and dark: 0 of 12 failing.
 
+#### Admin Login Log: the Login Time cell gets the same treatment (2026-09-25)
+
+Owner: “这个页面的日期和时间展示 改为时间悬浮 像其他页面一样” — the LOGIN TIME column circled, every row
+reading `25/09/2026 16:40:38`.
+
+`admin-login-log.js` printed the whole stamp in the cell (`dt()` → `toLocaleString('en-GB')`). It now
+uses the family's own pair, the same two the section above landed on Admin Management: `dt()` produces
+the ISO stamp, and the cell is drawn by `boAc.dtCell()` — **date in the cell, time in the hover tip**.
+The page already loads `access-control-listing.js`, so the tip element (`#umTimeTip`) and its delegated
+handlers were already there; the only new page-side code is that pair, and the only new CSS is the cell's
+own affordance in `admin-login-log-targeted.css` (`display:inline-block`, no wrap, `tabular-nums`,
+`cursor:help` — the member listing's and Wallet Ledger's four properties). No colour override: the cell
+reads like every other cell in this table, in both themes.
+
+**The visible date format changes with it — `25/09/2026` becomes `2026-09-24`.** Deliberate: ISO is this
+family's timestamp format (the choice recorded above), and the column's own sort (`report-table-sort.js`
+compares cell *text*) then orders as a date rather than by day-of-month. Verified by holding the whole
+set on one page (size `All`) and clicking LOGIN TIME: `2026-09-22` first, `2026-09-24` last, `aria-sort`
+`ascending`, 0 JS errors.
+
+**Verified with a real mouse on the real page, not a synthetic event.** Fixtures + the API stub injected
+before the page's own scripts (`Page.addScriptToEvaluateOnNewDocument`), then
+`Input.dispatchMouseEvent` onto the cell at (516,327): `#umTimeTip` takes `is-on`, `opacity: 1`,
+`visibility: visible`, text `09:41:07`, `position: fixed`, `z-index: 40000`, cream pill
+`rgb(255,248,235)` / `rgb(107,54,12)` / `999px` in light, `rgb(64,66,78)` / `rgb(245,245,244)` in dark —
+the locked tip in both themes. It sits 8px above the cell (`aboveCell: true`, cell 84×17 at y 318, tip
+86×29 at y 282), and moving the mouse off clears it (`is-on` gone, `opacity: 0`, `visibility: hidden`).
+Cells measure `text="2026-09-24" tip="09:41:07" tabindex="0"`.
+
+Two things this pass did **not** change. Rows stay 55px tall: the Admin cell here is
+`<b>username</b><br><small>display name</small>` — a second *field*, not a repeated word, so it keeps its
+two lines and the date cell's win is consistency rather than height. And for the **first** row the tip
+lands over the thead, because the helper prefers above the cell and the header is right there; that is
+what every other page using this tip does (`if (top < 8)` is the only flip), so it was left alone.
+
 #### Anchor-styled buttons were underlined (2026-09-24)
 
 Owner: “为什么我的access control的所有页面的 add 按键 下面都有underline 麻烦移除可以吗”. The Add and Edit
@@ -4569,3 +4784,102 @@ code-search field, not a table search well, and 28px is its own documented recip
 `main-provider-health.html`'s bare flex toolbar (a row of filter controls, not a search well). Both are
 reported as known non-conformances rather than silently passed. `agent-players.html` already measured
 canonical before this pass and was left alone.
+
+### Every date filter opens on today (2026-09-25, owner “全站bo/main 日期 默认当日”)
+
+**The inventory first, because "全站" hides four different implementations.** 156 pages scanned; 63 carry a
+date control (BO `bo-date-range.js` and its two family copies, the Main Portal's
+`main-exec-date-range.js` → `MAIN_DATE_RANGE`, and **eighteen** page scripts with their own
+`presetRange`/`preset` dictionaries), 93 carry none. Before this pass: **35 already opened on today** (the
+BO family's implicit fallback — `bo-date-range.js` fills empty inputs with today) and **26 did not** —
+25 on *this month*, `main-stat-detail.html` on *last month* — plus two with no default at all.
+
+**41 default-setting expressions across 23 files now say today**: `presetRange('thisMonth')`,
+`preset('thisMonth')`, `defaultPreset:'thisMonth'`, `o.defaultPreset||'thisMonth'`, `k='thisMonth'`, the
+third argument of `setRange(a,b,'thisMonth',false)` (the preset pill that gets marked active), and the two
+`data-range-default` attributes. The preset **dictionaries are untouched** — `key==='thisMonth'` and the
+`data-*-preset="thisMonth"` option buttons are what the user clicks, so the regexes match the init call
+shapes only, and the scan that follows reports **0** remaining default-shaped occurrences.
+
+**Two of the 26 were not where the inventory pointed, and that is the part worth keeping.** The first
+sweep missed every `setRange(a, b, 'thisMonth', false)` — the space after the comma — which is the
+argument that lights the *This Month* pill, so those five pages would have opened on today with the wrong
+pill highlighted; found by listing *every* quoted `'thisMonth'` and classifying it by hand rather than
+trusting the pattern. And two pages override the shared picker entirely from their own script:
+`main-stat-detail.js` computed month-to-date (`mtdFrom`/`mtdTo`) after `bo-date-range.js` had already put
+today in the inputs, and `agent-management.js` set `adminAgentBetFrom` with `isoMonthStart()` — both keep
+comparing as before, they just start from today now.
+
+**Verified by rendering, not by the rule.** `check.py` loads each page and reads what the filter actually
+holds (every `*From`/`*To` input), the label the trigger shows, and which preset pill is marked active:
+**19 of 20 pages `2026-09-25 → 2026-09-25` with the Today pill, 1 deliberate harness case**
+(`brand-management.html`'s picker is MAIN-only — its script returns early for any other role — and
+verifies clean once measured as a MAIN user, which is its own precondition). One reading that looked like
+a failure was my probe's: `main-provider-credentials.html`'s first label in document order is the
+settlement modal's *payment date* ("Select date"), not the range label; the range itself was already
+today. Theme is not a variable here — no page branches its default on `data-bo-theme` — so this pass was
+measured in light only.
+
+**Two exclusions, deliberate.** `index.html` (the member roster) keeps an **empty** range: it filters
+`createdAt`, i.e. *registration* date, so "today" would open the roster showing only members who
+registered today. It is a listing with an all-time default by design, not a report. And
+`backup_provider.html` has date inputs (and everything else) with **no page script at all** — a fragment
+with no driver, so there is nothing to default.
+
+### The Role chip is one chip — the reference's hue-coding is gone (2026-09-28, owner "role的brand owner的设计 没有跟其他页面统一设计和颜色")
+
+**What the owner saw.** On the Merchants list (Main → Merchant → Merchants) the Role column painted
+`Brand Owner` as a **violet** capsule — `#EDE9FE` on `#5B21B6`, measured — while every other chip on the
+page is the amber/cream listing vocabulary. `Regional Master` came out **blue** (`#DBEAFE` / `#1D4ED8`)
+and a risk role **red** (`#FEE2E2` / `#B91C1C`): three cool or alarm hues on a role *name*, in a column that
+in the owner's data holds one value. The same violet is on Main → Admin Management, because both Role
+columns are the same recipe.
+
+**The ruling was already written — only its scope was missing.** This exact purple was rejected on
+2026-09-24 for the Access Control family (→ the 11.2 defect list above): “the purple the design system
+rejects. Super scope is a permission fact, so it takes the amber signal the rest of the family uses for
+‘elevated’, **not a second hue**.” That pass was scoped to the six Access Control pages, so the listing
+family kept the imported reference's hue-coded column, and the four files that were later rescoped from
+it (`main-merchant-detail-executive`, `main-provider-family-executive`, `main-report-charcoal`,
+`bo-charcoal-shell`) carried it along.
+
+**One chip for every role, and that chip is the Access Control one.** A role name is a **label, not a
+state** — the same argument the row avatar got on 2026-09-15 (“a colour that means nothing teaches the
+eye to ignore the ones that do”). So the Role column now wears the signed-off recipe of the Access Control
+Role column, verbatim in colour:
+
+| | light | dark |
+|---|---|---|
+| fill | `#FFF8EB` (listing surface) | `#2A2C36` (charcoal well) |
+| frame | `1px solid #EADCC8` | `1px solid rgba(255,255,255,.12)` |
+| ink | `#57534E` | `#D4D4D8` |
+
+**Mechanically: 7 rules → 1 in each of five sheets, both themes.** The base `.mad-role` and each
+`[data-access-page=…]` block lost their tone groups (`.is-super`, `.is-partner`, `.is-merchant`,
+`.is-support`, `.is-tech`, `.is-regional`, `.is-risk`) and kept a single rule. `roleTone()` stays in
+`main-admin-detail.js` / `main-merchant-detail.js` and its classes stay in the markup as **inert hooks** —
+the two lists are the only pages in the repo that render a `.mad-role` element, so the three rescoped
+copies are inert and were repainted anyway to stay **1:1 diffable with their source sheet**, which is the
+property recorded for the charcoal shell. Geometry is untouched but for the frame: 999px capsule, 12px/700,
+and `box-sizing:border-box` so the 1px frame does not grow the 26px pill into its column.
+
+**Verified on the rendered pages** (stubbed fixtures, both themes, `.tmp-ac-review/`): Merchant
+`Brand Owner` + `Regional Master` and Admin `Root Account` + `Platform Master` all measure
+`rgb(255,248,235)` / `rgb(87,83,78)` on `rgb(234,220,200)` in light and `rgb(42,44,54)` / `rgb(212,212,216)`
+on `rgba(255,255,255,.12)` in dark, height **26** in both — the same three colours the Access Control
+`role-pill` measures in both themes (25px, 6px radius: its own geometry, same paint). Role cells report
+`clientWidth == scrollWidth` on both lists. An 8-page × 2-theme sweep (provider detail, `main-report`,
+merchant report / settlement, `win-lose-report`, `admin-user`) found no other chip moved.
+
+**Left alone, deliberately.** The Access Control `.role-pill.super` **amber** variant is their signed-off
+decision and is untouched — scope colouring still exists there, where a role name says “super”
+(`roleTone()`'s classes no longer paint anything on the listing pages).
+
+**Observation, not fixed here (pre-existing).** The Merchant list's Role column is **121px** (`width:11%`,
+`padding-right:12px`) and its chips measure `Brand Owner` **100px** (fits), `Regional Master` **118px**
+(9px past the cell's content box) and `Naga Brand Owner` **133px** (24px past) — the last two spill out of
+the cell with `overflow:visible`, exactly as the Access Control Role column did before 11.2 widened it, and
+2px of that is this pass's frame (the old chip had no border). The other columns here are content-fitted
+and the merchant sheet carries two copies of the width map (base at 11%, the ≤1399.98px one at 16%), so
+column widths stayed out of a colour pass. What it would take: `nth-child(3)` to ~14% plus the same
+donation from `Created By` or `Company`, in both maps.

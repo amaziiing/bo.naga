@@ -157,20 +157,18 @@ html[data-bo-theme="dark"] body.main-admin-detail-page.main-provider-family-page
 }
 
 /* ---- Status pill (.mpv-status.is-active | .is-maintenance | .is-suspended) ---- */
-/* Same recipe as the family's .mad-status so this list reads like Admin / Merchant: solid
-   green / amber / red chips with a solid dot in light, amber-tinted charcoal chips with a neon
-   dot in dark. The legacy washes are translucent cyan-era rgb() values, and the base pill is
-   cool #F2F4F7 — off-ladder on cream. */
+/* Soft fluorescent Active — same locked recipe as Merchant `.mad-status.is-active`
+   (DESIGN.md → Colors → Row status / role pills). Maintenance / Suspended unchanged. */
 html:not([data-bo-theme="dark"]) body.main-admin-detail-page.main-provider-family-page:not(.main-report-exec-page) .mpv-status{
   background:#F5EBDC!important;
   color:#57534E!important;
 }
 html:not([data-bo-theme="dark"]) body.main-admin-detail-page.main-provider-family-page:not(.main-report-exec-page) .mpv-status.is-active{
-  background:#D1FAE5!important;
-  color:#047857!important;
+  background:#EAF7F0!important;
+  color:#1A8A5C!important;
 }
 html:not([data-bo-theme="dark"]) body.main-admin-detail-page.main-provider-family-page:not(.main-report-exec-page) .mpv-status.is-active i{
-  background:#10B981!important;
+  background:#3CB87A!important;
 }
 html:not([data-bo-theme="dark"]) body.main-admin-detail-page.main-provider-family-page:not(.main-report-exec-page) .mpv-status.is-maintenance{
   background:#FEF3C7!important;

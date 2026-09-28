@@ -900,18 +900,18 @@ body.main-admin-detail-page .mad-email{
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
 
+/* The role chip is ONE chip, in both themes, for every role. It shipped the
+   reference's hue-coded palette — violet for owner/master, blue for
+   regional/tech/support, red for risk — which the design system rejects (see
+   DESIGN.md → Role chip). The Access Control Role column is the signed-off
+   recipe and this is that recipe: the listing surface inside the listing
+   border, `#57534E` ink. `border-box` keeps the capsule at its 26px so the
+   frame does not grow the chip into its column. */
 body.main-admin-detail-page .mad-role{
   display:inline-flex;align-items:center;height:26px;padding:0 12px;
   border-radius:8px;font-size:12px;font-weight:700;white-space:nowrap;
-  background:#E9EEF5;color:#263B5E;
-}
-body.main-admin-detail-page .mad-role.is-super,
-body.main-admin-detail-page .mad-role.is-partner,
-body.main-admin-detail-page .mad-role.is-risk,
-body.main-admin-detail-page .mad-role.is-merchant,
-body.main-admin-detail-page .mad-role.is-tech,
-body.main-admin-detail-page .mad-role.is-regional{
-  background:#E9EEF5;color:#263B5E;
+  box-sizing:border-box;
+  background:#FFF8EB;border:1px solid #EADCC8;color:#57534E;
 }
 
 body.main-admin-detail-page .mad-status{
@@ -1796,14 +1796,8 @@ html[data-bo-theme="dark"] body.main-admin-detail-page .mad-tab:hover:not(.is-di
   color:var(--bo-text);background:transparent!important;
 }
 html[data-bo-theme="dark"] body.main-admin-detail-page .mad-tab.is-active{color:#fff!important;border-bottom-color:var(--bo-cyan)!important}
-html[data-bo-theme="dark"] body.main-admin-detail-page .mad-role,
-html[data-bo-theme="dark"] body.main-admin-detail-page .mad-role.is-super,
-html[data-bo-theme="dark"] body.main-admin-detail-page .mad-role.is-partner,
-html[data-bo-theme="dark"] body.main-admin-detail-page .mad-role.is-risk,
-html[data-bo-theme="dark"] body.main-admin-detail-page .mad-role.is-merchant,
-html[data-bo-theme="dark"] body.main-admin-detail-page .mad-role.is-tech,
-html[data-bo-theme="dark"] body.main-admin-detail-page .mad-role.is-regional{
-  background:rgba(255,255,255,.10);color:#D0D7E2;
+html[data-bo-theme="dark"] body.main-admin-detail-page .mad-role{
+  background:#2A2C36;border:1px solid rgba(255,255,255,.12);color:#D4D4D8;
 }
 html[data-bo-theme="dark"] body.main-admin-detail-page .report-sidebar{
   background:var(--bo-sidebar-bg)!important;
@@ -3678,7 +3672,7 @@ body.main-admin-security-page .mas-table tbody tr[data-event-id] > td{
 /* Thin scrollbar matching reference (body only) */
 body.main-admin-security-page .mas-table-body-scroll{
   scrollbar-width:auto;
-  scrollbar-color:#98A2B3 transparent;
+  scrollbar-color:#8B6B4A transparent;
 }
 body.main-admin-security-page .mas-table-body-scroll::-webkit-scrollbar{
   width:14px;
@@ -3687,13 +3681,13 @@ body.main-admin-security-page .mas-table-body-scroll::-webkit-scrollbar-track{
   background:transparent;
 }
 body.main-admin-security-page .mas-table-body-scroll::-webkit-scrollbar-thumb{
-  background:#98A2B3;
+  background:#8B6B4A;
   border-radius:999px;
   border:3px solid transparent;
   background-clip:padding-box;
 }
 body.main-admin-security-page .mas-table-body-scroll::-webkit-scrollbar-thumb:hover{
-  background:#667085;
+  background:#5C4A30;
   border:3px solid transparent;
   background-clip:padding-box;
 }
@@ -8343,35 +8337,16 @@ body.main-admin-detail-page[data-access-page="main_admin_security"] .mad-avatar.
   box-shadow:none!important;
 }
 
-/* Light role pills */
+/* Light role chip — the Access Control recipe, unhued: surface `#FFF8EB`,
+   listing border `#EADCC8`, ink `#57534E`. The tone classes
+   (is-super / is-partner / is-merchant / is-support / is-tech / is-regional /
+   is-risk) stay in the markup from `roleTone()` and are deliberately inert. */
 body.main-admin-detail-page[data-access-page="main_admin_detail"] .mad-role,
 body.main-admin-detail-page[data-access-page="main_admin_security"] .mad-role{
-  background:#F3F4F6!important;
-  color:#4B5563!important;
+  background:#FFF8EB!important;
+  border:1px solid #EADCC8!important;
+  color:#57534E!important;
   border-radius:999px!important;
-}
-body.main-admin-detail-page[data-access-page="main_admin_detail"] .mad-role.is-super,
-body.main-admin-detail-page[data-access-page="main_admin_security"] .mad-role.is-super,
-body.main-admin-detail-page[data-access-page="main_admin_detail"] .mad-role.is-partner,
-body.main-admin-detail-page[data-access-page="main_admin_security"] .mad-role.is-partner,
-body.main-admin-detail-page[data-access-page="main_admin_detail"] .mad-role.is-merchant,
-body.main-admin-detail-page[data-access-page="main_admin_security"] .mad-role.is-merchant{
-  background:#EDE9FE!important;
-  color:#5B21B6!important;
-}
-body.main-admin-detail-page[data-access-page="main_admin_detail"] .mad-role.is-support,
-body.main-admin-detail-page[data-access-page="main_admin_security"] .mad-role.is-support,
-body.main-admin-detail-page[data-access-page="main_admin_detail"] .mad-role.is-tech,
-body.main-admin-detail-page[data-access-page="main_admin_security"] .mad-role.is-tech,
-body.main-admin-detail-page[data-access-page="main_admin_detail"] .mad-role.is-regional,
-body.main-admin-detail-page[data-access-page="main_admin_security"] .mad-role.is-regional{
-  background:#DBEAFE!important;
-  color:#1D4ED8!important;
-}
-body.main-admin-detail-page[data-access-page="main_admin_detail"] .mad-role.is-risk,
-body.main-admin-detail-page[data-access-page="main_admin_security"] .mad-role.is-risk{
-  background:#FEE2E2!important;
-  color:#B91C1C!important;
 }
 
 /* Light credit */
@@ -8742,35 +8717,13 @@ html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_ad
   background:rgba(245,158,11,.08)!important;
 }
 
-/* Role pills */
+/* Role chip, dark — the charcoal well inside the listing border. */
 html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_admin_detail"] .mad-role,
 html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_admin_security"] .mad-role{
-  background:rgba(255,255,255,.08)!important;
+  background:#2A2C36!important;
+  border:1px solid rgba(255,255,255,.12)!important;
   color:#D4D4D8!important;
   border-radius:999px!important;
-}
-html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_admin_detail"] .mad-role.is-super,
-html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_admin_security"] .mad-role.is-super,
-html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_admin_detail"] .mad-role.is-partner,
-html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_admin_security"] .mad-role.is-partner,
-html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_admin_detail"] .mad-role.is-merchant,
-html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_admin_security"] .mad-role.is-merchant{
-  background:rgba(124,58,237,.22)!important;
-  color:#C4B5FD!important;
-}
-html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_admin_detail"] .mad-role.is-support,
-html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_admin_security"] .mad-role.is-support,
-html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_admin_detail"] .mad-role.is-tech,
-html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_admin_security"] .mad-role.is-tech,
-html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_admin_detail"] .mad-role.is-regional,
-html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_admin_security"] .mad-role.is-regional{
-  background:rgba(37,99,235,.22)!important;
-  color:#93C5FD!important;
-}
-html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_admin_detail"] .mad-role.is-risk,
-html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_admin_security"] .mad-role.is-risk{
-  background:rgba(239,68,68,.18)!important;
-  color:#FCA5A5!important;
 }
 
 /* Credit */

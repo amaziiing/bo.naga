@@ -397,9 +397,9 @@
     const toEl = $('mprTo');
     if (!trigger || !picker || !fromEl || !toEl) return;
 
-    const [a, b] = presetRange('thisMonth');
+    const [a, b] = presetRange('today');
     pickerState.view = new Date(a + 'T00:00:00');
-    setRange(a, b, 'thisMonth', false);
+    setRange(a, b, 'today', false);
 
     trigger.addEventListener('click', (e) => {
       e.stopPropagation();

@@ -759,7 +759,7 @@
 
     range = MAIN_DATE_RANGE.init({
       prefix: 'winLose',
-      defaultPreset: 'thisMonth',
+      defaultPreset:'today',
       onChange: () => {
         expanded.clear();
         load();

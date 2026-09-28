@@ -87,9 +87,9 @@ body.vip-modal-open .report-shell{filter:none}
   width:max-content!important;
 }
 .vip-step-list::-webkit-scrollbar{height:10px}
-.vip-step-list::-webkit-scrollbar-track{background:#F5EBDC;border-radius:999px}
-.vip-step-list::-webkit-scrollbar-thumb{background:#78716C;border-radius:999px;border:2px solid #F5EBDC}
-.vip-step-list::-webkit-scrollbar-thumb:hover{background:#78716C}
+.vip-step-list::-webkit-scrollbar-track{background:transparent;border-radius:999px}
+.vip-step-list::-webkit-scrollbar-thumb{background:#8B6B4A;border-radius:999px;border:2px solid #F5EBDC}
+.vip-step-list::-webkit-scrollbar-thumb:hover{background:#5C4A30}
 @media(max-width:1180px){
   .vip-step-row{
     min-width:1050px!important;

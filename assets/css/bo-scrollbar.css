@@ -1,0 +1,47 @@
+/* One scrollbar palette, site-wide (BO and Main Portal).
+ *
+ * Owner: “全站main/bo 的scrollbar颜色要统一”. Every scroll container in the product is the same
+ * warm pill - light thumb #8B6B4A, hover #5C4A30; dark thumb #F59E0B, hover #D97706; transparent
+ * track; no end arrows. That is the locked recipe (.interface-design/system.md -> Panel pill
+ * scrollbar); what was NOT unified was the drift: slate #98A2B3/#667085, zinc #A1A1AA/#D4D4D8,
+ * tan #EADCC8/#DCC9A8 and warm grey #57534E/#78716C on the same components in different families.
+ * Those now state the house pair in their own sheets, so a scroller nobody has styled at all -
+ * and the page-level bar, which was the raw OS default on EVERY page - get it here.
+ *
+ * Chromium: `::-webkit-scrollbar-*` only. Do NOT set `scrollbar-width`/`scrollbar-color` to a
+ * coloured pair for it - Chromium then paints OS arrows and ignores every ::-webkit-scrollbar
+ * rule (the trap recorded under Panel pill scrollbar). Firefox gets those two inside the
+ * @supports branch below, where WebKit cannot see them.
+ *
+ * Specificity note: the two `*` rules are a FALLBACK, not an override. Any family rule - with or
+ * without !important, all of which now state the same colours - out-specifies them, and a
+ * deliberately hidden bar (`.report-sidebar .report-nav{scrollbar-width:none}`) still hides
+ * because a standard property beats the pseudo-element.
+ */
+
+/* The page-level bar: was OS grey with arrows on every page. */
+html::-webkit-scrollbar{ width:6px; height:6px; background:transparent }
+html::-webkit-scrollbar-track{ background:transparent }
+html::-webkit-scrollbar-corner{ background:transparent }
+html::-webkit-scrollbar-button,
+html::-webkit-scrollbar-button:single-button{ display:none; width:0; height:0 }
+html::-webkit-scrollbar-thumb{ background:#8B6B4A; border-radius:999px }
+html::-webkit-scrollbar-thumb:hover{ background:#5C4A30 }
+html[data-bo-theme="dark"]::-webkit-scrollbar-thumb{ background:#F59E0B }
+html[data-bo-theme="dark"]::-webkit-scrollbar-thumb:hover{ background:#D97706 }
+
+/* Anything no family sheet has coloured - the same pill, so no page shows an OS bar. */
+*::-webkit-scrollbar{ width:6px; height:6px; background:transparent }
+*::-webkit-scrollbar-track,
+*::-webkit-scrollbar-corner{ background:transparent }
+*::-webkit-scrollbar-button,
+*::-webkit-scrollbar-button:single-button{ display:none; width:0; height:0 }
+*::-webkit-scrollbar-thumb{ background:#8B6B4A; border-radius:999px }
+*::-webkit-scrollbar-thumb:hover{ background:#5C4A30 }
+html[data-bo-theme="dark"] *::-webkit-scrollbar-thumb{ background:#F59E0B }
+html[data-bo-theme="dark"] *::-webkit-scrollbar-thumb:hover{ background:#D97706 }
+
+@supports not selector(::-webkit-scrollbar){
+  html{ scrollbar-width:thin; scrollbar-color:#8B6B4A transparent }
+  html[data-bo-theme="dark"]{ scrollbar-color:#F59E0B transparent }
+}

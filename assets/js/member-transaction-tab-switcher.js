@@ -35,21 +35,77 @@
     out.forEach(n=>{if(prev&&n-prev>1)html+='<span class="smart-page-ellipsis">…</span>';html+=`<button type="button" class="smart-page${n===state.page?' active':''}" data-tab-page="${n}"${n===state.page?' aria-current="page"':''}>${n}</button>`;prev=n;});
     return html;
   }
-  function replaceWithClone(id){
-    const el=$(id);if(!el)return;
-    const clone=el.cloneNode(true);el.replaceWith(clone);
-  }
   function installCleanListeners(){
-    [id('From'),id('To'),id('Keyword'),id('Status'),id('Size'),id('PrevBtn'),id('Pager'),id('NextBtn')].forEach(replaceWithClone);
-    [id('From'),id('To')].forEach(controlId=>$(controlId)?.addEventListener('change',reload));
-    $(id('Status'))?.addEventListener('change',reload);
-    $(id('Size'))?.addEventListener('change',()=>{state.page=1;reload();});
+    // IMPORTANT: never clone/replace the real filter controls here.
+    // bo-ui-standard/custom select keeps a live reference to the original
+    // <select>. Replacing #depositStatus after a tab click left the visible
+    // dropdown bound to the detached old select while this switcher read the
+    // new clone (still PENDING). That is why Status=All worked before touching
+    // a transaction tab, but snapped back to Pending after any tab click.
+    //
+    // Keep every existing DOM control intact and use capture-phase guards to
+    // stop the page-specific Deposit handler only while All/Withdraw owns the
+    // shared table.
+    const bindOnce=(el,key,event,handler,opts)=>{
+      if(!el||el.dataset[key]==='1')return;
+      el.dataset[key]='1';
+      el.addEventListener(event,handler,opts);
+    };
+
+    [id('From'),id('To')].forEach(controlId=>{
+      bindOnce($(controlId),'boTxDateGuard','change',e=>{
+        if(state.type==='deposit')return;
+        e.stopImmediatePropagation();
+        state.page=1;
+        reload();
+      },true);
+    });
+
+    bindOnce($(id('Status')),'boTxStatusGuard','change',e=>{
+      if(state.type==='deposit')return;
+      e.stopImmediatePropagation();
+      state.page=1;
+      reload();
+    },true);
+
+    bindOnce($(id('Size')),'boTxSizeGuard','change',e=>{
+      if(state.type==='deposit')return;
+      e.stopImmediatePropagation();
+      state.page=1;
+      reload();
+    },true);
+
     let timer=0;
-    $(id('Keyword'))?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();clearTimeout(timer);state.page=1;reload();}});
-    $(id('Keyword'))?.addEventListener('input',()=>{clearTimeout(timer);timer=setTimeout(()=>{state.page=1;reload();},350);});
-    $(id('PrevBtn'))?.addEventListener('click',()=>{if(state.page>1){state.page--;reload();}});
-    $(id('NextBtn'))?.addEventListener('click',()=>{if(state.page<state.totalPages){state.page++;reload();}});
-    $(id('Pager'))?.addEventListener('click',e=>{const b=e.target.closest('[data-tab-page]');if(b){state.page=Number(b.dataset.tabPage);reload();}});
+    bindOnce($(id('Keyword')),'boTxKeywordKeyGuard','keydown',e=>{
+      if(state.type==='deposit')return;
+      if(e.key==='Enter'){
+        e.preventDefault();e.stopImmediatePropagation();clearTimeout(timer);
+        state.page=1;reload();
+      }
+    },true);
+    bindOnce($(id('Keyword')),'boTxKeywordInputGuard','input',e=>{
+      if(state.type==='deposit')return;
+      e.stopImmediatePropagation();clearTimeout(timer);
+      timer=setTimeout(()=>{state.page=1;reload();},350);
+    },true);
+
+    bindOnce($(id('PrevBtn')),'boTxPrevGuard','click',e=>{
+      if(state.type==='deposit')return;
+      e.preventDefault();e.stopImmediatePropagation();
+      if(state.page>1){state.page--;reload();}
+    },true);
+    bindOnce($(id('NextBtn')),'boTxNextGuard','click',e=>{
+      if(state.type==='deposit')return;
+      e.preventDefault();e.stopImmediatePropagation();
+      if(state.page<state.totalPages){state.page++;reload();}
+    },true);
+    bindOnce($(id('Pager')),'boTxPagerGuard','click',e=>{
+      if(state.type==='deposit')return;
+      const b=e.target.closest('[data-tab-page]');
+      if(!b)return;
+      e.preventDefault();e.stopImmediatePropagation();
+      state.page=Number(b.dataset.tabPage);reload();
+    },true);
   }
   function setTableShape(){
     const withdraw=state.type==='withdraw';
@@ -84,6 +140,39 @@
     $(id('Pager')).innerHTML=pageButtons();
     $(id('PrevBtn')).disabled=state.page<=1;$(id('NextBtn')).disabled=state.page>=state.totalPages;
   }
+  async function refreshTabCounts(){
+    // Keep the three tab totals independent from whichever table currently owns
+    // the shared controls.  After a tab switch the Deposit page listeners are
+    // intentionally suppressed for All/Withdraw, so its old counter refresher
+    // no longer runs.  Query both list endpoints directly using the current
+    // date/status filters and update only the existing count spans.
+    const c=controls();
+    const params=new URLSearchParams({page:'1',size:'1'});
+    if(c.status)params.set('status',c.status);
+    if(c.from)params.set('dateFrom',c.from);
+    if(c.to)params.set('dateTo',c.to);
+    if(c.keyword)params.set('keyword',c.keyword);
+    const count=async key=>{
+      const json=await api(endpoint(key)+'?'+params);
+      const data=json.data||{};
+      const pg=json.pagination||data.pagination||data||{};
+      const n=Number(pg.totalElements);
+      if(Number.isFinite(n))return Math.max(0,n);
+      const rows=Array.isArray(data)?data:(data.content||data.items||data.list||json.content||[]);
+      return Array.isArray(rows)?rows.length:0;
+    };
+    try{
+      const [depositTotal,withdrawTotal]=await Promise.all([
+        count('MEMBER_DEPOSIT_LIST'),count('MEMBER_WITHDRAW_LIST')
+      ]);
+      const set=(elId,value)=>{const el=$(elId);if(el)el.textContent=String(value);};
+      set('boTxCountDeposit',depositTotal);
+      set('boTxCountWithdraw',withdrawTotal);
+      set('boTxCountAll',depositTotal+withdrawTotal);
+    }catch(_e){
+      // A count failure must never break the transaction table itself.
+    }
+  }
   async function reload(){
     const c=controls(),requestedSize=pageSize();
     const params=new URLSearchParams({page:String(state.type==='all'?1:state.page),size:String(state.type==='all'?10000:requestedSize)});
@@ -106,6 +195,7 @@
         pagination={totalElements:total,totalPages,page:state.page,size:requestedSize};
       }
       render(rows,pagination);
+      refreshTabCounts();
     }catch(e){if(body)body.innerHTML=`<tr><td colspan="${state.type==='withdraw'||state.type==='all'?9:8}" class="text-danger">${esc(e.message)}</td></tr>`;}
   }
   function switchTab(type){

@@ -1186,3 +1186,41 @@ html:not(#bo-filter-standard-off):not(#bo-charcoal-off):not(#bo-input-fill-legac
   padding:0 !important;
   box-shadow:none !important;
 }
+
+
+/* ---------------------------------------------------------------------------
+   6. THE STATUS PILLS — Active / <the page's word for off> / All.
+
+   Every listing in this family carries a Status column, but the filter for it was
+   uneven: 11.2 filtered it with a Status `<select>`, 11.3 and 11.6 had no filter on
+   it at all. The owner pointed at the merchant listing (`main-merchant-detail.html`)
+   and asked for its control here: the pill group, Active first, `All` last, counts
+   in `(n)`, and the off-state pill wearing the page's own word — Admin Management
+   and IP Whitelist say `Disabled`, Staff Permission says `Inactive` — so a pill and
+   the badge in the same row can never disagree.
+
+   The pills' LOOK is deliberately NOT defined here. Their buttons carry the shared
+   recipe's own vocabulary — `data-mad-status="active" | "suspended" | "all"` — and
+   all three pages are `body.report-body.bo-charcoal`, so `bo-charcoal-shell.css`
+   already paints the pill, its dot, the counts, the hover and both themes, and
+   `bo-charcoal-primitives.css` paints the selected thumb. That is also why the
+   pages now load `bo-seg-bounce.css` / `bo-seg-bounce.js`: without them the active
+   pill has no frame at all (DESIGN.md records the same trap on the Profit Report).
+
+   What this block adds is placement, because the strip here is not the report
+   family's `.mad-filter-bar`. It is `.user-toolbar`: a `flex` band of fields left,
+   actions right. The group is the band's first child, so it lands on the left of
+   the field cluster — the merchant page's arrangement — and the actions keep their
+   own `margin-left:auto` on the right.
+
+   Nothing else is needed from this sheet, and that is the point: the strip's
+   caption-hiding and 36px-control rules are keyed to `.field` / `label` / `select`,
+   and a `.mad-pill` is none of those. A future "hide the strip's chrome" pass should
+   leave `> .ac-status-pills` alone — the pills ARE the status control. */
+html:not(#bo-filter-standard-off):not(#bo-charcoal-off) body.bo-access-control .table-card > .user-toolbar > .ac-status-pills{
+  flex:0 0 auto !important;
+  width:auto !important;
+  min-width:0 !important;
+  margin:0 !important;
+  align-self:center !important;
+}

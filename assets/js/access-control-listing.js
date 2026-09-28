@@ -83,11 +83,14 @@ function fitRows(card) {
   var avail = Math.max(0, Math.floor(scroll.clientHeight) - headH);
   /* A real row, not the placeholder: a "Loading…" cell is one line (38px) while a
      real row is two (57px here), and measuring the placeholder over-counts by
-     three rows — measured on 11.2: 319 / 38 = 8 rows where 319 / 57 = 5 fit. */
+     three rows — measured on 11.2: 319 / 38 = 8 rows where 319 / 57 = 5 fit.
+     It must also be PAINTED: a row the search or the status pills have hidden
+     measures 0 tall, and a 0 sample would fit three rows too many. `getClientRects()`
+     is the cheap "has layout" test. */
   var sample = null;
   var rows = scroll.querySelectorAll('tbody tr');
   for (var i = 0; i < rows.length; i++) {
-    if (rows[i].cells && rows[i].cells.length > 1) { sample = rows[i].cells[0]; break; }
+    if (rows[i].cells && rows[i].cells.length > 1 && rows[i].getClientRects().length) { sample = rows[i].cells[0]; break; }
   }
   if (!sample && rows.length) sample = rows[0].cells[0];
   var rowH = sample ? Math.max(38, Math.round(sample.getBoundingClientRect().height)) : 41;
@@ -225,10 +228,19 @@ window.boAc = {
     this.size = root.getAttribute('data-ac-pagesize') || SIZES[0];
     this.page = 1;
     this.term = '';
+    /* The status pills (Active / <this page's word for off> / All, `data-ac-status-pills`).
+       `all` is the default, which is what every one of these listings showed before the
+       pills existed. The buttons carry the shared pill recipe's own vocabulary —
+       `data-mad-status="active" | "suspended" | "all"` — so their dots, frame and
+       dark-theme colours come from `bo-charcoal-shell.css`, and a row marks itself
+       with the matching `data-ac-status="active" | "suspended"`. One vocabulary on
+       both sides, so filtering is a string compare. */
+    this.statusTerm = 'all';
     this.footer = null;
     this.build();
     this.observe();
     this.wireSearch();
+    this.wireStatusPills();
   }
 
   Listing.prototype.rows = function () {
@@ -237,14 +249,63 @@ window.boAc = {
     return Array.prototype.filter.call(body.rows, function (r) { return !isPlaceholder(r); });
   };
 
-  /* The rows that survive the search. The page size, the "Showing a to b of c"
-     line and the pager all count THESE, so a search reads as a smaller listing
-     rather than as a listing with holes in it. */
+  /* The rows that survive the search AND the status pills. The page size, the
+     "Showing a to b of c" line and the pager all count THESE, so a search reads as a
+     smaller listing rather than as a listing with holes in it, and a status with no
+     rows reads as an empty listing rather than as a broken one. */
   Listing.prototype.matched = function () {
     var term = this.term;
-    if (!term) return this.rows();
-    return this.rows().filter(function (row) {
+    var status = this.statusTerm;
+    var rows = this.rows();
+    if (status && status !== 'all') {
+      rows = rows.filter(function (row) { return row.getAttribute('data-ac-status') === status; });
+    }
+    if (!term) return rows;
+    return rows.filter(function (row) {
       return (row.textContent || '').toLowerCase().indexOf(term) !== -1;
+    });
+  };
+
+  /* One pass for the pill group: the numbers on it and which one is on. The numbers
+     describe the whole listing — the search does not move them, the pills do not
+     shrink themselves when they are the filter (that is the merchant listing's own
+     behaviour, and it is the one that lets you read a filter's size before clicking).
+     Called from apply(), so a save, a delete or a toggle that re-renders the rows
+     leaves the counts honest without the page having to say so. */
+  Listing.prototype.syncStatusPills = function () {
+    var groups = this.root.querySelectorAll('[data-ac-status-pills]');
+    if (!groups.length) return;
+    var term = this.statusTerm;
+    var all = this.rows();
+    var counts = { all: all.length, active: 0, suspended: 0 };
+    Array.prototype.forEach.call(all, function (row) {
+      var s = row.getAttribute('data-ac-status');
+      if (s && counts[s] != null) counts[s]++;
+    });
+    Array.prototype.forEach.call(groups, function (group) {
+      Array.prototype.forEach.call(group.querySelectorAll('[data-ac-status-count]'), function (el) {
+        var n = counts[el.getAttribute('data-ac-status-count')];
+        el.textContent = String(n == null ? 0 : n);
+      });
+      Array.prototype.forEach.call(group.querySelectorAll('[data-mad-status]'), function (btn) {
+        var on = (btn.getAttribute('data-mad-status') || 'all') === term;
+        btn.classList.toggle('is-active', on);
+        btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+    });
+  };
+
+  Listing.prototype.wireStatusPills = function () {
+    var self = this;
+    var groups = this.root.querySelectorAll('[data-ac-status-pills]');
+    Array.prototype.forEach.call(groups, function (group) {
+      Array.prototype.forEach.call(group.querySelectorAll('[data-mad-status]'), function (btn) {
+        btn.addEventListener('click', function () {
+          self.statusTerm = btn.getAttribute('data-mad-status') || 'all';
+          self.page = 1;
+          self.apply();
+        });
+      });
     });
   };
 
@@ -305,6 +366,7 @@ window.boAc = {
   Listing.prototype.apply = function () {
     var all = this.rows();
     var rows = this.matched();
+    this.syncStatusPills();
     var total = rows.length;
     var totalPages = Math.max(1, Math.ceil(total / this.size));
     if (this.page > totalPages) this.page = totalPages;
@@ -318,9 +380,11 @@ window.boAc = {
       row.style.display = visible ? '' : 'none';
       if (visible) shown++;
     });
-    /* A row the search rejected is hidden whether or not the pager would have
-       reached it. */
-    if (this.term) {
+    /* A row a FILTER rejected is hidden whether or not the pager would have reached
+       it. Keyed on "matched is a subset of all" rather than on the search term alone:
+       the search and the status pills are both filters, and the pills' rejected rows
+       were staying on screen while the footer below them counted them out. */
+    if (rows.length !== all.length) {
       var inPage = new Set(rows.slice(start, end));
       Array.prototype.forEach.call(all, function (row) {
         if (!inPage.has(row)) row.style.display = 'none';

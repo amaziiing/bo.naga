@@ -13,7 +13,6 @@
   const editForm = document.getElementById('editAdminForm');
   const searchInput = document.getElementById('adminSearchInput');
   const roleFilter = document.getElementById('adminRoleFilter');
-  const statusFilter = document.getElementById('adminStatusFilter');
   const cancelBtn = document.getElementById('cancelCreateAdminBtn');
   const exportBtn = document.getElementById('exportAdminBtn');
   const pageSizeEl = document.getElementById('adminPageSize');
@@ -28,6 +27,44 @@
   let allAdmins = [];
   let filteredAdmins = [];
   let currentPage = 1;
+
+  /* The status filter is a pill group now (Active / Disabled / All) instead of the
+     strip's Status select. `statusTerm` is the whole of that control's state, and its
+     values are the ones the shared pill recipe already speaks — `active` /
+     `suspended` / `all` — so the dots, the cream frame and the dark-theme colours all
+     come from `bo-charcoal-shell.css` rather than from a second copy here. */
+  let statusTerm = 'all';
+
+  function statusPills(){
+    return document.querySelectorAll('.ac-status-pills [data-mad-status]');
+  }
+
+  /* A row is `active` or `suspended` (the table calls the second one Disabled). One
+     vocabulary for the attribute on both sides, so filtering is a string compare. */
+  function rowStatus(row){
+    return Number(row.status == null ? 1 : row.status) === 1 ? 'active' : 'suspended';
+  }
+
+  function syncStatusPills(){
+    statusPills().forEach(function(btn){
+      const on = btn.getAttribute('data-mad-status') === statusTerm;
+      btn.classList.toggle('is-active', on);
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+  }
+
+  function wireStatusPills(){
+    const buttons = statusPills();
+    if(!buttons.length) return;
+    buttons.forEach(function(btn){
+      btn.addEventListener('click', function(){
+        statusTerm = btn.getAttribute('data-mad-status') || 'all';
+        syncStatusPills();
+        applyFilters();
+      });
+    });
+    syncStatusPills();
+  }
 
   // Defensive initial state: neither Create nor Edit modal may open by itself.
   [document.getElementById('adminCreateModal'), editModal].forEach(function(modal){
@@ -113,17 +150,22 @@
     set('adminStatActive', active);
     set('adminStatDisabled', disabled);
     set('adminStatLoginToday', loginToday);
+    /* The pills count the whole roster, not the current view — the same numbers the
+       metric cards above them carry, so the two can never disagree. */
+    set('adminCountAll', total);
+    set('adminCountActive', active);
+    set('adminCountDisabled', disabled);
   }
 
   function applyFilters(){
     const q = (searchInput && searchInput.value || '').trim().toLowerCase();
     const role = roleFilter && roleFilter.value || '';
-    const status = statusFilter && statusFilter.value || '';
+    const status = statusTerm;
     filteredAdmins = allAdmins.filter(row => {
       const hay = [row.username, row.displayName, roleName(row)].join(' ').toLowerCase();
       if(q && !hay.includes(q)) return false;
       if(role && String(row.roleId || '') !== String(role)) return false;
-      if(status !== '' && String(row.status == null ? 1 : row.status) !== String(status)) return false;
+      if(status !== 'all' && rowStatus(row) !== status) return false;
       return true;
     });
     currentPage = 1;
@@ -255,8 +297,9 @@
       searchInput.addEventListener('input', soon);
       searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') { clearTimeout(t); applyFilters(); } });
     }
-    [roleFilter, statusFilter].forEach(el => el && el.addEventListener('change', applyFilters));
+    roleFilter && roleFilter.addEventListener('change', applyFilters);
   })();
+  wireStatusPills();
   searchInput && searchInput.addEventListener('keydown', e => { if(e.key === 'Enter') applyFilters(); });
   cancelBtn && cancelBtn.addEventListener('click', closeCreateAdmin);
   pageSizeEl && pageSizeEl.addEventListener('change', () => { currentPage = 1; renderAdmins(); });

@@ -2322,8 +2322,8 @@ body.main-merchant-create-page .mac-currency-pane-item-tag{
   outline-offset:1px;
 }
 html[data-bo-theme="dark"] .mac-currency-pane-item-remove{
-  background:rgba(148,163,184,.18);
-  color:#94A3B8;
+  background:rgba(255,255,255,.08);
+  color:#A1A1AA;
 }
 html[data-bo-theme="dark"] .mac-currency-pane-item-remove:hover{
   background:rgba(248,113,113,.18);
@@ -2872,7 +2872,7 @@ body.main-merchant-create-page .mac-provider-chip{
   transition:background .14s ease, border-color .14s ease, box-shadow .14s ease, color .14s ease;
 }
 body.main-merchant-create-page .mac-provider-chip:hover{
-  background:#F8FBFD;
+  background:#FFF8EB;
   border-color:rgba(217,119,6,.35);
 }
 body.main-merchant-create-page .mac-provider-chip:focus-visible{
@@ -2880,11 +2880,11 @@ body.main-merchant-create-page .mac-provider-chip:focus-visible{
   outline-offset:1px;
 }
 body.main-merchant-create-page .mac-provider-chip.is-selected{
-  background:#F3FAFD;
-  border-color:var(--bo-cyan);
+  background:#FFF8EB;
+  border-color:#D97706;
   box-shadow:0 0 0 1px rgba(217,119,6,.18);
 }
-body.main-merchant-create-page .mac-provider-chip.is-selected b{color:var(--bo-navy)}
+body.main-merchant-create-page .mac-provider-chip.is-selected b{color:#B45309}
 body.main-merchant-create-page .mac-provider-chip b{
   font-size:12.5px;font-weight:800;color:var(--bo-navy);line-height:1.25;
   max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
@@ -3368,12 +3368,12 @@ html[data-bo-theme="dark"] body.main-merchant-create-page .mac-provider-chip:hov
   border-color:rgba(217,119,6,.4);
 }
 html[data-bo-theme="dark"] body.main-merchant-create-page .mac-provider-chip.is-selected{
-  background:rgba(217,119,6,.14);
-  border-color:var(--bo-cyan);
-  box-shadow:0 0 0 1px rgba(217,119,6,.28);
+  background:rgba(245,158,11,.14);
+  border-color:rgba(245,158,11,.55);
+  box-shadow:none;
 }
 html[data-bo-theme="dark"] body.main-merchant-create-page .mac-provider-chip.is-selected b{
-  color:#9FE0F5;
+  color:#FBBF24;
 }
 html[data-bo-theme="dark"] body.main-merchant-create-page .mac-provider-selected-card{
   background:rgba(255,255,255,.03);
@@ -6201,7 +6201,7 @@ body.main-merchant-detail-page .mac-provider-chip{
 }
 
 body.main-merchant-detail-page .mac-provider-chip:hover{
-  background:#F8FBFD;
+  background:#FFF8EB;
   border-color:rgba(217,119,6,.35);
 }
 
@@ -6211,12 +6211,12 @@ body.main-merchant-detail-page .mac-provider-chip:focus-visible{
 }
 
 body.main-merchant-detail-page .mac-provider-chip.is-selected{
-  background:#F3FAFD;
-  border-color:var(--bo-cyan);
+  background:#FFF8EB;
+  border-color:#D97706;
   box-shadow:0 0 0 1px rgba(217,119,6,.18);
 }
 
-body.main-merchant-detail-page .mac-provider-chip.is-selected b{color:var(--bo-navy)}
+body.main-merchant-detail-page .mac-provider-chip.is-selected b{color:#B45309}
 
 body.main-merchant-detail-page .mac-provider-chip b{
   font-size:12.5px;font-weight:800;color:var(--bo-navy);line-height:1.25;
@@ -6415,13 +6415,13 @@ html[data-bo-theme="dark"] body.main-merchant-detail-page .mac-provider-chip:hov
 }
 
 html[data-bo-theme="dark"] body.main-merchant-detail-page .mac-provider-chip.is-selected{
-  background:rgba(217,119,6,.14);
-  border-color:var(--bo-cyan);
-  box-shadow:0 0 0 1px rgba(217,119,6,.28);
+  background:rgba(245,158,11,.14);
+  border-color:rgba(245,158,11,.55);
+  box-shadow:none;
 }
 
 html[data-bo-theme="dark"] body.main-merchant-detail-page .mac-provider-chip.is-selected b{
-  color:#9FE0F5;
+  color:#FBBF24;
 }
 
 html[data-bo-theme="dark"] body.main-merchant-detail-page .mac-provider-selected-card{
@@ -6515,13 +6515,13 @@ html[data-bo-theme="dark"] body.main-merchant-detail-page .mac-provider-chip:hov
 }
 
 html[data-bo-theme="dark"] body.main-merchant-detail-page .mac-provider-chip.is-selected{
-  background:rgba(217,119,6,.14);
-  border-color:var(--bo-cyan);
-  box-shadow:0 0 0 1px rgba(217,119,6,.28);
+  background:rgba(245,158,11,.14);
+  border-color:rgba(245,158,11,.55);
+  box-shadow:none;
 }
 
 html[data-bo-theme="dark"] body.main-merchant-detail-page .mac-provider-chip.is-selected b{
-  color:#9FE0F5;
+  color:#FBBF24;
 }
 
 html[data-bo-theme="dark"] body.main-merchant-detail-page .mac-provider-selected-card{

@@ -165,7 +165,32 @@
     var keepScroll = scroller ? scroller.scrollLeft : 0;
     var rows = Array.prototype.slice.call(tbody.rows).filter(function (tr) { return tr.children.length > 1; });
     if (rows.length < 2) return;
-    rows.sort(function (a, b) { return compare(a, b, st.index, st.dir); });
+
+    /* Keep equal values stable and, critically, do not rewrite an already-sorted tbody.
+       The card observer watches childList so unconditional appendChild() here used to wake the
+       observer again, which called apply() again and produced a permanent DOM mutation loop.
+       On report pages that loop showed up as rows/data visibly "jumping" after a sort while
+       also wasting the main thread. */
+    var original = rows.slice();
+    var originalIndex = new Map();
+    for (var oi = 0; oi < original.length; oi++) originalIndex.set(original[oi], oi);
+    rows.sort(function (a, b) {
+      var av = valueOf(a, st.index), bv = valueOf(b, st.index);
+      var cmp;
+      if (!isNaN(av.n) && !isNaN(bv.n)) cmp = av.n === bv.n ? 0 : (av.n < bv.n ? -1 : 1);
+      else cmp = av.s.localeCompare(bv.s, undefined, { numeric: true, sensitivity: 'base' });
+      if (cmp === 0) cmp = originalIndex.get(a) - originalIndex.get(b);
+      return st.dir === 'desc' ? -cmp : cmp;
+    });
+    var changed = false;
+    for (var ci = 0; ci < rows.length; ci++) {
+      if (rows[ci] !== original[ci]) { changed = true; break; }
+    }
+    if (!changed) {
+      if (scroller && keepScroll) scroller.scrollLeft = keepScroll;
+      resyncScroll(table);
+      return;
+    }
     for (var i = 0; i < rows.length; i++) tbody.appendChild(rows[i]);
     if (scroller && keepScroll) scroller.scrollLeft = keepScroll;
     resyncScroll(table);

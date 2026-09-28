@@ -3,6 +3,7 @@
   let totalPages = 1;
   let pageSize = 20;
   let lockedAutoSize = null;
+  let loadGeneration = 0;
   const initialParams = new URLSearchParams(location.search);
   const allTimeScope = initialParams.get('scope') === 'all';
   const LEDGER_TYPES = ['DEPOSIT','WITHDRAW','ADJUSTMENT','BONUS','ADMIN_DEPOSIT','ADMIN_WITHDRAW','ADMIN_ADJUSTMENT','BULK_ADJUSTMENT','REFERRAL_REWARD','REBATE','REBATE_ADJUSTMENT','BET','WIN','LOSE','SETTLE','ROLLBACK'];
@@ -444,12 +445,22 @@
     lockLedgerNoHScroll();
   }
   async function load(){
-    const body=document.getElementById('walletLedgerBody'); if(body) body.innerHTML='<tr><td colspan="15">Loading ledger...</td></tr>';
+    const body=document.getElementById('walletLedgerBody');
+    const generation=++loadGeneration;
+    const hasRenderedRows=!!body?.querySelector('tr:not(.bo-table-fill) td:not([colspan])');
+    /* Keep already-rendered rows in place while a refresh/autofit request is in flight.
+       This prevents the table flashing to a Loading row and back (the visible "jump"). */
+    if(body && !hasRenderedRows) body.innerHTML='<tr><td colspan="15">Loading ledger...</td></tr>';
     try{
-      const json = await api(url('WALLET_LEDGER_LIST') + '?' + params());
+      const requestParams=params();
+      const json = await api(url('WALLET_LEDGER_LIST') + '?' + requestParams);
+      /* A newer filter/page/autofit request owns the table. Never let an older,
+         slower response overwrite newer data. */
+      if(generation!==loadGeneration) return;
       const data = json.data || {};
       render(Array.isArray(data.content) ? data.content : [], data.pagination || {}, data);
     }catch(e){
+      if(generation!==loadGeneration) return;
       updateMetrics([]);
       if(body) body.innerHTML='<tr><td colspan="15" class="text-danger">'+esc(e.message || 'Load failed')+'</td></tr>';
     }
@@ -497,9 +508,11 @@
       const today=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
       document.getElementById('ledgerFrom').value=today;
       document.getElementById('ledgerTo').value=today;
-      document.getElementById('ledgerFrom').dispatchEvent(new Event('change',{bubbles:true}));
-      document.getElementById('ledgerTo').dispatchEvent(new Event('change',{bubbles:true}));
-      page=1; load();
+      /* Reset used to dispatch two change events and then call load() again,
+         creating three competing ledger requests. Apply the reset once. */
+      pageSize=resolvePageSize(sizeEl?.value);
+      page=1;
+      load();
     });
     document.getElementById('ledgerPrevBtn')?.addEventListener('click', ()=>{ if(page>1){ page--; load(); } });
     document.getElementById('ledgerNextBtn')?.addEventListener('click', ()=>{ if(page<totalPages){ page++; load(); } });

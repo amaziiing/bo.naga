@@ -695,7 +695,7 @@ Three inherited defects fixed with page-scoped overrides (the shared files were 
 - **Responsive table** on health (two independent breaks): `…:671-676` and `…:707-716` hide only `th` for some columns, so the header slid off the body; and `…:1331-1360` switches to a card layout keyed to `tr.mad-row` / `td[data-label]`, neither of which `main-provider-activity.js` emits. Fixed by keeping a real table at every width. **Restoring `thead`/`tbody`/`th`/`td` is not enough — the row level is blockified too, so `tr` must be forced back to `display:table-row`**; without it each row lands in its own anonymous table (measured 379px header/cell offset at a 980px viewport).
 - **Modal head/foot dividers**: `reports.css` paints `.modal-clean-head` / `.modal-clean-foot` with the cool `--line` token, and neither the Admin Detail block nor the merchant block migrated that layer (they style `.mad-modal-*` and `.modal-clean-close/-panel`). On charcoal the divider read as a light seam in **both** themes; now warm `#EADCC8` / `rgba(255,255,255,.14)`.
 
-Inherited-but-inert, do not "fix" without checking: `--bo-secondary:#2563EB` is declared by all three family files and consumed by none; the `.mad-role.is-support|is-tech|is-regional` chips keep the reference's `#DBEAFE`/`#1D4ED8` palette and no `.mad-role` element exists on these pages.
+Inherited-but-inert, do not "fix" without checking: `--bo-secondary:#2563EB` is declared by all three family files and consumed by none; the `.mad-role.is-support|is-tech|is-regional` chips kept the reference's `#DBEAFE`/`#1D4ED8` palette and no `.mad-role` element exists on these pages — that palette is gone as of 2026-09-28 (both rules and tone classes, → Role chip below).
 
 Verification: per-element colour sweep (canvas, sidebar, topbar, content, modals, both pickers) in light and dark — 0 retired or saturated-blue hits on all three pages. Credentials pickers checked for default range, first-click-stays-open, hover strip and refetch (`month=2026-09`); health table checked aligned (`maxLeftDelta 0`) at 1440/1270/1190/980/420px with its page-size popover opening in-viewport.
 
@@ -4749,3 +4749,61 @@ measured in light only.
 registered today. It is a listing with an all-time default by design, not a report. And
 `backup_provider.html` has date inputs (and everything else) with **no page script at all** — a fragment
 with no driver, so there is nothing to default.
+
+### The Role chip is one chip — the reference's hue-coding is gone (2026-09-28, owner "role的brand owner的设计 没有跟其他页面统一设计和颜色")
+
+**What the owner saw.** On the Merchants list (Main → Merchant → Merchants) the Role column painted
+`Brand Owner` as a **violet** capsule — `#EDE9FE` on `#5B21B6`, measured — while every other chip on the
+page is the amber/cream listing vocabulary. `Regional Master` came out **blue** (`#DBEAFE` / `#1D4ED8`)
+and a risk role **red** (`#FEE2E2` / `#B91C1C`): three cool or alarm hues on a role *name*, in a column that
+in the owner's data holds one value. The same violet is on Main → Admin Management, because both Role
+columns are the same recipe.
+
+**The ruling was already written — only its scope was missing.** This exact purple was rejected on
+2026-09-24 for the Access Control family (→ the 11.2 defect list above): “the purple the design system
+rejects. Super scope is a permission fact, so it takes the amber signal the rest of the family uses for
+‘elevated’, **not a second hue**.” That pass was scoped to the six Access Control pages, so the listing
+family kept the imported reference's hue-coded column, and the four files that were later rescoped from
+it (`main-merchant-detail-executive`, `main-provider-family-executive`, `main-report-charcoal`,
+`bo-charcoal-shell`) carried it along.
+
+**One chip for every role, and that chip is the Access Control one.** A role name is a **label, not a
+state** — the same argument the row avatar got on 2026-09-15 (“a colour that means nothing teaches the
+eye to ignore the ones that do”). So the Role column now wears the signed-off recipe of the Access Control
+Role column, verbatim in colour:
+
+| | light | dark |
+|---|---|---|
+| fill | `#FFF8EB` (listing surface) | `#2A2C36` (charcoal well) |
+| frame | `1px solid #EADCC8` | `1px solid rgba(255,255,255,.12)` |
+| ink | `#57534E` | `#D4D4D8` |
+
+**Mechanically: 7 rules → 1 in each of five sheets, both themes.** The base `.mad-role` and each
+`[data-access-page=…]` block lost their tone groups (`.is-super`, `.is-partner`, `.is-merchant`,
+`.is-support`, `.is-tech`, `.is-regional`, `.is-risk`) and kept a single rule. `roleTone()` stays in
+`main-admin-detail.js` / `main-merchant-detail.js` and its classes stay in the markup as **inert hooks** —
+the two lists are the only pages in the repo that render a `.mad-role` element, so the three rescoped
+copies are inert and were repainted anyway to stay **1:1 diffable with their source sheet**, which is the
+property recorded for the charcoal shell. Geometry is untouched but for the frame: 999px capsule, 12px/700,
+and `box-sizing:border-box` so the 1px frame does not grow the 26px pill into its column.
+
+**Verified on the rendered pages** (stubbed fixtures, both themes, `.tmp-ac-review/`): Merchant
+`Brand Owner` + `Regional Master` and Admin `Root Account` + `Platform Master` all measure
+`rgb(255,248,235)` / `rgb(87,83,78)` on `rgb(234,220,200)` in light and `rgb(42,44,54)` / `rgb(212,212,216)`
+on `rgba(255,255,255,.12)` in dark, height **26** in both — the same three colours the Access Control
+`role-pill` measures in both themes (25px, 6px radius: its own geometry, same paint). Role cells report
+`clientWidth == scrollWidth` on both lists. An 8-page × 2-theme sweep (provider detail, `main-report`,
+merchant report / settlement, `win-lose-report`, `admin-user`) found no other chip moved.
+
+**Left alone, deliberately.** The Access Control `.role-pill.super` **amber** variant is their signed-off
+decision and is untouched — scope colouring still exists there, where a role name says “super”
+(`roleTone()`'s classes no longer paint anything on the listing pages).
+
+**Observation, not fixed here (pre-existing).** The Merchant list's Role column is **121px** (`width:11%`,
+`padding-right:12px`) and its chips measure `Brand Owner` **100px** (fits), `Regional Master` **118px**
+(9px past the cell's content box) and `Naga Brand Owner` **133px** (24px past) — the last two spill out of
+the cell with `overflow:visible`, exactly as the Access Control Role column did before 11.2 widened it, and
+2px of that is this pass's frame (the old chip had no border). The other columns here are content-fitted
+and the merchant sheet carries two copies of the width map (base at 11%, the ≤1399.98px one at 16%), so
+column widths stayed out of a colour pass. What it would take: `nth-child(3)` to ~14% plus the same
+donation from `Created By` or `Company`, in both maps.

@@ -148,11 +148,12 @@ Theme toggle: `data-bo-theme` / `localStorage.bo_theme`. Prefer `--bo-*` tokens 
 
 ### Row status / role pills (soft fluorescent — locked 2026-09-28)
 
-Luminous pastel wash + calm mid ink on cream table rows. Specimen: Merchants list (`.mad-role` · `.mad-status`) · Providers list (`.mpv-status`). Sources: `assets/css/main-merchant-detail-executive.css`, `assets/css/main-provider-detail-executive.css`, `assets/css/main-provider-family-executive.css`.
+Luminous pastel wash + calm mid ink on cream table rows. Specimen: Merchants list (`.mad-role` · `.mad-status`) · Providers list (`.mpv-status`). Sources: `assets/css/main-merchant-detail-executive.css`, `assets/css/main-provider-detail-executive.css`, `assets/css/main-provider-family-executive.css`; the role rules also live 1:1 in `assets/css/main-admin-detail-executive.css` (visible on Main > Admin Management), `assets/css/main-report-charcoal.css` and `assets/css/bo-charcoal-shell.css` (both inert).
 
 | Part | Light fill / ink | Notes |
 |------|------------------|-------|
-| Role Brand Owner (`.mad-role.is-super` / `.is-partner` / `.is-merchant`) | `#F0ECFA` / `#6B5B95` | Soft fluorescent lilac — not neon violet `#EDE9FE`/`#5B21B6`, not dusty dark |
+| Role Brand Owner (`.mad-role.is-super` / `.is-partner` / `.is-merchant`) | `#F0ECFA` / `#6B5B95` | Soft fluorescent lilac — not neon violet `#EDE9FE`/`#5B21B6`, not dusty dark. Dark keeps the reference's wash `rgba(124,58,237,.22)` / `#C4B5FD`. The one-chip pass of 2026-09-28 collapsed this to the cream listing surface; restored the same day (→ Role chip) |
+| Role pills, the other tones (`.is-support` / `.is-tech` / `.is-regional` · `.is-risk` · default) | blue `#DBEAFE`/`#1D4ED8` · red `#FEE2E2`/`#B91C1C` · grey `#F3F4F6`/`#4B5563` | The reference's hue-coding, kept for these groups. Dark: blue `rgba(37,99,235,.22)`/`#93C5FD`, red `rgba(239,68,68,.18)`/`#FCA5A5`, grey `rgba(255,255,255,.08)`/`#D4D4D8` |
 | Status Active (`.mad-status.is-active` · `.mad-status-chip.is-active` · `.mas-status.is-success` · `.mpv-status.is-active`) | `#EAF7F0` / `#1A8A5C` · dot `#3CB87A` · hover `#D8F0E4` | Soft fluorescent mint — not neon `#D1FAE5`/`#10B981`. Providers + Merchants share this. |
 | Status Suspended | `#FEE2E2` / `#B91C1C` | Unchanged |
 
@@ -707,7 +708,7 @@ Three inherited defects fixed with page-scoped overrides (the shared files were 
 - **Responsive table** on health (two independent breaks): `…:671-676` and `…:707-716` hide only `th` for some columns, so the header slid off the body; and `…:1331-1360` switches to a card layout keyed to `tr.mad-row` / `td[data-label]`, neither of which `main-provider-activity.js` emits. Fixed by keeping a real table at every width. **Restoring `thead`/`tbody`/`th`/`td` is not enough — the row level is blockified too, so `tr` must be forced back to `display:table-row`**; without it each row lands in its own anonymous table (measured 379px header/cell offset at a 980px viewport).
 - **Modal head/foot dividers**: `reports.css` paints `.modal-clean-head` / `.modal-clean-foot` with the cool `--line` token, and neither the Admin Detail block nor the merchant block migrated that layer (they style `.mad-modal-*` and `.modal-clean-close/-panel`). On charcoal the divider read as a light seam in **both** themes; now warm `#EADCC8` / `rgba(255,255,255,.14)`.
 
-Inherited-but-inert, do not "fix" without checking: `--bo-secondary:#2563EB` is declared by all three family files and consumed by none; the `.mad-role.is-support|is-tech|is-regional` chips kept the reference's `#DBEAFE`/`#1D4ED8` palette and no `.mad-role` element exists on these pages — that palette is gone as of 2026-09-28 (both rules and tone classes, → Role chip below).
+Inherited-but-inert, do not "fix" without checking: `--bo-secondary:#2563EB` is declared by all three family files and consumed by none; the `.mad-role.is-support|is-tech|is-regional` chips carry the reference's `#DBEAFE`/`#1D4ED8` palette and no `.mad-role` element exists on these pages — the one-chip pass of 2026-09-28 collapsed that palette there for a few hours, and the same day's revert brought it back (→ Role chip below).
 
 Verification: per-element colour sweep (canvas, sidebar, topbar, content, modals, both pickers) in light and dark — 0 retired or saturated-blue hits on all three pages. Credentials pickers checked for default range, first-click-stays-open, hover strip and refetch (`month=2026-09`); health table checked aligned (`maxLeftDelta 0`) at 1440/1270/1190/980/420px with its page-size popover opening in-viewport.
 
@@ -4827,6 +4828,31 @@ registered today. It is a listing with an all-time default by design, not a repo
 with no driver, so there is nothing to default.
 
 ### The Role chip is one chip — the reference's hue-coding is gone (2026-09-28, owner "role的brand owner的设计 没有跟其他页面统一设计和颜色")
+
+> **Reversed the same day (2026-09-28, owner 「我要恢复到 我同事那款」).** The hue-coded Role column is
+> back in the same five sheets, wearing the soft-fluorescent lilac the row pass locked in Colors → Row
+> status / role pills: owner/master `#F0ECFA` / `#6B5B95` (dark keeps the reference's
+> `rgba(124,58,237,.22)` / `#C4B5FD`), `is-support` / `is-tech` / `is-regional` the reference's blue,
+> `is-risk` its red, the rest the neutral grey. Only the colour came back — the chip is a borderless
+> 999px capsule again (this pass's `1px #EADCC8` frame and its `box-sizing:border-box` are gone) — and
+> the Access Control `.role-pill.super` amber variant is still untouched.
+>
+> **Why the md and the code disagreed for a day.** The colleague's `6f50adb1` locked the lilac in both
+> md files and painted it on the merchant sheet only; 18 seconds earlier `919d352f` had deleted those
+> same seven rules off the same base, so his own merge of `origin/main` (`6462e1ed`) resolved the role
+> half back to this pass and kept only the mint status half. The md shipped either way — it never
+> conflicted — which is how a documented, "owner locked" colour ended up in no stylesheet at all.
+>
+> **Verified on the rendered pages** (harness carrying both pages' own stylesheet lists and
+> `data-access-page`, computed style read per chip, both themes). Merchant **and** Admin `Brand Owner`
+> measure `rgb(240,236,250)` on `rgb(107,91,149)` in light and `rgba(124,58,237,.22)` on
+> `rgb(196,181,253)` in dark; `Regional Master` `rgb(219,234,254)` / `rgb(29,78,216)`; a risk role
+> `rgb(254,226,226)` / `rgb(185,28,28)`; a plain role `rgb(243,244,246)` / `rgb(75,85,99)` — height
+> **26**, radius 999px, **border 0** in all four combinations. The Status pills did not move: light mint
+> `rgb(234,247,240)` / `rgb(26,138,92)` with dot `rgb(60,184,122)`, dark `rgba(16,185,129,.14)` /
+> `rgb(110,231,183)`. One expected difference: Admin Management's Active pill was never inside
+> `6f50adb1`'s scope and still runs the older mint `rgb(209,250,229)` / `rgb(4,120,87)`.
+> Everything below this box documents the reverted pass.
 
 **What the owner saw.** On the Merchants list (Main → Merchant → Merchants) the Role column painted
 `Brand Owner` as a **violet** capsule — `#EDE9FE` on `#5B21B6`, measured — while every other chip on the

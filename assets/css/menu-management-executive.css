@@ -1591,11 +1591,11 @@ body.menu-mgmt-page .nm-btn-primary{
   border:0!important;
   background:#D97706!important;
   color:#fff!important;
-  font-weight:750!important;
+  font-weight:700!important;
   font-size:13px!important;
-  box-shadow:0 6px 16px rgba(217,119,6,.30)!important;
+  box-shadow:none!important;
 }
-body.menu-mgmt-page .nm-btn-primary:hover{background:#1B93C0!important}
+body.menu-mgmt-page .nm-btn-primary:hover{background-color:#F59E0B!important;background-image:linear-gradient(0deg,#FCD34D 0%,#FBBF24 38%,#F59E0B 72%,#EA8608 100%)!important;border-color:#F59E0B!important;box-shadow:none!important}
 body.menu-mgmt-page .nm-pane .upload-status{margin-top:8px}
 @media(max-width:900px){
   body.menu-mgmt-page .nm-panel{height:min(92vh,calc(100vh - 24px))}

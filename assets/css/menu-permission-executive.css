@@ -134,7 +134,7 @@ body.menu-permission-page a.mp-add-role-btn.mad-btn-primary{
   color:#FFFFFF!important;
   font-size:12.5px!important;font-weight:700!important;line-height:1!important;cursor:pointer!important;
   text-decoration:none!important;
-  box-shadow:0 1px 2px rgba(217,119,6,.18),0 4px 10px rgba(217,119,6,.22),inset 0 1px 0 rgba(255,255,255,.35)!important;
+  box-shadow:none!important;
   transition:transform .14s ease,box-shadow .14s ease,background-image .14s ease!important;
 }
 body.menu-permission-page .mp-add-role-btn i{font-size:14px;line-height:1;color:inherit!important}
@@ -1266,10 +1266,10 @@ body.menu-permission-page .mp-footer-actions{
 body.menu-permission-page .mp-btn-ghost{
   height:38px;
   padding:0 14px;
-  border:1px solid #EADCC8;
+  border:1px solid #DCC9A8;
   border-radius:8px;
   background-color:#F3E8D6;
-  background-image:linear-gradient(180deg,#FFF8EB 0%,#F3E8D6 100%);
+  background-image:linear-gradient(180deg,#FFFCF7 0%,#F5EBDC 55%,#EDE4D4 100%);
   color:#18191C;
   font-size:12.5px;
   font-weight:700;
@@ -1302,10 +1302,10 @@ body.menu-permission-page .mp-btn-save{
   background-image:linear-gradient(180deg,#FBBF24 0%,#F59E0B 42%,#EA8608 100%);
   color:#fff;
   font-size:12.5px;
-  font-weight:800;
+  font-weight:700;
   cursor:pointer;
   white-space:nowrap;
-  box-shadow:0 1px 2px rgba(217,119,6,.18),0 4px 10px rgba(217,119,6,.22),inset 0 1px 0 rgba(255,255,255,.35);
+  box-shadow:none;
   transition:transform .14s ease,box-shadow .14s ease,background-image .14s ease;
 }
 body.menu-permission-page .mp-btn-save i{font-size:14px}
@@ -1313,7 +1313,7 @@ body.menu-permission-page .mp-btn-save:hover:not(:disabled){
   background-image:linear-gradient(0deg,#FCD34D 0%,#FBBF24 38%,#F59E0B 72%,#EA8608 100%);
   border-color:#F59E0B;
   transform:translateY(-1px);
-  box-shadow:0 2px 4px rgba(217,119,6,.20),0 6px 14px rgba(217,119,6,.26),inset 0 1px 0 rgba(255,255,255,.4);
+  box-shadow:none;
 }
 body.menu-permission-page .mp-btn-save:active:not(:disabled){
   transform:translateY(1px);
@@ -1616,7 +1616,7 @@ html[data-bo-theme="dark"] body.menu-permission-page a.mp-add-role-btn.mad-btn-p
   background-image:linear-gradient(180deg,#FBBF24 0%,#F59E0B 42%,#EA8608 100%)!important;
   border-color:#F59E0B!important;
   color:#2A2C36!important;
-  box-shadow:0 1px 2px rgba(0,0,0,.4),0 4px 12px rgba(245,158,11,.28),inset 0 1px 0 rgba(255,255,255,.35),inset 0 -1px 0 rgba(0,0,0,.12)!important;
+  box-shadow:none!important;
 }
 html[data-bo-theme="dark"] body.menu-permission-page .mp-add-role-btn:hover,
 html[data-bo-theme="dark"] body.menu-permission-page .mp-add-role-btn:focus,
@@ -1825,7 +1825,7 @@ html[data-bo-theme="dark"] body.menu-permission-page .mp-btn-save{
   background-image:linear-gradient(180deg,#FBBF24 0%,#F59E0B 42%,#EA8608 100%)!important;
   border-color:#F59E0B!important;
   color:#2A2C36!important;
-  box-shadow:0 1px 2px rgba(0,0,0,.4),0 4px 12px rgba(245,158,11,.28),inset 0 1px 0 rgba(255,255,255,.35),inset 0 -1px 0 rgba(0,0,0,.12)!important;
+  box-shadow:none!important;
 }
 html[data-bo-theme="dark"] body.menu-permission-page .mp-btn-save:hover:not(:disabled){
   background-image:linear-gradient(0deg,#FDE68A 0%,#FBBF24 40%,#F59E0B 100%)!important;

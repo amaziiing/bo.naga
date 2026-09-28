@@ -648,7 +648,7 @@ body:not(.site-customize-page) .asset-upload-row[data-field$="Zh"],
   box-shadow:0 0 0 4px rgba(217,119,6,.10)!important;
   outline:none!important;
 }
-.manage-page-grid,.slider-page-grid{align-items:start}.manage-form-card{position:sticky;top:86px}.manage-list-card{background:#FFF8EB;border:1px solid var(--line,#EADCC8);border-radius:18px;box-shadow:0 14px 35px rgba(217,119,6,.06);padding:18px;min-width:0}.manage-two-col,.slider-two-col{gap:12px}.clean-btn,.btn-primary-clean{display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:10px!important;font-weight:800!important}
+.manage-page-grid,.slider-page-grid{align-items:start}.manage-form-card{position:sticky;top:86px}.manage-list-card{background:#FFF8EB;border:1px solid var(--line,#EADCC8);border-radius:18px;box-shadow:0 14px 35px rgba(217,119,6,.06);padding:18px;min-width:0}.manage-two-col,.slider-two-col{gap:12px}.clean-btn,.btn-primary-clean{display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:10px!important;font-weight:700!important}
 .status-pill{display:inline-flex;align-items:center;border-radius:999px;padding:3px 8px;background:#dcfce7;color:#166534;font-weight:800;font-size:11px;margin-top:3px}.status-pill.off{background:#fee2e2!important;color:#991b1b!important}
 @media(max-width:1199.98px){.manage-form-card{position:static}}
 @media(max-width:575.98px){.manage-form-card,.access-card,.admin-form-card,.manage-list-card{padding:14px!important;border-radius:14px!important}.manage-form-card h2,.access-card h2,.admin-form-card h2,.section-title h2{font-size:28px!important}}
@@ -1327,7 +1327,7 @@ html body.bo-wallet-tx.provider-transaction-page.pwt-page .table-card > .table-w
 .field input::placeholder{color:#78716C!important;}
 .filter-action-row{display:grid;grid-template-columns:78px 1fr;gap:10px;align-items:center;}
 .filter-action-row .clean-btn,.filter-action-row .btn-primary-clean{height:40px!important;border-radius:9px!important;font-size:12px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:6px!important;padding:0 12px!important;white-space:nowrap!important;}
-.filter-action-row .btn-primary-clean{width:100%!important;background:#D97706!important;border:1px solid #E8901A!important;color:#fff!important;box-shadow:0 6px 14px rgba(217,119,6,.18)!important;}
+.filter-action-row .btn-primary-clean{width:100%!important;background:#D97706!important;border:1px solid #E8901A!important;color:#fff!important;box-shadow:none!important;}
 .table-card{border-radius:16px!important;border:1px solid #EADCC8!important;background:#FFF8EB!important;box-shadow:0 8px 22px rgba(217,119,6,.04)!important;padding:16px!important;}
 .user-toolbar{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;margin-bottom:14px!important;}
 .user-title-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
@@ -1721,16 +1721,57 @@ html body.bo-wallet-tx.provider-transaction-page.pwt-page .table-card > .table-w
    `.mac-input-group` inputs (main-provider-create.html, main-provider-detail.html)
    still depend on this rule for their background/border — only these five
    already carry a complete replacement (background, border, radius) of their own. */
-.report-content select:not(#pullLogWindowUnit),
-.report-content .form-select,
-.report-content input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(#providerSearchInput):not(#pullLogWindowValue):not(#boPassword):not(#merchantCredit):not(#merchantThreshold):not(#merchantMarkup):not(#madEditThreshold):not(#madProviderMarkup):not(.mad-search input):not(.mp-search input):not(.mrc-search input):not(.mas-search input):not(.mac-provider-search input):not(.agent-search-box input):not(.bonus-title-search input):not(.game-search-control input):not(.category-search-control input):not(.banner-search input):not(.input-icon-wrap input):not(.bo-access-control .input-icon-wrap input):not(.bo-access-control .user-search-grid .field > input):not(.ref-input-icon input):not(.livechat-search input):not(.dup-search-control input):not(.bo-search-control input),
-.report-content textarea{
-  border:1px solid #EADCC8!important;border-radius:10px!important;background-color:#FFF8EB!important;
+/* ---- Owner-directed 2026-09-28: the generic field rule is theme-split ----
+   This pair carried no theme guard, so the SAME light values painted dark mode too: fill
+   #FFF8EB on the #2C2E38 canvas, border #EADCC8, focus border #78716C (grey) and ring
+   rgba(217,119,6,.12) (light amber). Its selector list carries nine :not(..) steps, so it
+   out-specified every properly themed dark rule - which is why Member -> Create User looked
+   right (index.html is one of the NINE pages that do not load this sheet) while the rest of the
+   panel did not. Measured in dark mode before this change: 318 fields on the grey/light-amber
+   focus ring, 169+ more keeping the light cream fill. Each branch now states its own theme's
+   values, so they never both apply.
+
+   The dark branch repeats the :not(..) escalation deliberately: that escalation is what makes
+   this rule win, and a slimmer dark selector would hand the fields back to a lower tier. The
+   values are the panel's existing canonical pair, not new ones - border #DCC9A8 and focus
+   #D97706/.14 from bo-charcoal-legacy.css:121 / bo-charcoal-cms.css:13 for light, the #2A2C36
+   well and focus #F59E0B/.18 those same files use for dark. */
+
+html:not([data-bo-theme="dark"]) .report-content select:not(#pullLogWindowUnit),
+html:not([data-bo-theme="dark"]) .report-content .form-select,
+html:not([data-bo-theme="dark"]) .report-content input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(#providerSearchInput):not(#pullLogWindowValue):not(#boPassword):not(#merchantCredit):not(#merchantThreshold):not(#merchantMarkup):not(#madEditThreshold):not(#madProviderMarkup):not(.mad-search input):not(.mp-search input):not(.mrc-search input):not(.mas-search input):not(.mac-provider-search input):not(.agent-search-box input):not(.bonus-title-search input):not(.game-search-control input):not(.category-search-control input):not(.banner-search input):not(.input-icon-wrap input):not(.bo-access-control .input-icon-wrap input):not(.bo-access-control .user-search-grid .field > input):not(.ref-input-icon input):not(.livechat-search input):not(.dup-search-control input):not(.bo-search-control input),
+html:not([data-bo-theme="dark"]) .report-content textarea{
+  border:1px solid #DCC9A8!important;border-radius:10px!important;background-color:#FFF8EB!important;
   box-shadow:none!important;color:#18191C;
 }
-.report-content select:not(#pullLogWindowUnit):focus,.report-content .form-select:focus,
-.report-content input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(#providerSearchInput):not(#pullLogWindowValue):not(#boPassword):not(#merchantCredit):not(#merchantThreshold):not(#merchantMarkup):not(#madEditThreshold):not(#madProviderMarkup):not(.mad-search input):not(.mp-search input):not(.mrc-search input):not(.mas-search input):not(.mac-provider-search input):not(.agent-search-box input):not(.bonus-title-search input):not(.game-search-control input):not(.category-search-control input):not(.banner-search input):not(.input-icon-wrap input):not(.bo-access-control .input-icon-wrap input):not(.bo-access-control .user-search-grid .field > input):not(.ref-input-icon input):not(.livechat-search input):not(.dup-search-control input):not(.bo-search-control input):focus,
-.report-content textarea:focus{border-color:#78716C!important;box-shadow:0 0 0 3px rgba(217,119,6,.12)!important;outline:0!important}
+html[data-bo-theme="dark"] .report-content select:not(#pullLogWindowUnit),
+html[data-bo-theme="dark"] .report-content .form-select,
+html[data-bo-theme="dark"] .report-content input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(#providerSearchInput):not(#pullLogWindowValue):not(#boPassword):not(#merchantCredit):not(#merchantThreshold):not(#merchantMarkup):not(#madEditThreshold):not(#madProviderMarkup):not(.mad-search input):not(.mp-search input):not(.mrc-search input):not(.mas-search input):not(.mac-provider-search input):not(.agent-search-box input):not(.bonus-title-search input):not(.game-search-control input):not(.category-search-control input):not(.banner-search input):not(.input-icon-wrap input):not(.bo-access-control .input-icon-wrap input):not(.bo-access-control .user-search-grid .field > input):not(.ref-input-icon input):not(.livechat-search input):not(.dup-search-control input):not(.bo-search-control input),
+html[data-bo-theme="dark"] .report-content textarea{
+  border:1px solid rgba(255,255,255,.12)!important;border-radius:10px!important;background-color:#2A2C36!important;
+  box-shadow:none!important;color:#F5F5F4;
+}
+html:not([data-bo-theme="dark"]) .report-content select:not(#pullLogWindowUnit):focus,
+html:not([data-bo-theme="dark"]) .report-content .form-select:focus,
+html:not([data-bo-theme="dark"]) .report-content input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(#providerSearchInput):not(#pullLogWindowValue):not(#boPassword):not(#merchantCredit):not(#merchantThreshold):not(#merchantMarkup):not(#madEditThreshold):not(#madProviderMarkup):not(.mad-search input):not(.mp-search input):not(.mrc-search input):not(.mas-search input):not(.mac-provider-search input):not(.agent-search-box input):not(.bonus-title-search input):not(.game-search-control input):not(.category-search-control input):not(.banner-search input):not(.input-icon-wrap input):not(.bo-access-control .input-icon-wrap input):not(.bo-access-control .user-search-grid .field > input):not(.ref-input-icon input):not(.livechat-search input):not(.dup-search-control input):not(.bo-search-control input):focus,
+html:not([data-bo-theme="dark"]) .report-content textarea:focus{
+  border-color:#D97706!important;box-shadow:0 0 0 3px rgba(217,119,6,.14)!important;outline:0!important;
+}
+html[data-bo-theme="dark"] .report-content select:not(#pullLogWindowUnit):focus,
+html[data-bo-theme="dark"] .report-content .form-select:focus,
+html[data-bo-theme="dark"] .report-content input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(#providerSearchInput):not(#pullLogWindowValue):not(#boPassword):not(#merchantCredit):not(#merchantThreshold):not(#merchantMarkup):not(#madEditThreshold):not(#madProviderMarkup):not(.mad-search input):not(.mp-search input):not(.mrc-search input):not(.mas-search input):not(.mac-provider-search input):not(.agent-search-box input):not(.bonus-title-search input):not(.game-search-control input):not(.category-search-control input):not(.banner-search input):not(.input-icon-wrap input):not(.bo-access-control .input-icon-wrap input):not(.bo-access-control .user-search-grid .field > input):not(.ref-input-icon input):not(.livechat-search input):not(.dup-search-control input):not(.bo-search-control input):focus,
+html[data-bo-theme="dark"] .report-content textarea:focus{
+  border-color:#F59E0B!important;box-shadow:0 0 0 3px rgba(245,158,11,.18)!important;outline:0!important;
+}
+html:not([data-bo-theme="dark"]) .report-content input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(#providerSearchInput):not(#pullLogWindowValue):not(#boPassword):not(#merchantCredit):not(#merchantThreshold):not(#merchantMarkup):not(#madEditThreshold):not(#madProviderMarkup):not(.mad-search input):not(.mp-search input):not(.mrc-search input):not(.mas-search input):not(.mac-provider-search input):not(.agent-search-box input):not(.bonus-title-search input):not(.game-search-control input):not(.category-search-control input):not(.banner-search input):not(.input-icon-wrap input):not(.bo-access-control .input-icon-wrap input):not(.bo-access-control .user-search-grid .field > input):not(.ref-input-icon input):not(.livechat-search input):not(.dup-search-control input):not(.bo-search-control input),
+html:not([data-bo-theme="dark"]) .report-content textarea{
+  color:#78716C!important;opacity:1!important;
+}
+html[data-bo-theme="dark"] .report-content input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(#providerSearchInput):not(#pullLogWindowValue):not(#boPassword):not(#merchantCredit):not(#merchantThreshold):not(#merchantMarkup):not(#madEditThreshold):not(#madProviderMarkup):not(.mad-search input):not(.mp-search input):not(.mrc-search input):not(.mas-search input):not(.mac-provider-search input):not(.agent-search-box input):not(.bonus-title-search input):not(.game-search-control input):not(.category-search-control input):not(.banner-search input):not(.input-icon-wrap input):not(.bo-access-control .input-icon-wrap input):not(.bo-access-control .user-search-grid .field > input):not(.ref-input-icon input):not(.livechat-search input):not(.dup-search-control input):not(.bo-search-control input),
+html[data-bo-theme="dark"] .report-content textarea{
+  color:#A1A1AA!important;opacity:1!important;
+}
+
 
 /* Live chat keeps the composer available while only the message history scrolls. */
 .livechat-bo-page{overflow:hidden!important}
@@ -7646,4 +7687,133 @@ html:not(#bo-filter-standard-off):not(#bo-charcoal-off):not(#bo-input-fill-legac
 html:not(#bo-filter-standard-off):not(#bo-charcoal-off):not(#bo-input-fill-legacy) .field:has(> input[placeholder*="earch" i]):not(:has(> label)):focus-within{
   border-color:#D97706 !important;
   box-shadow:0 0 0 3px rgba(217,119,6,.14) !important;
+}
+
+
+/* ============================ Button standard - back control (role A)
+   One recipe site-wide: 36px - radius 8 - pad 0 14px - 12.5px/700, the three-stop
+   form ghost (system.md -> Ghost / Export), border #DCC9A8, ink #18191C, hover the
+   shared reverse cream with the -1px lift. Stated here rather than by narrowing the
+   family rule because that rule also paints this family's bar buttons, whose geometry
+   is the bar's own pinned rung.
+   ========================================================================= */
+/* the .clean-btn / .md-btn back controls (agent detail, stat detail, rebate detail, gateway transactions, member detail) */
+body.report-body #detailBack:not(.bo-filter-other-button):not(.bo-filter-search-button){
+  height:36px!important;min-height:36px!important;
+  padding:0 14px!important;border-radius:8px!important;
+  font-size:12.5px!important;font-weight:700!important;
+  background-color:#F3E8D6!important;
+  background-image:linear-gradient(180deg,#FFFCF7 0%,#F5EBDC 55%,#EDE4D4 100%)!important;
+  border:1px solid #DCC9A8!important;
+  color:#18191C!important;
+  box-shadow:0 1px 2px rgba(60,48,32,.06),inset 0 1px 0 rgba(255,255,255,.7)!important;
+  text-decoration:none!important;
+  transition:transform .14s ease,box-shadow .14s ease,background-image .14s ease,border-color .14s ease!important;
+}
+body.report-body #detailBack:not(.bo-filter-other-button):not(.bo-filter-search-button):hover{
+  background-image:linear-gradient(180deg,#FFF8EB 0%,#F3E8D6 100%)!important;
+  border-color:#E0D0B8!important;color:#18191C!important;
+  transform:translateY(-1px)!important;
+}
+body.report-body #detailBack:not(.bo-filter-other-button):not(.bo-filter-search-button):active{transform:translateY(1px)!important;}
+html[data-bo-theme="dark"] body.report-body #detailBack:not(.bo-filter-other-button):not(.bo-filter-search-button){
+  background-color:#383A46!important;
+  background-image:linear-gradient(180deg,#4A4C58 0%,#383A46 48%,#2C2E38 100%)!important;
+  border:1px solid rgba(255,255,255,.12)!important;
+  color:#F5F5F4!important;
+  box-shadow:0 1px 2px rgba(0,0,0,.22),0 4px 10px rgba(0,0,0,.16)!important;
+}
+html[data-bo-theme="dark"] body.report-body #detailBack:not(.bo-filter-other-button):not(.bo-filter-search-button):hover{
+  background-image:linear-gradient(180deg,#383A46 0%,#2C2E38 100%)!important;
+  border-color:rgba(255,255,255,.18)!important;color:#F5F5F4!important;
+}
+,
+body.report-body #backAgentList{
+  height:36px!important;min-height:36px!important;
+  padding:0 14px!important;border-radius:8px!important;
+  font-size:12.5px!important;font-weight:700!important;
+  background-color:#F3E8D6!important;
+  background-image:linear-gradient(180deg,#FFFCF7 0%,#F5EBDC 55%,#EDE4D4 100%)!important;
+  border:1px solid #DCC9A8!important;
+  color:#18191C!important;
+  box-shadow:0 1px 2px rgba(60,48,32,.06),inset 0 1px 0 rgba(255,255,255,.7)!important;
+  text-decoration:none!important;
+  transition:transform .14s ease,box-shadow .14s ease,background-image .14s ease,border-color .14s ease!important;
+}
+body.report-body #backAgentList:hover{
+  background-image:linear-gradient(180deg,#FFF8EB 0%,#F3E8D6 100%)!important;
+  border-color:#E0D0B8!important;color:#18191C!important;
+  transform:translateY(-1px)!important;
+}
+body.report-body #backAgentList:active{transform:translateY(1px)!important;}
+html[data-bo-theme="dark"] body.report-body #backAgentList{
+  background-color:#383A46!important;
+  background-image:linear-gradient(180deg,#4A4C58 0%,#383A46 48%,#2C2E38 100%)!important;
+  border:1px solid rgba(255,255,255,.12)!important;
+  color:#F5F5F4!important;
+  box-shadow:0 1px 2px rgba(0,0,0,.22),0 4px 10px rgba(0,0,0,.16)!important;
+}
+html[data-bo-theme="dark"] body.report-body #backAgentList:hover{
+  background-image:linear-gradient(180deg,#383A46 0%,#2C2E38 100%)!important;
+  border-color:rgba(255,255,255,.18)!important;color:#F5F5F4!important;
+}
+,
+body.report-body #agentProviderBackBtn{
+  height:36px!important;min-height:36px!important;
+  padding:0 14px!important;border-radius:8px!important;
+  font-size:12.5px!important;font-weight:700!important;
+  background-color:#F3E8D6!important;
+  background-image:linear-gradient(180deg,#FFFCF7 0%,#F5EBDC 55%,#EDE4D4 100%)!important;
+  border:1px solid #DCC9A8!important;
+  color:#18191C!important;
+  box-shadow:0 1px 2px rgba(60,48,32,.06),inset 0 1px 0 rgba(255,255,255,.7)!important;
+  text-decoration:none!important;
+  transition:transform .14s ease,box-shadow .14s ease,background-image .14s ease,border-color .14s ease!important;
+}
+body.report-body #agentProviderBackBtn:hover{
+  background-image:linear-gradient(180deg,#FFF8EB 0%,#F3E8D6 100%)!important;
+  border-color:#E0D0B8!important;color:#18191C!important;
+  transform:translateY(-1px)!important;
+}
+body.report-body #agentProviderBackBtn:active{transform:translateY(1px)!important;}
+html[data-bo-theme="dark"] body.report-body #agentProviderBackBtn{
+  background-color:#383A46!important;
+  background-image:linear-gradient(180deg,#4A4C58 0%,#383A46 48%,#2C2E38 100%)!important;
+  border:1px solid rgba(255,255,255,.12)!important;
+  color:#F5F5F4!important;
+  box-shadow:0 1px 2px rgba(0,0,0,.22),0 4px 10px rgba(0,0,0,.16)!important;
+}
+html[data-bo-theme="dark"] body.report-body #agentProviderBackBtn:hover{
+  background-image:linear-gradient(180deg,#383A46 0%,#2C2E38 100%)!important;
+  border-color:rgba(255,255,255,.18)!important;color:#F5F5F4!important;
+}
+,
+body.member-detail-page a.md-btn-ghost{
+  height:36px!important;min-height:36px!important;
+  padding:0 14px!important;border-radius:8px!important;
+  font-size:12.5px!important;font-weight:700!important;
+  background-color:#F3E8D6!important;
+  background-image:linear-gradient(180deg,#FFFCF7 0%,#F5EBDC 55%,#EDE4D4 100%)!important;
+  border:1px solid #DCC9A8!important;
+  color:#18191C!important;
+  box-shadow:0 1px 2px rgba(60,48,32,.06),inset 0 1px 0 rgba(255,255,255,.7)!important;
+  text-decoration:none!important;
+  transition:transform .14s ease,box-shadow .14s ease,background-image .14s ease,border-color .14s ease!important;
+}
+body.member-detail-page a.md-btn-ghost:hover{
+  background-image:linear-gradient(180deg,#FFF8EB 0%,#F3E8D6 100%)!important;
+  border-color:#E0D0B8!important;color:#18191C!important;
+  transform:translateY(-1px)!important;
+}
+body.member-detail-page a.md-btn-ghost:active{transform:translateY(1px)!important;}
+html[data-bo-theme="dark"] body.member-detail-page a.md-btn-ghost{
+  background-color:#383A46!important;
+  background-image:linear-gradient(180deg,#4A4C58 0%,#383A46 48%,#2C2E38 100%)!important;
+  border:1px solid rgba(255,255,255,.12)!important;
+  color:#F5F5F4!important;
+  box-shadow:0 1px 2px rgba(0,0,0,.22),0 4px 10px rgba(0,0,0,.16)!important;
+}
+html[data-bo-theme="dark"] body.member-detail-page a.md-btn-ghost:hover{
+  background-image:linear-gradient(180deg,#383A46 0%,#2C2E38 100%)!important;
+  border-color:rgba(255,255,255,.18)!important;color:#F5F5F4!important;
 }

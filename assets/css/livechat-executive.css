@@ -1844,3 +1844,42 @@ html:not(#bo-filter-standard-off):not(#bo-charcoal-off):not(#bo-input-fill-legac
   box-shadow:none!important;
   font-size:12px!important;
 }
+
+
+/* ============================ Button standard - back control (role A)
+   One recipe site-wide: 36px - radius 8 - pad 0 14px - 12.5px/700, the three-stop
+   form ghost (system.md -> Ghost / Export), border #DCC9A8, ink #18191C, hover the
+   shared reverse cream with the -1px lift. Stated here rather than by narrowing the
+   family rule because that rule also paints this family's bar buttons, whose geometry
+   is the bar's own pinned rung.
+   ========================================================================= */
+/* Live Chat template back (32px, no chrome at all) */
+body.livechat-template-page .template-back{
+  height:36px!important;min-height:36px!important;
+  padding:0 14px!important;border-radius:8px!important;
+  font-size:12.5px!important;font-weight:700!important;
+  background-color:#F3E8D6!important;
+  background-image:linear-gradient(180deg,#FFFCF7 0%,#F5EBDC 55%,#EDE4D4 100%)!important;
+  border:1px solid #DCC9A8!important;
+  color:#18191C!important;
+  box-shadow:0 1px 2px rgba(60,48,32,.06),inset 0 1px 0 rgba(255,255,255,.7)!important;
+  text-decoration:none!important;
+  transition:transform .14s ease,box-shadow .14s ease,background-image .14s ease,border-color .14s ease!important;
+}
+body.livechat-template-page .template-back:hover{
+  background-image:linear-gradient(180deg,#FFF8EB 0%,#F3E8D6 100%)!important;
+  border-color:#E0D0B8!important;color:#18191C!important;
+  transform:translateY(-1px)!important;
+}
+body.livechat-template-page .template-back:active{transform:translateY(1px)!important;}
+html[data-bo-theme="dark"] body.livechat-template-page .template-back{
+  background-color:#383A46!important;
+  background-image:linear-gradient(180deg,#4A4C58 0%,#383A46 48%,#2C2E38 100%)!important;
+  border:1px solid rgba(255,255,255,.12)!important;
+  color:#F5F5F4!important;
+  box-shadow:0 1px 2px rgba(0,0,0,.22),0 4px 10px rgba(0,0,0,.16)!important;
+}
+html[data-bo-theme="dark"] body.livechat-template-page .template-back:hover{
+  background-image:linear-gradient(180deg,#383A46 0%,#2C2E38 100%)!important;
+  border-color:rgba(255,255,255,.18)!important;color:#F5F5F4!important;
+}

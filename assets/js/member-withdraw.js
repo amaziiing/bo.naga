@@ -150,7 +150,8 @@
   }
   function statusClass(status){status=String(status||'').toUpperCase();if(status==='APPROVED')return'active';if(status==='REJECTED')return'off';return'';}
   function render(rows,pagination){currentRows=rows;const body=document.getElementById('withdrawBody');if(!body)return;if(!rows.length)body.innerHTML='<tr><td colspan="9">No withdraw request found.</td></tr>';else body.innerHTML=rows.map(r=>{const pending=String(r.status||'').toUpperCase()==='PENDING';const bankLabel=formatBankLabel(r);return `<tr><td>${dtCell(r.createdAt||r.created_at)}</td><td>${esc(r.username||'-')}</td><td>${money(r.amount)}</td><td><b>${esc(bankLabel)}</b></td><td>${esc(r.referenceNo||'-')}</td><td>${esc(r.remark||'-')}</td><td><span class="status-pill ${statusClass(r.status)}">${esc(r.status||'-')}</span></td><td>${esc(dt(r.processedAt))}</td><td>${pending?`<div class="bo-tx-actions"><button type="button" class="bo-tx-action-btn is-approve" data-approve="${esc(r.id)}" title="Approve" aria-label="Approve"><i class="bi bi-check-lg" aria-hidden="true"></i></button><button type="button" class="bo-tx-action-btn is-reject" data-reject="${esc(r.id)}" title="Reject" aria-label="Reject"><i class="bi bi-x-lg" aria-hidden="true"></i></button></div>`:`<div class="bo-tx-actions"><a class="bo-tx-action-btn is-ledger" href="wallet-ledger.html?memberId=${encodeURIComponent(r.memberId)}" title="Ledger" aria-label="Ledger"><i class="bi bi-journal-text" aria-hidden="true"></i></a></div>`}</td></tr>`;}).join('');totalPages=Number(pagination?.totalPages)||1;const pageSize=resolvePageSize(document.getElementById('withdrawSize')?.value);publishPagerMeta(pagination,pageSize);document.getElementById('withdrawPager').innerHTML=pageButtons(page,totalPages);document.getElementById('withdrawPrevBtn').disabled=page<=1;document.getElementById('withdrawNextBtn').disabled=page>=totalPages;requestAnimationFrame(()=>scheduleEvenFill());}
-  async function load(){const body=document.getElementById('withdrawBody');if(body)body.innerHTML='<tr><td colspan="9">Loading withdraw requests...</td></tr>';try{const json=await api(endpoint('MEMBER_WITHDRAW_LIST')+'?'+query());const data=json.data||{};render(Array.isArray(data.content)?data.content:[],data.pagination||{});}catch(e){if(body)body.innerHTML='<tr><td colspan="9" class="text-danger">'+esc(e.message||'Load failed')+'</td></tr>';}}
+  let loadGeneration=0;
+  async function load(){const generation=++loadGeneration;const body=document.getElementById('withdrawBody');if(body)body.innerHTML='<tr><td colspan="9">Loading withdraw requests...</td></tr>';try{const json=await api(endpoint('MEMBER_WITHDRAW_LIST')+'?'+query());if(generation!==loadGeneration)return;const data=json.data||{};const pagination=data.pagination||{};render(Array.isArray(data.content)?data.content:[],pagination);await refreshTxTabCounts(pagination?.totalElements);}catch(e){if(generation!==loadGeneration)return;if(body)body.innerHTML='<tr><td colspan="9" class="text-danger">'+esc(e.message||'Load failed')+'</td></tr>';}}
   async function action(id,type){
     const row=currentRows.find(x=>String(x.id)===String(id));
     if(type==='reject'){
@@ -182,13 +183,16 @@
     }
   });
 
-  async function refreshTxTabCounts(){
+  let txCountGeneration=0;
+  async function refreshTxTabCounts(knownWithdrawTotal){
+    const generation=++txCountGeneration;
     const from=document.getElementById('withdrawFrom')?.value||'';
     const to=document.getElementById('withdrawTo')?.value||'';
     const status=document.getElementById('withdrawStatus')?.value||'';
     const statusFilter=status==='ALL'?'':status;
-    async function count(key){const params=new URLSearchParams({page:'1',size:'1'});if(from)params.set('dateFrom',from);if(to)params.set('dateTo',to);if(statusFilter)params.set('status',statusFilter);const json=await api(endpoint(key)+'?'+params);const d=json.data||{};const pg=json.pagination||d.pagination||d;const n=Number(pg.totalElements);if(Number.isFinite(n))return Math.max(0,n);const rows=d.content||d.items||d.list||[];return rows.length;}
-    try{const [d,w]=await Promise.all([count('MEMBER_DEPOSIT_LIST'),count('MEMBER_WITHDRAW_LIST')]);const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=String(v);};set('boTxCountDeposit',d);set('boTxCountWithdraw',w);set('boTxCountAll',d+w);}catch(_e){}
+    const keyword=document.getElementById('withdrawKeyword')?.value.trim()||'';
+    async function count(key){const params=new URLSearchParams({page:'1',size:'1'});if(from)params.set('dateFrom',from);if(to)params.set('dateTo',to);if(statusFilter)params.set('status',statusFilter);if(keyword)params.set('keyword',keyword);const json=await api(endpoint(key)+'?'+params);const d=json.data||{};const pg=json.pagination||d.pagination||d;const n=Number(pg.totalElements);if(Number.isFinite(n))return Math.max(0,n);const rows=d.content||d.items||d.list||[];return rows.length;}
+    try{const [d,w]=await Promise.all([count('MEMBER_DEPOSIT_LIST'),knownWithdrawTotal==null?count('MEMBER_WITHDRAW_LIST'):Promise.resolve(Number(knownWithdrawTotal)||0)]);if(generation!==txCountGeneration)return;const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=String(v);};set('boTxCountDeposit',d);set('boTxCountWithdraw',w);set('boTxCountAll',d+w);}catch(_e){}
   }
   function syncTxTypeTabs(defaultType){
     const params=new URLSearchParams(location.search);
@@ -204,7 +208,7 @@
       const n=Number(String(el?.textContent||'').replace(/[^\d.-]/g,''));
       return Number.isFinite(n)?Math.max(0,Math.round(n)):0;
     };
-    refreshTxTabCounts();
+    // Wait for the first filtered table response before publishing counts.
     const track=document.querySelector('.bo-tx-tabs');
     if(track&&window.BO_SEG_BOUNCE) window.BO_SEG_BOUNCE.mount(track,{button:':scope > .bo-tx-tab',anim:'bounce'});
   }

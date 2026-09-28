@@ -393,10 +393,13 @@
     document.getElementById('depositPrevBtn').disabled=page<=1; document.getElementById('depositNextBtn').disabled=page>=totalPages;
     scheduleEvenFill();
   }
+  let loadGeneration=0;
   async function load(){
+    const generation=++loadGeneration;
     const body=document.getElementById('depositBody'); if(body)body.innerHTML='<tr><td colspan="8">Loading...</td></tr>';
     try{
       const [json,methods]=await Promise.all([api(endpoint('MEMBER_DEPOSIT_LIST')+'?'+q()),paymentMethods().catch(()=>[])]);
+      if(generation!==loadGeneration)return;
       const data=json.data||{};
       // The list endpoint has existed in both ApiResponse shapes in production:
       // pagination may be top-level and rows may be data.content, data.items/list,
@@ -405,8 +408,9 @@
       const rows=Array.isArray(data)?data:(data.content||data.items||data.list||json.content||json.items||json.list||[]);
       const pagination=json.pagination||data.pagination||((data&&typeof data==='object')?data:{});
       render(Array.isArray(rows)?rows:[],pagination,methods);
+      await refreshTxTabCounts(pagination?.totalElements);
     }
-    catch(e){if(body)body.innerHTML='<tr><td colspan="8" class="text-danger">'+esc(e.message)+'</td></tr>';}
+    catch(e){if(generation!==loadGeneration)return;if(body)body.innerHTML='<tr><td colspan="8" class="text-danger">'+esc(e.message)+'</td></tr>';}
   }
   async function action(id,type){
     const row=currentRows.find(x=>String(x.id)===String(id));
@@ -427,14 +431,17 @@
     }catch(e){BO_DIALOG.alert(e.message||'Action failed',{title:'Deposit Action Failed',type:'error'});}
   }
   document.addEventListener('click',e=>{const proof=e.target.closest?.('[data-proof-preview]');if(proof){e.preventDefault();e.stopPropagation();openProofPreview(proof.dataset.proofPreview);return;}const a=e.target.closest?.('[data-approve]'); const r=e.target.closest?.('[data-reject]'); if(a)action(a.dataset.approve,'approve'); if(r)action(r.dataset.reject,'reject');});
-  async function refreshTxTabCounts(){
+  let txCountGeneration=0;
+  async function refreshTxTabCounts(knownDepositTotal){
+    const generation=++txCountGeneration;
     const from=document.getElementById('depositFrom')?.value||'';
     const to=document.getElementById('depositTo')?.value||'';
     const status=document.getElementById('depositStatus')?.value||'';
     const statusFilter=status==='ALL'?'':status;
+    const keyword=document.getElementById('depositKeyword')?.value.trim()||'';
     async function count(key){
       const params=new URLSearchParams({page:'1',size:'1'});
-      if(from)params.set('dateFrom',from); if(to)params.set('dateTo',to); if(statusFilter)params.set('status',statusFilter);
+      if(from)params.set('dateFrom',from); if(to)params.set('dateTo',to); if(statusFilter)params.set('status',statusFilter); if(keyword)params.set('keyword',keyword);
       const json=await api(endpoint(key)+'?'+params);
       const d=json.data||{}; const pg=json.pagination||d.pagination||d;
       const n=Number(pg.totalElements);
@@ -442,7 +449,8 @@
       const rows=d.content||d.items||d.list||[]; return rows.length;
     }
     try{
-      const [d,w]=await Promise.all([count('MEMBER_DEPOSIT_LIST'),count('MEMBER_WITHDRAW_LIST')]);
+      const [d,w]=await Promise.all([knownDepositTotal==null?count('MEMBER_DEPOSIT_LIST'):Promise.resolve(Number(knownDepositTotal)||0),count('MEMBER_WITHDRAW_LIST')]);
+      if(generation!==txCountGeneration)return;
       const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=String(v);};
       set('boTxCountDeposit',d);set('boTxCountWithdraw',w);set('boTxCountAll',d+w);
     }catch(_e){}
@@ -461,7 +469,9 @@
       const n=Number(String(el?.textContent||'').replace(/[^\d.-]/g,''));
       return Number.isFinite(n)?Math.max(0,Math.round(n)):0;
     };
-    refreshTxTabCounts();
+    // Counts are refreshed only after the first filtered table request.
+    // This prevents refresh-time counts from running before bo-date-range has
+    // populated dateFrom/dateTo and showing historical totals beside today's table.
     const track=document.querySelector('.bo-tx-tabs');
     if(track&&window.BO_SEG_BOUNCE) window.BO_SEG_BOUNCE.mount(track,{button:':scope > .bo-tx-tab',anim:'bounce'});
   }
@@ -475,7 +485,7 @@
     }
     syncTxTypeTabs('deposit');
     let keywordTimer=0;
-    const runSearch=()=>{page=1;clearLockedAutoSize();load();renderBankCards();refreshTxTabCounts();};
+    const runSearch=()=>{page=1;clearLockedAutoSize();load();renderBankCards();};
     document.getElementById('depositKeyword')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();clearTimeout(keywordTimer);runSearch();}});
     document.getElementById('depositKeyword')?.addEventListener('input',()=>{clearTimeout(keywordTimer);keywordTimer=setTimeout(runSearch,350);});
     document.getElementById('depositStatus')?.addEventListener('change',runSearch);

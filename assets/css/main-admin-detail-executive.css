@@ -388,7 +388,7 @@ body.main-admin-detail-page .mad-btn-navy.bo-ui-button-primary,
 body.main-admin-detail-page .bo-ui-button-primary,
 body.main-admin-detail-page .btn-primary,
 body.main-admin-detail-page button.btn-primary{
-  background:var(--bo-navy)!important;border-color:var(--bo-navy)!important;color:#fff!important;
+  background-color:#F59E0B!important;background-image:linear-gradient(180deg,#FBBF24 0%,#F59E0B 42%,#EA8608 100%)!important;border-color:#E8901A!important;color:#fff!important;box-shadow:none!important;
 }
 body.main-admin-detail-page .mad-btn-primary:hover,
 body.main-admin-detail-page .mad-btn-primary.bo-ui-button-primary:hover,
@@ -1145,7 +1145,7 @@ body.main-admin-detail-page .mad-pager .smart-page.active,
 body.main-admin-detail-page .mad-pager button.active,
 body.main-admin-detail-page .mad-pager .smart-page.active.bo-ui-button,
 body.main-admin-detail-page .mad-pager .smart-page.active.bo-ui-button-primary{
-  background:var(--bo-navy)!important;border-color:var(--bo-navy)!important;color:#fff!important;
+  background-color:#F59E0B!important;background-image:linear-gradient(180deg,#FBBF24 0%,#F59E0B 42%,#EA8608 100%)!important;border-color:#E8901A!important;color:#fff!important;box-shadow:none!important;
 }
 body.main-admin-detail-page .mad-pager .smart-page:hover:not(:disabled):not(.active),
 body.main-admin-detail-page .mad-pager button:hover:not(:disabled):not(.active){
@@ -1172,7 +1172,7 @@ body.main-admin-detail-page .mad-field .form-control:focus{
 body.main-admin-detail-page .mad-modal .bo-ui-button-primary,
 body.main-admin-detail-page .mad-modal .mad-btn-primary,
 body.main-admin-detail-page .mad-modal .mad-btn-navy{
-  background:var(--bo-navy)!important;border-color:var(--bo-navy)!important;color:#fff!important;
+  background-color:#F59E0B!important;background-image:linear-gradient(180deg,#FBBF24 0%,#F59E0B 42%,#EA8608 100%)!important;border-color:#E8901A!important;color:#fff!important;box-shadow:none!important;
 }
 
 body.main-admin-detail-page .mad-modal-panel{
@@ -3199,18 +3199,35 @@ body.main-admin-create-page .mac-footer-actions .mad-btn.bo-ui-button,
 body.main-admin-create-page .mac-footer-actions a.mad-btn{
   height:44px!important;min-height:44px!important;
   min-width:160px!important;padding:0 22px!important;
-  border-radius:8px!important;font-size:13.5px!important;font-weight:700!important;
+  border-radius:8px!important;font-size:13px!important;font-weight:700!important;
   box-sizing:border-box!important;display:inline-flex!important;
   align-items:center!important;justify-content:center!important;gap:6px!important;
   line-height:1!important;text-decoration:none!important;
 }
+/* `.mad-btn-navy` is the primary CTA alias (system.md -> Buttons: "Never restore navy fill
+   as primary"). This rule painted the navy surface, so Save on the three create pages that
+   resolve through it read as a delivered dark CTA while every sibling page's Save was amber.
+   It is the same class name that renders amber elsewhere -- the page's stylesheet set, not
+   the markup, decided the colour. */
 body.main-admin-create-page .mad-btn-navy,
 body.main-admin-create-page .mad-btn-navy.bo-ui-button,
 body.main-admin-create-page .mad-btn-navy.bo-ui-button-primary{
-  background:var(--bo-navy)!important;border-color:var(--bo-navy)!important;color:#fff!important;
+  background-color:#F59E0B!important;
+  background-image:linear-gradient(180deg,#FBBF24 0%,#F59E0B 42%,#EA8608 100%)!important;
+  border-color:#E8901A!important;color:#fff!important;box-shadow:none!important;
 }
 body.main-admin-create-page .mad-btn-navy:hover{
-  background:#E8901A!important;border-color:#E8901A!important;color:#fff!important;
+  background-color:#F59E0B!important;
+  background-image:linear-gradient(0deg,#FCD34D 0%,#FBBF24 38%,#F59E0B 72%,#EA8608 100%)!important;
+  border-color:#F59E0B!important;color:#fff!important;box-shadow:none!important;
+}
+body.main-admin-create-page .mad-btn-navy:active{
+  background-image:linear-gradient(180deg,#F59E0B 0%,#EA8608 100%)!important;
+  box-shadow:none!important;
+}
+html[data-bo-theme="dark"] body.main-admin-create-page .mad-btn-navy{
+  background-image:linear-gradient(180deg,#FBBF24 0%,#F59E0B 45%,#D97706 100%)!important;
+  border-color:#F59E0B!important;color:#2A2C36!important;
 }
 
 @media(max-width:1200px){
@@ -3450,11 +3467,7 @@ html[data-bo-theme="dark"] body.main-admin-create-page .mac-footer-actions .mac-
   color:var(--bo-cyan);
 }
 html[data-bo-theme="dark"] body.main-admin-create-page .mac-footer-actions .mad-btn.mad-btn-ghost,
-html[data-bo-theme="dark"] body.main-admin-create-page .mac-footer-actions a.mad-btn.mad-btn-ghost{
-  background:var(--bo-surface)!important;
-  border-color:var(--bo-border)!important;
-  color:var(--bo-text)!important;
-}
+html[data-bo-theme="dark"] body.main-admin-create-page .mac-footer-actions a.mad-btn.mad-btn-ghost{ background-color:#383A46!important;background-image:linear-gradient(180deg,#4A4C58 0%,#383A46 48%,#2C2E38 100%)!important;border:1px solid rgba(255,255,255,.12)!important;color:#F5F5F4!important; }
 html[data-bo-theme="dark"] body.main-admin-create-page .mac-breadcrumb span[aria-current]{color:var(--bo-text)}
 
 /* ========== Edit Admin Account ========== */
@@ -4506,7 +4519,7 @@ body.main-admin-detail-page .mac-adjust-panel .mad-modal-actions .mad-btn-primar
   background-image:linear-gradient(180deg,#FBBF24 0%,#F59E0B 42%,#EA8608 100%)!important;
   border:1px solid #E8901A!important;
   color:#FFFFFF!important;
-  box-shadow:0 1px 2px rgba(217,119,6,.18),0 4px 10px rgba(217,119,6,.22),inset 0 1px 0 rgba(255,255,255,.35)!important;
+  box-shadow:none!important;
   filter:none!important;
 }
 body.main-admin-detail-page .mac-adjust-panel .mad-modal-actions .mad-btn-navy:hover,
@@ -4517,7 +4530,7 @@ body.main-admin-detail-page .mac-adjust-panel .mad-modal-actions .mad-btn-primar
   background-image:linear-gradient(0deg,#FCD34D 0%,#FBBF24 38%,#F59E0B 72%,#EA8608 100%)!important;
   border-color:#F59E0B!important;
   color:#FFFFFF!important;
-  box-shadow:0 2px 4px rgba(217,119,6,.22),0 8px 18px rgba(217,119,6,.28),inset 0 1px 0 rgba(255,255,255,.45)!important;
+  box-shadow:none!important;
 }
 body.main-admin-detail-page .mac-adjust-panel .mad-modal-actions .mad-btn-navy:active,
 body.main-admin-detail-page .mac-adjust-panel .mad-modal-actions .mad-btn-primary:active,
@@ -4526,7 +4539,7 @@ body.main-admin-detail-page .mac-adjust-panel .mad-modal-actions .mad-btn-primar
   background-image:linear-gradient(180deg,#F59E0B 0%,#EA8608 100%)!important;
   border-color:#E8901A!important;
   color:#FFFFFF!important;
-  box-shadow:0 1px 2px rgba(217,119,6,.16),inset 0 1px 0 rgba(255,255,255,.2)!important;
+  box-shadow:none!important;
 }
 body.main-admin-detail-page .mac-adjust-panel .rounded-select-menu:empty,
 body.main-admin-detail-page .mac-adjust-panel .rounded-select-menu:not(:has(.rounded-select-option[data-value]:not([data-value=""]))){
@@ -5430,7 +5443,7 @@ body.main-merchant-detail-page.mad-editing #madEditWorkspace .mac-footer-actions
 body.main-merchant-detail-page.mad-editing #madEditWorkspace .mac-footer-actions .mad-btn.bo-ui-button{
   height:44px!important;min-height:44px!important;
   min-width:160px!important;padding:0 22px!important;
-  border-radius:8px!important;font-size:13.5px!important;font-weight:700!important;
+  border-radius:8px!important;font-size:13px!important;font-weight:700!important;
   box-sizing:border-box!important;display:inline-flex!important;
   align-items:center!important;justify-content:center!important;gap:6px!important;
   line-height:1!important;text-decoration:none!important;
@@ -5487,11 +5500,7 @@ html[data-bo-theme="dark"] body.main-merchant-detail-page.mad-editing #madEditWo
   border-top-color:var(--bo-border)!important;
   box-shadow:0 -8px 24px rgba(0,0,0,.35)!important;
 }
-html[data-bo-theme="dark"] body.main-merchant-detail-page.mad-editing #madEditWorkspace .mac-footer-actions .mad-btn.mad-btn-ghost{
-  background:var(--bo-surface)!important;
-  border-color:var(--bo-border)!important;
-  color:var(--bo-text)!important;
-}
+html[data-bo-theme="dark"] body.main-merchant-detail-page.mad-editing #madEditWorkspace .mac-footer-actions .mad-btn.mad-btn-ghost{ background-color:#383A46!important;background-image:linear-gradient(180deg,#4A4C58 0%,#383A46 48%,#2C2E38 100%)!important;border:1px solid rgba(255,255,255,.12)!important;color:#F5F5F4!important; }
 html[data-bo-theme="dark"] body.main-merchant-detail-page #madEditWorkspace .mac-input-addon{
   background:#2A2C36!important;
   border-color:var(--bo-border)!important;
@@ -7269,7 +7278,7 @@ body.main-admin-detail-page[data-access-page="main_admin_security"] a#madAddBtn{
   background-image:linear-gradient(180deg,#FBBF24 0%,#F59E0B 42%,#EA8608 100%)!important;
   border:1px solid #E8901A!important;
   color:#fff!important;
-  box-shadow:0 1px 2px rgba(217,119,6,.18),0 4px 10px rgba(217,119,6,.22),inset 0 1px 0 rgba(255,255,255,.35)!important;
+  box-shadow:none!important;
   transform:translateY(0);
   transition:transform .14s ease,box-shadow .14s ease,background-image .14s ease,filter .14s ease!important;
   filter:none;
@@ -7292,7 +7301,7 @@ body.main-admin-detail-page[data-access-page="main_admin_security"] a#madAddBtn:
   background-image:linear-gradient(0deg,#FCD34D 0%,#FBBF24 38%,#F59E0B 72%,#EA8608 100%)!important;
   border-color:#F59E0B!important;
   color:#fff!important;
-  box-shadow:0 2px 4px rgba(217,119,6,.20),0 6px 14px rgba(217,119,6,.26),inset 0 1px 0 rgba(255,255,255,.4)!important;
+  box-shadow:none!important;
   filter:none;
   transform:translateY(-1px);
 }
@@ -7310,7 +7319,7 @@ body.main-admin-detail-page[data-access-page="main_admin_detail"] button.btn-pri
 body.main-admin-detail-page[data-access-page="main_admin_security"] button.btn-primary:active{
   transform:translateY(1px)!important;
   background:linear-gradient(180deg,#F59E0B 0%,#EA8608 100%)!important;
-  box-shadow:0 1px 2px rgba(217,119,6,.16),inset 0 1px 0 rgba(255,255,255,.2)!important;
+  box-shadow:none!important;
   filter:none;
 }
 
@@ -7338,7 +7347,7 @@ html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_ad
   background-image:linear-gradient(180deg,#FBBF24 0%,#F59E0B 45%,#D97706 100%)!important;
   border:1px solid #F59E0B!important;
   color:#2A2C36!important;
-  box-shadow:0 1px 2px rgba(0,0,0,.4),0 4px 12px rgba(245,158,11,.28),inset 0 1px 0 rgba(255,255,255,.28)!important;
+  box-shadow:none!important;
 }
 html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_admin_detail"] .mad-btn-primary:hover,
 html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_admin_security"] .mad-btn-primary:hover,
@@ -7352,7 +7361,7 @@ html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_ad
   background-image:linear-gradient(0deg,#FDE68A 0%,#FBBF24 40%,#F59E0B 100%)!important;
   border-color:#FBBF24!important;
   color:#2A2C36!important;
-  box-shadow:0 2px 4px rgba(0,0,0,.35),0 8px 18px rgba(245,158,11,.34),inset 0 1px 0 rgba(255,255,255,.4)!important;
+  box-shadow:none!important;
   transform:translateY(-1px)!important;
 }
 html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_admin_detail"] .mad-btn-primary:active,
@@ -7366,7 +7375,7 @@ html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_ad
   transform:translateY(1px)!important;
   background-image:linear-gradient(180deg,#F59E0B 0%,#D97706 100%)!important;
   color:#2A2C36!important;
-  box-shadow:0 1px 2px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.18)!important;
+  box-shadow:none!important;
 }
 
 /* Active pager — light: orange gradient lift; dark: bright orange glow */
@@ -7417,7 +7426,7 @@ html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_ad
   background-image:linear-gradient(180deg,#FBBF24 0%,#F59E0B 48%,#D97706 100%)!important;
   border:1px solid #F59E0B!important;
   color:#2A2C36!important;
-  box-shadow:0 0 0 1px rgba(245,158,11,.25),0 2px 8px rgba(245,158,11,.45),0 6px 18px rgba(245,158,11,.28),inset 0 1px 0 rgba(255,255,255,.35)!important;
+  box-shadow:none!important;
 }
 body.main-admin-detail-page[data-access-page="main_admin_detail"] .mad-btn:hover:not(.mad-btn-primary):not(.mad-btn-navy):not(.mad-btn-ghost):not(.bo-ui-button-primary):not(.btn-primary):not(#madExportBtn),
 body.main-admin-detail-page[data-access-page="main_admin_security"] .mad-btn:hover:not(.mad-btn-primary):not(.mad-btn-navy):not(.mad-btn-ghost):not(.bo-ui-button-primary):not(.btn-primary):not(#madExportBtn),
@@ -7454,7 +7463,7 @@ body.main-admin-detail-page[data-access-page="main_admin_security"] button.btn-p
   background-image:linear-gradient(0deg,#FCD34D 0%,#FBBF24 38%,#F59E0B 72%,#EA8608 100%)!important;
   border-color:#F59E0B!important;
   color:#fff!important;
-  box-shadow:0 2px 4px rgba(217,119,6,.22),0 8px 18px rgba(217,119,6,.28),inset 0 1px 0 rgba(255,255,255,.45)!important;
+  box-shadow:none!important;
   filter:none!important;
   transform:translateY(-1px)!important;
 }
@@ -7472,7 +7481,7 @@ html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_ad
   background-image:linear-gradient(0deg,#FDE68A 0%,#FBBF24 40%,#F59E0B 100%)!important;
   border-color:#FBBF24!important;
   color:#2A2C36!important;
-  box-shadow:0 2px 4px rgba(0,0,0,.3),0 8px 18px rgba(245,158,11,.34),inset 0 1px 0 rgba(255,255,255,.45)!important;
+  box-shadow:none!important;
   transform:translateY(-1px)!important;
 }
 html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_admin_detail"] .mad-pill:hover:not(.is-active) .mad-pill-count,
@@ -7494,8 +7503,8 @@ body.main-admin-detail-page[data-access-page="main_admin_detail"] .mad-chrome-ac
 body.main-admin-detail-page[data-access-page="main_admin_security"] .mad-chrome-actions .mad-btn-ghost{
   border-radius:8px!important;
   background-color:#F3E8D6!important;
-  background-image:linear-gradient(180deg,#FFF8EB 0%,#F3E8D6 100%)!important;
-  border:1px solid #EADCC8!important;
+  background-image:linear-gradient(180deg,#FFFCF7 0%,#F5EBDC 55%,#EDE4D4 100%)!important;
+  border:1px solid #DCC9A8!important;
   color:#18191C!important;
   box-shadow:0 1px 2px rgba(24,25,28,.06),0 2px 6px rgba(24,25,28,.05)!important;
   transition:transform .14s ease,box-shadow .14s ease,background-image .14s ease,border-color .14s ease!important;

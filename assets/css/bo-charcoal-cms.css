@@ -92,9 +92,9 @@ html:not([data-bo-theme="dark"]) body.banner-management-page.report-body.bo-char
 
 html[data-bo-theme="dark"] body.banner-management-page.report-body.bo-charcoal:not(#bo-charcoal-off):not(#bo-charcoal-legacy):not(#bo-filter-standard-off):not(#bo-filter-standard-legacy) .report-main #refreshSliderBtn, html[data-bo-theme="dark"] body.banner-management-page.report-body.bo-charcoal:not(#bo-charcoal-off):not(#bo-charcoal-legacy):not(#bo-filter-standard-off):not(#bo-filter-standard-legacy) .report-main .banner-filterbar > .clean-btn.mad-btn-ghost { background: linear-gradient(rgb(74, 76, 88) 0%, rgb(56, 58, 70) 55%, rgb(44, 46, 56) 100%) !important; border: 1px solid rgba(255, 255, 255, 0.12) !important; color: rgb(245, 245, 244) !important; box-shadow: rgba(0, 0, 0, 0.28) 0px 1px 2px !important; }
 
-html:not([data-bo-theme="dark"]) body.banner-management-page.report-body.bo-charcoal:not(#bo-charcoal-off):not(#bo-charcoal-legacy):not(#bo-filter-standard-off):not(#bo-filter-standard-legacy) .report-main #addBannerBtn, html:not([data-bo-theme="dark"]) body.banner-management-page.report-body.bo-charcoal:not(#bo-charcoal-off):not(#bo-charcoal-legacy):not(#bo-filter-standard-off):not(#bo-filter-standard-legacy) .report-main .banner-filterbar > .clean-btn.primary { background: linear-gradient(rgb(251, 191, 36) 0%, rgb(245, 158, 11) 42%, rgb(234, 134, 8) 100%) !important; border: 1px solid rgb(232, 144, 26) !important; color: rgb(255, 255, 255) !important; box-shadow: rgba(180, 83, 9, 0.28) 0px 1px 2px, rgba(255, 255, 255, 0.35) 0px 1px 0px inset !important; text-decoration: none !important; }
+html:not([data-bo-theme="dark"]) body.banner-management-page.report-body.bo-charcoal:not(#bo-charcoal-off):not(#bo-charcoal-legacy):not(#bo-filter-standard-off):not(#bo-filter-standard-legacy) .report-main #addBannerBtn, html:not([data-bo-theme="dark"]) body.banner-management-page.report-body.bo-charcoal:not(#bo-charcoal-off):not(#bo-charcoal-legacy):not(#bo-filter-standard-off):not(#bo-filter-standard-legacy) .report-main .banner-filterbar > .clean-btn.primary { background: linear-gradient(rgb(251, 191, 36) 0%, rgb(245, 158, 11) 42%, rgb(234, 134, 8) 100%) !important; border: 1px solid rgb(232, 144, 26) !important; color: rgb(255, 255, 255) !important; box-shadow:none!important; text-decoration: none !important; }
 
-html[data-bo-theme="dark"] body.banner-management-page.report-body.bo-charcoal:not(#bo-charcoal-off):not(#bo-charcoal-legacy):not(#bo-filter-standard-off):not(#bo-filter-standard-legacy) .report-main #addBannerBtn, html[data-bo-theme="dark"] body.banner-management-page.report-body.bo-charcoal:not(#bo-charcoal-off):not(#bo-charcoal-legacy):not(#bo-filter-standard-off):not(#bo-filter-standard-legacy) .report-main .banner-filterbar > .clean-btn.primary { background: linear-gradient(rgb(251, 191, 36) 0%, rgb(245, 158, 11) 45%, rgb(217, 119, 6) 100%) !important; border: 1px solid rgb(245, 158, 11) !important; color: rgb(42, 44, 54) !important; box-shadow: rgba(0, 0, 0, 0.35) 0px 1px 2px !important; }
+html[data-bo-theme="dark"] body.banner-management-page.report-body.bo-charcoal:not(#bo-charcoal-off):not(#bo-charcoal-legacy):not(#bo-filter-standard-off):not(#bo-filter-standard-legacy) .report-main #addBannerBtn, html[data-bo-theme="dark"] body.banner-management-page.report-body.bo-charcoal:not(#bo-charcoal-off):not(#bo-charcoal-legacy):not(#bo-filter-standard-off):not(#bo-filter-standard-legacy) .report-main .banner-filterbar > .clean-btn.primary { background: linear-gradient(rgb(251, 191, 36) 0%, rgb(245, 158, 11) 45%, rgb(217, 119, 6) 100%) !important; border: 1px solid rgb(245, 158, 11) !important; color: rgb(42, 44, 54) !important; box-shadow:none!important; }
 
 html:not([data-bo-theme="dark"]) body.banner-management-page.report-body.bo-charcoal:not(#bo-charcoal-off) .banner-workspace { border-width: 0px 1px 1px !important; border-style: none solid solid !important; border-color: currentcolor rgb(234, 220, 200) rgb(234, 220, 200) !important; border-image: none !important; background: rgb(255, 248, 235) !important; gap: 14px !important; padding: 14px !important; }
 
@@ -386,7 +386,7 @@ html body.banner-edit-page.report-body.bo-charcoal:not(#bo-charcoal-off) .banner
 
 html[data-bo-theme="dark"] body.banner-edit-page.report-body.bo-charcoal:not(#bo-charcoal-off) .banner-edit-section-title p { color: rgb(161, 161, 170) !important; }
 
-html body.banner-edit-page.report-body.bo-charcoal:not(#bo-charcoal-off) .banner-edit-back, html body.banner-edit-page.report-body.bo-charcoal:not(#bo-charcoal-off) .banner-edit-footer .mad-btn-ghost { height: 38px !important; min-height: 38px !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; gap: 6px !important; padding: 0px 14px !important; border-radius: 8px !important; background: linear-gradient(rgb(255, 252, 247) 0%, rgb(245, 235, 220) 55%, rgb(237, 228, 212) 100%) !important; border: 1px solid rgb(220, 201, 168) !important; color: rgb(24, 25, 28) !important; font-size: 12.5px !important; font-weight: 800 !important; text-decoration: none !important; box-shadow: rgba(24, 25, 28, 0.06) 0px 1px 2px !important; }
+html body.banner-edit-page.report-body.bo-charcoal:not(#bo-charcoal-off) .banner-edit-back, html body.banner-edit-page.report-body.bo-charcoal:not(#bo-charcoal-off) .banner-edit-footer .mad-btn-ghost { height: 38px !important; min-height: 38px !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; gap: 6px !important; padding: 0px 14px !important; border-radius: 8px !important; background: linear-gradient(rgb(255, 252, 247) 0%, rgb(245, 235, 220) 55%, rgb(237, 228, 212) 100%) !important; border: 1px solid rgb(220, 201, 168) !important; color: rgb(24, 25, 28) !important; font-size: 12.5px !important; font-weight: 700 !important; text-decoration: none !important; box-shadow: rgba(24, 25, 28, 0.06) 0px 1px 2px !important; }
 
 html body.banner-edit-page.report-body.bo-charcoal:not(#bo-charcoal-off) .banner-edit-back:hover, html body.banner-edit-page.report-body.bo-charcoal:not(#bo-charcoal-off) .banner-edit-footer .mad-btn-ghost:hover { background: linear-gradient(rgb(255, 248, 235) 0%, rgb(243, 232, 214) 100%) !important; border-color: rgb(224, 208, 184) !important; }
 
@@ -486,7 +486,7 @@ html body.banner-edit-page.report-body.bo-charcoal:not(#bo-charcoal-off) .banner
 
 html body.banner-edit-page.report-body.bo-charcoal:not(#bo-charcoal-off) .banner-edit-footer-actions { display: flex !important; align-items: center !important; gap: 10px !important; flex-wrap: wrap !important; }
 
-html body.banner-edit-page.report-body.bo-charcoal:not(#bo-charcoal-off) .banner-edit-footer-actions .clean-btn.primary { height: 38px !important; min-height: 38px !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; gap: 6px !important; padding: 0px 16px !important; border-radius: 8px !important; background: linear-gradient(rgb(251, 191, 36) 0%, rgb(245, 158, 11) 42%, rgb(234, 134, 8) 100%) !important; border: 1px solid rgb(232, 144, 26) !important; color: rgb(255, 255, 255) !important; font-size: 12.5px !important; font-weight: 800 !important; box-shadow: rgba(180, 83, 9, 0.28) 0px 1px 2px, rgba(255, 255, 255, 0.35) 0px 1px 0px inset !important; }
+html body.banner-edit-page.report-body.bo-charcoal:not(#bo-charcoal-off) .banner-edit-footer-actions .clean-btn.primary { height: 38px !important; min-height: 38px !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; gap: 6px !important; padding: 0px 16px !important; border-radius: 8px !important; background: linear-gradient(rgb(251, 191, 36) 0%, rgb(245, 158, 11) 42%, rgb(234, 134, 8) 100%) !important; border: 1px solid rgb(232, 144, 26) !important; color: rgb(255, 255, 255) !important; font-size: 12.5px !important; font-weight: 700 !important; box-shadow:none!important; }
 
 html[data-bo-theme="dark"] body.banner-edit-page.report-body.bo-charcoal:not(#bo-charcoal-off) .banner-edit-footer-actions .clean-btn.primary { background: linear-gradient(rgb(251, 191, 36) 0%, rgb(245, 158, 11) 45%, rgb(217, 119, 6) 100%) !important; border-color: rgb(245, 158, 11) !important; color: rgb(42, 44, 54) !important; }
 
@@ -748,7 +748,7 @@ html:not([data-bo-theme="dark"]) body.promotion-bonus-page.report-body.bo-charco
 
 html[data-bo-theme="dark"] body.promotion-bonus-page.report-body.bo-charcoal:not(#bo-charcoal-off) .standardized-toolbar-title .clean-btn:not(.primary), html[data-bo-theme="dark"] body.promotion-bonus-page.report-body.bo-charcoal:not(#bo-charcoal-off) .promotion-filter-card .crud-title-actions .clean-btn:not(.primary) { background: linear-gradient(rgb(74, 76, 88) 0%, rgb(56, 58, 70) 55%, rgb(44, 46, 56) 100%) !important; border: 1px solid rgba(255, 255, 255, 0.12) !important; color: rgb(245, 245, 244) !important; }
 
-html:not([data-bo-theme="dark"]) body.promotion-bonus-page.report-body.bo-charcoal:not(#bo-charcoal-off) .standardized-toolbar-title .clean-btn.primary, html:not([data-bo-theme="dark"]) body.promotion-bonus-page.report-body.bo-charcoal:not(#bo-charcoal-off) .standardized-toolbar-title .crud-add-btn, html:not([data-bo-theme="dark"]) body.promotion-bonus-page.report-body.bo-charcoal:not(#bo-charcoal-off) .promotion-filter-card .crud-title-actions .clean-btn.primary, html:not([data-bo-theme="dark"]) body.promotion-bonus-page.report-body.bo-charcoal:not(#bo-charcoal-off) .promotion-filter-card .crud-title-actions .crud-add-btn { background: linear-gradient(rgb(251, 191, 36) 0%, rgb(245, 158, 11) 42%, rgb(234, 134, 8) 100%) !important; border: 1px solid rgb(232, 144, 26) !important; color: rgb(255, 255, 255) !important; box-shadow: rgba(180, 83, 9, 0.28) 0px 1px 2px, rgba(255, 255, 255, 0.35) 0px 1px 0px inset !important; }
+html:not([data-bo-theme="dark"]) body.promotion-bonus-page.report-body.bo-charcoal:not(#bo-charcoal-off) .standardized-toolbar-title .clean-btn.primary, html:not([data-bo-theme="dark"]) body.promotion-bonus-page.report-body.bo-charcoal:not(#bo-charcoal-off) .standardized-toolbar-title .crud-add-btn, html:not([data-bo-theme="dark"]) body.promotion-bonus-page.report-body.bo-charcoal:not(#bo-charcoal-off) .promotion-filter-card .crud-title-actions .clean-btn.primary, html:not([data-bo-theme="dark"]) body.promotion-bonus-page.report-body.bo-charcoal:not(#bo-charcoal-off) .promotion-filter-card .crud-title-actions .crud-add-btn { background: linear-gradient(rgb(251, 191, 36) 0%, rgb(245, 158, 11) 42%, rgb(234, 134, 8) 100%) !important; border: 1px solid rgb(232, 144, 26) !important; color: rgb(255, 255, 255) !important; box-shadow:none!important; }
 
 html[data-bo-theme="dark"] body.promotion-bonus-page.report-body.bo-charcoal:not(#bo-charcoal-off) .standardized-toolbar-title .clean-btn.primary, html[data-bo-theme="dark"] body.promotion-bonus-page.report-body.bo-charcoal:not(#bo-charcoal-off) .standardized-toolbar-title .crud-add-btn, html[data-bo-theme="dark"] body.promotion-bonus-page.report-body.bo-charcoal:not(#bo-charcoal-off) .promotion-filter-card .crud-title-actions .clean-btn.primary, html[data-bo-theme="dark"] body.promotion-bonus-page.report-body.bo-charcoal:not(#bo-charcoal-off) .promotion-filter-card .crud-title-actions .crud-add-btn { background: linear-gradient(rgb(251, 191, 36) 0%, rgb(245, 158, 11) 45%, rgb(217, 119, 6) 100%) !important; border: 1px solid rgb(245, 158, 11) !important; color: rgb(42, 44, 54) !important; }
 
@@ -840,7 +840,7 @@ html:not([data-bo-theme="dark"]) body.promotion-bonus-page.report-body.bo-charco
 
 html[data-bo-theme="dark"] body.promotion-bonus-page.report-body.bo-charcoal:not(#bo-charcoal-off):not(#bo-charcoal-legacy):not(#bo-filter-standard-off):not(#bo-filter-standard-legacy) .report-main .promotion-filter-card .game-filter-actions .clean-btn:not(.primary) { background: linear-gradient(rgb(74, 76, 88) 0%, rgb(56, 58, 70) 55%, rgb(44, 46, 56) 100%) !important; border: 1px solid rgba(255, 255, 255, 0.12) !important; color: rgb(245, 245, 244) !important; }
 
-html:not([data-bo-theme="dark"]) body.promotion-bonus-page.report-body.bo-charcoal:not(#bo-charcoal-off):not(#bo-charcoal-legacy):not(#bo-filter-standard-off):not(#bo-filter-standard-legacy) .report-main .promotion-filter-card .game-filter-actions .clean-btn.primary { background: linear-gradient(rgb(251, 191, 36) 0%, rgb(245, 158, 11) 42%, rgb(234, 134, 8) 100%) !important; border: 1px solid rgb(232, 144, 26) !important; color: rgb(255, 255, 255) !important; box-shadow: rgba(180, 83, 9, 0.28) 0px 1px 2px, rgba(255, 255, 255, 0.35) 0px 1px 0px inset !important; }
+html:not([data-bo-theme="dark"]) body.promotion-bonus-page.report-body.bo-charcoal:not(#bo-charcoal-off):not(#bo-charcoal-legacy):not(#bo-filter-standard-off):not(#bo-filter-standard-legacy) .report-main .promotion-filter-card .game-filter-actions .clean-btn.primary { background: linear-gradient(rgb(251, 191, 36) 0%, rgb(245, 158, 11) 42%, rgb(234, 134, 8) 100%) !important; border: 1px solid rgb(232, 144, 26) !important; color: rgb(255, 255, 255) !important; box-shadow:none!important; }
 
 html[data-bo-theme="dark"] body.promotion-bonus-page.report-body.bo-charcoal:not(#bo-charcoal-off):not(#bo-charcoal-legacy):not(#bo-filter-standard-off):not(#bo-filter-standard-legacy) .report-main .promotion-filter-card .game-filter-actions .clean-btn.primary { background: linear-gradient(rgb(251, 191, 36) 0%, rgb(245, 158, 11) 45%, rgb(217, 119, 6) 100%) !important; border: 1px solid rgb(245, 158, 11) !important; color: rgb(42, 44, 54) !important; }
 
@@ -1016,7 +1016,7 @@ html body.page-bonus-category-title.report-body.bo-charcoal:not(#bo-charcoal-off
 
 html:not([data-bo-theme="dark"]) body.page-bonus-category-title.report-body.bo-charcoal:not(#bo-charcoal-off):not(#bo-charcoal-legacy) .bonus-title-strip .mad-btn-ghost, html:not([data-bo-theme="dark"]) body.page-bonus-category-title.report-body.bo-charcoal:not(#bo-charcoal-off):not(#bo-charcoal-legacy) .bonus-title-filterbar #resetBonusFilters, html:not([data-bo-theme="dark"]) body.page-bonus-category-title.report-body.bo-charcoal:not(#bo-charcoal-off):not(#bo-charcoal-legacy) .bonus-title-strip #refreshBonusBtn { background: linear-gradient(rgb(255, 248, 235) 0%, rgb(243, 232, 214) 100%) !important; border: 1px solid rgb(234, 220, 200) !important; color: rgb(24, 25, 28) !important; box-shadow: rgba(24, 25, 28, 0.06) 0px 1px 2px !important; }
 
-html:not([data-bo-theme="dark"]) body.page-bonus-category-title.report-body.bo-charcoal:not(#bo-charcoal-off):not(#bo-charcoal-legacy) .bonus-title-filterbar #applyBonusFilters, html:not([data-bo-theme="dark"]) body.page-bonus-category-title.report-body.bo-charcoal:not(#bo-charcoal-off):not(#bo-charcoal-legacy) .bonus-title-strip .clean-btn.primary, html:not([data-bo-theme="dark"]) body.page-bonus-category-title.report-body.bo-charcoal:not(#bo-charcoal-off):not(#bo-charcoal-legacy) .bonus-title-strip .crud-add-btn { background: linear-gradient(rgb(251, 191, 36) 0%, rgb(245, 158, 11) 42%, rgb(234, 134, 8) 100%) !important; border: 1px solid rgb(232, 144, 26) !important; color: rgb(255, 255, 255) !important; box-shadow: rgba(180, 83, 9, 0.28) 0px 1px 2px, rgba(255, 255, 255, 0.35) 0px 1px 0px inset !important; }
+html:not([data-bo-theme="dark"]) body.page-bonus-category-title.report-body.bo-charcoal:not(#bo-charcoal-off):not(#bo-charcoal-legacy) .bonus-title-filterbar #applyBonusFilters, html:not([data-bo-theme="dark"]) body.page-bonus-category-title.report-body.bo-charcoal:not(#bo-charcoal-off):not(#bo-charcoal-legacy) .bonus-title-strip .clean-btn.primary, html:not([data-bo-theme="dark"]) body.page-bonus-category-title.report-body.bo-charcoal:not(#bo-charcoal-off):not(#bo-charcoal-legacy) .bonus-title-strip .crud-add-btn { background: linear-gradient(rgb(251, 191, 36) 0%, rgb(245, 158, 11) 42%, rgb(234, 134, 8) 100%) !important; border: 1px solid rgb(232, 144, 26) !important; color: rgb(255, 255, 255) !important; box-shadow:none!important; }
 
 html[data-bo-theme="dark"] body.page-bonus-category-title.report-body.bo-charcoal:not(#bo-charcoal-off):not(#bo-charcoal-legacy) .bonus-title-strip .mad-btn-ghost, html[data-bo-theme="dark"] body.page-bonus-category-title.report-body.bo-charcoal:not(#bo-charcoal-off):not(#bo-charcoal-legacy) .bonus-title-filterbar #resetBonusFilters { background: linear-gradient(rgb(74, 76, 88) 0%, rgb(56, 58, 70) 55%, rgb(44, 46, 56) 100%) !important; border: 1px solid rgba(255, 255, 255, 0.12) !important; color: rgb(245, 245, 244) !important; }
 
@@ -1384,9 +1384,9 @@ html:not([data-bo-theme="dark"]) body.manual-rebate-approval-page.report-body.bo
 
 html[data-bo-theme="dark"] body.manual-rebate-approval-page.report-body.bo-charcoal:not(#bo-charcoal-off):not(#bo-charcoal-legacy) .manual-rebate-actions .clean-btn:not(.primary) { background: linear-gradient(rgb(74, 76, 88) 0%, rgb(56, 58, 70) 55%, rgb(44, 46, 56) 100%) !important; border: 1px solid rgba(255, 255, 255, 0.12) !important; color: rgb(245, 245, 244) !important; box-shadow: rgba(0, 0, 0, 0.28) 0px 1px 2px !important; }
 
-html:not([data-bo-theme="dark"]) body.manual-rebate-approval-page.report-body.bo-charcoal:not(#bo-charcoal-off):not(#bo-charcoal-legacy) .manual-rebate-actions .clean-btn.primary { background: linear-gradient(rgb(251, 191, 36) 0%, rgb(245, 158, 11) 42%, rgb(234, 134, 8) 100%) !important; border: 1px solid rgb(232, 144, 26) !important; color: rgb(255, 255, 255) !important; box-shadow: rgba(180, 83, 9, 0.28) 0px 1px 2px, rgba(255, 255, 255, 0.35) 0px 1px 0px inset !important; }
+html:not([data-bo-theme="dark"]) body.manual-rebate-approval-page.report-body.bo-charcoal:not(#bo-charcoal-off):not(#bo-charcoal-legacy) .manual-rebate-actions .clean-btn.primary { background: linear-gradient(rgb(251, 191, 36) 0%, rgb(245, 158, 11) 42%, rgb(234, 134, 8) 100%) !important; border: 1px solid rgb(232, 144, 26) !important; color: rgb(255, 255, 255) !important; box-shadow:none!important; }
 
-html[data-bo-theme="dark"] body.manual-rebate-approval-page.report-body.bo-charcoal:not(#bo-charcoal-off):not(#bo-charcoal-legacy) .manual-rebate-actions .clean-btn.primary { background: linear-gradient(rgb(251, 191, 36) 0%, rgb(245, 158, 11) 45%, rgb(217, 119, 6) 100%) !important; border: 1px solid rgb(245, 158, 11) !important; color: rgb(42, 44, 54) !important; box-shadow: rgba(0, 0, 0, 0.35) 0px 1px 2px !important; }
+html[data-bo-theme="dark"] body.manual-rebate-approval-page.report-body.bo-charcoal:not(#bo-charcoal-off):not(#bo-charcoal-legacy) .manual-rebate-actions .clean-btn.primary { background: linear-gradient(rgb(251, 191, 36) 0%, rgb(245, 158, 11) 45%, rgb(217, 119, 6) 100%) !important; border: 1px solid rgb(245, 158, 11) !important; color: rgb(42, 44, 54) !important; box-shadow:none!important; }
 
 html body.manual-rebate-approval-page.report-body.bo-charcoal:not(#bo-charcoal-off) .standard-table-wrap { flex: 1 1 auto !important; min-height: 0px !important; overflow: auto !important; padding: 0px !important; border: 0px !important; border-radius: 0px !important; }
 
@@ -1951,7 +1951,7 @@ html:not([data-bo-theme="dark"]) body.page-bonus-category-title.report-body.bo-c
   border: 1px solid #E8901A !important;
   color: #FFFFFF !important;
   -webkit-text-fill-color: #FFFFFF !important;
-  box-shadow: 0 1px 2px rgba(180, 83, 9, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+  box-shadow:none!important;
 }
 html:not([data-bo-theme="dark"]) body.page-bonus-category-title.report-body.bo-charcoal:not(#bo-charcoal-off) #crudPatternModal .slider-form-actions .clean-btn:not(.primary),
 html:not([data-bo-theme="dark"]) body.page-bonus-category-title.report-body.bo-charcoal:not(#bo-charcoal-off) #crudPatternModal #resetBonusBtn {
@@ -2534,7 +2534,7 @@ html:not([data-bo-theme="dark"]) body.page-bonus-category-title.report-body.bo-c
   border: 1px solid #E8901A !important;
   color: #FFFFFF !important;
   -webkit-text-fill-color: #FFFFFF !important;
-  box-shadow: 0 1px 2px rgba(180, 83, 9, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+  box-shadow:none!important;
 }
 html[data-bo-theme="dark"] body.page-bonus-category-title.report-body.bo-charcoal:not(#bo-charcoal-off) #crudPatternModal .dynamic-image-edit > .clean-btn.primary,
 html[data-bo-theme="dark"] body.page-bonus-category-title.report-body.bo-charcoal:not(#bo-charcoal-off) #crudPatternModal .dynamic-text-edit > .clean-btn.primary {
@@ -2738,7 +2738,7 @@ html:not([data-bo-theme="dark"]) body.page-bonus-category-item.report-body.bo-ch
   background: linear-gradient(180deg, #FBBF24 0%, #F59E0B 42%, #EA8608 100%) !important;
   border: 1px solid #E8901A !important;
   color: #FFFFFF !important;
-  box-shadow: 0 1px 2px rgba(180, 83, 9, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+  box-shadow:none!important;
 }
 html[data-bo-theme="dark"] body.page-bonus-category-item.report-body.bo-charcoal:not(#bo-charcoal-off) .bonus-item-strip #refreshBonusItemBtn {
   background: linear-gradient(180deg, #4A4C58 0%, #383A46 55%, #2C2E38 100%) !important;
@@ -2887,4 +2887,43 @@ html:not([data-bo-theme="dark"]) body.page-bonus-category-item.report-body.bo-ch
   box-shadow: 0 24px 70px rgba(217, 119, 6, 0.22) !important;
   overflow: hidden !important;
   flex: 0 1 auto !important;
+}
+
+
+/* ============================ Button standard - back control (role A)
+   One recipe site-wide: 36px - radius 8 - pad 0 14px - 12.5px/700, the three-stop
+   form ghost (system.md -> Ghost / Export), border #DCC9A8, ink #18191C, hover the
+   shared reverse cream with the -1px lift. Stated here rather than by narrowing the
+   family rule because that rule also paints this family's bar buttons, whose geometry
+   is the bar's own pinned rung.
+   ========================================================================= */
+/* Banner / Category / Sub-category / Slider edit back (38px, weight 800) */
+html:not(#bo-button-standard-off) body.banner-edit-page.report-body.bo-charcoal:not(#bo-charcoal-off) .banner-edit-back{
+  height:36px!important;min-height:36px!important;
+  padding:0 14px!important;border-radius:8px!important;
+  font-size:12.5px!important;font-weight:700!important;
+  background-color:#F3E8D6!important;
+  background-image:linear-gradient(180deg,#FFFCF7 0%,#F5EBDC 55%,#EDE4D4 100%)!important;
+  border:1px solid #DCC9A8!important;
+  color:#18191C!important;
+  box-shadow:0 1px 2px rgba(60,48,32,.06),inset 0 1px 0 rgba(255,255,255,.7)!important;
+  text-decoration:none!important;
+  transition:transform .14s ease,box-shadow .14s ease,background-image .14s ease,border-color .14s ease!important;
+}
+html:not(#bo-button-standard-off) body.banner-edit-page.report-body.bo-charcoal:not(#bo-charcoal-off) .banner-edit-back:hover{
+  background-image:linear-gradient(180deg,#FFF8EB 0%,#F3E8D6 100%)!important;
+  border-color:#E0D0B8!important;color:#18191C!important;
+  transform:translateY(-1px)!important;
+}
+html:not(#bo-button-standard-off) body.banner-edit-page.report-body.bo-charcoal:not(#bo-charcoal-off) .banner-edit-back:active{transform:translateY(1px)!important;}
+html[data-bo-theme="dark"] html:not(#bo-button-standard-off) body.banner-edit-page.report-body.bo-charcoal:not(#bo-charcoal-off) .banner-edit-back{
+  background-color:#383A46!important;
+  background-image:linear-gradient(180deg,#4A4C58 0%,#383A46 48%,#2C2E38 100%)!important;
+  border:1px solid rgba(255,255,255,.12)!important;
+  color:#F5F5F4!important;
+  box-shadow:0 1px 2px rgba(0,0,0,.22),0 4px 10px rgba(0,0,0,.16)!important;
+}
+html[data-bo-theme="dark"] html:not(#bo-button-standard-off) body.banner-edit-page.report-body.bo-charcoal:not(#bo-charcoal-off) .banner-edit-back:hover{
+  background-image:linear-gradient(180deg,#383A46 0%,#2C2E38 100%)!important;
+  border-color:rgba(255,255,255,.18)!important;color:#F5F5F4!important;
 }

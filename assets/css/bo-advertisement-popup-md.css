@@ -368,7 +368,7 @@ html[data-bo-theme="dark"] body.advertisement-popup-page.report-body.bo-charcoal
 html:not([data-bo-theme="dark"]) body.advertisement-popup-page.report-body.bo-charcoal:not(#bo-charcoal-off) .ad-actions .clean-btn.primary{
   background:linear-gradient(180deg,#FBBF24 0%,#F59E0B 42%,#EA8608 100%)!important;
   border:1px solid #E8901A!important;color:#FFFFFF!important;min-width:132px!important;
-  box-shadow:0 1px 2px rgba(180,83,9,.18),inset 0 1px 0 rgba(255,255,255,.28)!important;
+  box-shadow:none!important;
 }
 html:not([data-bo-theme="dark"]) body.advertisement-popup-page.report-body.bo-charcoal:not(#bo-charcoal-off) .ad-actions .clean-btn.primary:hover{
   background:linear-gradient(0deg,#FCD34D 0%,#FBBF24 40%,#F59E0B 70%,#EA8608 100%)!important;border-color:#F59E0B!important;

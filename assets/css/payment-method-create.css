@@ -276,7 +276,7 @@ body.bo-wallet-tx.payment-method-create-page .pmc-sticky-footer .clean-btn.prima
   background:linear-gradient(180deg,#FBBF24 0%,#F59E0B 42%,#EA8608 100%)!important;
   border:1px solid #E8901A!important;
   color:#fff!important;
-  box-shadow:0 8px 18px rgba(217,119,6,.22), inset 0 1px 0 rgba(255,255,255,.35)!important;
+  box-shadow:none!important;
 }
 body.bo-wallet-tx.payment-method-create-page .pmc-sticky-footer .clean-btn.primary i{
   font-size:16px!important;
@@ -385,4 +385,91 @@ html[data-bo-theme="dark"] body.bo-wallet-tx.payment-method-create-page .pmc-for
     flex:1 1 auto!important;
     min-width:0!important;
   }
+}
+
+
+/* ============================ Button standard - back control (role A)
+   One recipe site-wide: 36px - radius 8 - pad 0 14px - 12.5px/700, the three-stop
+   form ghost (system.md -> Ghost / Export), border #DCC9A8, ink #18191C, hover the
+   shared reverse cream with the -1px lift. Stated here rather than by narrowing the
+   family rule because that rule also paints this family's bar buttons, whose geometry
+   is the bar's own pinned rung.
+   ========================================================================= */
+/* Payment Method create back (40px, weight 800) */
+body.bo-wallet-tx.payment-method-create-page .pmc-form-head .clean-btn{
+  height:36px!important;min-height:36px!important;
+  padding:0 14px!important;border-radius:8px!important;
+  font-size:12.5px!important;font-weight:700!important;
+  background-color:#F3E8D6!important;
+  background-image:linear-gradient(180deg,#FFFCF7 0%,#F5EBDC 55%,#EDE4D4 100%)!important;
+  border:1px solid #DCC9A8!important;
+  color:#18191C!important;
+  box-shadow:0 1px 2px rgba(60,48,32,.06),inset 0 1px 0 rgba(255,255,255,.7)!important;
+  text-decoration:none!important;
+  transition:transform .14s ease,box-shadow .14s ease,background-image .14s ease,border-color .14s ease!important;
+}
+body.bo-wallet-tx.payment-method-create-page .pmc-form-head .clean-btn:hover{
+  background-image:linear-gradient(180deg,#FFF8EB 0%,#F3E8D6 100%)!important;
+  border-color:#E0D0B8!important;color:#18191C!important;
+  transform:translateY(-1px)!important;
+}
+body.bo-wallet-tx.payment-method-create-page .pmc-form-head .clean-btn:active{transform:translateY(1px)!important;}
+html[data-bo-theme="dark"] body.bo-wallet-tx.payment-method-create-page .pmc-form-head .clean-btn{
+  background-color:#383A46!important;
+  background-image:linear-gradient(180deg,#4A4C58 0%,#383A46 48%,#2C2E38 100%)!important;
+  border:1px solid rgba(255,255,255,.12)!important;
+  color:#F5F5F4!important;
+  box-shadow:0 1px 2px rgba(0,0,0,.22),0 4px 10px rgba(0,0,0,.16)!important;
+}
+html[data-bo-theme="dark"] body.bo-wallet-tx.payment-method-create-page .pmc-form-head .clean-btn:hover{
+  background-image:linear-gradient(180deg,#383A46 0%,#2C2E38 100%)!important;
+  border-color:rgba(255,255,255,.18)!important;color:#F5F5F4!important;
+}
+,
+body.bo-wallet-tx.payment-method-create-page #pmBackLink{
+  height:36px!important;min-height:36px!important;
+  padding:0 14px!important;border-radius:8px!important;
+  font-size:12.5px!important;font-weight:700!important;
+  background-color:#F3E8D6!important;
+  background-image:linear-gradient(180deg,#FFFCF7 0%,#F5EBDC 55%,#EDE4D4 100%)!important;
+  border:1px solid #DCC9A8!important;
+  color:#18191C!important;
+  box-shadow:0 1px 2px rgba(60,48,32,.06),inset 0 1px 0 rgba(255,255,255,.7)!important;
+  text-decoration:none!important;
+  transition:transform .14s ease,box-shadow .14s ease,background-image .14s ease,border-color .14s ease!important;
+}
+body.bo-wallet-tx.payment-method-create-page #pmBackLink:hover{
+  background-image:linear-gradient(180deg,#FFF8EB 0%,#F3E8D6 100%)!important;
+  border-color:#E0D0B8!important;color:#18191C!important;
+  transform:translateY(-1px)!important;
+}
+body.bo-wallet-tx.payment-method-create-page #pmBackLink:active{transform:translateY(1px)!important;}
+html[data-bo-theme="dark"] body.bo-wallet-tx.payment-method-create-page #pmBackLink{
+  background-color:#383A46!important;
+  background-image:linear-gradient(180deg,#4A4C58 0%,#383A46 48%,#2C2E38 100%)!important;
+  border:1px solid rgba(255,255,255,.12)!important;
+  color:#F5F5F4!important;
+  box-shadow:0 1px 2px rgba(0,0,0,.22),0 4px 10px rgba(0,0,0,.16)!important;
+}
+html[data-bo-theme="dark"] body.bo-wallet-tx.payment-method-create-page #pmBackLink:hover{
+  background-image:linear-gradient(180deg,#383A46 0%,#2C2E38 100%)!important;
+  border-color:rgba(255,255,255,.18)!important;color:#F5F5F4!important;
+}
+
+/* The footer Save had no dark counterpart, so in dark mode it kept the light paint
+   (border #E8901A, white label) while every other page's Save switched to the locked
+   dark pair. Measured: it was the only primary control in the sweep still reading the
+   light border in dark mode. */
+html[data-bo-theme="dark"] body.bo-wallet-tx.payment-method-create-page .pmc-sticky-footer .clean-btn.primary{
+  background-color:#F59E0B!important;
+  background-image:linear-gradient(180deg,#FBBF24 0%,#F59E0B 45%,#D97706 100%)!important;
+  border:1px solid #F59E0B!important;
+  color:#2A2C36!important;
+  box-shadow:none!important;
+}
+html[data-bo-theme="dark"] body.bo-wallet-tx.payment-method-create-page .pmc-sticky-footer .clean-btn:not(.primary){
+  background-color:#383A46!important;
+  background-image:linear-gradient(180deg,#4A4C58 0%,#383A46 48%,#2C2E38 100%)!important;
+  border:1px solid rgba(255,255,255,.12)!important;
+  color:#F5F5F4!important;
 }

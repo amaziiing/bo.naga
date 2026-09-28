@@ -308,7 +308,7 @@ html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page .rebat
   background-color:#F59E0B!important;
   background-image:linear-gradient(180deg,#FBBF24 0%,#F59E0B 42%,#EA8608 100%)!important;
   color:#FFFFFF!important;font-size:12.5px!important;font-weight:700!important;
-  box-shadow:0 1px 2px rgba(217,119,6,.18),0 4px 10px rgba(217,119,6,.18),inset 0 1px 0 rgba(255,255,255,.35)!important;
+  box-shadow:none!important;
 }
 html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page .rebate-chrome-actions .clean-btn.primary:hover,
 html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page .rebate-chrome-actions .bo-ui-button-primary:hover{
@@ -974,7 +974,7 @@ html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page .rebat
   background-color:#F59E0B!important;
   background-image:linear-gradient(180deg,#FBBF24 0%,#F59E0B 42%,#EA8608 100%)!important;
   color:#fff!important;font-size:13px!important;font-weight:800!important;
-  box-shadow:0 1px 2px rgba(217,119,6,.2),0 4px 12px rgba(217,119,6,.18),inset 0 1px 0 rgba(255,255,255,.35)!important;
+  box-shadow:none!important;
 }
 html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page .rebate-modal .modal-clean-foot .clean-btn.primary:hover{
   background-image:linear-gradient(0deg,#FCD34D 0%,#FBBF24 38%,#F59E0B 72%,#EA8608 100%)!important;

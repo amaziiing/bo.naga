@@ -4968,9 +4968,16 @@ still the arrival selection: the same rows appear on load as before, so the chan
 | `main-provider-detail` | All · Active · Maintenance · Suspended | Active · Maintenance · Suspended · **All** |
 
 Deliberately untouched, and worth stating because the request said "all": the **transaction-type** group on the same pages
-(`All / Transactions / Settlements / …`), `main-merchant-profit.html`'s ledger-type group, and the strip's own `All Status`
-`<select>`. Only the status group above the table was in scope. No CSS or JS moved with these ten edits — every handler keys
-off `data-*-status`, not DOM position, and `bo-seg-bounce.js` positions the thumb from whichever pill carries `is-active`.
+(`All / Transactions / Settlements / …`) and `main-merchant-profit.html`'s ledger-type group. The strip's own `All Status`
+`<select>` also stays. No CSS or JS moved with these ten edits — every handler keys off `data-*-status`, not DOM position,
+and `bo-seg-bounce.js` positions the thumb from whichever pill carries `is-active`.
+
+**The log-category group followed** (same day, owner: “这个页面的all logs 也是要放在末端”): `main-admin-security.html` and
+`main-merchant-security.html` carry `.mas-cats` — `All Logs (n) / Account Activity / Permission Changes / Credit Control /
+Security Events` — and `All Logs` now sits last there too, still the arrival selection. Both keep their own reading: the
+group is a horizontally scrollable strip under the filter row (`main-admin-detail-executive.css` → `.mas-cats`), and nothing
+in that recipe keys off a child's position, so again this was two markup moves — `main-admin-security.js` /
+`main-merchant-security.js` read `data-mas-cat` and set `is-active` by value (click handler at :1300, Reset at :1331).
 
 **Access Control's three listings got the same control** — `admin-user.html` (Active / **Disabled**), `role.html` (Active /
 **Inactive**), `ip-whitelist-security.html` (Active / **Disabled**) — counts in `(n)`, `All` last and selected, each page's
@@ -5002,5 +5009,6 @@ trap recorded above), and a `.ac-status-pills` placement block in `access-contro
 **Verified** on local harnesses (`.tmp-verify/`, gitignored — `BO_AUTH` + `fetch` stubbed, CDN vendored because the headless
 browser in this sandbox has no outbound network): pills in the requested order with `All` framed, counts matching the metric
 cards above them (Admin 5/3/8, Staff Permission 6/3/9, IP Whitelist 3/2/5), each click re-counting the footer *and* the row
-set (Active → 6 rows, the off state → 3, All → 9), both themes, and `scripts/stamp-asset-pins.py --check` clean for every
-asset this change touched.
+set (Active → 6 rows, the off state → 3, All → 9) and the two Security & Audit pages (log-category clicks: 12 events → 2
+permission / 1 credit / 2 security, All Logs back to 12), both themes, and `scripts/stamp-asset-pins.py --check` clean for
+every asset this change touched.

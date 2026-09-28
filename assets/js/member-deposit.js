@@ -412,12 +412,12 @@
     }
     catch(e){if(generation!==loadGeneration)return;if(body)body.innerHTML='<tr><td colspan="8" class="text-danger">'+esc(e.message)+'</td></tr>';}
   }
-  async function action(id,type){
-    const row=currentRows.find(x=>String(x.id)===String(id));
+  async function action(id,type,externalRow=null,externalMode=false){
+    const row=externalRow||currentRows.find(x=>String(x.id)===String(id));
     if(type==='reject'){
       const remark=await BO_DIALOG.prompt('Enter an admin remark for this deposit request.','',{title:'Admin Remark',inputLabel:'Admin remark',confirmText:'Continue'});if(remark===null)return;
       if(!(await BO_DIALOG.confirm('Confirm reject deposit request?',{title:'Confirm Deposit Rejection'})))return;
-      try{const json=await api(endpoint('MEMBER_DEPOSIT_REJECT')+'/'+encodeURIComponent(id),{method:'POST',headers:{'Content-Type':'application/json','X-Admin-Username':String(BO_AUTH.user()?.username||'ADMIN'),...BO_AUTH.authHeader()},body:JSON.stringify({adminRemark:remark})});BO_DIALOG.alert(json.message||'Done',{title:'Deposit Updated'});await load();await renderBankCards();document.dispatchEvent(new CustomEvent('bo:wallet-request-updated',{detail:{type:'deposit',action:type,id:String(id)}}));}catch(e){BO_DIALOG.alert(e.message||'Action failed',{title:'Deposit Action Failed',type:'error'});}return;
+      try{const json=await api(endpoint('MEMBER_DEPOSIT_REJECT')+'/'+encodeURIComponent(id),{method:'POST',headers:{'Content-Type':'application/json','X-Admin-Username':String(BO_AUTH.user()?.username||'ADMIN'),...BO_AUTH.authHeader()},body:JSON.stringify({adminRemark:remark})});BO_DIALOG.alert(json.message||'Done',{title:'Deposit Updated'});if(!externalMode)await load();await renderBankCards();document.dispatchEvent(new CustomEvent('bo:wallet-request-updated',{detail:{type:'deposit',action:type,id:String(id)}}));}catch(e){BO_DIALOG.alert(e.message||'Action failed',{title:'Deposit Action Failed',type:'error'});}return;
     }
     try{
       const methods=await paymentMethods();
@@ -427,9 +427,10 @@
       const picked=await approvalPopup({title:'Final Deposit Confirmation',subtitle:'Confirm the bank that actually received this money.',methods,defaultBankId:playerBank?.id,bankLabel:'Actual Receiving Bank',confirmText:'Approve Deposit',warning:playerBank?'Player-selected bank is preselected automatically. Change it only when the money was actually received by another bank.':'This older/ambiguous request does not contain a unique bank ID. Please select the actual receiving bank before approval.',summaryHtml:`<div class="bank-approval-summary"><b>Member:</b> ${esc(row?.username||'-')} (#${esc(row?.memberId||'-')})<br><b>Amount:</b> ${money(row?.amount)}<br><b>Player Selected:</b> ${esc(playerSelectedText)}${bankDetailHtml(detailSource)}${proofPreviewHtml(row)}</div>`});
       if(!picked)return;
       if(!(await BO_DIALOG.confirm(`Approve ${money(row?.amount)} and assign it to the selected receiving bank?`,{title:'Confirm Deposit Approval'})))return;
-      const json=await api(endpoint('MEMBER_DEPOSIT_APPROVE')+'/'+encodeURIComponent(id),{method:'POST',headers:{'Content-Type':'application/json','X-Admin-Username':String(BO_AUTH.user()?.username||'ADMIN'),...BO_AUTH.authHeader()},body:JSON.stringify({adminRemark:picked.adminRemark,paymentMethodId:picked.paymentMethodId})});BO_DIALOG.alert(json.message||'Done',{title:'Deposit Updated'});await load();await renderBankCards();document.dispatchEvent(new CustomEvent('bo:wallet-request-updated',{detail:{type:'deposit',action:type,id:String(id)}}));
+      const json=await api(endpoint('MEMBER_DEPOSIT_APPROVE')+'/'+encodeURIComponent(id),{method:'POST',headers:{'Content-Type':'application/json','X-Admin-Username':String(BO_AUTH.user()?.username||'ADMIN'),...BO_AUTH.authHeader()},body:JSON.stringify({adminRemark:picked.adminRemark,paymentMethodId:picked.paymentMethodId})});BO_DIALOG.alert(json.message||'Done',{title:'Deposit Updated'});if(!externalMode)await load();await renderBankCards();document.dispatchEvent(new CustomEvent('bo:wallet-request-updated',{detail:{type:'deposit',action:type,id:String(id)}}));
     }catch(e){BO_DIALOG.alert(e.message||'Action failed',{title:'Deposit Action Failed',type:'error'});}
   }
+  window.BO_MEMBER_DEPOSIT_ACTION=(id,type,row)=>action(id,type,row,true);
   document.addEventListener('click',e=>{const proof=e.target.closest?.('[data-proof-preview]');if(proof){e.preventDefault();e.stopPropagation();openProofPreview(proof.dataset.proofPreview);return;}const a=e.target.closest?.('[data-approve]'); const r=e.target.closest?.('[data-reject]'); if(a)action(a.dataset.approve,'approve'); if(r)action(r.dataset.reject,'reject');});
   let txCountGeneration=0;
   async function refreshTxTabCounts(knownDepositTotal){

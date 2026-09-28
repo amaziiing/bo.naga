@@ -247,7 +247,26 @@
     if(status)status.value=current.status||'ALL';
     reload();
   }
-  document.addEventListener('click',e=>{
+  document.addEventListener('click',async e=>{
+    const approve=e.target.closest?.('[data-tab-approve]');
+    const reject=e.target.closest?.('[data-tab-reject]');
+    const btn=approve||reject;
+    if(btn){
+      e.preventDefault();e.stopImmediatePropagation();
+      const actionType=approve?'approve':'reject';
+      const rowId=approve?approve.dataset.tabApprove:reject.dataset.tabReject;
+      const row=state.rows.find(r=>String(r.id)===String(rowId));
+      if(!row)return;
+      const fn=row.__transactionType==='withdraw'?window.BO_MEMBER_WITHDRAW_ACTION:window.BO_MEMBER_DEPOSIT_ACTION;
+      if(typeof fn!=='function'){
+        window.BO_DIALOG?.alert?.('Transaction action is still loading. Please try again.',{title:'Please Try Again'});
+        return;
+      }
+      await fn(rowId,actionType,row);
+      state.page=1;
+      await reload();
+      return;
+    }
     const tab=e.target.closest?.('.bo-tx-tab[data-bo-tx-type]');
     if(!tab)return;
     const type=tab.dataset.boTxType;

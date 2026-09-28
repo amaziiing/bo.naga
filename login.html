@@ -10,7 +10,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
   <link href="assets/css/reports.css?v=f50deaa9" rel="stylesheet" />
-  <link href="assets/css/login.css?v=5499b82f" rel="stylesheet" />  <link href="assets/css/bo-targeted-fixes.css?v=7a2ebdcc" rel="stylesheet" />
+  <link href="assets/css/login.css?v=5499b830" rel="stylesheet" />  <link href="assets/css/bo-targeted-fixes.css?v=7a2ebdcc" rel="stylesheet" />
 <link href="assets/css/bo-account-chip.css?v=e6d15d38" rel="stylesheet" />
 <link href="assets/css/bo-charcoal-shell.css?v=6b15fe6e" rel="stylesheet" />
 <link href="assets/css/bo-charcoal-legacy.css?v=1d61f146" rel="stylesheet" />
@@ -20,32 +20,17 @@
 <link href="assets/css/bo-scrollbar.css?v=7c2a456b" rel="stylesheet"/>
 </head>
 <body class="report-body bo-login-body bo-charcoal bo-account-chip">
-  <div class="auth-theme-slot">
-    <button type="button" class="bo-theme-btn" id="boThemeToggle" aria-pressed="false" title="Switch to dark mode" aria-label="Switch to dark mode">
-      <i class="bi bi-sun-fill" data-theme-icon="sun"></i>
-      <i class="bi bi-moon-fill" data-theme-icon="moon" hidden></i>
-    </button>
-  </div>
-
   <main class="auth-page">
     <section class="auth-card" aria-labelledby="loginTitle">
-      <div class="auth-brand">
-        <span class="auth-brand-mark" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M4 19V7.5A2.5 2.5 0 0 1 6.5 5H19v14"/>
-            <path d="M4 19h15"/>
-            <path d="M9 9h6"/><path d="M9 12.5h6"/>
-          </svg>
-        </span>
-        <span class="auth-brand-copy">
-          <b>Backoffice</b>
-          <small>Admin Panel</small>
-        </span>
+      <div class="auth-theme-slot">
+        <button type="button" class="bo-theme-btn" id="boThemeToggle" aria-pressed="false" title="Switch to dark mode" aria-label="Switch to dark mode">
+          <i class="bi bi-sun-fill" data-theme-icon="sun"></i>
+          <i class="bi bi-moon-fill" data-theme-icon="moon" hidden></i>
+        </button>
       </div>
 
       <header class="auth-heading">
         <h1 id="loginTitle">Sign in</h1>
-        <p class="auth-subtitle">Admin &amp; operator access to the control panel</p>
       </header>
 
       <form id="adminLoginForm">
@@ -81,16 +66,6 @@
               </svg>
             </button>
           </div>
-        </div>
-
-        <div class="auth-form-meta">
-          <span class="secure-note">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M12 3 5 6v5c0 4.6 2.8 7.7 7 9.5 4.2-1.8 7-4.9 7-9.5V6l-7-3Z"/>
-              <path d="m9.5 12 1.6 1.6 3.5-3.6"/>
-            </svg>
-            Protected admin access
-          </span>
         </div>
 
         <div class="upload-status" id="adminLoginStatus" role="status" aria-live="polite"></div>

@@ -495,13 +495,15 @@ html[data-bo-theme="dark"] .auth-submit.btn:hover{
   border-color:#FBBF24;
   color:#2A2C36;
 }
-/* Theme toggle sits fixed on the page corner — not inside the card — so the brand
-   row can occupy the card header the way the local live design does. */
+/* Theme toggle sits in the card's top-right corner, next to the Sign in heading. */
 .auth-theme-slot{
-  position:fixed;
-  top:20px;
-  right:22px;
+  position:absolute;
+  top:clamp(14px,2.5vw,18px);
+  right:clamp(14px,2.5vw,18px);
   z-index:5;
+}
+.auth-heading{
+  padding-inline:44px;
 }
 .auth-theme-slot .bo-theme-btn{
   width:36px;height:36px;border-radius:8px;background:transparent;

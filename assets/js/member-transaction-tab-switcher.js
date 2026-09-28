@@ -3,6 +3,8 @@
 
   const requestedTab=new URLSearchParams(location.search).get('tab');
   const state={type:['deposit','withdraw','all'].includes(requestedTab)?requestedTab:'deposit',page:1,totalPages:1,rows:[]};
+  let reloadGeneration=0;
+  let countGeneration=0;
   const $=id=>document.getElementById(id);
   const domPrefix=document.getElementById('depositBody')?'deposit':'withdraw';
   const id=name=>domPrefix+name;
@@ -141,6 +143,7 @@
     $(id('PrevBtn')).disabled=state.page<=1;$(id('NextBtn')).disabled=state.page>=state.totalPages;
   }
   async function refreshTabCounts(){
+    const generation=++countGeneration;
     // Keep the three tab totals independent from whichever table currently owns
     // the shared controls.  After a tab switch the Deposit page listeners are
     // intentionally suppressed for All/Withdraw, so its old counter refresher
@@ -165,6 +168,7 @@
       const [depositTotal,withdrawTotal]=await Promise.all([
         count('MEMBER_DEPOSIT_LIST'),count('MEMBER_WITHDRAW_LIST')
       ]);
+      if(generation!==countGeneration)return;
       const set=(elId,value)=>{const el=$(elId);if(el)el.textContent=String(value);};
       set('boTxCountDeposit',depositTotal);
       set('boTxCountWithdraw',withdrawTotal);
@@ -174,6 +178,7 @@
     }
   }
   async function reload(){
+    const generation=++reloadGeneration;
     const c=controls(),requestedSize=pageSize();
     const params=new URLSearchParams({page:String(state.type==='all'?1:state.page),size:String(state.type==='all'?10000:requestedSize)});
     if(c.keyword)params.set('keyword',c.keyword);if(c.status)params.set('status',c.status);
@@ -182,6 +187,7 @@
     try{
       const keys=state.type==='all'?['MEMBER_DEPOSIT_LIST','MEMBER_WITHDRAW_LIST']:[state.type==='withdraw'?'MEMBER_WITHDRAW_LIST':'MEMBER_DEPOSIT_LIST'];
       const responses=await Promise.all(keys.map(key=>api(endpoint(key)+'?'+params).then(json=>({json,key}))));
+      if(generation!==reloadGeneration)return;
       let rows=responses.flatMap(({json,key})=>{
         const data=json.data||{};
         const values=Array.isArray(data)?data:(data.content||data.items||data.list||json.content||[]);
@@ -196,7 +202,7 @@
       }
       render(rows,pagination);
       refreshTabCounts();
-    }catch(e){if(body)body.innerHTML=`<tr><td colspan="${state.type==='withdraw'||state.type==='all'?9:8}" class="text-danger">${esc(e.message)}</td></tr>`;}
+    }catch(e){if(generation!==reloadGeneration)return;if(body)body.innerHTML=`<tr><td colspan="${state.type==='withdraw'||state.type==='all'?9:8}" class="text-danger">${esc(e.message)}</td></tr>`;}
   }
   function switchTab(type){
     if(type===state.type)return;
@@ -224,9 +230,17 @@
     // Deposit and Withdraw deliberately use their normal href. This prevents
     // stale listeners / late requests from one tab overwriting another tab.
   },true);
-  if(state.type==='all'){
+  function init(){
+    if(state.type!=='all')return;
+    // bo-date-range.js initializes the hidden From/To inputs on DOMContentLoaded.
+    // Starting the All request before that point sends no dateFrom/dateTo, so an
+    // unfiltered historical response can be rendered while the tab counters are
+    // already using today's initialized date. That produced e.g. All (2) while
+    // old Deposit rows were still visible below it after refresh.
     setTableShape();
     installCleanListeners();
     reload();
   }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
+  else init();
 })();

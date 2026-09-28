@@ -467,6 +467,12 @@
   }
 
   const initDepositPage=()=>{
+    // In the combined All tab this script is loaded only for the bank summary.
+    // The combined transaction switcher exclusively owns the shared table.
+    if(new URLSearchParams(location.search).get('tab')==='all'){
+      renderBankCards();
+      return;
+    }
     syncTxTypeTabs('deposit');
     let keywordTimer=0;
     const runSearch=()=>{page=1;clearLockedAutoSize();load();renderBankCards();refreshTxTabCounts();};

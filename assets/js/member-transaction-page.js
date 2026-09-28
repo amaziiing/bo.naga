@@ -34,7 +34,10 @@
     // its asynchronous initial load can otherwise finish after the All loader
     // and overwrite the combined Deposit + Withdraw result after refresh.
     document.querySelectorAll('[data-bo-tx-type]').forEach(a=>{const on=a.dataset.boTxType==='all';a.classList.toggle('is-active',on);if(on)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
-    loadScript('assets/js/member-transaction-tab-switcher.js?v=1.0.3');
+    // Load Deposit support only for the bank summary; member-deposit.js detects
+    // tab=all and does not attach a competing table loader.
+    loadScript('assets/js/member-deposit.js?v=1.0.39');
+    loadScript('assets/js/member-transaction-tab-switcher.js?v=1.0.4');
     return;
   }
 

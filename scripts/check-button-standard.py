@@ -22,6 +22,23 @@ re-introducing a second recipe:
      cream: the undocumented `#FFFCF7 -> #F5EBDC` or the listing `#FFF8EB -> #F3E8D6`,
      which is allowed only for a listing Export. Hover rules are exempt -- the
      reverse-cream hover IS the locked value.
+  4. No ghost/secondary role `:hover` may use the amber fill wash (#FFFBEB / #FEF3C7).
+     system.md -> Ghost / Export locks the hover to reverse cream with no amber wash; an
+     amber wash at (0,5,3) was out-ranking the correct reverse-cream rule at (0,4,1), so
+     every create-family Cancel hovered amber.
+
+NOT CHECKED HERE, deliberately: whether a control's hover actually fires. An id-weight
+`!important` resting rule out-ranks every hover in the cascade and leaves the control with
+a dead hover -- that is how "Create Provider" shipped with no hover at all, because
+bo-charcoal-legacy.css's id-level primary restatements pinned the resting gradient above a
+best hover of (0,4,1). It cannot be decided from the source: a first cut of this file tried,
+and returned 22 findings on a tree whose hovers all work, because whether a hover wins needs
+the DOM's cascade. Run the runtime checker instead:
+
+    node scripts/check-button-hover.mjs main-provider-create.html '.mac-footer-actions .mad-btn-navy'
+
+It forces a real :hover through the DevTools protocol and reports the properties that
+change; "changes NOTHING" is the failure this file cannot see.
 
 Run after touching any button rule or any family sheet:
 
@@ -41,15 +58,18 @@ PRIMARY = ['mad-btn-navy', 'mad-btn-primary', 'mrc-btn-primary', 'mp-btn-save',
            'nm-btn-primary', 'md-btn-primary', 'btn-primary-clean',
            'bo-ui-button-primary', 'settlement-primary-btn']
 GHOST = ['mad-btn-ghost', 'md-btn-ghost', 'mrc-btn-ghost', 'mp-btn-ghost',
-         'nm-btn-ghost', 'bo-ui-button-secondary', 'banner-edit-back',
-         'vle-back-list', 'mrc-back-list', 'mac-back-section', 'mprr-back',
-         'main-mod-back', 'template-back']
+         'nm-btn-ghost', 'banner-edit-back', 'vle-back-list', 'mrc-back-list',
+         'mac-back-section', 'mprr-back', 'main-mod-back', 'template-back']
+# `.bo-ui-button-secondary` is deliberately NOT in GHOST: bo-ui-standard.js applies it to any
+# button it classifies as secondary, so it lands on components whose hover is their own --
+# a livechat inbox row's amber active state was the false positive that proved it.
 
 # Two-stop cream forms that must not be a role's RESTING fill.
 BAD_RESTING_FILL = [
     'linear-gradient(180deg,#FFFCF7 0%,#F5EBDC 100%)',
     'linear-gradient(180deg,#FFF8EB 0%,#F3E8D6 100%)',
 ]
+AMBER_WASH = re.compile(r'FFFBEB|FEF3C7', re.I)
 NAVY = ['#18191C', 'var(--bo-navy)', '#1B93C0', '#00AEEF', '#1E3A8A', '#18191c']
 
 # A rule that merely EXCLUDES a primary (`:not(.mad-btn-primary)`) does not paint one.
@@ -63,7 +83,8 @@ def blocks(css):
     while i < n:
         ch = css[i]
         if ch == '{':
-            sel = ''.join(buf).strip()
+            # A leading /* comment */ sits in the same buffer; it is not part of the selector.
+            sel = re.sub(r'/\*.*?\*/', '', ''.join(buf), flags=re.S).strip()
             buf = []
             depth, j = 1, i + 1
             while j < n and depth:
@@ -82,6 +103,29 @@ def blocks(css):
             continue
         buf.append(ch)
         i += 1
+
+
+def split_sels(sel):
+    """Split a selector list on commas at paren depth 0.
+
+    A naive split breaks `:is([data-access-page="a"],[data-access-page="b"])` into pieces,
+    which is how a first cut of the hover-twin check produced findings naming half an
+    attribute selector as if it were a selector of its own.
+    """
+    out, buf, depth = [], [], 0
+    for ch in sel:
+        if ch == '(':
+            depth += 1
+        elif ch == ')':
+            depth = max(0, depth - 1)
+        if ch == ',' and depth == 0:
+            out.append(''.join(buf).strip())
+            buf = []
+        else:
+            buf.append(ch)
+    if ''.join(buf).strip():
+        out.append(''.join(buf).strip())
+    return [x for x in out if x]
 
 
 def names(sel, classes, cls_expansion=('primary',)):
@@ -142,6 +186,17 @@ def check():
                                 'resting ghost fill is a two-stop cream, not the locked '
                                 'three-stop #FFFCF7 -> #F5EBDC 55% -> #EDE4D4',
                                 '%s:%d' % (name, line), sel, '%s: %s' % (p, v[:70])))
+
+
+            # 5. ghost hover must not be the amber fill wash
+            if names(bare, GHOST) and re.search(r':hover\b', sel):
+                blob = ' '.join(prop.get(p, '') for p in
+                                ('background', 'background-image', 'border-color'))
+                if AMBER_WASH.search(blob):
+                    findings.append((
+                        'ghost hover is the amber fill wash; the locked hover is reverse '
+                        'cream #FFF8EB -> #F3E8D6 with border #E0D0B8 and no amber wash',
+                        '%s:%d' % (name, line), sel, blob[:70]))
     return findings
 
 

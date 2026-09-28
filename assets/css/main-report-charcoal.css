@@ -1981,9 +1981,14 @@ background-color:#F5EBDC!important;
 }
 html:not([data-bo-theme="dark"]) body.main-admin-create-page:is([data-access-page="main_report"],[data-access-page="main_provider_report"],[data-access-page="main_merchant_report"],[data-access-page="main_merchant_balance_report"],[data-access-page="main_merchant_transaction_report"],[data-access-page="main_provider_balance_report"],[data-access-page="main_provider_transaction_report"],[data-access-page="main_provider_settlement_report"]) .mad-btn-ghost:hover,
 html:not([data-bo-theme="dark"]) body.main-admin-create-page:is([data-access-page="main_report"],[data-access-page="main_provider_report"],[data-access-page="main_merchant_report"],[data-access-page="main_merchant_balance_report"],[data-access-page="main_merchant_transaction_report"],[data-access-page="main_provider_balance_report"],[data-access-page="main_provider_transaction_report"],[data-access-page="main_provider_settlement_report"]) a.mad-btn-ghost:hover{
-border-color:#D97706!important;
-  background-image:linear-gradient(180deg,#FFFBEB 0%,#FEF3C7 100%)!important;
+/* Locked ghost hover (system.md -> Ghost / Export): reverse cream #FFF8EB -> #F3E8D6,
+   border #E0D0B8, lift -1px, no amber fill wash. The fourth and last owner of the create
+   family's amber-wash hover, found by scripts/check-button-standard.py after the first
+   three were fixed by hand from a four-page sample. */
+  border-color:#E0D0B8!important;
+  background-image:linear-gradient(0deg,#FFF8EB 0%,#F3E8D6 100%)!important;
   color:#18191C!important;
+  transform:translateY(-1px)!important;
 }
 /* Edit-only: locked username + security nested cards */ html:not([data-bo-theme="dark"]) body.main-admin-create-page:is([data-access-page="main_report"],[data-access-page="main_provider_report"],[data-access-page="main_merchant_report"],[data-access-page="main_merchant_balance_report"],[data-access-page="main_merchant_transaction_report"],[data-access-page="main_provider_balance_report"],[data-access-page="main_provider_transaction_report"],[data-access-page="main_provider_settlement_report"]) #madEditUsername{
 background:#EDE4D4!important;

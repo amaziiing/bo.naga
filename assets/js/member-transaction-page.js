@@ -37,7 +37,7 @@
     // Load Deposit support only for the bank summary; member-deposit.js detects
     // tab=all and does not attach a competing table loader.
     loadScript('assets/js/member-deposit.js?v=1.0.42');
-    loadScript('assets/js/member-transaction-tab-switcher.js?v=1.0.6');
+    loadScript('assets/js/member-transaction-tab-switcher.js?v=1.0.7');
     return;
   }
 

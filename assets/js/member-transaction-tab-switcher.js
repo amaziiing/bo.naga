@@ -193,6 +193,34 @@
         const values=Array.isArray(data)?data:(data.content||data.items||data.list||json.content||[]);
         return values.map(row=>({...row,__transactionType:key==='MEMBER_WITHDRAW_LIST'?'withdraw':'deposit'}));
       });
+
+      // Defensive client-side filter for the combined All tab. The list API has
+      // occasionally returned rows outside the requested date/status window when
+      // All is entered through normal tab navigation, even though the count request
+      // for the same controls is already correct. A hard refresh then looks correct,
+      // which made the table and tab totals appear to randomly disagree.
+      //
+      // Keep the server filters (they are still required for efficiency), but never
+      // render a row that does not match the exact control snapshot used for this
+      // request. This also makes date/status/search deterministic if a stale/cached
+      // list response is ever received.
+      if(state.type==='all'){
+        const needle=String(c.keyword||'').trim().toLowerCase();
+        const wantedStatus=String(c.status||'').trim().toUpperCase();
+        rows=rows.filter(row=>{
+          const created=String(row.createdAt||row.created_at||'');
+          const day=created.length>=10?created.slice(0,10):'';
+          if(c.from&&day&&day<c.from)return false;
+          if(c.to&&day&&day>c.to)return false;
+          if(wantedStatus&&String(row.status||'').toUpperCase()!==wantedStatus)return false;
+          if(needle){
+            const hay=[row.username,row.mobile,row.phone,row.bankName,row.paymentMethodDisplayName,row.paymentMethodBankName,row.paymentMethod,row.referenceNo,row.remark]
+              .map(v=>String(v==null?'':v).toLowerCase()).join(' ');
+            if(!hay.includes(needle))return false;
+          }
+          return true;
+        });
+      }
       rows.sort((a,b)=>String(b.createdAt||b.created_at||'').localeCompare(String(a.createdAt||a.created_at||'')));
       let pagination=responses[0]?.pagination||responses[0]?.data?.pagination||responses[0]?.data||{};
       if(state.type==='all'){

@@ -155,11 +155,11 @@ function editorTheme(dark) {
         backgroundColor: 'transparent',
       },
       '.cm-searchMatch': {
-        backgroundColor: 'rgba(245,158,11,.28)',
+        backgroundColor: 'rgba(245,158,11,.52)',
         borderRadius: '2px',
       },
       '.cm-searchMatch.cm-searchMatch-selected': {
-        backgroundColor: 'rgba(245,158,11,.48)',
+        backgroundColor: 'rgba(245,158,11,.78)',
       },
       '.cm-panels, .cm-panels-top, .cm-panel.cm-search': {
         backgroundColor: '#383A46',
@@ -237,11 +237,11 @@ function editorTheme(dark) {
       backgroundColor: 'transparent',
     },
     '.cm-searchMatch': {
-      backgroundColor: 'rgba(217,119,6,.22)',
+      backgroundColor: 'rgba(217,119,6,.46)',
       borderRadius: '2px',
     },
     '.cm-searchMatch.cm-searchMatch-selected': {
-      backgroundColor: 'rgba(217,119,6,.40)',
+      backgroundColor: 'rgba(217,119,6,.68)',
     },
     '.cm-panels, .cm-panels-top, .cm-panel.cm-search': {
       backgroundColor: '#FFF8EB',

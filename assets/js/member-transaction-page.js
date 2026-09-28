@@ -36,12 +36,12 @@
     document.querySelectorAll('[data-bo-tx-type]').forEach(a=>{const on=a.dataset.boTxType==='all';a.classList.toggle('is-active',on);if(on)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
     // Load Deposit support only for the bank summary; member-deposit.js detects
     // tab=all and does not attach a competing table loader.
-    loadScript('assets/js/member-deposit.js?v=1.0.41');
-    loadScript('assets/js/member-transaction-tab-switcher.js?v=1.0.5');
+    loadScript('assets/js/member-deposit.js?v=1.0.42');
+    loadScript('assets/js/member-transaction-tab-switcher.js?v=1.0.6');
     return;
   }
 
   // Deposit owns the page exclusively. Other transaction types are reached by
   // their normal href, giving every tab exactly one data loader and one state.
-  loadScript('assets/js/member-deposit.js?v=1.0.41');
+  loadScript('assets/js/member-deposit.js?v=1.0.42');
 })();

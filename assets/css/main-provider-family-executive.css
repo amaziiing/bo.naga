@@ -1148,13 +1148,32 @@ body.main-admin-detail-page.main-provider-family-page .mad-avatar.is-self{
   border:0!important;
   box-shadow:none!important;
 }
-/* Light role chip — one chip for every role (DESIGN.md → Role chip). Inert on the
-   pages that load this sheet (no `.mad-role` element is rendered there); kept 1:1
-   with `main-merchant-detail-executive.css`, this file's rescope source. */body.main-admin-detail-page.main-provider-family-page .mad-role{
-  background:#FFF8EB!important;
-  border:1px solid #EADCC8!important;
-  color:#57534E!important;
+/* Light role pills — hue-coded, restored 2026-09-28 with
+   `main-merchant-detail-executive.css`, its rescope source. Inert here: no page
+   that loads this sheet renders a `.mad-role` element. */body.main-admin-detail-page.main-provider-family-page .mad-role{
+  background:#F3F4F6!important;
+  color:#4B5563!important;
   border-radius:999px!important;
+}
+body.main-admin-detail-page.main-provider-family-page .mad-role.is-super,
+
+body.main-admin-detail-page.main-provider-family-page .mad-role.is-partner,
+
+body.main-admin-detail-page.main-provider-family-page .mad-role.is-merchant{
+  background:#F0ECFA!important;
+  color:#6B5B95!important;
+}
+body.main-admin-detail-page.main-provider-family-page .mad-role.is-support,
+
+body.main-admin-detail-page.main-provider-family-page .mad-role.is-tech,
+
+body.main-admin-detail-page.main-provider-family-page .mad-role.is-regional{
+  background:#DBEAFE!important;
+  color:#1D4ED8!important;
+}
+body.main-admin-detail-page.main-provider-family-page .mad-role.is-risk{
+  background:#FEE2E2!important;
+  color:#B91C1C!important;
 }
 /* Light credit */html:not([data-bo-theme="dark"]) body.main-admin-detail-page.main-provider-family-page .mad-table .mad-money{
   font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace!important;
@@ -1454,11 +1473,30 @@ html[data-bo-theme="dark"] body.main-admin-detail-page.main-provider-family-page
   color:#F59E0B!important;
   background:rgba(245,158,11,.08)!important;
 }
-/* Role chip, dark — the charcoal well inside the listing border. */html[data-bo-theme="dark"] body.main-admin-detail-page.main-provider-family-page .mad-role{
-  background:#2A2C36!important;
-  border:1px solid rgba(255,255,255,.12)!important;
+/* Role pills, dark — the reference's washes, kept 1:1 with the merchant sheet. */html[data-bo-theme="dark"] body.main-admin-detail-page.main-provider-family-page .mad-role{
+  background:rgba(255,255,255,.08)!important;
   color:#D4D4D8!important;
   border-radius:999px!important;
+}
+html[data-bo-theme="dark"] body.main-admin-detail-page.main-provider-family-page .mad-role.is-super,
+
+html[data-bo-theme="dark"] body.main-admin-detail-page.main-provider-family-page .mad-role.is-partner,
+
+html[data-bo-theme="dark"] body.main-admin-detail-page.main-provider-family-page .mad-role.is-merchant{
+  background:rgba(124,58,237,.22)!important;
+  color:#C4B5FD!important;
+}
+html[data-bo-theme="dark"] body.main-admin-detail-page.main-provider-family-page .mad-role.is-support,
+
+html[data-bo-theme="dark"] body.main-admin-detail-page.main-provider-family-page .mad-role.is-tech,
+
+html[data-bo-theme="dark"] body.main-admin-detail-page.main-provider-family-page .mad-role.is-regional{
+  background:rgba(37,99,235,.22)!important;
+  color:#93C5FD!important;
+}
+html[data-bo-theme="dark"] body.main-admin-detail-page.main-provider-family-page .mad-role.is-risk{
+  background:rgba(239,68,68,.18)!important;
+  color:#FCA5A5!important;
 }
 /* Credit */html[data-bo-theme="dark"] body.main-admin-detail-page.main-provider-family-page .mad-table .mad-money,
 

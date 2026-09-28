@@ -488,10 +488,17 @@
       // Backward compatible function name. Sidebar is now fully rendered from allowed menus.
       this.renderSidebar(user || this.user());
     },
-    renderSidebar: function(user){
-      // Pin controls exist on every normal BO sidebar, not only dashboard.html.
-      // Load their isolated stylesheet before rendering so page-specific/native button
-      // styles can never turn the pin icon into a bordered/background button.
+    /* The rail's 42px toggle is mounted here rather than in renderSidebar's tail, because it
+       is the one part of the sidebar that needs no DB data. Mounted there, it only existed
+       after /me + menu-groups + /ui-setting had all returned, so every page load (and the
+       section tabs are real navigations) showed the topbar hamburger first and then re-showed
+       the same button inside the rail - the owner's "sidebar的收起按键会闪烁出现两次".
+       Called from the boot block at the bottom of this file, before that round trip, and
+       again from renderSidebar (idempotent) for any sidebar that appears later.
+       The stylesheet it loads is injected here for the same reason: it carries the rail
+       chip's values and retires the topbar copy, and it arrives with the DB data otherwise.
+       Pin controls exist on every normal BO sidebar, not only dashboard.html. */
+    mountSidebarToggle: function(){
       if(!document.querySelector('link[data-bo-quicknav-css]')){
         const pinCss=document.createElement('link');
         pinCss.rel='stylesheet';
@@ -499,6 +506,30 @@
         pinCss.dataset.boQuicknavCss='1';
         document.head.appendChild(pinCss);
       }
+      const sidebar=document.querySelector('.report-sidebar');
+      const brand=sidebar && sidebar.querySelector('.report-brand');
+      // Brand row not parsed yet: the caller retries on DOMContentLoaded.
+      if(!brand) return false;
+      // One sidebar toggle for the whole BO, mounted in the rail: the dashboard's own
+      // 42px button, same classes and values (see bo-global-quicknav.css), so every page
+      // opens and closes the rail from the same place. dashboard.html ships it in its
+      // markup; this is the same element for every other page. Idempotent, so a menu
+      // re-render cannot stack a second one.
+      if(!brand.querySelector('.dashboard-sidebar-toggle')){
+        const toggle=document.createElement('button');
+        toggle.type='button';
+        toggle.className='hamb dashboard-sidebar-toggle';
+        toggle.setAttribute('data-open-sidebar','');
+        toggle.setAttribute('aria-label','Toggle sidebar');
+        toggle.title='Toggle sidebar';
+        toggle.innerHTML='<i class="bi bi-list"></i>';
+        const closeSide=brand.querySelector('.close-side');
+        if(closeSide) brand.insertBefore(toggle, closeSide); else brand.appendChild(toggle);
+        brand.classList.add('dashboard-sidebar-brand');
+      }
+      return true;
+    },
+    renderSidebar: function(user){
       const nav = document.querySelector('.report-nav');
       if(!nav) return;
       user = user || this.user();
@@ -670,24 +701,10 @@
         if(!railLabel){railLabel=document.createElement('div');railLabel.className='bo-rail-label';railLabel.setAttribute('aria-hidden','true');sidebar.appendChild(railLabel);}
         railLabel.classList.remove('show');
         railLabel.textContent='';
-        // One sidebar toggle for the whole BO, mounted in the rail: the dashboard's own
-        // 42px button, same classes and values (see bo-global-quicknav.css), so every page
-        // opens and closes the rail from the same place. dashboard.html ships it in its
-        // markup; this is the same element for every other page. Idempotent, so a menu
-        // re-render cannot stack a second one.
-        const brand=sidebar.querySelector('.report-brand');
-        if(brand && !brand.querySelector('.dashboard-sidebar-toggle')){
-          const toggle=document.createElement('button');
-          toggle.type='button';
-          toggle.className='hamb dashboard-sidebar-toggle';
-          toggle.setAttribute('data-open-sidebar','');
-          toggle.setAttribute('aria-label','Toggle sidebar');
-          toggle.title='Toggle sidebar';
-          toggle.innerHTML='<i class="bi bi-list"></i>';
-          const closeSide=brand.querySelector('.close-side');
-          if(closeSide) brand.insertBefore(toggle, closeSide); else brand.appendChild(toggle);
-          brand.classList.add('dashboard-sidebar-brand');
-        }
+        // The rail toggle is mounted by the boot block below, before this render, because it
+        // needs none of the data this function waits for. Re-run here so a sidebar that only
+        // appears after boot still gets its control (mountSidebarToggle is idempotent).
+        this.mountSidebarToggle();
       }
     },
     loadUiSetting: async function(){
@@ -1255,6 +1272,15 @@
   };
 
   if(!location.pathname.endsWith('/login.html')) window.BO_AUTH.requireLogin();
+
+  /* Mount the rail toggle now, not on the far side of the /me -> /ui-setting chain: it is
+     the desktop control on every BO page, and mounting it late made the same button appear
+     in the topbar first and again in the rail (see mountSidebarToggle). At this point in the
+     parse the brand row above it already exists; pages that put the sidebar on screen later
+     retry once on DOMContentLoaded. */
+  if(window.BO_AUTH.mountSidebarToggle() === false){
+    document.addEventListener('DOMContentLoaded', function(){ window.BO_AUTH.mountSidebarToggle(); });
+  }
 
   // Warm the small set of sibling workspace tabs in the browser cache. Tabs remain
   // normal links/full navigations; this only removes avoidable HTML wait when users

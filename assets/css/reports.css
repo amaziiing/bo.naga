@@ -161,8 +161,36 @@ body.report-body{margin:0;background:var(--bg);color:var(--text);font-family:Int
 /* Desktop topbar hamburger. Show here, then hidden by the sidebar's own layer
    (`bo-global-quicknav.css`, injected by auth.js on every BO page) because the rail's 42px
    toggle owns collapse/expand now. The Agent Portal shell and the scratch `_verify-*` pages
-   load this sheet but not that one, and keep the topbar control they always had. */
+   load this sheet but not that one, and keep the topbar control they always had - the guard
+   below leaves `agent-modern` alone for exactly that reason. The `_verify-*` copies boot no
+   auth.js, so on desktop they end up with neither control; they are screenshot scaffolds,
+   and adding `agent-modern` to their <body> restores this button if one ever needs it. */
 .report-topbar .hamb{display:inline-flex;align-items:center;justify-content:center;font-size:20px;border:0;background:#FFF8EB;color:#D97706;box-shadow:none}
+
+/* 2026-09-28: the rail toggle is born in place, and the topbar copy retires at first paint.
+   Both are the same action, and which one was visible depended on when
+   `bo-global-quicknav.css` landed: auth.js used to inject it - and mount the rail button -
+   only after /me + menu-groups + /ui-setting had all returned, so every page load showed the
+   topbar hamburger first and then re-showed the same button inside the rail (owner:
+   "sidebar的收起按键会闪烁出现两次"). The guard and the chip's own values are stated here,
+   in a sheet that is in the cascade before the first paint, and repeated in
+   `bo-ui-standard.css` for the pages that do not load this sheet; the canonical copy in
+   `bo-global-quicknav.css` stays as the runtime backstop, values kept in sync.
+   Scope: the pages that mount the chip are the BO pages that boot auth.js
+   (`body.report-body`), minus the Agent Portal shell (`agent-modern`) and dashboard.html
+   (`dashboard-shell`, which ships the chip in its own markup and <style>).
+   Below 992px nothing changes: the rail is off-canvas, that sheet hides the chip there, and
+   this hamburger is the drawer's opener. */
+@media(min-width:992px){
+  body.report-body:not(.agent-modern):not(.dashboard-shell) .report-topbar .hamb{display:none!important}
+  .report-sidebar .report-brand.dashboard-sidebar-brand{justify-content:space-between;gap:10px}
+  body.sidebar-mini .report-sidebar .report-brand.dashboard-sidebar-brand{justify-content:center;padding:0 12px}
+  .report-sidebar .report-brand .dashboard-sidebar-toggle{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:42px;height:42px;min-width:42px;padding:0;border:1px solid #EADCC8;border-radius:11px;background:#FFF8EB;color:#18191C;box-shadow:none;cursor:pointer}
+  .report-sidebar .report-brand .dashboard-sidebar-toggle i{font-size:22px;line-height:1}
+  .report-sidebar .report-brand .dashboard-sidebar-toggle:hover{background:#FFF1DC;color:#18191C}
+  html[data-bo-theme="dark"] .report-sidebar .report-brand .dashboard-sidebar-toggle{border-color:rgba(255,255,255,.10);background:#383A46;color:#F5F5F4}
+  html[data-bo-theme="dark"] .report-sidebar .report-brand .dashboard-sidebar-toggle:hover{background:#40424E;color:#F5F5F4}
+}
 .report-sidebar{width:var(--sidebar-w);transition:width .22s ease,transform .22s ease,box-shadow .22s ease;overflow-x:hidden}
 .report-main{transition:margin-left .22s ease}
 

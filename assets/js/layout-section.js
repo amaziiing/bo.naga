@@ -178,7 +178,7 @@ function editorTheme(dark) {
       '.cm-panel.cm-search [name=close]': {
         color: '#F5F5F4',
       },
-      '.cm-activeLine': { backgroundColor: 'rgba(245,158,11,.08)' },
+      '.cm-activeLine': { backgroundColor: 'rgba(245,158,11,.16)' },
       '.cm-gutters': {
         backgroundColor: '#1F2128',
         color: '#A1A1AA',
@@ -260,7 +260,7 @@ function editorTheme(dark) {
     '.cm-panel.cm-search [name=close]': {
       color: '#18191C',
     },
-    '.cm-activeLine': { backgroundColor: 'rgba(217,119,6,.05)' },
+    '.cm-activeLine': { backgroundColor: 'rgba(217,119,6,.13)' },
     '.cm-gutters': {
       backgroundColor: '#FFF8EB',
       color: '#44403C',

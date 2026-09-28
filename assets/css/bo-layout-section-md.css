@@ -710,7 +710,7 @@ html:not([data-bo-theme="dark"]) body.layout-section-page.report-body.bo-charcoa
 }
 html:not([data-bo-theme="dark"]) body.layout-section-page.report-body.bo-charcoal:not(#bo-charcoal-off) .layout-cm6-host .cm-activeLine,
 html:not([data-bo-theme="dark"]) body.layout-section-page.report-body.bo-charcoal:not(#bo-charcoal-off) .layout-cm6-host .cm-activeLineGutter{
-  background:rgba(217,119,6,.04)!important;background-color:rgba(217,119,6,.04)!important;
+  background:rgba(217,119,6,.13)!important;background-color:rgba(217,119,6,.13)!important;
 }
 html[data-bo-theme="dark"] body.layout-section-page.report-body.bo-charcoal:not(#bo-charcoal-off) .layout-cm6-host .cm-content,
 html[data-bo-theme="dark"] body.layout-section-page.report-body.bo-charcoal:not(#bo-charcoal-off) .layout-cm6-host .cm-line{
@@ -734,7 +734,7 @@ html[data-bo-theme="dark"] body.layout-section-page.report-body.bo-charcoal:not(
 }
 html[data-bo-theme="dark"] body.layout-section-page.report-body.bo-charcoal:not(#bo-charcoal-off) .layout-cm6-host .cm-activeLine,
 html[data-bo-theme="dark"] body.layout-section-page.report-body.bo-charcoal:not(#bo-charcoal-off) .layout-cm6-host .cm-activeLineGutter{
-  background:rgba(245,158,11,.08)!important;background-color:rgba(245,158,11,.08)!important;
+  background:rgba(245,158,11,.16)!important;background-color:rgba(245,158,11,.16)!important;
 }
 html[data-bo-theme="dark"] body.layout-section-page.report-body.bo-charcoal:not(#bo-charcoal-off) .layout-cm6-host .cm-selectionBackground,
 html[data-bo-theme="dark"] body.layout-section-page.report-body.bo-charcoal:not(#bo-charcoal-off) .layout-cm6-host .cm-editor.cm-focused .cm-selectionBackground{

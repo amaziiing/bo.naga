@@ -884,8 +884,9 @@ body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-role{
 }body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-role.is-super,
 body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-role.is-partner,
 body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-role.is-merchant{
-  background:#EDE9FE!important;
-  color:#5B21B6!important;
+  /* Soft fluorescent lilac — luminous but not violet glare */
+  background:#F0ECFA!important;
+  color:#6B5B95!important;
 }body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-role.is-support,
 body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-role.is-tech,
 body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-role.is-regional{
@@ -947,15 +948,15 @@ html:not([data-bo-theme="dark"]) body.main-admin-detail-page[data-access-page="m
   background:#F0E4D0!important;
   border-color:#D97706!important;
   color:#18191C!important;
-}/* Light status */
+}/* Light status — soft fluorescent mint (bright wash, calm ink; avoids neon #D1FAE5 / #10B981 glare) */
 body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-status.is-active,
 body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-table td[data-label="Status"] .mad-status.is-active{
-  background:#D1FAE5!important;
-  color:#047857!important;
+  background:#EAF7F0!important;
+  color:#1A8A5C!important;
   padding:0 10px!important;
   border-radius:999px!important;
 }body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-status.is-active i{
-  background:#10B981!important;
+  background:#3CB87A!important;
   box-shadow:none!important;
 }body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-status.is-suspended,
 body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-table td[data-label="Status"] .mad-status.is-suspended{
@@ -964,7 +965,7 @@ body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-table 
   padding:0 10px!important;
   border-radius:999px!important;
 }body.main-admin-detail-page[data-access-page="main_merchant_detail"] button.mad-status.is-active:hover{
-  background:#A7F3D0!important;
+  background:#D8F0E4!important;
 }body.main-admin-detail-page[data-access-page="main_merchant_detail"] button.mad-status.is-suspended:hover{
   background:#FECACA!important;
 }/* Light pager inactive */
@@ -1620,21 +1621,21 @@ body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-status
   vertical-align:middle;
 }
 body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-status-chip.is-active{
-  background:#D1FAE5!important;
-  color:#047857!important;
+  background:#EAF7F0!important;
+  color:#1A8A5C!important;
 }
 body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-status-chip.is-suspended{
   background:#FEE2E2!important;
   color:#B91C1C!important;
 }
 body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-status-chip.is-active:hover{
-  background:#A7F3D0!important;
+  background:#D8F0E4!important;
 }
 body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-status-chip.is-suspended:hover{
   background:#FECACA!important;
 }
 body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-status-chip.is-active .mad-status-dot{
-  background:#10B981!important;
+  background:#3CB87A!important;
 }
 html[data-bo-theme="dark"] body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mad-status-chip.is-active{
   background:rgba(16,185,129,.14)!important;
@@ -3089,15 +3090,12 @@ html:not([data-bo-theme="dark"]) body.main-admin-detail-page[data-access-page="m
 
 /* --------------------------------------------------------------------------
    3. Status pills in the audit table
-   main-admin-detail-executive.css:3911/3913 (near-white mint / pink fills with
-   the retired green and maroon ink) and 3990/3991 (dark mint and red washes) are
-   the exact pill values the family already replaced on `.mad-status.is-active` /
-   `.mad-status.is-suspended` — main-merchant-detail-executive.css:944-965 and
-   1150-1170. Copied verbatim so the Merchant list and the Security list agree.
+   Kept in sync with `.mad-status.is-active` / `.mad-status.is-suspended` above
+   (muted sage / soft pink) so the Merchant list and the Security list agree.
    -------------------------------------------------------------------------- */
 body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mas-status.is-success{
-  background:#D1FAE5!important;
-  color:#047857!important;
+  background:#EAF7F0!important;
+  color:#1A8A5C!important;
 }
 body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mas-status.is-blocked,
 body.main-admin-detail-page[data-access-page="main_merchant_detail"] .mas-status.is-failed{

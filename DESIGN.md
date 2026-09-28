@@ -146,6 +146,16 @@ Theme toggle: `data-bo-theme` / `localStorage.bo_theme`. Prefer `--bo-*` tokens 
 | Control well | `#F5EBDC` | `rgba(255,255,255,.06)` |
 | Placeholder | `#78716C` (on cream wells) | `#A1A1AA` |
 
+### Row status / role pills (soft fluorescent — locked 2026-09-28)
+
+Luminous pastel wash + calm mid ink on cream table rows. Specimen: Merchants list (`.mad-role` · `.mad-status`) · Providers list (`.mpv-status`). Sources: `assets/css/main-merchant-detail-executive.css`, `assets/css/main-provider-detail-executive.css`, `assets/css/main-provider-family-executive.css`.
+
+| Part | Light fill / ink | Notes |
+|------|------------------|-------|
+| Role Brand Owner (`.mad-role.is-super` / `.is-partner` / `.is-merchant`) | `#F0ECFA` / `#6B5B95` | Soft fluorescent lilac — not neon violet `#EDE9FE`/`#5B21B6`, not dusty dark |
+| Status Active (`.mad-status.is-active` · `.mad-status-chip.is-active` · `.mas-status.is-success` · `.mpv-status.is-active`) | `#EAF7F0` / `#1A8A5C` · dot `#3CB87A` · hover `#D8F0E4` | Soft fluorescent mint — not neon `#D1FAE5`/`#10B981`. Providers + Merchants share this. |
+| Status Suspended | `#FEE2E2` / `#B91C1C` | Unchanged |
+
 ### Sidebar & canvas continuum
 
 **Rule:** Only the **canvas** does sidebar→page transition. Sidebar itself is **opaque** (covers content when expanded). Panels/tables stay solid surface. Source: `assets/css/bo-charcoal-shell.css`.
@@ -567,6 +577,8 @@ Two pages needed their closing tags handled by hand because `</main>` and the sh
 test — match with `in`, not `==`.
 
 **Row avatar (2026-09-15 — merchant AND admin, unified).** The tile is a neutral index marker, not a colour-coded one: light `#F5EBDC` / `#6b360c`, dark `#2A2C36` / `#E7E5E4`. The every-third-row tint is **deleted** — it encoded row position, not data, and a colour that means nothing teaches the eye to ignore the ones that do (the Status pill, the money columns). Colour survives on exactly one avatar variant: a **suspended** row (`#FEE2E2` / `#B91C1C` light, `rgba(239,68,68,.14)` / `#FCA5A5` dark), which agrees with the Status pill instead of contradicting it. Initials come from the company **name** (`avatarInitials()` in `main-merchant-detail.js`), not the code — the code is already printed beside the tile, so repeating it made a 40×40 saturated block carry no information.
+
+**Row Role / Status pills (2026-09-28 — soft fluorescent, owner locked).** Brand Owner lilac `#F0ECFA`/`#6B5B95` and Active mint `#EAF7F0`/`#1A8A5C` (dot `#3CB87A`) — luminous enough to read as fluorescent chips on cream zebra, calm enough not to glare. Do not revert to neon `#EDE9FE`/`#5B21B6` or `#D1FAE5`/`#10B981`, and do not darken to dusty sage/plum. Same values on `.mad-status-chip`, Security `.mas-status.is-success`, and Providers `.mpv-status.is-active` / family `.mad-status`. See Colors → Row status / role pills.
 **Unified across both families.** The same treatment is applied to the Admin list (`main-admin-detail.html`) in `main-admin-detail-executive.css`, where one thing differs: `.is-self` is **kept amber** because on that page it means "this is your own account" — that is real information, so the neutral rule is written `:not(.is-self)` and the amber tile survives. Its previous every-third-row sky tint is deleted there too, which also removes the light-only-rule leak into dark mode recorded above.
 
 A different component, and already consistent: **`.mas-avatar`** on the Security & Audit pages reads `--bo-cyan-tint` / `--bo-cyan-deep` in light and `rgba(245,158,11,.16)` / `#FBBF24` in dark, so it sits on the amber palette. The `.is-alt` class its JS still applies on every other row is **already neutralised** — a later override block gives `.mas-avatar` and `.mas-avatar.is-alt` the same wash, so it does not encode row position. Its shape is `12px`, not the legacy `50%` circle; a later block sets the radius. The only difference left from the list tile is that it carries a wash at all, which is one quiet tint rather than an encoding, so it is defensible as-is. Decide separately if it should go fully neutral.

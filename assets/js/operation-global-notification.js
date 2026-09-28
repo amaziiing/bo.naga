@@ -4,7 +4,6 @@
   if (window.__BO_OPERATION_GLOBAL_NOTIFICATION__) return;
   window.__BO_OPERATION_GLOBAL_NOTIFICATION__ = true;
 
-  var NEW_MEMBER_SOUND_URL = 'assets/audio/new_member_sound.mp3';
   // Deposit and withdraw intentionally reuse the existing Live Chat MP3.
   var WALLET_REQUEST_SOUND_URL = 'assets/audio/livechat_sound.mp3';
   var POLL_INTERVAL_MS = 1000;
@@ -141,8 +140,8 @@
   }
 
   function getPending(){
-    var p = readJson(PENDING_KEY, {members:false,wallet:false});
-    return {members:!!p.members, wallet:!!p.wallet};
+    var p = readJson(PENDING_KEY, {wallet:false});
+    return {wallet:!!p.wallet};
   }
 
   function setPending(kind, value){
@@ -169,9 +168,7 @@
       var newLogin = isNewLoginSession();
 
       if (newLogin){
-        // Member sound must NOT play merely because the admin logged in.
         // Existing real pending wallet requests may alert after the admin has interacted with the BO.
-        setPending('members', false);
         setPending('wallet', next.deposit > 0 || next.withdraw > 0);
         markSessionInitialized();
       } else if (!initial) {
@@ -179,8 +176,6 @@
           prev.members = 0;
           prev.date = next.date;
         }
-        if (next.members > Number(prev.members || 0)) setPending('members', true);
-
         // Detect a newly-created request by ID as well as by total count. This avoids missing
         // a new request when another request is approved/rejected between two polling cycles.
         var newWalletRequest = hasNewRequestIds(next.depositIds, prev.depositIds) ||
@@ -219,21 +214,25 @@
       var link = e.target.closest && e.target.closest('[data-operation-notification-ack]');
       if (!link) return;
       var kind = link.getAttribute('data-operation-notification-ack');
-      if (kind === 'members' || kind === 'wallet') setPending(kind, false);
-      stopAudio(kind);
+      if (kind === 'wallet') {
+        setPending('wallet', false);
+        stopAudio('wallet');
+      }
     }, true);
   }
 
   function repeatPendingSounds(){
+    // Exactly one BO tab is allowed to own notification audio. Counts are still
+    // broadcast to every open tab, but background tabs must never replay the sound.
+    if (!isLeader()) return;
     var pending = getPending();
-    // Member notification is one-shot only for each newly detected increase.
     // Deposit/withdraw continues repeating until either wallet header icon is opened.
     if (pending.wallet) queueSound('wallet');
   }
 
   function getAudio(kind){
     if (!audioMap[kind]){
-      audioMap[kind] = new Audio(kind === 'members' ? NEW_MEMBER_SOUND_URL : WALLET_REQUEST_SOUND_URL);
+      audioMap[kind] = new Audio(WALLET_REQUEST_SOUND_URL);
       audioMap[kind].preload = 'auto';
       audioMap[kind].load();
     }
@@ -263,7 +262,7 @@
 
   function unlockAudio(){
     if (unlocked) return;
-    var sounds = [getAudio('members'), getAudio('wallet')];
+    var sounds = [getAudio('wallet')];
     Promise.all(sounds.map(function(player){
       player.muted = true;
       player.currentTime = 0;
@@ -295,6 +294,10 @@
       var lock = readJson(PLAY_LOCK_KEY, {});
       if (lock.kind === kind && lock.owner !== TAB_ID && now - Number(lock.time || 0) < REPEAT_INTERVAL_MS - 500) return false;
       writeJson(PLAY_LOCK_KEY, {kind:kind,time:now,owner:TAB_ID});
+      // localStorage writes are synchronous, but another tab can race between the
+      // read and write. Re-read and only play if this tab still owns the lock.
+      lock = readJson(PLAY_LOCK_KEY, {});
+      if (lock.kind !== kind || lock.owner !== TAB_ID) return false;
     }catch(e){}
     return true;
   }
@@ -314,7 +317,6 @@
     play(kind).then(function(played){
       // Do not let a background tab that Chrome blocked from autoplay silence all other BO tabs.
       if (!played) releasePlayLock(kind);
-      if (kind === 'members' && played) setPending('members', false);
       if (queued.length) setTimeout(flushQueue, 350);
     });
   }

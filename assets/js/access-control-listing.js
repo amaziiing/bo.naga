@@ -229,13 +229,14 @@ window.boAc = {
     this.page = 1;
     this.term = '';
     /* The status pills (Active / <this page's word for off> / All, `data-ac-status-pills`).
-       `all` is the default, which is what every one of these listings showed before the
-       pills existed. The buttons carry the shared pill recipe's own vocabulary —
+       `active` is the arrival selection — these listings land on the first pill, the same
+       arrival as the merchant and admin listings. The buttons carry the shared pill
+       recipe's own vocabulary —
        `data-mad-status="active" | "suspended" | "all"` — so their dots, frame and
        dark-theme colours come from `bo-charcoal-shell.css`, and a row marks itself
        with the matching `data-ac-status="active" | "suspended"`. One vocabulary on
        both sides, so filtering is a string compare. */
-    this.statusTerm = 'all';
+    this.statusTerm = 'active';
     this.footer = null;
     this.build();
     this.observe();

@@ -15,7 +15,7 @@
   const pageSizeEl = document.getElementById('mpvEntriesPageSize');
   const tableWrap = document.querySelector('.mad-table-wrap');
 
-  let statusPill = 'all';
+  let statusPill = 'active';
   let currentPage = 1;
   let allRows = [];
   let filtered = [];
@@ -263,9 +263,9 @@
     if(searchInput) searchInput.value = '';
     if(typeFilter) typeFilter.value = '';
     if(envFilter) envFilter.value = '';
-    statusPill = 'all';
+    statusPill = 'active';
     document.querySelectorAll('[data-mpv-status]').forEach(b => {
-      b.classList.toggle('is-active', b.getAttribute('data-mpv-status') === 'all');
+      b.classList.toggle('is-active', b.getAttribute('data-mpv-status') === 'active');
     });
     applyFilters();
   });

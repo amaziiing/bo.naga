@@ -26,7 +26,7 @@ let filteredProviders=[];
 let providerPage=1;
 let brandPage=1;
 let historyPage=1;
-let statusPill='all';
+let statusPill='active';
 let syncedAt=Date.now();
 let currency=(sessionStorage.getItem('bo_main_report_currency')||'MYR').toUpperCase();
 
@@ -710,8 +710,8 @@ function setupFilters(){
     if($('mreSearchInput')) $('mreSearchInput').value='';
     if($('mreCategoryFilter')) $('mreCategoryFilter').value='';
     if($('mreStatusFilter')) $('mreStatusFilter').value='';
-    statusPill='all';
-    document.querySelectorAll('[data-mre-status]').forEach(b=>b.classList.toggle('is-active',b.getAttribute('data-mre-status')==='all'));
+    statusPill='active';
+    document.querySelectorAll('[data-mre-status]').forEach(b=>b.classList.toggle('is-active',b.getAttribute('data-mre-status')==='active'));
     applyProviderFilters();
   });
   $('mrePager')?.addEventListener('click',e=>{

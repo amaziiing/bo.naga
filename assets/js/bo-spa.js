@@ -20,7 +20,11 @@
  */
 (function () {
   var root = document.documentElement;
+  // PARKED. It shipped site-wide once and broke the target page's own render (the module
+  // tab row and filter card never came back until a manual reload), so it now needs BOTH
+  // the html attribute and an explicit localStorage opt-in on the page you are testing.
   if (root.getAttribute('data-bo-spa') !== '1') return;
+  try { if (localStorage.getItem('bo_spa') !== 'on') return; } catch (e) { return; }
   if (!window.fetch || !window.history || !window.DOMParser || !window.Promise) return;
   try { if (localStorage.getItem('bo_spa') === '0') return; } catch (e) {}
   if (window.BO_SPA_OFF) return;

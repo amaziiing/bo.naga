@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="en" data-bo-spa="1">
+<html lang="en">
 <head>
 <style>/* First-paint canvas. The real background (gradient, theme colours) comes from the external sheets, but until they arrive the browser paints its default white - visible as a white flash on every tab switch. This gives the canvas its colour before any request lands, and the sheets override it later (same specificity, later in the cascade). */html{background:#FFF8EB}html[data-bo-theme="dark"]{background:#2C2E38}</style>
 <script>window.boShellBoot=function(){try{var h=localStorage.getItem('bo_shell_nav_v1');if(!h)return;var u={};try{u=JSON.parse(localStorage.getItem('bo_admin_user')||'{}')||{};}catch(e){}var stamp=String(u.id||u.username||u.email||'');if(stamp&&localStorage.getItem('bo_shell_nav_user_v1')!==stamp)return;var nav=document.querySelector('.report-nav');if(nav)nav.innerHTML=h;}catch(e){};</script>
@@ -115,6 +115,6 @@
 <script src="assets/js/pagination-standardizer.js?v=3949027a"></script>
 <script src="assets/js/operation-global-notification.js?v=1.0.31"></script>
 <script src="assets/js/bo-ui-standard.js?v=e18e682d"></script>
-<script src="assets/js/bo-spa.js?v=1005ed5c"></script>
+<script src="assets/js/bo-spa.js?v=43645778"></script>
 </body>
 </html>

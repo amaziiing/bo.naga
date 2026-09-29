@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
 <style>/* First-paint canvas. The real background (gradient, theme colours) comes from the external sheets, but until they arrive the browser paints its default white - visible as a white flash on every tab switch. This gives the canvas its colour before any request lands, and the sheets override it later (same specificity, later in the cascade). */html{background:#FFF8EB}html[data-bo-theme="dark"]{background:#2C2E38}</style>
-<script>window.boContentBoot=function(){try{var path=(location.pathname.split('/').pop()||'').toLowerCase();if(!/\.html$/.test(path))return;var raw=localStorage.getItem('bo_content_v1_'+path);if(!raw)return;var o=JSON.parse(raw);if(!o||!o.h)return;if(!o.t||(Date.now()-o.t)>6*3600*1000)return;var u={};try{u=JSON.parse(localStorage.getItem('bo_admin_user')||'{}')||{};}catch(e){}var s=String(u.id||u.username||u.email||'');if(s&&o.u&&o.u!==s)return;var c=document.querySelector('.report-content');if(!c)return;c.innerHTML=o.h;c.setAttribute('data-bo-content-restore','1');}catch(e){}};</script>
 <script>window.boShellBoot=function(){try{var h=localStorage.getItem('bo_shell_nav_v1');if(!h)return;var u={};try{u=JSON.parse(localStorage.getItem('bo_admin_user')||'{}')||{};}catch(e){}var stamp=String(u.id||u.username||u.email||'');if(stamp&&localStorage.getItem('bo_shell_nav_user_v1')!==stamp)return;var nav=document.querySelector('.report-nav');if(nav)nav.innerHTML=h;}catch(e){};</script>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <meta charset="utf-8"/>
@@ -86,7 +85,7 @@
   </div>
 </header>
 
-<section class="report-content mad-workspace mpr-workspace"><script>window.boContentBoot&&window.boContentBoot()</script>
+<section class="report-content mad-workspace mpr-workspace">
   <div class="mad-chrome">
     <div class="mad-tabs" role="tablist" aria-label="Merchant sections">
       <a class="mad-tab" role="tab" aria-selected="false" href="main-merchant-detail.html">Merchants</a>
@@ -202,7 +201,7 @@
 <script src="assets/js/main-currency-runtime.js?v=bc97a89c"></script>
 <script src="assets/js/currency-runtime.js?v=71496e4c"></script>
 <script src="assets/js/reports.js?v=063b42e4"></script>
-<script src="assets/js/auth.js?v=bb302131.0.33"></script>
+<script src="assets/js/auth.js?v=549eadd4.0.33"></script>
 <script src="assets/js/bo-seg-bounce.js?v=0c2f53d2"></script>
 <script src="assets/js/main-merchant-profit.js?v=d2bbccc6"></script>
 <script src="assets/js/bo-ui-standard.js?v=e18e682d"></script>

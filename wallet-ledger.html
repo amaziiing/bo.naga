@@ -3,7 +3,6 @@
 <html lang="en">
 <head>
 <style>/* First-paint canvas. The real background (gradient, theme colours) comes from the external sheets, but until they arrive the browser paints its default white - visible as a white flash on every tab switch. This gives the canvas its colour before any request lands, and the sheets override it later (same specificity, later in the cascade). */html{background:#FFF8EB}html[data-bo-theme="dark"]{background:#2C2E38}</style>
-<script>window.boContentBoot=function(){try{var path=(location.pathname.split('/').pop()||'').toLowerCase();if(!/\.html$/.test(path))return;var raw=localStorage.getItem('bo_content_v1_'+path);if(!raw)return;var o=JSON.parse(raw);if(!o||!o.h)return;if(!o.t||(Date.now()-o.t)>6*3600*1000)return;var u={};try{u=JSON.parse(localStorage.getItem('bo_admin_user')||'{}')||{};}catch(e){}var s=String(u.id||u.username||u.email||'');if(s&&o.u&&o.u!==s)return;var c=document.querySelector('.report-content');if(!c)return;c.innerHTML=o.h;c.setAttribute('data-bo-content-restore','1');}catch(e){}};</script>
 <script>window.boShellBoot=function(){try{var h=localStorage.getItem('bo_shell_nav_v1');if(!h)return;var u={};try{u=JSON.parse(localStorage.getItem('bo_admin_user')||'{}')||{};}catch(e){}var stamp=String(u.id||u.username||u.email||'');if(stamp&&localStorage.getItem('bo_shell_nav_user_v1')!==stamp)return;var nav=document.querySelector('.report-nav');if(nav)nav.innerHTML=h;}catch(e){};</script>
 
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -439,7 +438,7 @@ html[data-bo-theme="dark"] .wallet-ledger-page .bo-tx-datetime{color:#D4D4D8}
 <main class="report-main">
 <header class="report-topbar" data-bo-topbar data-bo-title="Wallet Ledger" data-bo-icon="bi-journal-check"></header>
 <script src="assets/js/bo-topbar.js?v=1"></script>
-<section class="report-content"><script>window.boContentBoot&&window.boContentBoot()</script>
+<section class="report-content">
 <div class="quick-stats">
 <div class="metric"><span>Deposit</span><strong id="wlDeposit">0.00</strong></div>
 <div class="metric"><span>Withdraw</span><strong id="wlWithdraw">0.00</strong></div>
@@ -495,7 +494,7 @@ html[data-bo-theme="dark"] .wallet-ledger-page .bo-tx-datetime{color:#D4D4D8}
 <script src="assets/js/brand-context.js?v=3bb07655"></script>
 <script src="assets/js/main-currency-runtime.js?v=bc97a89c"></script>
 <script src="assets/js/currency-runtime.js?v=71496e4c"></script>
-<script src="assets/js/auth.js?v=bb302131.0.33"></script>
+<script src="assets/js/auth.js?v=549eadd4.0.33"></script>
 <script src="assets/js/reports.js?v=063b42e4"></script>
 <script src="assets/js/bo-date-range.js?v=1.0.30"></script>
 <script src="assets/js/wallet-ledger.js?v=1.0.27"></script>

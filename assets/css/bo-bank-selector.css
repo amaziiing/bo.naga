@@ -73,12 +73,17 @@ body.bo-wallet-tx .bo-bank-card{
   border:1px solid var(--bnk-line);
   border-radius:8px;
   background:var(--bnk-surface);
-  box-shadow:0 1px 2px rgba(24,25,28,.05);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.75),
+    0 1px 1px rgba(24,25,28,.05),
+    0 8px 16px -10px rgba(24,25,28,.30);
   transition:border-color .15s ease,background-color .15s ease,box-shadow .15s ease;
 }
 
 html[data-bo-theme="dark"] body.bo-wallet-tx .bo-bank-card{
-  box-shadow:none;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.06),
+    0 10px 20px -12px rgba(0,0,0,.65);
 }
 
 body.bo-wallet-tx .bo-bank-card:hover{
@@ -90,15 +95,22 @@ body.bo-wallet-tx .bo-bank-card:hover{
 body.bo-wallet-tx .bo-bank-card.is-selected{
   border-color:var(--bnk-accent);
   background:var(--bo-cyan-tint,rgba(217,119,6,.12));
-  box-shadow:inset 0 0 0 1px var(--bnk-accent);
+  box-shadow:
+    inset 0 0 0 1px var(--bnk-accent),
+    0 10px 20px -12px rgba(217,119,6,.55);
 }
 
+/* The name zone: its own band at the top of the card, divided from the figures below, so the
+   bank reads as the card's title rather than as one more row. */
 body.bo-wallet-tx .bo-bank-card-head{
   display:flex;
   align-items:center;
   justify-content:space-between;
   gap:8px;
-  margin-bottom:6px;
+  min-height:20px;
+  margin-bottom:7px;
+  padding-bottom:7px;
+  border-bottom:1px solid var(--bnk-line);
 }
 
 body.bo-wallet-tx .bo-bank-chip{
@@ -107,16 +119,16 @@ body.bo-wallet-tx .bo-bank-chip{
   gap:6px;
   max-width:100%;
   min-width:0;
-  height:18px;
+  min-height:18px;
   padding:0;
   margin:0;
   border:0;
   background:transparent;
   color:var(--bnk-text);
-  font-size:12px;
-  font-weight:600;
+  font-size:12.5px;
+  font-weight:700;
   letter-spacing:-.01em;
-  line-height:1;
+  line-height:1.45;
   white-space:nowrap;
   cursor:pointer;
 }
@@ -165,7 +177,7 @@ body.bo-wallet-tx .bo-bank-card-foot{
   align-items:baseline;
   justify-content:space-between;
   gap:10px;
-  padding:1px 0;
+  padding:2px 0;
 }
 
 body.bo-wallet-tx .bo-bank-card-row > span,

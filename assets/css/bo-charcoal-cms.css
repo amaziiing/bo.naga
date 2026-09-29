@@ -1390,7 +1390,7 @@ html[data-bo-theme="dark"] body.manual-rebate-approval-page.report-body.bo-charc
 
 html body.manual-rebate-approval-page.report-body.bo-charcoal:not(#bo-charcoal-off) .standard-table-wrap { flex: 1 1 auto !important; min-height: 0px !important; overflow: auto !important; padding: 0px !important; border: 0px !important; border-radius: 0px !important; }
 
-html body.manual-rebate-approval-page.report-body.bo-charcoal:not(#bo-charcoal-off) .standard-data-table { width: 100% !important; min-width: 1100px !important; border-collapse: collapse !important; border-spacing: 0px !important; border: 0px !important; border-radius: 0px !important; table-layout: fixed !important; }
+html body.manual-rebate-approval-page.report-body.bo-charcoal:not(#bo-charcoal-off) .standard-data-table { width: 100% !important; min-width: 1100px !important; border-collapse: collapse !important; border-spacing: 0px !important; border: 0px !important; border-radius: 0px !important; table-layout: auto !important; }
 
 html:not([data-bo-theme="dark"]) body.manual-rebate-approval-page.report-body.bo-charcoal:not(#bo-charcoal-off) .standard-data-table th { background: rgb(255, 232, 204) !important; color: rgb(107, 54, 12) !important; font-size: 11px !important; font-weight: 700 !important; text-transform: uppercase !important; letter-spacing: 0.04em !important; border-bottom: 1px solid rgb(234, 220, 200) !important; border-right: 1px solid rgba(107, 54, 12, 0.08) !important; padding: 10px 12px !important; border-radius: 0px !important; }
 

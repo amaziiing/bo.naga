@@ -9,3 +9,4 @@ node_modules/
 
 # Local preview / verification scratch (never commit these)
 .pi-*
+server.log

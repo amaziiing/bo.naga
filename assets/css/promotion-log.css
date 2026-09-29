@@ -184,6 +184,42 @@ html body:not(#bo-filter-standard-off):not(#bo-filter-standard-legacy).bo-wallet
   align-items:center!important;
   gap:10px!important;
 }
+/* Action buttons share one geometry with the filter controls (same box, same type) */
+html body:not(#bo-filter-standard-off):not(#bo-filter-standard-legacy).bo-wallet-tx.promotion-log-page .report-main .promotion-log-ops .bo-filter-row > .pl-toolbar-actions .pl-toolbar-row .clean-btn{
+  box-sizing:border-box!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  height:36px!important;
+  min-height:36px!important;
+  max-height:36px!important;
+  width:auto!important;
+  min-width:0!important;
+  padding:0 14px!important;
+  border-radius:8px!important;
+  font-size:12px!important;
+  font-weight:800!important;
+  line-height:1!important;
+  gap:6px!important;
+  white-space:nowrap!important;
+}
+/* Row lock: the date control, the search box and the action button are one box, one type scale.
+   The field-standard sheet declares its 42px listing tier behind two :not(#id) guards, so the
+   guards are doubled here to out-rank it (same !important, higher specificity). */
+html body:not(#bo-filter-standard-off):not(#bo-filter-standard-legacy):not(#bo-filter-standard-off):not(#bo-filter-standard-legacy).bo-wallet-tx.promotion-log-page .report-main .promotion-log-ops .bo-filter-row .bo-filter-input-item input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+html body:not(#bo-filter-standard-off):not(#bo-filter-standard-legacy):not(#bo-filter-standard-off):not(#bo-filter-standard-legacy).bo-wallet-tx.promotion-log-page .report-main .promotion-log-ops .bo-filter-row > .field:has(input) input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+html body:not(#bo-filter-standard-off):not(#bo-filter-standard-legacy):not(#bo-filter-standard-off):not(#bo-filter-standard-legacy).bo-wallet-tx.promotion-log-page .report-main .promotion-log-ops .bo-filter-row > .bo-range-field .bo-range-trigger,
+html body:not(#bo-filter-standard-off):not(#bo-filter-standard-legacy):not(#bo-filter-standard-off):not(#bo-filter-standard-legacy).bo-wallet-tx.promotion-log-page .report-main .promotion-log-ops .bo-filter-row > .field .bo-range-trigger,
+html body:not(#bo-filter-standard-off):not(#bo-filter-standard-legacy):not(#bo-filter-standard-off):not(#bo-filter-standard-legacy).bo-wallet-tx.promotion-log-page .report-main .promotion-log-ops .bo-filter-row > .pl-toolbar-actions .pl-toolbar-row .clean-btn{
+  box-sizing:border-box!important;
+  height:36px!important;
+  min-height:36px!important;
+  max-height:36px!important;
+  padding:0 12px!important;
+  border-radius:8px!important;
+  font-size:12px!important;
+  line-height:1.2!important;
+}
 html body:not(#bo-filter-standard-off):not(#bo-filter-standard-legacy).bo-wallet-tx.promotion-log-page .report-main .promotion-log-ops .bo-filter-row .bo-range-trigger,
 html body:not(#bo-filter-standard-off):not(#bo-filter-standard-legacy).bo-wallet-tx.promotion-log-page .report-main .promotion-log-ops .bo-filter-row input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
 html body:not(#bo-filter-standard-off):not(#bo-filter-standard-legacy).bo-wallet-tx.promotion-log-page .report-main .promotion-log-ops .bo-filter-row select,
@@ -209,7 +245,7 @@ html body:not(#bo-filter-standard-off):not(#bo-filter-standard-legacy).bo-wallet
   padding:0 12px!important;
 }
 html body:not(#bo-filter-standard-off):not(#bo-filter-standard-legacy).bo-wallet-tx.promotion-log-page .report-main .promotion-log-ops .bo-filter-row .bo-range-trigger{
-  font-size:13px!important;
+  font-size:12px!important;
 }
 html body:not(#bo-filter-standard-off):not(#bo-filter-standard-legacy).bo-wallet-tx.promotion-log-page .report-main .promotion-log-ops .bo-filter-row .clean-btn,
 html body:not(#bo-filter-standard-off):not(#bo-filter-standard-legacy).bo-wallet-tx.promotion-log-page .report-main .promotion-log-ops .bo-filter-row .btn-primary-clean,

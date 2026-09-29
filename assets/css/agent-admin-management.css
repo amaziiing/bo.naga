@@ -279,15 +279,36 @@ body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page.agen
   min-height:36px!important;
   max-height:36px!important;
 }
+/* Agent ID + Agent Name are one cell now: code on the first line, name under it — the same
+   recipe the Commission view already used, so the two listings read alike. */
+/* One vertical rhythm for the KPI band: the page frame (.report-content, flex column,
+   gap 16px) owns the spacing, so the band's own margin is zeroed on every Agent listing.
+   Without this, .quick-stats' default margin-bottom:16px stacked on the flex gap and Payout /
+   Reimbursement sat 32px off the card while Management / Settlement sat 16px. */
+/* The card owned its own bottom margin on the Payout family (reports.css' .table-card
+   margin-bottom), so those pages showed a 32px gap under the card while Management / Claim
+   showed the frame's 16px. The frame owns this edge too. */
+body.agent-payout-page .table-card{
+  margin-bottom:0!important;
+}
+body.agent-management-page .agent-admin-metrics,
+body.agent-claim-page .agent-admin-metrics,
+body.agent-payout-page .agent-admin-metrics,
+body.agent-settlement-page .agent-admin-metrics{
+  margin:0!important;
+}
+
+body.agent-management-page .agent-admin-table tbody td.agent-name-cell small{
+  display:block!important;
+  color:#57534E!important;
+  font-size:11px!important;
+  font-weight:600!important;
+}
+html[data-bo-theme="dark"] body.agent-management-page .agent-admin-table tbody td.agent-name-cell small{
+  color:#D4D4D8!important;
+}
+
 body.agent-management-page .agent-mgmt-status{flex:0 0 150px;min-width:140px}
-body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page.agent-management-page .agent-mgmt-plan{
-  flex:0 0 200px!important;
-  min-width:200px!important;
-}
-body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page.agent-management-page .agent-mgmt-plan .rounded-select-btn,
-body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page.agent-management-page .agent-mgmt-plan select{
-  width:100%!important;
-}
 body.agent-management-page .agent-mgmt-filter-right>.bo-range-field{flex:0 0 auto;min-width:220px}
 body.agent-management-page .agent-mgmt-actions{display:flex;gap:10px;margin-left:auto}
 /* Right-hand filter group (Date Range · Commission Plan · Search) stays grouped and
@@ -302,7 +323,7 @@ body.agent-management-page .agent-mgmt-filter-right{
    Spec source: .interface-design/system.md "Status filter pills (locked)" +
    assets/css/bank-deposit-usage.css reference specimen. Track stays transparent;
    bo-seg-bounce.js paints the only selected frame via .bo-seg-thumb. */
-body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page.agent-management-page .agent-status-tabs.bo-tx-tabs{
+body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page:is(.agent-management-page,.agent-settlement-page,.agent-payout-page,.agent-claim-page) .agent-status-tabs.bo-tx-tabs{
   flex:0 0 auto!important;
   overflow:visible!important;
   position:relative!important;
@@ -322,7 +343,7 @@ body:not(#bo-filter-standard-off):not(#bo-filter-standard-legacy) .report-main .
   margin-left:auto!important;
 }
 /* Selected frame — lighter than filter row background so the capsule reads */
-body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page.agent-management-page .agent-status-tabs.bo-seg > .bo-seg-thumb{
+body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page:is(.agent-management-page,.agent-settlement-page,.agent-payout-page,.agent-claim-page) .agent-status-tabs.bo-seg > .bo-seg-thumb{
   top:0!important;
   height:100%!important;
   border-radius:999px!important;
@@ -335,7 +356,7 @@ body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page.agen
   z-index:0!important;
   pointer-events:none!important;
 }
-body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page.agent-management-page .agent-status-tabs .bo-tx-tab{
+body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page:is(.agent-management-page,.agent-settlement-page,.agent-payout-page,.agent-claim-page) .agent-status-tabs .bo-tx-tab{
   display:inline-flex!important;
   align-items:center!important;
   justify-content:center!important;
@@ -362,32 +383,32 @@ body:not(#bo-filter-standard-off):not(#bo-filter-standard-legacy) .report-main .
   padding:0 14px!important;
   margin:0!important;
 }
-body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page.agent-management-page .agent-status-tabs.bo-seg > .bo-tx-tab{
+body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page:is(.agent-management-page,.agent-settlement-page,.agent-payout-page,.agent-claim-page) .agent-status-tabs.bo-seg > .bo-tx-tab{
   position:relative!important;
   z-index:1!important;
   background:transparent!important;
 }
-body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page.agent-management-page .agent-status-tabs .bo-tx-tab.is-active{
+body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page:is(.agent-management-page,.agent-settlement-page,.agent-payout-page,.agent-claim-page) .agent-status-tabs .bo-tx-tab.is-active{
   background:transparent!important;
   border-color:transparent!important;
   box-shadow:none!important;
   color:#18191C!important;
   font-weight:700!important;
 }
-body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page.agent-management-page .agent-status-tabs .bo-tx-tab:hover:not(.is-active){
+body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page:is(.agent-management-page,.agent-settlement-page,.agent-payout-page,.agent-claim-page) .agent-status-tabs .bo-tx-tab:hover:not(.is-active){
   color:#18191C!important;
   background:rgba(24,25,28,.04)!important;
 }
 /* Fallback when bounce thumb missing — still show cream capsule */
-body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page.agent-management-page .agent-status-tabs:not(:has(> .bo-seg-thumb)) .bo-tx-tab.is-active{
+body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page:is(.agent-management-page,.agent-settlement-page,.agent-payout-page,.agent-claim-page) .agent-status-tabs:not(:has(> .bo-seg-thumb)) .bo-tx-tab.is-active{
   background-color:#FFFCF7!important;
   background-image:linear-gradient(180deg,#FFFCF7 0%,#FFF8EB 55%,#F3E8D6 100%)!important;
   border:1px solid #E0D0B8!important;
   box-shadow:0 1px 2px rgba(24,25,28,.08),0 2px 8px rgba(92,74,48,.10)!important;
 }
 /* Status dots — 6×6 circle, muted idle · green/red only when selected · All has no dot */
-body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page.agent-management-page .agent-status-tabs .bo-tx-tab[data-agent-status="1"]::before,
-body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page.agent-management-page .agent-status-tabs .bo-tx-tab[data-agent-status="0"]::before{
+body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page:is(.agent-management-page,.agent-settlement-page,.agent-payout-page,.agent-claim-page) .agent-status-tabs .bo-tx-tab[data-agent-status="1"]::before,
+body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page:is(.agent-management-page,.agent-settlement-page,.agent-payout-page,.agent-claim-page) .agent-status-tabs .bo-tx-tab[data-agent-status="0"]::before{
   content:""!important;
   width:6px!important;
   height:6px!important;
@@ -397,20 +418,20 @@ body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page.agen
   box-shadow:none!important;
   display:inline-block!important;
 }
-body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page.agent-management-page .agent-status-tabs .bo-tx-tab[data-agent-status="0"]::before{
+body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page:is(.agent-management-page,.agent-settlement-page,.agent-payout-page,.agent-claim-page) .agent-status-tabs .bo-tx-tab[data-agent-status="0"]::before{
   background:#C4C0D0!important;
 }
-body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page.agent-management-page .agent-status-tabs .bo-tx-tab[data-agent-status=""]::before{
+body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page:is(.agent-management-page,.agent-settlement-page,.agent-payout-page,.agent-claim-page) .agent-status-tabs .bo-tx-tab[data-agent-status=""]::before{
   content:none!important;
   display:none!important;
 }
-body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page.agent-management-page .agent-status-tabs .bo-tx-tab.is-active[data-agent-status="1"]::before{
+body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page:is(.agent-management-page,.agent-settlement-page,.agent-payout-page,.agent-claim-page) .agent-status-tabs .bo-tx-tab.is-active[data-agent-status="1"]::before{
   background:#059669!important;
 }
-body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page.agent-management-page .agent-status-tabs .bo-tx-tab.is-active[data-agent-status="0"]::before{
+body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page:is(.agent-management-page,.agent-settlement-page,.agent-payout-page,.agent-claim-page) .agent-status-tabs .bo-tx-tab.is-active[data-agent-status="0"]::before{
   background:#DC2626!important;
 }
-body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page.agent-management-page .agent-status-tabs .bo-tx-tab-count{
+body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page:is(.agent-management-page,.agent-settlement-page,.agent-payout-page,.agent-claim-page) .agent-status-tabs .bo-tx-tab-count{
   margin-left:0!important;
   color:inherit!important;
   font-size:inherit!important;
@@ -420,35 +441,35 @@ body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page.agen
 body.agent-management-page .agent-status-filter-select{
   display:none!important;
 }
-html[data-bo-theme="dark"] body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page.agent-management-page .agent-status-tabs.bo-seg > .bo-seg-thumb{
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page:is(.agent-management-page,.agent-settlement-page,.agent-payout-page,.agent-claim-page) .agent-status-tabs.bo-seg > .bo-seg-thumb{
   background-color:#2A2C36!important;
   background-image:linear-gradient(180deg,#383A46 0%,#2A2C36 100%)!important;
   border-color:rgba(255,255,255,.14)!important;
   box-shadow:0 1px 2px rgba(0,0,0,.35),0 2px 8px rgba(0,0,0,.25)!important;
 }
-html[data-bo-theme="dark"] body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page.agent-management-page .agent-status-tabs .bo-tx-tab{
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page:is(.agent-management-page,.agent-settlement-page,.agent-payout-page,.agent-claim-page) .agent-status-tabs .bo-tx-tab{
   color:#A1A1AA!important;
 }
-html[data-bo-theme="dark"] body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page.agent-management-page .agent-status-tabs .bo-tx-tab.is-active{
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page:is(.agent-management-page,.agent-settlement-page,.agent-payout-page,.agent-claim-page) .agent-status-tabs .bo-tx-tab.is-active{
   color:#F5F5F4!important;
 }
-html[data-bo-theme="dark"] body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page.agent-management-page .agent-status-tabs:not(:has(> .bo-seg-thumb)) .bo-tx-tab.is-active{
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page:is(.agent-management-page,.agent-settlement-page,.agent-payout-page,.agent-claim-page) .agent-status-tabs:not(:has(> .bo-seg-thumb)) .bo-tx-tab.is-active{
   background-color:#2A2C36!important;
   background-image:linear-gradient(180deg,#383A46 0%,#2A2C36 100%)!important;
   border-color:rgba(255,255,255,.14)!important;
 }
-html[data-bo-theme="dark"] body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page.agent-management-page .agent-status-tabs .bo-tx-tab:hover:not(.is-active){
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page:is(.agent-management-page,.agent-settlement-page,.agent-payout-page,.agent-claim-page) .agent-status-tabs .bo-tx-tab:hover:not(.is-active){
   color:#F5F5F4!important;
   background:rgba(255,255,255,.06)!important;
 }
-html[data-bo-theme="dark"] body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page.agent-management-page .agent-status-tabs .bo-tx-tab[data-agent-status="1"]::before,
-html[data-bo-theme="dark"] body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page.agent-management-page .agent-status-tabs .bo-tx-tab[data-agent-status="0"]::before{
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page:is(.agent-management-page,.agent-settlement-page,.agent-payout-page,.agent-claim-page) .agent-status-tabs .bo-tx-tab[data-agent-status="1"]::before,
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page:is(.agent-management-page,.agent-settlement-page,.agent-payout-page,.agent-claim-page) .agent-status-tabs .bo-tx-tab[data-agent-status="0"]::before{
   background:#6B7280!important;
 }
-html[data-bo-theme="dark"] body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page.agent-management-page .agent-status-tabs .bo-tx-tab.is-active[data-agent-status="1"]::before{
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page:is(.agent-management-page,.agent-settlement-page,.agent-payout-page,.agent-claim-page) .agent-status-tabs .bo-tx-tab.is-active[data-agent-status="1"]::before{
   background:#34D399!important;
 }
-html[data-bo-theme="dark"] body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page.agent-management-page .agent-status-tabs .bo-tx-tab.is-active[data-agent-status="0"]::before{
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page:is(.agent-management-page,.agent-settlement-page,.agent-payout-page,.agent-claim-page) .agent-status-tabs .bo-tx-tab.is-active[data-agent-status="0"]::before{
   background:#F87171!important;
 }
 
@@ -660,7 +681,6 @@ html[data-bo-theme="dark"] body.report-body.bo-charcoal.brand-agent-standard.sta
   }
   body.agent-management-page .agent-mgmt-filter-right .bo-range-field,
   body.agent-management-page .agent-mgmt-status,
-  body.agent-management-page .agent-mgmt-plan,
   body.agent-management-page .agent-mgmt-range{flex:1 1 auto!important;width:100%!important;max-width:none!important;margin-left:0!important}
   body.agent-management-page .agent-inline-filter input,
   body.agent-management-page .agent-inline-filter select,
@@ -675,10 +695,10 @@ html[data-bo-theme="dark"] body.report-body.bo-charcoal.brand-agent-standard.sta
      exceed the available width once the tabs stretch to fill a narrow (<=575px)
      row (measured overflow at 390px). Tighten padding/gap so all three pills
      stay on one line without clipping or overlapping. */
-  body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page.agent-management-page .agent-status-tabs.bo-tx-tabs{
+  body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page:is(.agent-management-page,.agent-settlement-page,.agent-payout-page,.agent-claim-page) .agent-status-tabs.bo-tx-tabs{
     gap:4px!important;
   }
-  body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page.agent-management-page .agent-status-tabs .bo-tx-tab{
+  body.report-body.bo-charcoal.brand-agent-standard.standardized-listing-page:is(.agent-management-page,.agent-settlement-page,.agent-payout-page,.agent-claim-page) .agent-status-tabs .bo-tx-tab{
     padding:0 9px!important;
     gap:5px!important;
     font-size:11.5px!important;
@@ -1191,6 +1211,130 @@ body.agent-payout-page .table-footer .smart-page{
   .agent-detail-summary{grid-template-columns:repeat(2,1fr)}
 }
 
+/* Settlement reuses the Payout frame (body carries both classes) but lists one extra
+   column — Period — whose "2026-09-01 - 2026-09-15" value is wider than the equal share
+   the frame's fixed layout hands it, so the range painted over Total Bet. Content-sized
+   columns are the fix; min-width on the wrapper still keeps the horizontal scroll. */
+body.agent-settlement-page .table-card .report-table{
+  table-layout:auto!important;
+}
+
+/* The status pills ARE this page's status filter, so its filter row runs as flex — pills
+   left, fields right, exactly like Agent Management — instead of the Payout frame's
+   three-column grid. The grid placed its fields by :nth-child, and bo-date-range.js
+   prepends the range host while the two native date fields stay in the DOM hidden, so a
+   new child cannot be added without shifting them. The Status <select> stays in the DOM
+   (hidden) because it is the value the pills write into — same shape as Agent
+   Management's .agent-status-filter-select. */
+body:is(.agent-settlement-page,.agent-payout-page,.agent-claim-page) .table-card .filter-card .bo-filter-row{
+  display:flex!important;
+  flex-flow:row wrap!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:10px!important;
+}
+body:is(.agent-settlement-page,.agent-payout-page,.agent-claim-page) .table-card .filter-card .bo-filter-row > .agent-status-tabs{
+  flex:0 0 auto!important;
+}
+body:is(.agent-settlement-page,.agent-payout-page,.agent-claim-page) .table-card .filter-card .bo-filter-row > .bo-range-field{
+  display:block!important;
+  flex:0 0 auto!important;
+  width:240px!important;
+  min-width:200px!important;
+  max-width:none!important;
+}
+body:is(.agent-settlement-page,.agent-payout-page,.agent-claim-page) .table-card .filter-card .bo-filter-row > .field.wide{
+  flex:1 1 220px!important;
+  width:auto!important;
+  min-width:180px!important;
+  max-width:none!important;
+}
+body:is(.agent-settlement-page,.agent-payout-page,.agent-claim-page) .agent-status-filter-select{
+  display:none!important;
+}
+
+/* Every Agent listing locks its filter controls to the same 36px / 8px-radius box (each
+   page block says so, and the footer's own Show select is 36px / 8px). Two shared tiers
+   escaped that: bo-ui-standard.css forces 42px on the tagged input and button through
+   :not(#id)-guarded rules, and reports.css forces border-radius:10px on every
+   `.report-content input` through a selector carrying nine :not(#id) guards, so the row
+   read 42 / 42 / 36 tall and 8 / 10 / 8 round. Class chains cannot out-rank ids, so the
+   guards are repeated here the way this sheet already does it for .agent-status-tabs —
+   see the defense-in-depth comment further down. Raise this count if that reports.css
+   rule ever grows more guards; verify with getComputedStyle, not by eye. */
+body:not(#bo-filter-standard-off):not(#bo-filter-standard-legacy):not(#bo-filter-standard-off):not(#bo-filter-standard-legacy):not(#bo-filter-standard-off):not(#bo-filter-standard-legacy):not(#bo-filter-standard-off):not(#bo-filter-standard-legacy):not(#bo-filter-standard-off):not(#bo-filter-standard-legacy):not(#bo-filter-standard-off):not(#bo-filter-standard-legacy):is(.agent-management-page,.agent-commission-page,.agent-claim-page,.agent-payout-page) .report-main .bo-filter-row .bo-range-trigger,
+body:not(#bo-filter-standard-off):not(#bo-filter-standard-legacy):not(#bo-filter-standard-off):not(#bo-filter-standard-legacy):not(#bo-filter-standard-off):not(#bo-filter-standard-legacy):not(#bo-filter-standard-off):not(#bo-filter-standard-legacy):not(#bo-filter-standard-off):not(#bo-filter-standard-legacy):not(#bo-filter-standard-off):not(#bo-filter-standard-legacy):is(.agent-management-page,.agent-commission-page,.agent-claim-page,.agent-payout-page) .report-main .bo-filter-row input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+body:not(#bo-filter-standard-off):not(#bo-filter-standard-legacy):not(#bo-filter-standard-off):not(#bo-filter-standard-legacy):not(#bo-filter-standard-off):not(#bo-filter-standard-legacy):not(#bo-filter-standard-off):not(#bo-filter-standard-legacy):not(#bo-filter-standard-off):not(#bo-filter-standard-legacy):not(#bo-filter-standard-off):not(#bo-filter-standard-legacy):is(.agent-management-page,.agent-commission-page,.agent-claim-page,.agent-payout-page) .report-main .bo-filter-row select,
+body:not(#bo-filter-standard-off):not(#bo-filter-standard-legacy):not(#bo-filter-standard-off):not(#bo-filter-standard-legacy):not(#bo-filter-standard-off):not(#bo-filter-standard-legacy):not(#bo-filter-standard-off):not(#bo-filter-standard-legacy):not(#bo-filter-standard-off):not(#bo-filter-standard-legacy):not(#bo-filter-standard-off):not(#bo-filter-standard-legacy):is(.agent-management-page,.agent-commission-page,.agent-claim-page,.agent-payout-page) .report-main .bo-filter-row .bo-filter-other-button{
+  box-sizing:border-box!important;
+  height:36px!important;
+  min-height:36px!important;
+  max-height:36px!important;
+  border-radius:8px!important;
+}
+
+/* Status dots for the pages whose pills carry more than two states (Payout / Settlement).
+   The locked recipe's dot table defines Active/Suspend and the Deposit family; these two
+   pages filter Pending / Approved / Paid / Rejected, so the same rule is applied with the
+   status colours that section already uses for its table pills (PENDING orange · APPROVED
+   green · REJECTED red; Paid is the paid-out end of Approved). Idle stays muted grey for
+   every status and All carries no dot — the three "Do not" lines of that section. */
+body:is(.agent-settlement-page,.agent-payout-page,.agent-claim-page) .agent-status-tabs .bo-tx-tab[data-status-pill]::before{
+  content:""!important;
+  width:6px!important;
+  height:6px!important;
+  border-radius:50%!important;
+  flex:0 0 auto!important;
+  background:#B8C0CC!important;
+  box-shadow:none!important;
+  display:inline-block!important;
+}
+body:is(.agent-settlement-page,.agent-payout-page,.agent-claim-page) .agent-status-tabs .bo-tx-tab[data-status-pill=""]::before{
+  content:none!important;
+  display:none!important;
+}
+body:is(.agent-settlement-page,.agent-payout-page,.agent-claim-page) .agent-status-tabs .bo-tx-tab.is-active[data-status-pill="PENDING"]::before{
+  background:#EA580C!important;
+}
+body:is(.agent-settlement-page,.agent-payout-page,.agent-claim-page) .agent-status-tabs .bo-tx-tab.is-active[data-status-pill="APPROVED"]::before,
+body:is(.agent-settlement-page,.agent-payout-page,.agent-claim-page) .agent-status-tabs .bo-tx-tab.is-active[data-status-pill="PAID"]::before{
+  background:#059669!important;
+}
+body:is(.agent-settlement-page,.agent-payout-page,.agent-claim-page) .agent-status-tabs .bo-tx-tab.is-active[data-status-pill="REJECTED"]::before{
+  background:#DC2626!important;
+}
+html[data-bo-theme="dark"] body:is(.agent-settlement-page,.agent-payout-page,.agent-claim-page) .agent-status-tabs .bo-tx-tab[data-status-pill]::before{
+  background:#6B7280!important;
+}
+html[data-bo-theme="dark"] body:is(.agent-settlement-page,.agent-payout-page,.agent-claim-page) .agent-status-tabs .bo-tx-tab.is-active[data-status-pill="PENDING"]::before{
+  background:#FBBF24!important;
+}
+html[data-bo-theme="dark"] body:is(.agent-settlement-page,.agent-payout-page,.agent-claim-page) .agent-status-tabs .bo-tx-tab.is-active[data-status-pill="APPROVED"]::before,
+html[data-bo-theme="dark"] body:is(.agent-settlement-page,.agent-payout-page,.agent-claim-page) .agent-status-tabs .bo-tx-tab.is-active[data-status-pill="PAID"]::before{
+  background:#34D399!important;
+}
+html[data-bo-theme="dark"] body:is(.agent-settlement-page,.agent-payout-page,.agent-claim-page) .agent-status-tabs .bo-tx-tab.is-active[data-status-pill="REJECTED"]::before{
+  background:#F87171!important;
+}
+
+/* The Payout family (Payout / Settlement / Promotion) used to drop the outer card frame on
+   purpose, which left those three listings reading flatter than the rest of the Agent module —
+   bo-charcoal-agent.css paints every .table-card here as #FFF8EB + a soft amber lift, and the
+   Payout block overrode both (background:#FCF8EC, box-shadow:none). Keep the same card surface
+   every other Agent listing shows. Later in this sheet than those overrides, so it wins. */
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.brand-agent-standard.agent-payout-page .report-content .table-card{
+  background:#FFF8EB!important;
+  box-shadow:0 5px 18px rgba(217,119,6,.035)!important;
+  border:1px solid #EADCC8!important;
+  border-radius:8px!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.brand-agent-standard.agent-payout-page .report-content .table-card{
+  background:#383A46!important;
+  box-shadow:0 5px 18px rgba(245,158,11,.035)!important;
+  border:1px solid rgba(255,255,255,.14)!important;
+  border-radius:8px!important;
+}
+
 /* ===== Agent Commission listing — Charcoal + Amber listing recipe ===== */
 body.agent-commission-page .report-main{
   display:flex;
@@ -1602,11 +1746,7 @@ body.agent-claim-page .report-content{
   padding:16px!important;
   overflow:hidden;
 }
-body.agent-claim-page .agent-admin-metrics{
-  display:none!important;
-  flex:0 0 auto;
-  margin:0!important;
-}
+
 body.agent-claim-page .filter-card{
   flex:0 0 auto;
   margin:0!important;

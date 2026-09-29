@@ -28,6 +28,14 @@
 <link href="assets/css/bo-scrollbar.css?v=7c2a456b" rel="stylesheet"/>
 <link href="assets/css/bo-field-standard.css?v=06f5ae19" rel="stylesheet">
 <link href="assets/css/bo-module-tabs.css?v=9cd7f1b0" rel="stylesheet"/>
+<style>
+  /* Page-scoped: this page's content frame carries no row gap (0px), so the injected
+     module tab row sat flush against the first card while every other module page shows
+     16px there. Give the row the same breathing room below itself instead of changing the
+     frame, so nothing else on the page shifts. Selector stays off the shell's own
+     selectors on purpose (drift guard). */
+  .promotion-workspace-page .bo-module-tabs{margin-bottom:16px}
+</style>
 <script>
 (function(){
   try{

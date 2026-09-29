@@ -26,7 +26,8 @@
 <link href="assets/css/bo-input-fill.css?v=1969f85a" rel="stylesheet" />
 </link><link href="assets/css/main-admin-detail-executive.css?v=6fcae505" rel="stylesheet" />
 <link href="assets/css/access-control-executive.css?v=e547aa8e" rel="stylesheet" />
-<link href="assets/css/bo-scrollbar.css?v=7c2a456b" rel="stylesheet"/><link href="assets/css/bo-field-standard.css?v=06f5ae19" rel="stylesheet"></head>
+<link href="assets/css/bo-scrollbar.css?v=7c2a456b" rel="stylesheet"/><link href="assets/css/bo-field-standard.css?v=06f5ae19" rel="stylesheet"><link href="assets/css/bo-topbar.css?v=12" rel="stylesheet" />
+</head>
 <body class="report-body standardized-listing-page admin-management-page main-admin-create-page bo-charcoal bo-account-chip bo-access-control">
 <div class="report-shell">
 <aside class="report-sidebar" id="reportSidebar">
@@ -37,20 +38,8 @@
 </aside>
 <div class="sidebar-overlay" data-close-sidebar="" id="reportOverlay"></div>
 <main class="report-main">
-<header class="report-topbar admin-page-topbar">
-<button class="hamb" data-open-sidebar=""><i class="bi bi-list"></i></button>
-<div class="user-title-wrap">
-<div class="user-title-icon"><i class="bi bi-person-gear"></i></div>
-<div class="user-title-block"><h1>Create Admin</h1></div>
-</div>
-<div class="report-actions">
-      <button type="button" class="bo-theme-btn" id="boThemeToggle" aria-pressed="false" title="Switch to dark mode" aria-label="Switch to dark mode">
-        <i class="bi bi-sun-fill" data-theme-icon="sun"></i>
-        <i class="bi bi-moon-fill" data-theme-icon="moon" hidden></i>
-      </button>
-      <div data-bo-profile></div>
-    </div>
-</header>
+<header class="report-topbar admin-page-topbar" data-bo-topbar data-bo-title="Create Admin" data-bo-icon="bi-person-gear" data-bo-title-block-class="user-title-block"></header>
+<script src="assets/js/bo-topbar.js?v=1"></script>
 <section class="report-content mac-workspace">
 <form class="mac-form" id="createAdminForm" novalidate>
 <section class="mac-section">

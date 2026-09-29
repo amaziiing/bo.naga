@@ -50,6 +50,7 @@
 <link href="assets/css/main-mobile-responsive.css?v=d7737bec" rel="stylesheet">
 <link href="assets/css/bo-scrollbar.css?v=7c2a456b" rel="stylesheet"/>
 <link href="assets/css/bo-field-standard.css?v=06f5ae19" rel="stylesheet">
+<link href="assets/css/bo-topbar.css?v=12" rel="stylesheet" />
 </head>
 
 <body class="report-body standardized-listing-page main-admin-detail-page mad-view-active" data-access-page="main_admin_detail">
@@ -68,37 +69,8 @@
 
 <main class="report-main">
 
-<header class="report-topbar">
-
-  <button class="hamb" type="button" data-open-sidebar="" aria-label="Open navigation"><i class="bi bi-list" aria-hidden="true"></i></button>
-
-  <div class="user-title-wrap">
-
-    <div class="user-title-icon" aria-hidden="true"><i class="bi bi-shield-lock"></i></div>
-
-    <div>
-
-      <h1>Admin Management</h1>
-
-    </div>
-
-  </div>
-
-  <div class="report-actions">
-
-    <button type="button" class="bo-theme-btn" id="boThemeToggle" aria-pressed="false" title="Switch to dark mode" aria-label="Switch to dark mode">
-
-      <i class="bi bi-sun" data-theme-icon="sun" aria-hidden="true"></i>
-
-      <i class="bi bi-moon" data-theme-icon="moon" hidden aria-hidden="true"></i>
-
-    </button>
-
-    <div data-bo-profile=""></div>
-
-  </div>
-
-</header>
+<header class="report-topbar" data-bo-topbar data-bo-title="Admin Management" data-bo-icon="bi-shield-lock" data-bo-hamb-aria="Open navigation" data-bo-icon-aria="true"></header>
+<script src="assets/js/bo-topbar.js?v=1"></script>
 
 
 

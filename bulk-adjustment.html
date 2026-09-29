@@ -40,6 +40,7 @@
   }
 })();
 </script>
+<link href="assets/css/bo-topbar.css?v=12" rel="stylesheet" />
 </head>
 <body class="report-body bulk-adjustment-page bo-wallet-tx bo-account-chip">
 <div class="report-shell">
@@ -52,20 +53,8 @@
 </aside>
 <div class="sidebar-overlay" data-close-sidebar="" id="reportOverlay"></div>
 <main class="report-main">
-<header class="report-topbar">
-<button class="hamb" data-open-sidebar="" type="button"><i class="bi bi-list"></i></button>
-<div class="user-title-wrap">
-<div class="user-title-icon"><i class="bi bi-wallet2"></i></div>
-<div><h1>Bulk Adjustment</h1></div>
-</div>
-<div class="report-actions">
-  <button type="button" class="bo-theme-btn" id="boThemeToggle" aria-pressed="false" title="Switch to dark mode" aria-label="Switch to dark mode">
-    <i class="bi bi-sun-fill" data-theme-icon="sun"></i>
-    <i class="bi bi-moon-fill" data-theme-icon="moon" hidden></i>
-  </button>
-  <div data-bo-profile></div>
-</div>
-</header>
+<header class="report-topbar" data-bo-topbar data-bo-title="Bulk Adjustment" data-bo-icon="bi-wallet2"></header>
+<script src="assets/js/bo-topbar.js?v=1"></script>
 <section class="report-content">
   <nav class="bulk-family-tabs" aria-label="Bulk adjustment type">
     <a class="bulk-family-tab is-active" href="bulk-adjustment.html?tab=winlose" aria-current="page">Win/Lose Adjustment</a>

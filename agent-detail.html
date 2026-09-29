@@ -137,6 +137,7 @@ body[data-agent-detail="1"] #assignPlayersModal .agent-assign-search input{borde
 body[data-agent-detail="1"] #assignPlayersModal .agent-assign-search i{color:#64748b}
 @media(max-width:1500px){body[data-agent-detail="1"] #agentDetailSummaryTop.agent-detail-summary{grid-template-columns:minmax(290px,1.5fr) repeat(5,minmax(145px,1fr))!important}}
 </style>
+<link href="assets/css/bo-topbar.css?v=12" rel="stylesheet" />
 </head>
 <body class="report-body brand-agent-standard bo-charcoal bo-account-chip" data-agent-detail="1">
 <div class="report-shell">
@@ -148,21 +149,8 @@ body[data-agent-detail="1"] #assignPlayersModal .agent-assign-search i{color:#64
 </aside>
 <div class="sidebar-overlay" data-close-sidebar=""></div>
 <main class="report-main">
-<header class="report-topbar"><button class="hamb" data-open-sidebar=""><i class="bi bi-list"></i></button>
-<div class="user-title-wrap">
-<div class="user-title-icon"><i class="bi bi-person-workspace"></i></div>
-<div>
-<h1>Agent Details</h1>
-</div>
-</div>
-<div class="report-actions">
-      <button type="button" class="bo-theme-btn" id="boThemeToggle" aria-pressed="false" title="Switch to dark mode" aria-label="Switch to dark mode">
-        <i class="bi bi-sun-fill" data-theme-icon="sun"></i>
-        <i class="bi bi-moon-fill" data-theme-icon="moon" hidden></i>
-      </button>
-      <div data-bo-profile></div>
-    </div>
-</header>
+<header class="report-topbar" data-bo-topbar data-bo-title="Agent Details" data-bo-icon="bi-person-workspace"></header>
+<script src="assets/js/bo-topbar.js?v=1"></script>
 <section class="report-content"><div class="table-card agent-detail-toolbar mb-3">
 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
 <div><span class="fw-bold" id="agentDetailHeading">Agent</span>

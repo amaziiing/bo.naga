@@ -24,6 +24,7 @@
 <link href="assets/css/image-to-url.css?v=940974eb" rel="stylesheet" />
 <link href="assets/css/bo-scrollbar.css?v=7c2a456b" rel="stylesheet"/>
 <link href="assets/css/bo-field-standard.css?v=06f5ae19" rel="stylesheet">
+<link href="assets/css/bo-topbar.css?v=12" rel="stylesheet" />
 </head>
   <body class="report-body bo-charcoal bo-account-chip image-to-url-page">
     <div class="report-shell">
@@ -36,22 +37,8 @@
       </aside>
       <div class="sidebar-overlay" id="reportOverlay" data-close-sidebar></div>
       <main class="report-main">
-        <header class="report-topbar">
-          <button class="hamb" data-open-sidebar><i class="bi bi-list"></i></button>
-                <div class="user-title-wrap">
-                    <div class="user-title-icon"><i class="bi bi-link-45deg"></i></div>
-                    <div>
-                        <h1>Image To URL</h1>
-                    </div>
-                </div>
-                <div class="report-actions">
-      <button type="button" class="bo-theme-btn" id="boThemeToggle" aria-pressed="false" title="Switch to dark mode" aria-label="Switch to dark mode">
-        <i class="bi bi-sun-fill" data-theme-icon="sun"></i>
-        <i class="bi bi-moon-fill" data-theme-icon="moon" hidden></i>
-      </button>
-      <div data-bo-profile></div>
-    </div>
-        </header>
+        <header class="report-topbar" data-bo-topbar data-bo-title="Image To URL" data-bo-icon="bi-link-45deg"></header>
+<script src="assets/js/bo-topbar.js?v=1"></script>
         <section class="report-content">
           <article class="image-url-card" aria-labelledby="imageUrlTitle">
             <header class="image-url-head">

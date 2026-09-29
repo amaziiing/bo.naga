@@ -1,0 +1,209 @@
+/* Canonical topbar typography for pages that adopted the shared renderer
+   (assets/js/bo-topbar.js). Scoped to [data-bo-topbar] so it can never reach a
+   page that has not opted in - the other ~146 pages keep their current sheets.
+
+   WHAT IT LOCKS (and only this): the three type sizes the owner asked to unify.
+   Nothing here touches height, padding, background or colour - those stay owned by
+   the per-theme sheets, so real variants (e.g. `.admin-page-topbar{min-height:62px}`)
+   keep working.
+
+   Chosen values - these are the majority in this repo and what the adopted pages
+   already compute, so adopting the sheet is a no-op for them:
+     h1                22px / 900     (was: 26px/900 in reports*.css, 20px/800,
+                                       18px/800 in main-admin-detail, 28px/800 in
+                                       bo-charcoal-cms, 17px in the *-md.css suite)
+     .user-title-icon  36x36 box, 20px glyph
+                                      (was: 40x40/18px, 38x38/19px, 36x36/18px)
+     theme button      36x36 box, 18px glyph
+                                      (was: 40x40/17px, 44x44)
+
+   Values are written with !important because every one of those sheets also
+   declares them with !important; the specificity here adds the [data-bo-topbar]
+   attribute so this wins on adopted pages only.
+
+   The reference geometry the component renders into (measured, unchanged by this
+   sheet, kept here so phase 3 has the spec in one place):
+     .report-topbar      display:flex  gap:12px  padding:0 20px  min-height:64px
+                         border-bottom:1px solid  background:#FFF8EB
+     .user-title-wrap    display:flex  gap:12px  align-items:center
+     .report-actions     display:flex  gap:12px  align-items:center  margin-left:auto
+*/
+
+/* 0. Same horizontal padding everywhere. A few page families inset the header 18px
+   instead of 20px, which moves the whole right-hand cluster 2px sideways on a page
+   switch. Desktop only - the narrow layout has its own padding and is deliberately
+   left alone. */
+/* The id-guard is the same idiom the theme sheets use (`:not(#bo-charcoal-off)`). A
+   plain class chain tied with a later sheet here and lost, so this rule needs to sit
+   above them rather than beside them. */
+@media (min-width:1024px){
+  html:not(#bo-charcoal-off) body.report-body .report-shell .report-main .report-topbar[data-bo-topbar]{
+    padding-left:20px!important;
+    padding-right:20px!important;
+  }
+}
+
+/* 0b. Reserve the scrollbar gutter so a page that happens to scroll does not shift the
+   whole header sideways. vip-level-edit measured clientWidth 1568 against 1574
+   elsewhere purely because its content is taller than the viewport, and that 6px moved
+   the cluster with it. Reserving the gutter makes the usable width the same on every
+   adopted page whether or not it scrolls. */
+html:has(.report-topbar[data-bo-topbar]){
+  scrollbar-gutter:stable;
+}
+
+/* 1. Page title */
+.report-topbar[data-bo-topbar] .user-title-wrap h1{
+  font-size:22px!important;
+  font-weight:900!important;
+  line-height:1.2!important;
+}
+
+/* 1b. Let a long title shrink and ellipsize instead of colliding with the account /
+   counter chips. Without this the title box cannot shrink (the inner div defaults to
+   min-width:auto), so "Member Wallet Listing" at 22px overlapped the action chips by
+   103px on a narrow window while the shorter "User Management" sat exactly on the edge.
+
+   Narrow widths only: the clip box lands on the last glyph's antialiased column, so
+   enabling it at every width shaved 1 pixel column off "User Management" on desktop
+   (6 pixels of 208000). Truncation is only needed where the title can actually run out
+   of room, which is what this breakpoint gates; the 22px size itself is unchanged at
+   every width. */
+@media (max-width:1023.98px){
+  .report-topbar[data-bo-topbar] .user-title-wrap{min-width:0}
+  .report-topbar[data-bo-topbar] .user-title-wrap > div{min-width:0}
+  .report-topbar[data-bo-topbar] .user-title-wrap h1{
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+}
+
+/* 2. Title icon: the round slot and the glyph inside it */
+.report-topbar[data-bo-topbar] .user-title-icon{
+  width:36px!important;
+  height:36px!important;
+  flex:0 0 36px!important;
+  font-size:20px!important;
+}
+.report-topbar[data-bo-topbar] .user-title-icon i{
+  font-size:20px!important;
+}
+
+/* Selector prefix used by the block below. The sheets that fight these values reach
+   id-guarded chains such as
+     html body.referral-page.report-body.bo-charcoal .report-actions > [data-bo-profile]
+       .bo-account-link::before                                        -> (0,6,2)
+   or the executive page scopes, so the prefix walks shell > main > header to reach
+   (0,7,2) before the property-specific part. */
+
+/* 2b. The right-hand cluster must not move when the page changes.
+   Only the title differs between pages, so the counters and the account chip have to
+   measure the same on every one of them. Today they do not, because each theme sheet
+   dresses the same markup differently and the block is right-aligned, so every pixel of
+   difference slides the whole cluster sideways (measured: the theme button sat at x=943
+   on User Management and x=928 on Member Wallet - a 15px jump on every page switch).
+   Two causes, both pinned here:
+     .bo-header-counter-text  padding-right 0 vs 2px   -> 2px per counter
+     .bo-account-link         min-width 0 vs 132px,
+                              height 40 vs 44px          -> up to 13px
+   Geometry only: colours and the sun/moon artwork stay with the theme sheets. */
+/* The selector walks the whole host chain on purpose: the sheets that fight this use
+   `body.bo-account-chip .report-actions > [data-bo-profile] .bo-account-link` (0,4,1)
+   with !important, so a shorter selector loses no matter what it declares. Five
+   class-level parts plus the attribute out-rank it. */
+/* The counter also has a compact variant in the executive sheets (icon 30px, gap 8,
+   padding 5px 9px, min-width 126) which made those pages 394px wide against 411px
+   elsewhere. Pin the reference box so all of them measure the same. */
+.report-shell .report-main .report-topbar[data-bo-topbar] .report-actions [data-bo-profile] .bo-header-counters{
+  gap:10px!important;
+}
+.report-shell .report-main .report-topbar[data-bo-topbar] .report-actions [data-bo-profile] .bo-header-counter{
+  gap:10px!important;
+  padding:5px 14px 5px 5px!important;
+  min-width:118px!important;
+  height:48px!important;
+  border-radius:10px!important;
+}
+.report-shell .report-main .report-topbar[data-bo-topbar] .report-actions [data-bo-profile] .bo-header-counter-icon{
+  width:38px!important;
+  height:38px!important;
+  font-size:18px!important;
+}
+.report-shell .report-main .report-topbar[data-bo-topbar] .report-actions [data-bo-profile] .bo-header-counter-text{
+  padding-right:0!important;
+  gap:1px!important;
+}
+.report-shell .report-main .report-topbar[data-bo-topbar] .report-actions [data-bo-profile] .bo-header-counter-text small{
+  font-size:11px!important;
+  font-weight:800!important;
+  letter-spacing:.66px!important;
+  /* The executive sheets left the label in title case ("Members"), the rest use the
+     locked uppercase treatment; besides looking different it is 4.5px narrower per
+     counter, which moved the cluster on those pages. */
+  text-transform:uppercase!important;
+}
+.report-shell .report-main .report-topbar[data-bo-topbar] .report-actions [data-bo-profile] .bo-header-counter-text b{
+  font-size:18px!important;
+  font-weight:800!important;
+}
+.report-shell .report-main .report-topbar[data-bo-topbar] .report-actions [data-bo-profile] .bo-account-link{
+  min-width:132px!important;
+  height:44px!important;
+  border-radius:14px!important;
+  padding:0!important;
+  /* The wallet theme adds margin-left:4px here and the charcoal theme does not, so the
+     whole cluster sat 4px further left on those pages. */
+  margin:0!important;
+}
+
+/* 2c. One divider slot, always reserved. The sheets already do this for the provider
+   family - "Divider slot always reserved - only tint changes by theme (prevents cluster
+   shift)" - so the rule is established, it just was not applied everywhere. Referral
+   moved the same divider inside the account link (host ::before set to content:none),
+   which adds a second flex gap inside the link and silently shifted the whole cluster.
+   Put it back on the host with the same 1px/28px box the other sheets use; only the tint
+   stays theme-owned. */
+.report-shell .report-main .report-topbar[data-bo-topbar] .report-actions > [data-bo-profile]::before{
+  content:""!important;
+  display:block!important;
+  width:1px!important;
+  height:28px!important;
+  flex:0 0 1px!important;
+  margin:0!important;
+  align-self:center!important;
+  background:rgba(24,25,28,.12)!important;
+}
+html[data-bo-theme="dark"] .report-shell .report-main .report-topbar[data-bo-topbar] .report-actions > [data-bo-profile]::before{
+  background:rgba(255,255,255,.12)!important;
+}
+.report-shell .report-main .report-topbar[data-bo-topbar] .report-actions > [data-bo-profile] .bo-account-link::before{
+  content:none!important;
+}
+
+/* auth.js renders a hidden gear after the avatar. Bootstrap's `.bi` sets
+   display:inline-block, which out-ranks the UA sheet's [hidden]{display:none}, so on the
+   themes that never re-hide it the gear still eats a flex gap + margin (14px) and makes
+   the account chip wider than on the themes that do. Re-hide it so every adopted page
+   measures the same. */
+.report-shell .report-main .report-topbar[data-bo-topbar] .report-actions [data-bo-profile] .bo-account-setting-icon[hidden]{
+  display:none!important;
+}
+
+/* 3. Theme toggle slot + glyph (bo-theme.js keeps the sun/moon state) */
+.report-topbar[data-bo-topbar] .bo-theme-btn{
+  width:36px!important;
+  height:36px!important;
+  min-width:36px!important;
+  max-width:36px!important;
+  flex:0 0 36px!important;
+}
+.report-topbar[data-bo-topbar] .bo-theme-btn i[data-theme-icon]{
+  font-size:18px!important;
+  line-height:1!important;
+}
+
+/* Deliberately no mobile step: one size at every width is what makes the header
+   consistent, and 1b above removes the reason the sheets used to shrink it (an
+   unshrinkable title). If a smaller phone size is preferred, add one breakpoint here -
+   it is a one-line change. */

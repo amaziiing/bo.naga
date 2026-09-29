@@ -17,14 +17,10 @@ body:not(#bo-filter-standard-off):not(#bo-filter-standard-legacy) .report-main .
 </style><link href="assets/css/main-mobile-responsive.css?v=d7737bec" rel="stylesheet">
 <link href="assets/css/bo-scrollbar.css?v=7c2a456b" rel="stylesheet"/>
 <link href="assets/css/bo-field-standard.css?v=06f5ae19" rel="stylesheet">
+<link href="assets/css/bo-topbar.css?v=12" rel="stylesheet" />
 </head>
-<body class="report-body brand-agent-standard bo-charcoal bo-account-chip" data-access-page="main_dashboard"><div class="report-shell"><aside class="report-sidebar" id="reportSidebar"><div class="report-brand"><div>Backoffice</div><button class="close-side" data-close-sidebar><i class="bi bi-x-lg"></i></button></div><nav class="report-nav"></nav></aside><div class="sidebar-overlay" data-close-sidebar></div><main class="report-main"><header class="report-topbar"><button class="hamb" data-open-sidebar><i class="bi bi-list"></i></button><div class="user-title-wrap"><div class="user-title-icon"><i class="bi bi-bar-chart-line"></i></div><div><h1 id="detailTitle">Statistic Detail</h1><p id="detailSubtitle">Boss-level breakdown across all brands.</p></div></div><div class="report-actions">
-      <button type="button" class="bo-theme-btn" id="boThemeToggle" aria-pressed="false" title="Switch to dark mode" aria-label="Switch to dark mode">
-        <i class="bi bi-sun-fill" data-theme-icon="sun"></i>
-        <i class="bi bi-moon-fill" data-theme-icon="moon" hidden></i>
-      </button>
-      <div data-bo-profile></div>
-    </div></header><section class="report-content">
+<body class="report-body brand-agent-standard bo-charcoal bo-account-chip" data-access-page="main_dashboard"><div class="report-shell"><aside class="report-sidebar" id="reportSidebar"><div class="report-brand"><div>Backoffice</div><button class="close-side" data-close-sidebar><i class="bi bi-x-lg"></i></button></div><nav class="report-nav"></nav></aside><div class="sidebar-overlay" data-close-sidebar></div><main class="report-main"><header class="report-topbar" data-bo-topbar data-bo-title="Statistic Detail" data-bo-icon="bi-bar-chart-line" data-bo-subtitle="Boss-level breakdown across all brands." data-bo-h1-id="detailTitle"></header>
+<script src="assets/js/bo-topbar.js?v=1"></script><section class="report-content">
 <div class="table-card detail-filter-card"><div class="bo-filter-row"><div class="field"><label>From</label><input data-range-default="today" id="detailFrom" type="date"/></div><div class="field"><label>To</label><input id="detailTo" type="date"/></div><button class="btn-primary-clean" id="detailSearch"><i class="bi bi-search"></i> Search</button><button class="clean-btn" id="detailBack"><i class="bi bi-arrow-left"></i> Back</button></div></div>
 <div class="detail-summary mt-3" id="detailSummary"></div>
 <div class="table-card mt-3"><div class="d-flex justify-content-between align-items-end mb-2"><div><h5 class="mb-1" id="detailBreakdownTitle">Breakdown</h5><div class="detail-note" id="detailNote"></div></div></div><div class="detail-table"><table class="report-table table-clean"><thead id="detailHead"></thead><tbody id="detailRows"></tbody></table></div></div>

@@ -30,6 +30,7 @@
 <link href="assets/css/main-mobile-responsive.css?v=d7737bec" rel="stylesheet">
 <link href="assets/css/bo-scrollbar.css?v=7c2a456b" rel="stylesheet"/>
 <link href="assets/css/bo-field-standard.css?v=06f5ae19" rel="stylesheet">
+<link href="assets/css/bo-topbar.css?v=12" rel="stylesheet" />
 </head>
 <body class="report-body standardized-listing-page main-admin-detail-page main-report-exec-page main-merchant-report-page bo-account-chip" data-access-page="main_merchant_balance_report" data-report-view="balance">
 <div class="report-shell">
@@ -39,22 +40,8 @@
 </aside>
 <div class="sidebar-overlay" data-close-sidebar></div>
 <main class="report-main">
-<header class="report-topbar">
-  <button class="hamb" data-open-sidebar><i class="bi bi-list"></i></button>
-  <div class="user-title-wrap">
-    <div class="user-title-icon"><i class="bi bi-bar-chart-line"></i></div>
-    <div>
-      <h1>Merchant Management</h1>
-    </div>
-  </div>
-  <div class="report-actions">
-    <button type="button" class="bo-theme-btn" id="boThemeToggle" aria-pressed="false" title="Switch to dark mode" aria-label="Switch to dark mode">
-      <i class="bi bi-sun-fill" data-theme-icon="sun"></i>
-      <i class="bi bi-moon-fill" data-theme-icon="moon" hidden></i>
-    </button>
-    <div data-bo-profile></div>
-  </div>
-</header>
+<header class="report-topbar" data-bo-topbar data-bo-title="Merchant Management" data-bo-icon="bi-bar-chart-line"></header>
+<script src="assets/js/bo-topbar.js?v=1"></script>
 
 <section class="report-content mad-workspace mre-workspace">
   <div class="mad-chrome mre-chrome">

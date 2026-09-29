@@ -28,6 +28,7 @@
   }catch(e){}
 })();
 </script>
+<link href="assets/css/bo-topbar.css?v=12" rel="stylesheet" />
 </head>
 <body class="report-body rebate-page manual-rebate-approval-page bo-charcoal bo-account-chip">
 <div class="report-shell">
@@ -39,20 +40,8 @@
 </aside>
 <div class="sidebar-overlay" data-close-sidebar id="reportOverlay"></div>
 <main class="report-main">
-<header class="report-topbar">
-<button class="hamb" data-open-sidebar><i class="bi bi-list"></i></button>
-<div class="user-title-wrap">
-<div class="user-title-icon"><i class="bi bi-check2-square"></i></div>
-<div><h1>Manual Rebate Approval</h1></div>
-</div>
-<div class="report-actions">
-<button type="button" class="bo-theme-btn" id="boThemeToggle" aria-pressed="false" title="Switch to dark mode" aria-label="Switch to dark mode">
-<i class="bi bi-sun-fill" data-theme-icon="sun"></i>
-<i class="bi bi-moon-fill" data-theme-icon="moon" hidden></i>
-</button>
-<div data-bo-profile></div>
-</div>
-</header>
+<header class="report-topbar" data-bo-topbar data-bo-title="Manual Rebate Approval" data-bo-icon="bi-check2-square"></header>
+<script src="assets/js/bo-topbar.js?v=1"></script>
 <section class="report-content">
 <div class="rebate-summary">
 <article class="rebate-summary-card">

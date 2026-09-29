@@ -40,6 +40,7 @@
 <link href="assets/css/bo-charcoal-primitives.css?v=335690e2" rel="stylesheet" />
 <link href="assets/css/bo-input-fill.css?v=1969f85a" rel="stylesheet" />
 <link href="assets/css/bo-user-management-theme.css?v=45264909" rel="stylesheet" />
+<link href="assets/css/bo-topbar.css?v=12" rel="stylesheet" />
 <link href="assets/css/bo-group-tabs.css?v=8" rel="stylesheet" />
 <link href="assets/css/bo-page-canvas.css?v=1" rel="stylesheet" />
 <link href="assets/css/bo-scrollbar.css?v=7c2a456b" rel="stylesheet"/>
@@ -55,24 +56,8 @@
 </aside>
 <div class="sidebar-overlay" data-close-sidebar="" id="reportOverlay"></div>
 <main class="report-main">
-<header class="report-topbar admin-page-topbar">
-<button class="hamb" data-open-sidebar="">
-<i class="bi bi-list"></i>
-</button>
-<div class="user-title-wrap">
-<div class="user-title-icon"><i class="bi bi-people"></i></div>
-<div>
-<h1>User Management</h1>
-</div>
-</div>
-<div class="report-actions">
-      <button type="button" class="bo-theme-btn" id="boThemeToggle" aria-pressed="false" title="Switch to dark mode" aria-label="Switch to dark mode">
-        <i class="bi bi-sun-fill" data-theme-icon="sun"></i>
-        <i class="bi bi-moon-fill" data-theme-icon="moon" hidden></i>
-      </button>
-      <div data-bo-profile></div>
-    </div>
-</header>
+<header class="report-topbar admin-page-topbar" data-bo-topbar data-bo-title="User Management" data-bo-icon="bi-people"></header>
+<script src="assets/js/bo-topbar.js?v=1"></script>
 <section class="report-content">
 <nav class="bo-group-tabs" aria-label="Member sections">
 <a class="bo-group-tab is-active" href="index.html" data-permission-url="index.html" aria-current="page">User Management</a>

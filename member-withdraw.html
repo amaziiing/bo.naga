@@ -27,6 +27,7 @@
   }catch(e){}
 })();
 </script>
+<link href="assets/css/bo-topbar.css?v=12" rel="stylesheet" />
 </head>
 <body class="report-body standardized-listing-page withdraw-approval-page bo-wallet-tx">
 <div class="report-shell">
@@ -38,20 +39,8 @@
 </aside>
 <div class="sidebar-overlay" data-close-sidebar="" id="reportOverlay"></div>
 <main class="report-main">
-<header class="report-topbar">
-<button class="hamb" data-open-sidebar=""><i class="bi bi-list"></i></button>
-<div class="user-title-wrap">
-<div class="user-title-icon"><i class="bi bi-cash-stack"></i></div>
-<div>
-<h1>Withdraw Approval</h1>
-<p>Review and process member withdrawal requests.</p>
-</div>
-</div>
-<div class="report-actions">
-<button type="button" class="bo-theme-btn" id="boThemeToggle" aria-pressed="false" title="Switch to dark mode" aria-label="Switch to dark mode"><i class="bi bi-sun-fill" data-theme-icon="sun"></i><i class="bi bi-moon-fill" data-theme-icon="moon" hidden></i></button>
-<div data-bo-profile=""></div>
-</div>
-</header>
+<header class="report-topbar" data-bo-topbar data-bo-title="Withdraw Approval" data-bo-icon="bi-cash-stack" data-bo-subtitle="Review and process member withdrawal requests."></header>
+<script src="assets/js/bo-topbar.js?v=1"></script>
 <section class="report-content">
 <div class="quick-stats approval-pending-stats deposit-bank-card-stats" id="withdrawBankCards">
 <article class="deposit-bank-card is-empty"><div class="deposit-bank-total"><span>Banks</span><strong>-</strong></div><div class="bo-summary-note">Loading bank totals...</div></article>

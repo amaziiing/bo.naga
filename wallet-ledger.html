@@ -434,22 +434,8 @@ html[data-bo-theme="dark"] .wallet-ledger-page .bo-tx-datetime{color:#D4D4D8}
 </aside>
 <div class="sidebar-overlay" data-close-sidebar="" id="reportOverlay"></div>
 <main class="report-main">
-<header class="report-topbar">
-<button class="hamb" data-open-sidebar=""><i class="bi bi-list"></i></button>
-<div class="user-title-wrap">
-<div class="user-title-icon"><i class="bi bi-journal-check"></i></div>
-<div>
-<h1>Wallet Ledger</h1>
-</div>
-</div>
-<div class="report-actions">
-      <button type="button" class="bo-theme-btn" id="boThemeToggle" aria-pressed="false" title="Switch to dark mode" aria-label="Switch to dark mode">
-        <i class="bi bi-sun-fill" data-theme-icon="sun"></i>
-        <i class="bi bi-moon-fill" data-theme-icon="moon" hidden></i>
-      </button>
-      <div data-bo-profile></div>
-    </div>
-</header>
+<header class="report-topbar" data-bo-topbar data-bo-title="Wallet Ledger" data-bo-icon="bi-journal-check"></header>
+<script src="assets/js/bo-topbar.js?v=1"></script>
 <section class="report-content">
 <nav class="bo-group-tabs" aria-label="Member sections">
 <a class="bo-group-tab" href="index.html" data-permission-url="index.html">User Management</a>
@@ -528,4 +514,5 @@ html[data-bo-theme="dark"] .wallet-ledger-page .bo-tx-datetime{color:#D4D4D8}
 <script src="assets/js/bo-theme.js?v=b1e789f3"></script>
 <script src="assets/js/bo-account-chip.js?v=8b9ce6d4"></script>
 </body>
-</link></link></head></html>
+</link></link><link href="assets/css/bo-topbar.css?v=12" rel="stylesheet" />
+</head></html>

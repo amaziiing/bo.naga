@@ -25,6 +25,7 @@
 <link href="assets/css/livechat-executive.css?v=177eeab8" rel="stylesheet" />
 <link href="assets/css/bo-scrollbar.css?v=7c2a456b" rel="stylesheet"/>
 <link href="assets/css/bo-field-standard.css?v=06f5ae19" rel="stylesheet">
+<link href="assets/css/bo-topbar.css?v=12" rel="stylesheet" />
 </head>
   <body class="report-body livechat-bo-page bo-charcoal bo-account-chip">
     <div class="report-shell">
@@ -37,22 +38,8 @@
       </aside>
       <div class="sidebar-overlay" id="reportOverlay" data-close-sidebar></div>
       <main class="report-main">
-        <header class="report-topbar">
-          <button class="hamb" data-open-sidebar type="button" aria-label="Toggle sidebar"><i class="bi bi-list"></i></button>
-                <div class="user-title-wrap">
-                    <div class="user-title-icon"><i class="bi bi-chat-dots"></i></div>
-                    <div>
-                        <h1>Live Chat</h1>
-                    </div>
-                </div>
-                <div class="report-actions">
-      <button type="button" class="bo-theme-btn" id="boThemeToggle" aria-pressed="false" title="Switch to dark mode" aria-label="Switch to dark mode">
-        <i class="bi bi-sun-fill" data-theme-icon="sun"></i>
-        <i class="bi bi-moon-fill" data-theme-icon="moon" hidden></i>
-      </button>
-      <div data-bo-profile></div>
-    </div>
-        </header>
+        <header class="report-topbar" data-bo-topbar data-bo-title="Live Chat" data-bo-icon="bi-chat-dots" data-bo-hamb-aria="Toggle sidebar"></header>
+<script src="assets/js/bo-topbar.js?v=1"></script>
         <section class="report-content">
           <div class="livechat-admin-shell">
             <aside class="livechat-inbox-card">

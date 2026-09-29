@@ -25,6 +25,8 @@
   else init();
 
   async function init(){
+    // SPA replay re-dispatches DOMContentLoaded; installSoundUnlock()/startReminderLoop() add document/window listeners and timers that accumulate, so init once.
+    if(window.__BO_LIVECHAT_INITED) return; window.__BO_LIVECHAT_INITED=1;
     installSoundUnlock();
     requestNotificationPermission();
     await resolveActiveBrand();

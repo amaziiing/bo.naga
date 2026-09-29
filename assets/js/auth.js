@@ -1577,6 +1577,10 @@
   // switch between Admin/Merchant/Provider/Report tabs — and between the page-level
   // module tabs, which are the same kind of link. No UI or routing is replaced.
   function warmWorkspaceTabs(){
+    // Runs from DOMContentLoaded, which bo-spa.js replays after every swap: without this
+    // guard each navigation appends another prefetch link for the same handful of targets.
+    if(window.__boTabsWarmed) return;
+    window.__boTabsWarmed = true;
     const seen=new Set();
     document.querySelectorAll('.mad-tabs a[href], .bo-module-tabs a[href]').forEach(function(a){
       let u;
@@ -1597,12 +1601,32 @@
     window.BO_AUTH.bindDynamicSidebarEvents();
     if('requestIdleCallback' in window) requestIdleCallback(warmWorkspaceTabs,{timeout:1200});
     else setTimeout(warmWorkspaceTabs,250);
+    /* bo-spa.js re-dispatches DOMContentLoaded after a content-only swap, so this handler
+       hears it once per navigation while the shell it binds to is never rebuilt. Two parts
+       of it must not simply repeat:
+
+       - the logout delegate. A second copy calls BO_AUTH.logout() twice per click, and one
+         copy leaked per navigation.
+       - the /me + menu-group round trip. Repeating it spends two requests per navigation
+         and ends in renderSidebar, which rebuilds the rail - exactly the rebuild this whole
+         change exists to avoid.
+
+       The round trip is still wanted "immediately after navigation" in the MPA sense (the
+       comment below), so it is not dropped: it is throttled to one per 30s. A real page
+       load has no throttle state to inherit and always refreshes, so a ROOT menu change is
+       still picked up on the next real load or within 30s, not only at login. */
+    if(!window.__boAuthBooted){
+      window.__boAuthBooted = true;
+      document.addEventListener('click', function(e){
+        const logout = e.target.closest && e.target.closest('[data-bo-logout]');
+        if(logout){ e.preventDefault(); window.BO_AUTH.logout(); }
+      });
+    }
     // Sidebar is intentionally rendered only after fresh DB-backed /me + menu-group data returns.
+    const now = Date.now();
+    if(window.__boMenusRefreshedAt && now - window.__boMenusRefreshedAt < 30000) return;
+    window.__boMenusRefreshedAt = now;
     window.BO_AUTH.refreshMe(true).then(function(){ return window.BO_AUTH.loadUiSetting(); }).catch(function(){ window.BO_AUTH.loadUiSetting(); });
-    document.addEventListener('click', function(e){
-      const logout = e.target.closest && e.target.closest('[data-bo-logout]');
-      if(logout){ e.preventDefault(); window.BO_AUTH.logout(); }
-    });
   });
 })();
 
@@ -1615,6 +1639,10 @@
   try{
     if(!(window.HTMLScriptElement && HTMLScriptElement.supports && HTMLScriptElement.supports('speculationrules'))) return;
     function arm(){
+      // Same replay concern as warmWorkspaceTabs: a second <script type="speculationrules">
+      // would duplicate every prefetch rule the first one already installed.
+      if(window.__boSpeculationArmed) return;
+      window.__boSpeculationArmed = true;
       var urls = {}, i;
       var links = document.querySelectorAll('.bo-module-tab[href], .report-nav a[href], #boTopbar a[href]');
       for(i=0;i<links.length;i++){

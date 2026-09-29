@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bo-spa="1" data-bo-shell="main">
 <head>
 <style>/* First-paint canvas. The real background (gradient, theme colours) comes from the external sheets, but until they arrive the browser paints its default white - visible as a white flash on every tab switch. This gives the canvas its colour before any request lands, and the sheets override it later (same specificity, later in the cascade). */html{background:#FFF8EB}html[data-bo-theme="dark"]{background:#2C2E38}</style>
 <script>!function(){try{var t=localStorage.getItem('bo_theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-bo-theme',t);}catch(e){}}();window.boShellBoot_disabled=function(){try{var pg=(location.pathname.split('/').pop()||'').toLowerCase();var h=localStorage.getItem('bo_shell_nav_v1_'+pg)||localStorage.getItem('bo_shell_nav_v1');if(!h)return;var u={};try{u=JSON.parse(localStorage.getItem('bo_admin_user')||'{}')||{};}catch(e){}var stamp=String(u.id||u.username||u.email||'');if(stamp&&localStorage.getItem('bo_shell_nav_user_v1')!==stamp)return;var nav=document.querySelector('.report-nav');if(nav)nav.innerHTML=h;}catch(e){}};</script>
@@ -22,7 +22,7 @@
 <link href="assets/css/bo-scrollbar.css?v=7c2a456b" rel="stylesheet"/>
 <link href="assets/css/bo-field-standard.css?v=06f5ae19" rel="stylesheet">
 <link href="assets/css/main-sidebar-account.css?v=07521ba9" rel="stylesheet"/>
-</head>
+<link href="assets/css/bo-global-quicknav.css?v=c84f0546" rel="stylesheet" data-bo-quicknav-css="1"/></head>
 <body class="report-body brand-agent-standard accounting-settlement-page bo-charcoal bo-account-chip" data-access-page="main_accounting_settlement">
 <div class="report-shell">
   <aside class="report-sidebar" id="reportSidebar">
@@ -126,13 +126,13 @@
 <script src="assets/js/config.js?v=8732ba44"></script>
 <script src="assets/js/brand-context.js?v=3bb07655"></script>
 <script src="assets/js/main-currency-runtime.js?v=bc97a89c"></script>
-<script src="assets/js/currency-runtime.js?v=71496e4c"></script>
-<script src="assets/js/reports.js?v=063b42e4"></script>
-<script src="assets/js/auth.js?v=6d248d0f.0.33"></script>
+<script src="assets/js/currency-runtime.js?v=b59f91f7"></script>
+<script src="assets/js/reports.js?v=9055601c"></script>
+<script src="assets/js/auth.js?v=3868fada"></script>
 <script src="assets/js/main-accounting-settlement.js?v=6ca9bd6e"></script>
 <script src="assets/js/bo-ui-standard.js?v=e18e682d"></script>
 <script src="assets/js/bo-theme.js?v=b1e789f3"></script>
 <script src="assets/js/bo-account-chip.js?v=1.0.20"></script>
 <script src="assets/js/main-sidebar-account.js?v=1.0.20"></script>
-<script src="assets/js/bo-spa.js?v=43645778"></script>
+<script src="assets/js/bo-spa.js?v=f203b6e6"></script>
 </body></html>

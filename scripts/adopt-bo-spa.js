@@ -1,0 +1,180 @@
+#!/usr/bin/env node
+/* Adopt a BO page into the client-side navigation shell (see assets/js/bo-spa.js).
+
+   WHAT IT WRITES, AND WHY EACH LINE IS NEEDED FOR SMOOTHNESS RATHER THAN LOOKS
+
+   1. data-bo-spa="1" and data-bo-shell="bo|main" on <html>
+      bo-spa.js is inert without the first, and it refuses to swap into a page that has not
+      opted in - so rolling out is incremental and an untouched page still gets a real
+      navigation. The second is the shell identity the router compares: it is stamped here,
+      from the file name, instead of being guessed from <body> class substrings (which gets
+      30 of the 147 pages wrong, including classifying every agent-portal page as BO).
+
+   2. the first-paint canvas <style> as the first child of <head> - BO SHELL ONLY.
+      The real canvas colour comes from an external sheet, and until that sheet lands the
+      browser paints its own white - the flash on every navigation.
+
+      NOT on the Main-panel shell. That was already tried and reverted (d0eac459, "Take the
+      first-paint canvas off the Main-panel pages"): the main-* pages load none of the
+      charcoal/wallet sheets, so nothing overrides the inline value and this very block
+      repainted their canvas cream. The real criterion is "this page's own sheets override
+      html's background", and the bo shell is that set - so the block is granted to 'bo'.
+
+      Granted, never taken away. An earlier version of this script also deleted the block
+      from every non-'bo' page, which was too broad in both directions: d0eac459 removed it
+      from 24 pages, not from the 15 other Main-panel pages that legitimately carry one, and
+      the deletion left an empty line behind. A page whose shell changes must be looked at,
+      not swept.
+      Colour only, no metric: the drift guard stays happy.
+
+   3. the theme bootstrap <script>, immediately after it
+      Sets html[data-bo-theme] from localStorage during parse, so the dark theme is
+      already applied when the first sheet is matched. 9 pages were missing it and
+      flashed light before turning dark.
+
+   4. <link rel="stylesheet"> for bo-global-quicknav.css at the END of <head>
+      auth.js#mountSidebarToggle used to inject this sheet from a body-end script, so on
+      every page load the rail painted once and was then RESTYLED when the sheet arrived
+      (it carries the pin button and the row's right padding). That late re-style is the
+      "the sidebar font/layout jumps" report. Pinned last in <head> keeps the cascade
+      position it had as the last thing injected, and the data-bo-quicknav-css attribute
+      is what auth.js checks for - without it, it would inject a second copy.
+
+   Idempotent: run it again and it writes nothing. Run with --check to report only.
+
+       node scripts/adopt-bo-spa.js            # rewrite
+       node scripts/adopt-bo-spa.js --check    # report what is missing, write nothing
+*/
+
+'use strict';
+const fs = require('fs');
+const path = require('path');
+
+const ROOT = path.resolve(__dirname, '..');
+const CHECK = process.argv.includes('--check');
+
+/* The pages that actually render the shared shell. A page without it has nothing for the
+   router to keep mounted, and bo-spa.js would exit on its own anyway. */
+const SHELL = /data-bo-topbar|<nav class="report-nav"/;
+
+/* The agent portal is deliberately left out. AGENTS.md: it "uses agent-portal.js and its
+   own profile host" and keeps its own shell, so it is not the shared BO shell and must not
+   be unified with it. Its rail is painted by agent-portal.js#initShell from the agent's own
+   /agent/me payload, not by auth.js#renderSidebar, so a swap would have neither the render
+   path nor the correct shell - it would just lose its navigation. Excluded here rather than
+   in bo-spa.js so that the reason is recorded next to the rollout, not only in the router. */
+const EXCLUDED = /^agent-/;
+
+/* Shell identity, declared instead of inferred. bo-spa.js compares this value and refuses
+   to swap when it differs or is absent. The rule is the file-name rule AGENTS.md already
+   uses to scope the shell, which is the only one that gets all 147 pages right - matching
+   on body-class substrings misclassifies 30 of them (every agent page reads as BO, and
+   main-accounting-report / main-profile / main-stat-detail / main-balance-adjustment carry
+   no `main-` token). */
+function shellOf(name) {
+  if (EXCLUDED.test(name)) return 'agent';
+  if (/^main[-_]/.test(name) || name === 'menu-permission.html') return 'main';
+  return 'bo';
+}
+
+const CANVAS =
+  '/* First-paint canvas. The real background (gradient, theme colours) comes from the ' +
+  'external sheets, but until they arrive the browser paints its default white - visible ' +
+  'as a white flash on every tab switch. This gives the canvas its colour before any ' +
+  'request lands, and the sheets override it later (same specificity, later in the ' +
+  'cascade). */' +
+  'html{background:#FFF8EB}html[data-bo-theme="dark"]{background:#2C2E38}';
+
+const THEME_BOOT =
+  '<script>!function(){try{var t=localStorage.getItem(\'bo_theme\');' +
+  'if(t===\'dark\'||t===\'light\')document.documentElement.setAttribute(\'data-bo-theme\',t);}' +
+  'catch(e){}}();</script>';
+
+const QUICKNAV_LINK =
+  '<link href="assets/css/bo-global-quicknav.css?v=0" rel="stylesheet" data-bo-quicknav-css="1"/>';
+
+/* The exact string this script inserts, so the block it writes has one wording. The pages
+   that already carried one were written earlier and say "tab switch" rather than
+   "navigation", which is why nothing here matches the canvas by its comment text. */
+const CANVAS_BLOCK = '<style>' + CANVAS + '</style>';
+function headTag(html) {
+  const m = html.match(/<head[^>]*>/i);
+  return m ? { tag: m[0], at: m.index + m[0].length } : null;
+}
+
+function transform(html, shell) {
+  const notes = [];
+
+  // 1. data-bo-spa + data-bo-shell on <html>. Tested against the <html> tag alone, not the
+  // whole document: a page that merely mentions the attribute further down must still get
+  // its own tag stamped.
+  const tag = html.match(/<html[^>]*>/i);
+  if (tag && (!/data-bo-spa=/i.test(tag[0]) || !/data-bo-shell=/i.test(tag[0]))) {
+    html = html.replace(/<html([^>]*)>/i, function (all, attrs) {
+      let next = attrs;
+      if (!/data-bo-spa=/i.test(next)) { next += ' data-bo-spa="1"'; notes.push('data-bo-spa'); }
+      if (!/data-bo-shell=/i.test(next)) { next += ' data-bo-shell="' + shell + '"'; notes.push('data-bo-shell=' + shell); }
+      return '<html' + next + '>';
+    });
+  }
+
+  const head = headTag(html);
+
+  // 2. + 3. canvas and theme bootstrap, at the very top of <head> so both run before any
+  // stylesheet is matched.
+  const wantsCanvas = shell === 'bo' && !/First-paint canvas/.test(html);
+  const wantsTheme = !/localStorage\.getItem\('bo_theme'\)/.test(html);
+  if (head && (wantsCanvas || wantsTheme)) {
+    const inject = (wantsCanvas ? CANVAS_BLOCK : '') +
+                   (wantsTheme ? THEME_BOOT : '');
+    html = html.slice(0, head.at) + inject + html.slice(head.at);
+    if (wantsCanvas) notes.push('first-paint canvas');
+    if (wantsTheme) notes.push('theme bootstrap');
+  }
+
+  if (!head) return { html, notes };
+
+  // 4. the quicknav sheet, pinned last in <head> (see the header comment).
+  if (!/bo-global-quicknav\.css/.test(html)) {
+    // Prefer </head>. One page (casino-overview-report.html) ships a <head> with no closing
+    // tag at all - the browser copes, but a search for </head> finds nothing and the sheet
+    // was silently skipped there. Fall back to the last moment still inside the head: the
+    // start of the body. Reported rather than silently skipped when neither exists.
+    let close = html.search(/<\/head>/i);
+    if (close === -1) close = html.search(/<body[\s>]/i);
+    if (close === -1) {
+      notes.push('!! NO </head> AND NO <body>: quicknav css NOT inserted');
+    } else {
+      html = html.slice(0, close) + QUICKNAV_LINK + html.slice(close);
+      notes.push('quicknav css');
+    }
+  }
+
+  return { html, notes };
+}
+
+function main() {
+  const files = fs.readdirSync(ROOT)
+    .filter((f) => f.endsWith('.html') && !f.startsWith('_') && !f.startsWith('.'))
+    .sort();
+
+  const touched = [];
+  for (const name of files) {
+    const file = path.join(ROOT, name);
+    const before = fs.readFileSync(file, 'utf8');
+    if (before.indexOf('\u0000') !== -1) continue;   // not text
+    if (!SHELL.test(before)) continue;
+    if (EXCLUDED.test(name)) continue;
+    const { html, notes } = transform(before, shellOf(name));
+    if (!notes.length) continue;
+    touched.push({ name, notes });
+    if (!CHECK) fs.writeFileSync(file, html, 'utf8');
+  }
+
+  const noun = CHECK ? 'needs' : 'updated';
+  console.log(`${touched.length} page(s) ${noun} changes`);
+  for (const t of touched) console.log(`  ${t.name.padEnd(42)} ${t.notes.join(', ')}`);
+  if (!touched.length) console.log('  (nothing to do)');
+}
+
+main();

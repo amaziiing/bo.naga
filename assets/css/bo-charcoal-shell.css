@@ -4668,3 +4668,17 @@ body.main-admin-security-page.main-merchant-security-page .mas-search{
    eased pair reads as "the new page arrived" instead of "something faded". */
 ::view-transition-old(root){animation-duration:.14s;animation-timing-function:cubic-bezier(.4,0,1,1)}
 ::view-transition-new(root){animation-duration:.22s;animation-timing-function:cubic-bezier(0,0,.2,1)}
+
+/* Hold the shell across a navigation instead of re-painting it. Naming these blocks
+   makes Chrome treat the rail, the topbar and the module tab row as the same elements on
+   both sides of the swap: the shell is lifted out of the crossfade entirely (no pop, no
+   fade - it just stays), while the content area behind it still crossfades. The rail and
+   topbar are identical on both sides, so their groups are not animated at all; the tab row
+   has a different active tab, so it keeps its default animation and morphs. */
+.report-sidebar{view-transition-name:boShellRail}
+.report-topbar{view-transition-name:boShellTopbar}
+.bo-module-tabs{view-transition-name:boShellTabs}
+::view-transition-group(boShellRail),
+::view-transition-group(boShellTopbar){
+  animation:none;
+}

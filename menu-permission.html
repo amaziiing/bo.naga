@@ -26,7 +26,6 @@
 <link href="assets/css/access-control-executive.css?v=e547aa8e" rel="stylesheet" />
 <link href="assets/css/bo-scrollbar.css?v=7c2a456b" rel="stylesheet"/>
 <link href="assets/css/bo-field-standard.css?v=06f5ae19" rel="stylesheet">
-<link href="assets/css/bo-topbar.css?v=12" rel="stylesheet" />
 </head>
 <body class="report-body standardized-listing-page menu-permission-page bo-access-control" data-access-page="menu-permission">
 <div class="report-shell">
@@ -36,8 +35,21 @@
 </aside>
 <div class="sidebar-overlay" data-close-sidebar="" id="reportOverlay"></div>
 <main class="report-main">
-<header class="report-topbar" data-bo-topbar data-bo-title="Roles &amp; Permissions" data-bo-icon="bi-file-earmark-text"></header>
-<script src="assets/js/bo-topbar.js?v=1"></script>
+<header class="report-topbar"><button class="hamb" data-open-sidebar=""><i class="bi bi-list"></i></button>
+<div class="user-title-wrap">
+  <div class="user-title-icon"><i class="bi bi-file-earmark-text"></i></div>
+  <div>
+    <h1>Roles &amp; Permissions</h1>
+  </div>
+</div>
+<div class="report-actions">
+<button type="button" class="bo-theme-btn" id="boThemeToggle" aria-pressed="false" title="Switch to dark mode" aria-label="Switch to dark mode">
+  <i class="bi bi-sun-fill" data-theme-icon="sun"></i>
+  <i class="bi bi-moon-fill" data-theme-icon="moon" hidden></i>
+</button>
+<div data-bo-profile=""></div>
+</div>
+</header>
 
 <section class="report-content mp-workspace">
   <div class="mad-chrome mp-chrome">

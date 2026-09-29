@@ -52,6 +52,25 @@ html:has(.report-topbar[data-bo-topbar]){
   scrollbar-gutter:stable;
 }
 
+/* 0c. Same content frame width everywhere. The page body was inset 18px on most BO
+   pages, 22px on the referral / member-deposit family and 16px on promotion / game, so
+   the whole frame measured 1272px / 1264px / 1276px and looked narrower on some pages
+   when paging. 18px is the majority. Desktop only, like the header inset above.
+   The id-guard again out-ranks the referral family's own inset. */
+@media (min-width:1024px){
+  html:not(#bo-charcoal-off) body.report-body .report-shell .report-main .report-content{
+    padding-left:18px!important;
+    padding-right:18px!important;
+  }
+  /* The referral family sets its own inset through a two-id guard, so a plain class
+     chain ties with it; mirroring that selector and loading later wins the tie. */
+  html:not([data-bo-theme="dark"]) body:not(#bo-charcoal-off):not(#bo-charcoal-legacy).referral-page.report-body.bo-charcoal .report-content,
+  html[data-bo-theme="dark"] body:not(#bo-charcoal-off):not(#bo-charcoal-legacy).referral-page.report-body.bo-charcoal .report-content{
+    padding-left:18px!important;
+    padding-right:18px!important;
+  }
+}
+
 /* 1. Page title */
 .report-topbar[data-bo-topbar] .user-title-wrap h1{
   font-size:22px!important;
@@ -133,6 +152,26 @@ html:has(.report-topbar[data-bo-topbar]){
 .report-shell .report-main .report-topbar[data-bo-topbar] .report-actions [data-bo-profile] .bo-header-counter-text{
   padding-right:0!important;
   gap:1px!important;
+  justify-content:center!important;
+}
+
+/* Line heights decide where the label and the number sit. Left to the themes they came
+   out as 19.8px / 18px / 18.9px for the number and the stack ended up 32.3px / 30.5px /
+   34.4px tall, so the chip's vertical centring put "MEMBERS 0" at a different height on
+   each page (roughly 1px, which is what the eye catches when paging). 1.1 and 1.05 are
+   the majority values - User Management, Referral, Brand, Promotion, Game, Casino,
+   Livechat and VIP Level all already resolve to them. */
+.report-shell .report-main .report-topbar[data-bo-topbar] .report-actions [data-bo-profile] .bo-header-counter-text small{
+  line-height:1.05!important;
+  margin-top:0!important;
+  margin-bottom:0!important;
+}
+.report-shell .report-main .report-topbar[data-bo-topbar] .report-actions [data-bo-profile] .bo-header-counter-text b{
+  line-height:1.1!important;
+  /* The executive sheets add margin-top:3px to the number, which pushed the stack down
+     by 3px on those pages. */
+  margin-top:0!important;
+  margin-bottom:0!important;
 }
 .report-shell .report-main .report-topbar[data-bo-topbar] .report-actions [data-bo-profile] .bo-header-counter-text small{
   font-size:11px!important;
@@ -188,6 +227,42 @@ html[data-bo-theme="dark"] .report-shell .report-main .report-topbar[data-bo-top
    measures the same. */
 .report-shell .report-main .report-topbar[data-bo-topbar] .report-actions [data-bo-profile] .bo-account-setting-icon[hidden]{
   display:none!important;
+}
+
+/* 2d. Counter icon slot: every counter carries a 1px outline in its own hue, and the
+   fill is the same hue a step lighter. Only the wallet theme shipped the outline, so on
+   the other pages the three icon squares looked flat - that is the "边框" difference.
+   Tints are pinned per counter type for light and dark so the three read identically on
+   every adopted page; box-sizing keeps the 38px slot unchanged when the border lands. */
+.report-shell .report-main .report-topbar[data-bo-topbar] .report-actions [data-bo-profile] .bo-header-counter-icon{
+  box-sizing:border-box!important;
+  border-radius:8px!important;
+  border-width:1px!important;
+  border-style:solid!important;
+}
+.report-shell .report-main .report-topbar[data-bo-topbar] .report-actions [data-bo-profile] .bo-header-counter-icon.members{
+  background:rgba(24,25,28,.08)!important;
+  border-color:rgba(24,25,28,.12)!important;
+}
+.report-shell .report-main .report-topbar[data-bo-topbar] .report-actions [data-bo-profile] .bo-header-counter-icon.deposit{
+  background:rgba(217,119,6,.18)!important;
+  border-color:rgba(217,119,6,.28)!important;
+}
+.report-shell .report-main .report-topbar[data-bo-topbar] .report-actions [data-bo-profile] .bo-header-counter-icon.withdraw{
+  background:rgba(180,83,9,.14)!important;
+  border-color:rgba(180,83,9,.28)!important;
+}
+html[data-bo-theme="dark"] .report-shell .report-main .report-topbar[data-bo-topbar] .report-actions [data-bo-profile] .bo-header-counter-icon.members{
+  background:rgba(245,245,244,.10)!important;
+  border-color:rgba(245,245,244,.18)!important;
+}
+html[data-bo-theme="dark"] .report-shell .report-main .report-topbar[data-bo-topbar] .report-actions [data-bo-profile] .bo-header-counter-icon.deposit{
+  background:rgba(245,158,11,.20)!important;
+  border-color:rgba(245,158,11,.34)!important;
+}
+html[data-bo-theme="dark"] .report-shell .report-main .report-topbar[data-bo-topbar] .report-actions [data-bo-profile] .bo-header-counter-icon.withdraw{
+  background:rgba(217,119,6,.18)!important;
+  border-color:rgba(217,119,6,.32)!important;
 }
 
 /* 3. Theme toggle slot + glyph (bo-theme.js keeps the sun/moon state) */

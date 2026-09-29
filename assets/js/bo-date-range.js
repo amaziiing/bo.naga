@@ -47,7 +47,10 @@
       start=nextStart;end=nextEnd;from.value=start;to.value=end;
       syncText();syncPresetActive();
       if(!changed)return false;
-      from.dispatchEvent(new Event('change',{bubbles:true}));
+      // A completed range is one logical filter change. Both hidden values are
+      // already updated above, so emit exactly ONE native change event. Emitting
+      // one event for each hidden input made report pages load twice for a single
+      // preset click and allowed their loading/render paths to visibly jump.
       to.dispatchEvent(new Event('change',{bubbles:true}));
       return true;
     }
@@ -70,7 +73,8 @@
         }else{
           if(v<start){end=start;start=v}else end=v;
           from.value=start;to.value=end;
-          from.dispatchEvent(new Event('change',{bubbles:true}));
+          // The range becomes valid only after the end date is chosen. Notify
+          // consumers once, after BOTH hidden values contain the final range.
           to.dispatchEvent(new Event('change',{bubbles:true}));
           syncText();syncPresetActive();render();
           setTimeout(()=>pop.classList.remove('show'),120);

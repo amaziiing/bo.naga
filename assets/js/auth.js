@@ -254,6 +254,23 @@
     },
     enforcePageAccess: function(user){
       user = user || this.user();
+      // Production portal isolation mirrors the backend login rule. This also
+      // prevents a token/session copied from the other subdomain from rendering
+      // the wrong portal. Local/dev hosts keep the existing behavior unchanged.
+      try{
+        const host = String(location.hostname || '').toLowerCase();
+        const roleType = String((user && user.roleType) || '').toUpperCase();
+        const isMain = roleType === 'MAIN' || (user && user.mainAdmin === true) || Number(user && user.mainAdmin) === 1;
+        const mainPortal = host === 'main.titanx7.com' || host === 'www.main.titanx7.com';
+        const boPortal = host === 'bo.titanx7.com';
+        if((mainPortal && !isMain) || (boPortal && isMain)){
+          localStorage.removeItem(this.tokenKey);
+          localStorage.removeItem(this.userKey);
+          try{ sessionStorage.removeItem('bo_login_return_to'); }catch(ignore){}
+          window.location.replace('login.html');
+          return false;
+        }
+      }catch(ignore){}
       // ROOT is the unrestricted platform owner. ROOT must never depend on
       // admin_role_menu assignments to open BO pages; role/menu assignments are
       // for accounts that ROOT manages (MASTER/MAIN/brand/custom roles). Backend

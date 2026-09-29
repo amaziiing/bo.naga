@@ -73,3 +73,84 @@ the pre-commit guard covers.
 
 After deploying or migrating, confirm the result rather than assuming: check the file that
 should now exist, or the value that should now be applied.
+
+## The BO shell (topbar · sidebar · content frame)
+
+`assets/css/bo-shell.css` is the **single source of truth for every layout metric** of the
+BO shell. Metrics means: `padding*`, `gap*`, `font-size`, `font-weight`, `line-height`,
+`letter-spacing`, `height`, `min-height`, `flex*`. Theme sheets keep colours, backgrounds,
+border colours, shadows and custom properties - they do not own layout.
+
+This exists because the same shell was re-declared ~2600 times across the module sheets
+(`bo-charcoal-shell.css`, `bo-wallet-transaction-amber.css`, `reports.css`, the
+`*-executive.css` family). The same sidebar row therefore sat at a different height on
+different pages, and the header inset, the counter row, the counter icon outline, the
+counter number line-height, the content frame width and the Logout block each drifted.
+Every fix had to be forced through with `!important`. Do not reintroduce that pattern.
+
+### The drift guard
+
+`scripts/check-shell-drift.js` fails on a **new** metric declaration on a shell selector
+in any stylesheet other than `bo-shell.css`. It is wired into
+`scripts/git-hooks/pre-commit` and runs **first and unconditionally** - put it anywhere
+after the deletion check and that check's `[ -z "$deleted" ] && exit 0` silently skips it
+(this mistake was made once and caught by testing, not by reading).
+
+`scripts/shell-drift-baseline.json` records the declarations that already existed, so the
+guard is enforceable today: only new drift fails. Remove a baseline entry when you remove
+its declaration.
+
+    node scripts/check-shell-drift.js                    # check (exit 1 on new drift)
+    node scripts/check-shell-drift.js --list             # every current violation
+    node scripts/check-shell-drift.js --update-baseline  # re-record the current state
+
+The hook is per-clone (like the deletion guard above):
+
+    cp scripts/git-hooks/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+
+### Scope: BO pages only
+
+The BO shell applies to the normal backoffice pages. The **Main panel** (`main-*`,
+`main_*`, `menu-permission.html`) and the **agent portal** (`agent-*.html`, which uses
+`agent-portal.js` and its own profile host) keep their own shells. Do not unify them.
+
+### Adding a BO page
+
+The page needs three lines plus a menu row - the shell is rendered, not copied:
+
+    <link href="assets/css/bo-shell.css?v=N" rel="stylesheet" />          <!-- in <head> -->
+    <header class="report-topbar" data-bo-topbar></header>                 <!-- first in <main> -->
+    <script src="assets/js/bo-topbar.js?v=1"></script>                    <!-- immediately after it -->
+
+The script must sit **immediately after the header**: `reports.js` and `bo-theme.js` bind
+`[data-open-sidebar]` / `#boThemeToggle` at `DOMContentLoaded`, so mounting during parse is
+what keeps those bindings working and avoids an empty-header flash.
+
+Title and icon come from the menu row (Menu Management) matched by URL, falling back to
+`document.title`. Add a menu row for the page, or pin them on the header:
+
+    data-bo-title / data-bo-icon    pin a title or icon for a page with no menu row
+    data-bo-subtitle                optional second line under the title
+    data-bo-h1-id                   when page JS uses an id on the h1
+    data-bo-title-block-class       when the page wraps the title in its own class
+    data-bo-title-row-class         when the title sits in a row beside a status pill
+    data-bo-hamb-aria / data-bo-icon-id / data-bo-icon-aria   aria + ids on those slots
+    <span data-bo-topbar-title-extra>  a live counter/badge that belongs beside the title
+    <span data-bo-topbar-extra>        page-specific buttons inside the right-hand group
+
+**Do not write shell metric CSS in the new page or in its module sheet.** Colours are
+fine. The guard will refuse the commit and name the file, selector and property.
+
+### Changing the shell design
+
+Edit `bo-shell.css` once and every adopted page follows - that is the point. Verify by
+rendering a sample across themes (a charcoal page, a `bo-wallet-tx` page, and one without
+either) and comparing **computed values**, not by eye alone.
+
+### Measuring a shell problem
+
+Measure the element that actually carries the text or the box in question, not its
+container. Two real misses in this codebase: a `letter-spacing` that made one page's
+sidebar read cramped was set on the label `<span>` (inherited from the open group button's
+`-0.01em`) while the row element reported `normal`; and the theme toggle's icon size lives
+on `i[data-theme-icon]`, not on the button, whose inherited `font-size` does not matter.

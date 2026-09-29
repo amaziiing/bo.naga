@@ -203,7 +203,10 @@
     // menu-management.html), so filename-only detection is not sufficient. Hide
     // Dashboard pin controls by authenticated account type as well as main-* page name.
     const isMainPanel = isMainAccount || /^main[-_]/i.test(currentFile);
-    const pinHtml = isMainPanel ? '' :
+    // Dashboard is the host workspace for pinned shortcuts, so it must never pin itself.
+    // Excluding it here also prevents the sidebar row from shifting due to a useless pin icon.
+    const isDashboardMenu = pageFile(m.url || '') === 'dashboard.html';
+    const pinHtml = (isMainPanel || isDashboardMenu) ? '' :
       '<button type="button" class="bo-sidebar-pin '+(pinned?'is-pinned':'')+'" data-bo-pin-menu="'+esc(m.menuKey)+'" title="'+(pinned?'Unpin from Dashboard':'Pin to Dashboard')+'" aria-label="'+(pinned?'Unpin from Dashboard':'Pin to Dashboard')+'"><i class="bi '+(pinned?'bi-pin-angle-fill':'bi-pin-angle')+'"></i></button>';
     // A top-level page row has no panel of its own, so its label travels in the
     // attribute and is painted by the rail label panel while the sidebar is collapsed.
@@ -776,7 +779,9 @@
       const topbar=document.querySelector('.report-main > .report-topbar');if(!topbar)return;
       if(!nav){nav=document.createElement('nav');nav.id='boGlobalQuickNav';nav.className='bo-global-quicknav';nav.setAttribute('aria-label','Dashboard pinned pages');topbar.insertAdjacentElement('afterend',nav);}
       const user=this.user();
-      const all=(Array.isArray(user&&user.menus)?user.menus:[]).map(normalizeMenu).filter(m=>m.status===1&&m.url&&m.url!=='#');
+      // Dashboard itself is never a quick-nav item; it is the container that hosts them.
+      // This also removes any legacy Dashboard pin already saved in ui-setting.
+      const all=(Array.isArray(user&&user.menus)?user.menus:[]).map(normalizeMenu).filter(m=>m.status===1&&m.url&&m.url!=='#'&&pageFile(m.url)!=='dashboard.html');
       const allowed=new Map(all.map(m=>[m.menuKey,m]));let chosen=[];
       (cfg&&Array.isArray(cfg.headerMenuKeys)?cfg.headerMenuKeys:[]).forEach(k=>{const m=allowed.get(k);if(m)chosen.push(m);});
       const cols=Math.max(1,Math.min(12,chosen.length));nav.style.setProperty('--bo-nav-cols',String(cols));

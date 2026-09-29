@@ -207,6 +207,10 @@
     document.querySelectorAll('[data-header-new-members]').forEach(function(el){ el.textContent = counts.members.toLocaleString(); });
     document.querySelectorAll('[data-header-pending-deposit]').forEach(function(el){ el.textContent = counts.deposit.toLocaleString(); });
     document.querySelectorAll('[data-header-pending-withdraw]').forEach(function(el){ el.textContent = counts.withdraw.toLocaleString(); });
+    // Publish the same realtime snapshot to an already-open transaction page.
+    // Header notification and table data previously ran independently, so the
+    // badge/sound could update while Withdraw stayed stale until manual refresh.
+    try { document.dispatchEvent(new CustomEvent('bo:operation-counts', {detail:counts})); } catch(e){}
   }
 
   function bindHeaderAcknowledgement(){

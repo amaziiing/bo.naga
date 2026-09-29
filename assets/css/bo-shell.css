@@ -71,6 +71,73 @@ html:has(.report-topbar[data-bo-topbar]){
   }
 }
 
+/* 0d. Sidebar rows. The BO rail drifts the same way the header did: the wallet family
+   (member-wallet / wallet-ledger / member-deposit) ships its own rail metrics, so the
+   same category sat 5px higher there than on User Management and the row text rendered
+   at weight 800 instead of 900. Measured across 11 BO pages, 8 already resolve to the
+   values pinned below, so this is the majority rather than a new opinion.
+     .report-nav          padding 12px 10px 10px, gap 3px   (== the row drift source)
+     top-level row        weight 900, line-height 21px
+     sub item             weight 600, line-height 15.6px, padding 9px 38px 9px 10px
+   The id-guard matches the idiom the theme sheets use so this wins on BO pages only. */
+html:not(#bo-charcoal-off) body.report-body .report-shell .report-sidebar .report-nav{
+  padding:12px 10px 10px!important;
+  gap:3px!important;
+}
+html:not(#bo-charcoal-off) body.report-body .report-shell .report-sidebar .report-nav > a,
+html:not(#bo-charcoal-off) body.report-body .report-shell .report-sidebar .report-nav .nav-group-btn{
+  font-size:14px!important;
+  font-weight:900!important;
+  line-height:21px!important;
+}
+/* Some themes put a -0.01em tracking on the OPEN group's button
+   (bo-charcoal-shell.css: `.report-sidebar .nav-group.open > .nav-group-btn`), which the
+   label span inherits as -0.14px at 14px. The wallet family never had it, so the very
+   same row read cramped on one page and loose on another. Normalise the whole rail to
+   no tracking - label spans included, since that is where it was actually inherited. */
+html:not(#bo-charcoal-off) body.report-body .report-shell .report-sidebar .report-nav > a,
+html:not(#bo-charcoal-off) body.report-body .report-shell .report-sidebar .report-nav > a span,
+html:not(#bo-charcoal-off) body.report-body .report-shell .report-sidebar .report-nav .nav-group-btn,
+html:not(#bo-charcoal-off) body.report-body .report-shell .report-sidebar .report-nav .nav-group-btn span,
+html:not(#bo-charcoal-off) body.report-body .report-shell .report-sidebar .report-nav .report-sub,
+html:not(#bo-charcoal-off) body.report-body .report-shell .report-sidebar .report-nav .report-sub span,
+html:not(#bo-charcoal-off) body.report-body .report-shell .report-sidebar .bo-sidebar-logout span{
+  letter-spacing:normal!important;
+}
+
+html:not(#bo-charcoal-off) body.report-body .report-shell .report-sidebar .report-nav .report-sub{
+  font-size:13px!important;
+  font-weight:600!important;
+  line-height:15.6px!important;
+  padding:9px 38px 9px 10px!important;
+}
+/* casino-overview-report resolved the sub label to 17.55px line-height against 15.6px
+   everywhere else; pin the span too so the sub rows keep the same rhythm. */
+html:not(#bo-charcoal-off) body.report-body .report-shell .report-sidebar .report-nav .report-sub span{
+  line-height:15.6px!important;
+}
+
+/* 0e. Logout block. The wallet family pads the sidebar footer 10px 10px 12px, which
+   makes it 3px taller and lifts the Logout button 2px versus every other BO page.
+   8 of 11 sampled pages use the flat 10px. */
+html:not(#bo-charcoal-off) body.report-body .report-shell .report-sidebar .bo-sidebar-account-footer{
+  padding:10px!important;
+  /* The wallet family lays the footer out as a block, which rounds the Logout row to
+     68.5px against 68.0px everywhere else - a 1px lift of the button. flex is the
+     majority and the exact 68px. */
+  display:flex!important;
+  flex-direction:column!important;
+  height:68px!important;
+  box-sizing:border-box!important;
+}
+/* The Logout row is content-sized, and its icon/text rounding lands on 47.0px on some
+   pages and 47.5px on others - the half pixel that kept the button 1px apart. Both boxes
+   are pinned so the rounding cannot move it: 68px footer (majority) + 47px row. */
+html:not(#bo-charcoal-off) body.report-body .report-shell .report-sidebar .bo-sidebar-logout{
+  height:47px!important;
+  box-sizing:border-box!important;
+}
+
 /* 1. Page title */
 .report-topbar[data-bo-topbar] .user-title-wrap h1{
   font-size:22px!important;
@@ -98,14 +165,15 @@ html:has(.report-topbar[data-bo-topbar]){
   }
 }
 
-/* 2. Title icon: the round slot and the glyph inside it */
-.report-topbar[data-bo-topbar] .user-title-icon{
+/* 2. Title icon: the round slot and the glyph inside it. The id-guard is needed because
+   a couple of page families set an 18px glyph through their own guarded chain. */
+html:not(#bo-charcoal-off) body.report-body .report-shell .report-main .report-topbar[data-bo-topbar] .user-title-icon{
   width:36px!important;
   height:36px!important;
   flex:0 0 36px!important;
   font-size:20px!important;
 }
-.report-topbar[data-bo-topbar] .user-title-icon i{
+html:not(#bo-charcoal-off) body.report-body .report-shell .report-main .report-topbar[data-bo-topbar] .user-title-icon i{
   font-size:20px!important;
 }
 

@@ -16,6 +16,26 @@ if [ -d .git/rebase-merge ] || [ -d .git/rebase-apply ] || [ -f .git/MERGE_HEAD 
   exit 0
 fi
 
+# Shell drift guard. Runs FIRST and unconditionally, before any early exit below:
+# the deletion check further down returns early on the common case ("nothing deleted"),
+# which silently skipped this guard while it lived there.
+#
+# The BO shell (topbar / sidebar rail / content frame) is defined once, in
+# assets/css/bo-shell.css. The per-module theme sheets used to re-declare the same
+# layout metrics with slightly different values, which is what made the same sidebar row
+# sit at a different height on different pages, and the header inset, counter row, icon
+# outline, number line-height and Logout block each drift.
+# check-shell-drift.js refuses a NEW metric declaration on a shell selector; the ones
+# that already exist are recorded in scripts/shell-drift-baseline.json and get retired
+# one theme at a time.
+if command -v node >/dev/null 2>&1; then
+  if ! node scripts/check-shell-drift.js; then
+    printf '\n  ⛔ commit blocked — shell drift guard failed (details above).\n'
+    printf '     Bypass with: git commit --no-verify\n\n'
+    exit 1
+  fi
+fi
+
 # Need origin/main to compare against; fall back silently if it is not available.
 git rev-parse --verify --quiet origin/main >/dev/null 2>&1 || exit 0
 

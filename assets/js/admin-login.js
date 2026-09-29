@@ -24,6 +24,26 @@
         });
         const json = await res.json().catch(() => ({}));
         if(!res.ok || json.status === 'error') throw new Error(json.message || 'Login failed');
+        // Validate the authenticated account against the portal BEFORE saving the
+        // session or navigating. The page guard remains as a second line of defense,
+        // but a wrong-portal login must behave like a failed login on this screen
+        // instead of briefly entering the BO and then bouncing back to login.
+        const loginUser = json.data || {};
+        const host = String(window.location.hostname || '').toLowerCase();
+        const roleType = String(loginUser.roleType || '').toUpperCase();
+        const isMain = roleType === 'MAIN' || loginUser.mainAdmin === true || Number(loginUser.mainAdmin) === 1;
+        const mainPortal = host === 'main.titanx7.com' || host === 'www.main.titanx7.com';
+        const boPortal = host === 'bo.titanx7.com';
+        if ((mainPortal && !isMain) || (boPortal && isMain)) {
+          // Do not persist a token issued for an account that belongs to the other portal.
+          try {
+            localStorage.removeItem(BO_AUTH.tokenKey);
+            localStorage.removeItem(BO_AUTH.userKey);
+            sessionStorage.removeItem('bo_login_return_to');
+          } catch(ignore) {}
+          throw new Error('Invalid password');
+        }
+
         BO_AUTH.save(json);
         try {
           const loginMarker = Date.now() + '-' + Math.random().toString(36).slice(2);

@@ -320,13 +320,11 @@ html body:not(#bo-charcoal-off).report-body.bo-charcoal.agent-detail-page[data-a
 html body:not(#bo-charcoal-off).report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-detail-tabs .clean-btn[aria-selected="true"]{
   background:transparent!important; border-bottom:2px solid var(--ad-amber)!important;
   color:var(--ad-ink)!important; font-weight:800!important;
-}
-html body:not(#bo-charcoal-off).report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-detail-toolbar #backAgentList{
-  align-self:center!important; height:36px!important; margin:0 0 0 4px!important;
-  background:transparent!important; border:1px solid var(--ad-border)!important;
-  border-radius:8px!important; color:var(--ad-ink)!important; font-weight:700!important;
-}
-html body:not(#bo-charcoal-off).report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-detail-toolbar #backAgentList:hover{ background:var(--ad-well)!important; }
+}/* The Back control is the shared .clean-btn ghost — the same component the
+   other Agent pages use for "Back to X". This page may only place it
+   (alignment); restyling its chrome here is what made it look different. */
+html body:not(#bo-charcoal-off).report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-detail-toolbar #backAgentList{ align-self:center!important; margin:0 0 0 8px!important; }
+
 </style></head>
 <body class="report-body brand-agent-standard bo-charcoal bo-account-chip agent-detail-page" data-agent-detail="1">
 <div class="report-shell">

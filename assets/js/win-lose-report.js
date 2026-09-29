@@ -1,9 +1,8 @@
 (function(){
 let page=1,totalPages=1,totalElements=0,pageSize=20,pageSizeLock=null,autoRefined=false,providers=[],vipLevels=[];
-let loadSeq=0, loadController=null;
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const num=v=>Number(v||0)||0, money=v=>num(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
-async function api(url,signal){const r=await fetch(url,{headers:BO_AUTH.authHeader(),signal});const j=await r.json().catch(()=>({}));if(!r.ok||j.status==='error')throw new Error(j.message||'Request failed');return j;}
+async function api(url){const r=await fetch(url,{headers:BO_AUTH.authHeader()});const j=await r.json().catch(()=>({}));if(!r.ok||j.status==='error')throw new Error(j.message||'Request failed');return j;}
 function today(){if(window.BO_FORMAT?.today)return BO_FORMAT.today();const d=new Date(),p=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())}
 /* Page-size resolution — the LISTING standard, not this page's own reading of it.
    The house semantics (assets/js/pagination-standardizer.js → resolvePageSize, which is
@@ -51,42 +50,13 @@ function params(){const q=new URLSearchParams({fromDate:wlFrom.value,toDate:wlTo
    stylesheet sizes `.smart-page`, not `.pagination-clean button`. */
 function renderPages(){const w=document.getElementById('wlPager');if(!w)return;const total=Math.max(1,Number(totalPages)||1);const current=Math.max(1,Math.min(Number(page)||1,total));const pages=[];const add=n=>{if(n>=1&&n<=total&&!pages.includes(n))pages.push(n)};add(1);for(let n=current-2;n<=current+2;n++)add(n);add(total);pages.sort((a,b)=>a-b);let html='';html+=`<button type="button" class="smart-page first" data-page="1" ${current<=1?'disabled':''} title="First page" aria-label="First page"><i class="bi bi-chevron-bar-left" aria-hidden="true"></i></button>`;html+=`<button type="button" class="smart-page nav-text" data-page="${current-1}" ${current<=1?'disabled':''} title="Previous page" aria-label="Previous page"><i class="bi bi-chevron-left" aria-hidden="true"></i></button>`;let prev=0;pages.forEach(n=>{if(prev&&n-prev>1)html+='<span class="smart-page-ellipsis" aria-hidden="true">&hellip;</span>';html+=`<button type="button" class="smart-page${n===current?' active':''}" data-page="${n}" ${n===current?'aria-current="page"':''}>${n}</button>`;prev=n});html+=`<button type="button" class="smart-page nav-text" data-page="${current+1}" ${current>=total?'disabled':''} title="Next page" aria-label="Next page"><i class="bi bi-chevron-right" aria-hidden="true"></i></button>`;html+=`<button type="button" class="smart-page last" data-page="${total}" ${current>=total?'disabled':''} title="Last page" aria-label="Last page"><i class="bi bi-chevron-bar-right" aria-hidden="true"></i></button>`;w.innerHTML=html}
 function renderInfo(rowCount){const info=document.getElementById('wlPageInfo');if(!info)return;const from=totalElements&&rowCount?((page-1)*pageSize+1):0;const to=totalElements?Math.min((page-1)*pageSize+rowCount,totalElements):0;info.textContent=`Showing ${from} to ${to} of ${totalElements} entries`}
-async function load(){
-  const seq=++loadSeq;
-  if(loadController)loadController.abort();
-  const controller=new AbortController();
-  loadController=controller;
-  pageSize=currentPageSize();
-  const requestPage=page, requestPageSize=pageSize, requestParams=params().toString();
-  wlBody.innerHTML='<tr><td colspan="6">Loading...</td></tr>';
-  try{
-    const j=await api(API_CONFIG.BASE_URL+API_CONFIG.ENDPOINTS.WIN_LOSE_REPORT_LIST+'?'+requestParams,controller.signal);
-    // Rapid preset/filter clicks can leave older requests finishing after the newest one.
-    // Never let an obsolete response overwrite the current date/filter selection.
-    if(seq!==loadSeq||controller.signal.aborted)return;
-    const d=j.data||{}, rows=d.content||[], pg=d.pagination||{}, sum=d.summary||{};
-    wlTotalBet.textContent=money(sum.total_bet||sum.totalBet);
-    wlValidBet.textContent=money(sum.valid_bet||sum.validBet);
-    wlWinLose.textContent=money(sum.win_lose||sum.winLose);
-    wlMembers.textContent=Number(pg.totalElements||0).toLocaleString();
-    wlBody.innerHTML=rows.length?rows.map((r,i)=>`<tr><td>${(requestPage-1)*requestPageSize+i+1}</td><td><a href="member-detail.html?memberId=${encodeURIComponent(r.member_id||r.memberId)}"><b>${esc(r.username)}</b></a></td><td>${esc(vipLabel(r.vip_tier??r.vipTier??0))}</td><td>${money(r.total_bet||r.totalBet)}</td><td>${money(r.valid_bet||r.validBet)}</td><td><span class="status-pill ${num(r.win_lose||r.winLose)>=0?'active':'off'}">${money(r.win_lose||r.winLose)}</span></td></tr>`).join(''):'<tr><td colspan="6">No records found.</td></tr>';
-    totalPages=Number(pg.totalPages)||1;
-    totalElements=Number(pg.totalElements||0);
-    renderPages();renderInfo(rows.length);
-    if(!autoRefined&&isAutoPageSize()){
-      autoRefined=true;
-      const fitted=measureAutoPageSize();
-      if(fitted!=null&&fitted!==pageSize){pageSizeLock=fitted;page=1;return load();}
-    }
-  }catch(e){
-    if(e?.name==='AbortError'||seq!==loadSeq)return;
-    totalPages=1;totalElements=0;
-    wlBody.innerHTML=`<tr><td colspan="6" class="text-danger">${esc(e.message)}</td></tr>`;
-    renderPages();renderInfo(0);
-  }finally{
-    if(seq===loadSeq&&loadController===controller)loadController=null;
-  }
-}
+let wlLoadSeq=0;
+async function load(){const loadSeq=++wlLoadSeq;pageSize=currentPageSize();wlBody.innerHTML='<tr><td colspan="6">Loading...</td></tr>';try{const j=await api(API_CONFIG.BASE_URL+API_CONFIG.ENDPOINTS.WIN_LOSE_REPORT_LIST+'?'+params());if(loadSeq!==wlLoadSeq)return;const d=j.data||{}, rows=d.content||[], pg=d.pagination||{}, sum=d.summary||{};wlTotalBet.textContent=money(sum.total_bet||sum.totalBet);wlValidBet.textContent=money(sum.valid_bet||sum.validBet);wlWinLose.textContent=money(sum.win_lose||sum.winLose);wlMembers.textContent=Number(pg.totalElements||0).toLocaleString();wlBody.innerHTML=rows.length?rows.map((r,i)=>`<tr><td>${(page-1)*pageSize+i+1}</td><td><a href="member-detail.html?memberId=${encodeURIComponent(r.member_id||r.memberId)}"><b>${esc(r.username)}</b></a></td><td>${esc(vipLabel(r.vip_tier??r.vipTier??0))}</td><td>${money(r.total_bet||r.totalBet)}</td><td>${money(r.valid_bet||r.validBet)}</td><td><span class="status-pill ${num(r.win_lose||r.winLose)>=0?'active':'off'}">${money(r.win_lose||r.winLose)}</span></td></tr>`).join(''):'<tr><td colspan="6">No records found.</td></tr>';totalPages=Number(pg.totalPages)||1;totalElements=Number(pg.totalElements||0);renderPages();renderInfo(rows.length);
+/* One refinement per session, the casino pages' pattern: the fit resolved before the
+   request was measured from the placeholder row, so it is re-measured from real rows
+   once they exist and the page is reloaded only if the two disagree. */
+if(!autoRefined&&isAutoPageSize()){autoRefined=true;const fitted=measureAutoPageSize();if(fitted!=null&&fitted!==pageSize){pageSizeLock=fitted;page=1;return load();}}
+}catch(e){if(loadSeq!==wlLoadSeq)return;totalPages=1;totalElements=0;wlBody.innerHTML=`<tr><td colspan="6" class="text-danger">${esc(e.message)}</td></tr>`;renderPages();renderInfo(0)}}
 document.addEventListener('DOMContentLoaded',async()=>{wlFrom.value=wlTo.value=today();await initOptions();
 // Every filter applies itself. The Search button is gone by owner request
 // ("通常选中那些选项就自动输出数据了"), so the selects, the VIP tier and the

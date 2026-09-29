@@ -289,10 +289,13 @@
     renderStatus(data.depositWithdrawDaily || []);
     renderBonus(Array.isArray(data.bonusDaily) ? data.bonusDaily : (Array.isArray(data.bonus) ? data.bonus : []));
   }
+  let reportLoadSeq = 0;
   async function load(){
+    const loadSeq = ++reportLoadSeq;
     Object.keys(COLS).forEach(id=>{ const el=document.getElementById(id); if(el) el.innerHTML='<tr><td colspan="'+COLS[id]+'">Loading...</td></tr>'; });
-    try{ const json = await api(url() + '?' + params()); render(json.data || {}); }
+    try{ const json = await api(url() + '?' + params()); if(loadSeq !== reportLoadSeq) return; render(json.data || {}); }
     catch(e){
+      if(loadSeq !== reportLoadSeq) return;
       const target = document.querySelector('tbody[id^="cr"]');
       const cols = target ? (COLS[target.id] || 1) : 1;
       if(target) target.innerHTML='<tr><td colspan="'+cols+'" class="text-danger">'+esc(e.message)+'</td></tr>';

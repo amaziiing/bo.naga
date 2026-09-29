@@ -434,11 +434,14 @@
     info.textContent = 'Showing ' + from + ' to ' + to + ' of ' + totalElements + ' entries';
   }
 
+  let betLoadSeq=0;
   async function load(){
+    const loadSeq=++betLoadSeq;
     pageSize = resolvePageSize();
     syncAutofitMode();
     try {
       const data = await get(endpoint('PROVIDER_BET_REPORT_LIST') + '?' + query());
+      if(loadSeq!==betLoadSeq)return;
       const rows = readList(data).map(toBetRow);
       totalPages = readTotalPages(data);
       totalElements = readTotalElements(data, rows.length);
@@ -460,6 +463,7 @@
       if (!autofitReloading) scheduleEvenFill();
       else if (!isAutoPageSize()) resetEvenFill();
     } catch (e) {
+      if(loadSeq!==betLoadSeq)return;
       totalPages = 1;
       totalElements = 0;
       $('betBody').innerHTML = '<tr><td colspan="11" class="text-danger">' + esc(e.message) + '</td></tr>';

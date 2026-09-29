@@ -616,7 +616,8 @@ function setupSettlement(){
   refreshSettlementParties();
 }
 
-async function load(){
+let providerReportLoadSeq=0;
+async function load(){const loadSeq=++providerReportLoadSeq;
   if(FORCE_EMPTY_UI){
     showEmptyProviders();
     syncedAt=Date.now();
@@ -624,7 +625,7 @@ async function load(){
     return;
   }
   try{
-    const [d,acc,ov,merchants]=await Promise.all([api('/admin/main/reports/provider-settlement'+qs()),api('/admin/main/reports/accounting'+qs()).catch(()=>({brands:[]})),api('/admin/main/overview'+qs()).catch(()=>({brands:[]})),api('/admin/merchants').catch(()=>api('/admin/brands').catch(()=>[]))]);
+    const [d,acc,ov,merchants]=await Promise.all([api('/admin/main/reports/provider-settlement'+qs()),api('/admin/main/reports/accounting'+qs()).catch(()=>({brands:[]})),api('/admin/main/overview'+qs()).catch(()=>({brands:[]})),api('/admin/merchants').catch(()=>api('/admin/brands').catch(()=>[]))]);if(loadSeq!==providerReportLoadSeq)return;
     merchantDirectory=Array.isArray(merchants)?merchants:(merchants?.rows||merchants?.items||[]);
     renderSummary(d.summary||{});
     currentProviders=normalizeProviders(d.providers||[]);

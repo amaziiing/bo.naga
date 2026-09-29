@@ -677,7 +677,9 @@
     }).join('');
   }
 
+  let reportLoadSeq = 0;
   async function load() {
+    const loadSeq = ++reportLoadSeq;
     try {
       if ($('wlRows')) {
         $('wlRows').innerHTML = '<tr><td colspan="6" class="mad-empty">Loading win/lose report…</td></tr>';

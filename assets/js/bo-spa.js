@@ -84,11 +84,24 @@
 
   function syncShell(doc) {
     var from = doc.querySelector('[data-bo-topbar]'), to = document.querySelector('[data-bo-topbar]');
-    if (from && to) {
-      var a = from.querySelector('h1'), b = to.querySelector('h1');
-      if (a && b) b.textContent = a.textContent;
-      var ai = from.querySelector('i'), bi = to.querySelector('i');
-      if (ai && bi) bi.className = ai.className;
+    if (to) {
+      var b = to.querySelector('h1');
+      var text = '';
+      if (from) {
+        var a = from.querySelector('h1');
+        if (a) text = (a.textContent || '').trim();
+        var ai = from.querySelector('i'), bi = to.querySelector('i');
+        if (ai && bi) bi.className = ai.className;
+      }
+      // The topbar title is painted from menu data at runtime, so the fetched document has an
+      // empty header. Fall back to the target page's own <title> rather than leaving the
+      // previous page's title sitting there.
+      if (!text) text = (doc.title || '').split(/[-|·]/)[0].trim();
+      if (!text) {
+        var h = doc.querySelector('.report-content h1, .report-content h2, .manage-form-card h1');
+        if (h) text = (h.textContent || '').trim();
+      }
+      if (b && text) b.textContent = text;
     }
     if (doc.title) document.title = doc.title;
   }
@@ -102,9 +115,33 @@
     });
   }
 
+  /* Every page styles its own content through its <body> class and its own sheets, so a
+     content-only swap would leave the new content wearing the previous page's rules - the
+     "design went wrong" symptom. Mirror both before swapping. */
+  function syncHead(doc) {
+    var have = {};
+    Array.prototype.forEach.call(document.querySelectorAll('link[rel="stylesheet"]'), function (l) {
+      var h = l.getAttribute('href') || '';
+      have[h.split('/').pop().split('?')[0]] = 1;
+    });
+    Array.prototype.forEach.call(doc.querySelectorAll('link[rel="stylesheet"]'), function (l) {
+      var raw = l.getAttribute('href') || '', key = raw.split('/').pop().split('?')[0];
+      if (!raw || have[key]) return;
+      have[key] = 1;
+      var el = document.createElement('link');
+      el.rel = 'stylesheet';
+      el.href = raw;
+      document.head.appendChild(el);
+    });
+    if (doc.body && doc.body.className && doc.body.className !== document.body.className) {
+      document.body.className = doc.body.className;
+    }
+  }
+
   function apply(doc, u) {
     var from = document.querySelector(CONTENT), to = doc.querySelector(CONTENT);
     if (!from || !to) return false;
+    syncHead(doc);
     var scripts = pageScript(doc, u.href);
     from.replaceChildren.apply(from, Array.prototype.slice.call(to.childNodes));
     syncShell(doc);

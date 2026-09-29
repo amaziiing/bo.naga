@@ -131,22 +131,6 @@ body.bo-wallet-tx .bo-bank-chip:focus-visible{
   outline-offset:2px;
 }
 
-/* The mark: the hairline diagonal from the reference, drawn from the card's top-right corner. */
-body.bo-wallet-tx .bo-bank-card-mark{
-  flex:0 0 auto;
-  width:11px;
-  height:1px;
-  background:var(--bnk-line);
-  transform:rotate(-38deg);
-  transform-origin:right center;
-}
-
-body.bo-wallet-tx .bo-bank-card.is-selected .bo-bank-card-mark{
-  width:13px;
-  height:1.5px;
-  background:var(--bnk-accent);
-}
-
 body.bo-wallet-tx .bo-bank-chip-badge{
   flex:0 0 auto;
   display:inline-flex;
@@ -227,8 +211,5 @@ body.bo-wallet-tx .bo-bank-card-value.is-unknown{
 @media(prefers-reduced-motion:reduce){
   body.bo-wallet-tx .bo-bank-card{
     transition:none;
-  }
-  body.bo-wallet-tx .bo-bank-card-mark{
-    transform:rotate(-38deg);
   }
 }

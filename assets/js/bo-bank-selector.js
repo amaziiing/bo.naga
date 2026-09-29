@@ -65,7 +65,6 @@
             '<span class="bo-bank-chip-name">'+esc(c.name)+'</span>'+
             (count>0?'<span class="bo-bank-chip-badge" aria-hidden="true">'+count+'</span>':'')+
           '</button>'+
-          '<span class="bo-bank-card-mark" aria-hidden="true"></span>'+
         '</header>'+
         '<div class="bo-bank-card-row"><span>Start</span>'+value(c.start)+'</div>'+
         '<div class="bo-bank-card-row"><span>Deposit</span>'+value(c.flow)+'</div>'+

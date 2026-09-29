@@ -219,7 +219,7 @@
     'game.html':{label:'Game',order:7,module:'game'}
   };
 
-  const MODULE_ANCHORS = {transaction:'member-deposit.html', member:'index.html', promotion:'promotion.html', vip:'vip-management.html', agent:'agent-management.html', report:'casino-overview-report.html', report:'casino-overview-report.html', game:'game-provider.html'};
+  const MODULE_ANCHORS = {transaction:'member-deposit.html', member:'index.html', promotion:'promotion.html', vip:'vip-management.html', agent:'agent-management.html', report:'casino-overview-report.html', game:'game-provider.html'};
   const MODULE_LABELS = {transaction:'Transaction', member:'Member', promotion:'Promotion', vip:'VIP', agent:'Agent', report:'Report', game:'Game Management'};
 
   // Those two pages are the ones that own that pair, and each already authors it as its

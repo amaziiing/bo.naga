@@ -3231,3 +3231,40 @@ html[data-bo-theme="dark"] body.referral-page.report-body.bo-charcoal .report-ac
 html body.referral-page.report-body.bo-charcoal .report-actions > [data-bo-profile]{
   display:inline-flex!important;flex-wrap:nowrap!important;align-items:center!important;gap:12px!important;
 }
+
+/* Canvas continuum, restored for every bo-charcoal page.
+   This sheet flattens the canvas to an opaque #FFF1DC above (and reports.css does the
+   same with .report-body), which killed the gradient bo-charcoal-shell.css already
+   declares — so only the two pages carrying bo-page-canvas.css (index.html,
+   referral.html) looked right. Same selectors, later in the same sheet, so these win;
+   the values are bo-page-canvas.css's own (which the owner approved as the target). */
+html:not([data-bo-theme="dark"]):has(body.report-body.bo-charcoal){
+  background-color:#FFF6E8!important;
+  background-image:linear-gradient(90deg,
+    #FFE8CC 0,
+    #FFF1DC calc(var(--sidebar-w,280px) * .72),
+    #FFF3E0 var(--sidebar-w,280px),
+    #FFF6E8 calc(var(--sidebar-w,280px) + 64px),
+    #FFF8EB calc(var(--sidebar-w,280px) + 140px),
+    #FFF8EB 100%
+  )!important;
+  background-attachment:fixed!important;
+  background-repeat:no-repeat!important;
+  background-size:100% 100%!important;
+}
+html[data-bo-theme="dark"]:has(body.report-body.bo-charcoal){
+  background-color:#2C2E38!important;
+  background-image:linear-gradient(90deg,
+    #3A3226 0,
+    #342E28 calc(var(--sidebar-w,280px) * .72),
+    #2F2E32 var(--sidebar-w,280px),
+    #2D2E36 calc(var(--sidebar-w,280px) + 64px),
+    #2C2E38 calc(var(--sidebar-w,280px) + 140px),
+    #2C2E38 100%
+  )!important;
+  background-attachment:fixed!important;
+  background-repeat:no-repeat!important;
+  background-size:100% 100%!important;
+}
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal{ background:transparent!important; }
+html[data-bo-theme="dark"] body.report-body.bo-charcoal{ background:transparent!important; }

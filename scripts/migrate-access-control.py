@@ -204,7 +204,7 @@ def footer_optin(card_old, card_new):
                 return s, ["CARD ANCHOR %d MATCHES" % s.count(card_old)]
             s = s.replace(card_old, card_new, 1)
             notes.append("card opt-in")
-        anchor = '<script src="assets/js/bo-account-chip.js?v=8b9ce6d4"></script>'
+        anchor = '<script src="assets/js/bo-account-chip.js?v=1.0.20"></script>'
         if "access-control-listing.js" not in s:
             if s.count(anchor) != 1:
                 return s, notes + ["SCRIPT ANCHOR %d MATCHES" % s.count(anchor)]

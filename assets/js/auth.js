@@ -316,7 +316,9 @@
       const menus = this.allowedMenus(user);
       // ROOT-configured menu sort order is authoritative for every role, including MAIN/Boss.
       // Do not impose a frontend MAIN landing-page allowlist/order.
-      return menus.length ? menus[0].url : 'profile.html';
+      const roleType = String((user && user.roleType) || '').toUpperCase();
+      const isMain = roleType === 'MAIN' || (user && user.mainAdmin === true) || Number(user && user.mainAdmin) === 1;
+      return menus.length ? menus[0].url : (isMain ? 'main-profile.html' : 'profile.html');
     },
     enforcePageAccess: function(user){
       user = user || this.user();
@@ -337,6 +339,22 @@
           return false;
         }
       }catch(ignore){}
+
+      // Account Settings is portal-specific. MAIN accounts use main-profile.html only;
+      // BO accounts use profile.html only. Keep the same account/profile APIs underneath,
+      // but never expose the other portal's settings page.
+      const accountRoleType = String((user && user.roleType) || '').toUpperCase();
+      const isMainAccount = accountRoleType === 'MAIN' || (user && user.mainAdmin === true) || Number(user && user.mainAdmin) === 1;
+      const requestedAccountPage = pageName();
+      if(isMainAccount && requestedAccountPage === 'profile.html'){
+        window.location.replace('main-profile.html' + (location.hash || ''));
+        return false;
+      }
+      if(!isMainAccount && requestedAccountPage === 'main-profile.html'){
+        window.location.replace('profile.html' + (location.hash || ''));
+        return false;
+      }
+
       // ROOT is the unrestricted platform owner. ROOT must never depend on
       // admin_role_menu assignments to open BO pages; role/menu assignments are
       // for accounts that ROOT manages (MASTER/MAIN/brand/custom roles). Backend
@@ -431,7 +449,7 @@
         try { source = String(new URLSearchParams(location.search || '').get('source') || 'overview').toLowerCase(); } catch(e) {}
         current = (source && source !== 'overview') ? 'main-accounting-report.html' : 'main-dashboard.html';
       }
-      const alwaysAllowed = ['profile.html','change-password.html','rebate-management.html','animation-effect.html'];
+      const alwaysAllowed = ['profile.html','main-profile.html','change-password.html','rebate-management.html','animation-effect.html'];
       if(alwaysAllowed.indexOf(current) !== -1) return true;
       const menus = this.allowedMenus(user);
       if(!menus.length){
@@ -439,8 +457,9 @@
         // a legacy delegated CS account while ROOT permissions are being adjusted). Do not
         // destroy the valid session and bounce back to login; keep the account signed in on
         // the always-available profile page until a menu is assigned.
-        if(current !== 'profile.html') window.location.replace('profile.html');
-        return current === 'profile.html';
+        const accountPage = isMainAccount ? 'main-profile.html' : 'profile.html';
+        if(current !== accountPage) window.location.replace(accountPage);
+        return current === accountPage;
       }
       let allowed = menus.some(function(m){ return pageFile(m.url || '') === current; });
       // Bonus Category Item may be assigned as its own menu row, or only opened via
@@ -1463,7 +1482,8 @@
       const role = roleLabel(user);
       const counters = String(user.roleType||'').toUpperCase()==='MAIN' ? '' : this.headerCountersHtml();
       /* Locked topbar chrome (system.md / Fig.2): meta left · person avatar right · no gear */
-      return counters + '<a class="bo-account-link" href="profile.html" title="Account settings" aria-label="Open account settings">' +
+      const accountSettingsUrl = String(user.roleType||'').toUpperCase()==='MAIN' || user.mainAdmin===true || Number(user.mainAdmin)===1 ? 'main-profile.html' : 'profile.html';
+      return counters + '<a class="bo-account-link" href="' + accountSettingsUrl + '" title="Account settings" aria-label="Open account settings">' +
         '<span class="bo-account-meta">' +
           '<span class="bo-account-name" data-admin-name>' + esc(name) + '</span>' +
           '<span class="bo-account-role" data-admin-role>' + esc(role) + '</span>' +

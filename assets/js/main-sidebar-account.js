@@ -90,7 +90,7 @@
     var u = user();
     var name = displayName(u);
     var role = roleLabel(u);
-    return '<a class="' + LINK_CLASS + '" href="profile.html"' +
+    return '<a class="' + LINK_CLASS + '" href="main-profile.html"' +
         ' title="' + esc(name + ' - ' + role) + '"' +
         ' aria-label="Account settings - ' + esc(name + ', ' + role) + '"' +
         ' data-rail-label="' + esc(name) + '">' +

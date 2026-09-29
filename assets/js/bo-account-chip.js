@@ -42,7 +42,10 @@
   const link=host&&host.querySelector('a.bo-account-link');
   if(!link) return;
   const href=String(link.getAttribute('href')||'');
-  if(!href||href==='#'||href==='profile.html') link.setAttribute('href','profile.html#password');
+  const user=(window.BO_AUTH&&typeof window.BO_AUTH.user==='function')?window.BO_AUTH.user():{};
+  const isMain=String(user.roleType||'').toUpperCase()==='MAIN'||user.mainAdmin===true||Number(user.mainAdmin)===1;
+  const accountPage=isMain?'main-profile.html':'profile.html';
+  if(!href||href==='#'||href==='profile.html'||href==='main-profile.html') link.setAttribute('href',accountPage+'#password');
   link.style.pointerEvents='auto';
   link.style.cursor='pointer';
   link.setAttribute('title','Account settings / Change password');

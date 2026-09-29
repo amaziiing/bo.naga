@@ -1,0 +1,215 @@
+/* Bank cards (Deposit / Withdraw Approval).
+   ------------------------------------------------------------------
+   Presentation only. Which banks exist, which one is selected and every figure on a card come
+   from the same state and the same endpoints as before; this sheet decides how they look.
+
+   One card per bank, each complete without a click: the name with its pending count, then the
+   Start and Deposit rows, then Balance on its own row under a hairline.
+
+   The row is one line and always complete: the cards share the container width equally
+   (`flex:1 1 0`), so every bank is on screen at once and the last one is never cut off. A bank
+   list longer than the row can hold simply makes the cards narrower; the row scrolls only as a
+   last-resort safety net, it is not the normal behaviour.
+
+   Colour follows the page's own theme tokens (bo-wallet-transaction-amber.css states them on
+   body.bo-wallet-tx for both themes), so the cards are cream in light mode and graphite in dark.
+   The accent is spent on the hovering/selected card and on a known Balance, nowhere else.
+   Geometry stays on the house scale: 8px cards, 6px controls, hairline separators. */
+
+body.bo-wallet-tx .bo-bank-dock{
+  --bnk-line:var(--bo-border,#EADCC8);
+  --bnk-accent:var(--bo-cyan,#D97706);
+  --bnk-surface:var(--bo-surface,#FFF8EB);
+  --bnk-well:var(--bo-control-well,#F5EBDC);
+  --bnk-text:var(--bo-text,#18191C);
+  --bnk-muted:var(--bo-muted,#71717A);
+  flex:0 0 auto!important;
+  display:block;
+  min-width:0;
+  margin:0 0 4px;
+}
+
+/* The host keeps .deposit-bank-card-stats, which the old 220px card grid owns with !important
+   rules; this selector is one class longer and repeats the flag so the row is ours. */
+body.bo-wallet-tx.deposit-approval-page .approval-pending-stats.deposit-bank-card-stats.bo-bank-chips,
+body.bo-wallet-tx.withdraw-approval-page .approval-pending-stats.deposit-bank-card-stats.bo-bank-chips{
+  display:block!important;
+  grid-template-columns:none!important;
+  padding:0!important;
+  margin:0!important;
+  background:transparent!important;
+  overflow:visible!important;
+}
+
+/* The row: one line, equal cards, every bank visible. */
+body.bo-wallet-tx .bo-bank-cards{
+  display:flex;
+  flex-flow:row nowrap;
+  align-items:stretch;
+  gap:8px;
+  padding:2px;
+  overflow-x:auto;
+  overflow-y:hidden;
+  overscroll-behavior-x:contain;
+  scrollbar-width:none;
+  -ms-overflow-style:none;
+}
+
+body.bo-wallet-tx .bo-bank-cards::-webkit-scrollbar{
+  width:0;
+  height:0;
+  display:none;
+}
+
+/* `flex:1 1 0` gives every card the same width and lets the whole list fit the row, so the row
+   ends on the last bank instead of on a half-visible card. `margin-top:auto` on the footer
+   below keeps every Balance on the same baseline whatever the names are. */
+body.bo-wallet-tx .bo-bank-card{
+  flex:1 1 0;
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  padding:10px 12px 11px;
+  border:1px solid var(--bnk-line);
+  border-radius:8px;
+  background:var(--bnk-surface);
+  box-shadow:0 1px 2px rgba(24,25,28,.05);
+  transition:border-color .15s ease,background-color .15s ease,box-shadow .15s ease;
+}
+
+html[data-bo-theme="dark"] body.bo-wallet-tx .bo-bank-card{
+  box-shadow:none;
+}
+
+body.bo-wallet-tx .bo-bank-card:hover{
+  border-color:var(--bnk-accent);
+}
+
+/* Selected: the accent border, a hairline inset ring and one tinted surface. Nothing else
+   changes, so the figure that just narrowed the table keeps the card it already had. */
+body.bo-wallet-tx .bo-bank-card.is-selected{
+  border-color:var(--bnk-accent);
+  background:var(--bo-cyan-tint,rgba(217,119,6,.12));
+  box-shadow:inset 0 0 0 1px var(--bnk-accent);
+}
+
+body.bo-wallet-tx .bo-bank-card-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin-bottom:6px;
+}
+
+body.bo-wallet-tx .bo-bank-chip{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  max-width:100%;
+  min-width:0;
+  height:18px;
+  padding:0;
+  margin:0;
+  border:0;
+  background:transparent;
+  color:var(--bnk-text);
+  font-size:12px;
+  font-weight:600;
+  letter-spacing:-.01em;
+  line-height:1;
+  white-space:nowrap;
+  cursor:pointer;
+}
+
+body.bo-wallet-tx .bo-bank-chip-name{
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+body.bo-wallet-tx .bo-bank-chip:focus-visible{
+  outline:2px solid var(--bnk-accent);
+  outline-offset:2px;
+}
+
+body.bo-wallet-tx .bo-bank-chip-badge{
+  flex:0 0 auto;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:15px;
+  height:15px;
+  padding:0 4px;
+  border-radius:3px;
+  background:rgba(153,27,27,.10);
+  color:var(--bo-danger,#991B1B);
+  font-size:10px;
+  font-weight:600;
+  line-height:1;
+  font-variant-numeric:tabular-nums;
+}
+
+html[data-bo-theme="dark"] body.bo-wallet-tx .bo-bank-chip-badge{
+  background:rgba(248,113,113,.14);
+  color:#F87171;
+}
+
+body.bo-wallet-tx .bo-bank-chip.is-empty{
+  cursor:default;
+  color:var(--bnk-muted);
+}
+
+/* One figure row: label left, value right, on the card's own surface. */
+body.bo-wallet-tx .bo-bank-card-row,
+body.bo-wallet-tx .bo-bank-card-foot{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:10px;
+  padding:1px 0;
+}
+
+body.bo-wallet-tx .bo-bank-card-row > span,
+body.bo-wallet-tx .bo-bank-card-foot > span{
+  color:var(--bnk-muted);
+  font-size:10.5px;
+  font-weight:500;
+  white-space:nowrap;
+}
+
+body.bo-wallet-tx .bo-bank-card-value{
+  color:var(--bnk-text);
+  font-size:12.5px;
+  font-weight:600;
+  font-variant-numeric:tabular-nums;
+  white-space:nowrap;
+}
+
+/* Balance keeps the card's own row, under the hairline and on the card's bottom edge. */
+body.bo-wallet-tx .bo-bank-card-foot{
+  margin-top:auto;
+  padding-top:8px;
+  border-top:1px solid var(--bnk-line);
+}
+
+body.bo-wallet-tx .bo-bank-card-foot .bo-bank-card-value.is-total{
+  color:var(--bnk-accent);
+  font-size:13.5px;
+  font-weight:700;
+}
+
+body.bo-wallet-tx .bo-bank-card-value.is-unknown{
+  color:var(--bnk-muted);
+  font-weight:500;
+}
+
+@media(max-width:600px){
+  body.bo-wallet-tx .bo-bank-card{
+    padding:9px 10px 10px;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  body.bo-wallet-tx .bo-bank-card{
+    transition:none;
+  }
+}

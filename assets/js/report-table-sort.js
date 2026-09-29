@@ -165,32 +165,23 @@
     var keepScroll = scroller ? scroller.scrollLeft : 0;
     var rows = Array.prototype.slice.call(tbody.rows).filter(function (tr) { return tr.children.length > 1; });
     if (rows.length < 2) return;
-
-    /* Keep equal values stable and, critically, do not rewrite an already-sorted tbody.
-       The card observer watches childList so unconditional appendChild() here used to wake the
-       observer again, which called apply() again and produced a permanent DOM mutation loop.
-       On report pages that loop showed up as rows/data visibly "jumping" after a sort while
-       also wasting the main thread. */
-    var original = rows.slice();
-    var originalIndex = new Map();
-    for (var oi = 0; oi < original.length; oi++) originalIndex.set(original[oi], oi);
-    rows.sort(function (a, b) {
-      var av = valueOf(a, st.index), bv = valueOf(b, st.index);
-      var cmp;
-      if (!isNaN(av.n) && !isNaN(bv.n)) cmp = av.n === bv.n ? 0 : (av.n < bv.n ? -1 : 1);
-      else cmp = av.s.localeCompare(bv.s, undefined, { numeric: true, sensitivity: 'base' });
-      if (cmp === 0) cmp = originalIndex.get(a) - originalIndex.get(b);
-      return st.dir === 'desc' ? -cmp : cmp;
-    });
-    var changed = false;
-    for (var ci = 0; ci < rows.length; ci++) {
-      if (rows[ci] !== original[ci]) { changed = true; break; }
+    rows.sort(function (a, b) { return compare(a, b, st.index, st.dir); });
+    /* Only write when the order actually changes. Measured before this guard: sorting once left the
+       tbody churning at ~4,800 childList mutations per second, forever — apply() re-appended every
+       row, the appends fired the card observer, and the observer called apply() again. The hovered
+       row was replaced a few hundred times a second, which the owner saw as the table flickering
+       (owner: "我的table 回闪烁 因为sort的配置关系"). A page re-render that lands on the sorted
+       order (the family's fit-mode refit re-renders rows the same way) burst the same way. With the
+       guard, a chain terminates the first time the DOM already matches: one real reorder per click,
+       zero writes when the rows are already where the sort wants them. */
+    var inPlace = Array.prototype.filter.call(tbody.rows, function (tr) { return tr.children.length > 1; });
+    var same = inPlace.length === rows.length;
+    if (same) {
+      for (var k = 0; k < rows.length; k++) {
+        if (rows[k] !== inPlace[k]) { same = false; break; }
+      }
     }
-    if (!changed) {
-      if (scroller && keepScroll) scroller.scrollLeft = keepScroll;
-      resyncScroll(table);
-      return;
-    }
+    if (same) { resyncScroll(table); return; }
     for (var i = 0; i < rows.length; i++) tbody.appendChild(rows[i]);
     if (scroller && keepScroll) scroller.scrollLeft = keepScroll;
     resyncScroll(table);

@@ -1,5 +1,9 @@
 (function(){
   let page=1,totalPages=1,currentRows=[];
+  /* The one selected bank (id) and the directory the chips/strip read: id -> {id,name,
+     label,balance,balanceKnown,pending,flow}. `flow` is the selected bank's total under the
+     table's current filters, filled in by load(). */
+  let selectedBankId=null,bankIndex=null;
   /* Only page numbers — pagination-standardizer already wraps ‹ #withdrawPager ›. */
   function pageButtons(current,total){
     total=Math.max(1,Number(total)||1);
@@ -93,54 +97,175 @@
     }
     return all;
   }
+  function withdrawBankKeys(m){return [m.id,m.displayName,m.bankName,m.accountName,m.accountNumber,m.payId].map(v=>String(v??'').trim().toLowerCase()).filter(Boolean);}
+  /* The funding bank of a withdrawal row. One implementation for both the chips and the
+     table's bank filter, so a bank's strip total is always the sum of the rows shown. */
+  function matchWithdrawBank(row,methods){
+    const id=String(row?.fundingPaymentMethodId??row?.paymentMethodId??'').trim();
+    if(id){const exact=methods.find(m=>String(m.id)===id);if(exact)return exact;}
+    const candidates=[row?.fundingPaymentMethod,row?.paymentMethod,row?.paymentMethodDisplayName,row?.paymentMethodBankName,row?.bankName].map(v=>String(v??'').trim().toLowerCase()).filter(Boolean);
+    for(const c of candidates){const hit=methods.find(m=>withdrawBankKeys(m).includes(c));if(hit)return hit;}
+    return null;
+  }
+  /* The date range on its own, every status but rejected: this is what the pending badges count.
+     A pending request is news whether or not the table is currently showing approved rows. */
+  async function loadDatedWithdrawals(){
+    let all=[],p=1,guard=0;
+    const from=document.getElementById('withdrawFrom')?.value||'';
+    const to=document.getElementById('withdrawTo')?.value||'';
+    while(guard++<500){
+      const params=new URLSearchParams({page:String(p),size:'100'});
+      if(from)params.set('dateFrom',from);
+      if(to)params.set('dateTo',to);
+      const json=await api(endpoint('MEMBER_WITHDRAW_LIST')+'?'+params);
+      const d=json.data||{};
+      const rows=d.content||d.items||d.list||[];
+      all.push(...rows.filter(r=>String(r?.status||'').toUpperCase()!=='REJECTED'));
+      const pg=json.pagination||d.pagination||d;
+      const totalPages=Number(pg.totalPages||1)||1;
+      if(p>=totalPages||!rows.length)break;
+      p++;
+    }
+    return all;
+  }
+
+  /* Every row the table's current filters select — for the one case that must see more than
+     one page: a bank is selected, and the table then shows only that bank's rows. The list
+     endpoint has no bank parameter, so the bank is applied here with the same
+     matchWithdrawBank() the matrix uses. BANK_BALANCE_API.md asks for the server-side
+     parameter that would retire this. */
+  async function loadBankRows(){
+    const all=[];
+    const kw=document.getElementById('withdrawKeyword')?.value.trim();
+    const status=document.getElementById('withdrawStatus')?.value.trim();
+    const from=document.getElementById('withdrawFrom')?.value||'';
+    const to=document.getElementById('withdrawTo')?.value||'';
+    let p=1,guard=0;
+    while(guard++<500){
+      const params=new URLSearchParams({page:String(p),size:'100'});
+      if(kw)params.set('keyword',kw);
+      if(status&&status!=='ALL')params.set('status',status);
+      if(from)params.set('dateFrom',from);
+      if(to)params.set('dateTo',to);
+      const json=await api(endpoint('MEMBER_WITHDRAW_LIST')+'?'+params);
+      const d=json.data||{};
+      const rows=d.content||d.items||d.list||[];
+      all.push(...rows);
+      const pg=json.pagination||d.pagination||d;
+      const totalPages=Number(pg.totalPages||1)||1;
+      if(p>=totalPages||!rows.length)break;
+      p++;
+    }
+    return all;
+  }
+  /* A card per bank, every bank complete without a click. `flow` is this bank's total under the
+     table's current filters, so the figures beside the panel agree with the rows below it. */
   async function renderBankCards(){
-    const host=document.getElementById('withdrawBankCards');
+    const host=document.getElementById('depositBankCards');
     if(!host)return;
+    // The grid's layout is keyed on this class rather than on the markup, so a page whose HTML
+    // was cached before the matrix existed still gets it instead of the old 220px card grid.
+    host.classList.add('bo-bank-chips');
     try{
-      const [methods,withdrawals]=await Promise.all([paymentMethods(),loadApprovedWithdrawals()]);
+      // Fresh payment methods: `bankUsage` moves with every approved deposit/withdrawal, so a
+      // cached balance would print a stale number right after an approval.
+      const [methods,dated,filtered]=await Promise.all([
+        paymentMethods(true),loadDatedWithdrawals(),loadBankRows()
+      ]);
       if(!methods.length){
-        host.innerHTML='<article class="deposit-bank-card is-empty"><div class="deposit-bank-total"><span>Banks</span><strong>0</strong></div><div class="bo-summary-note">No payment methods</div></article>';
+        bankIndex=null;
+        host.innerHTML='<span class="bo-bank-chip is-empty">No payment methods</span>';
         return;
       }
-      host.innerHTML=methods.map(m=>{
+      // `dated` counts the pending requests (the date range only: a pending request is news
+      // whether or not the table is showing approved rows). `filtered` sums every bank's total
+      // under the table's own filters, which is what the Deposit column reports.
+      const previous=bankIndex;
+      bankIndex=new Map(methods.map(function(m){
         const name=String(m.bankName||m.displayName||('Bank #'+m.id)).trim();
-        const total=withdrawals.reduce((sum,r)=>{const rid=String(r?.fundingPaymentMethodId??r?.paymentMethodId??'').trim();const names=[r?.fundingPaymentMethod,r?.paymentMethod,r?.paymentMethodDisplayName,r?.paymentMethodBankName,r?.bankName].map(v=>String(v??'').trim().toLowerCase()).filter(Boolean);const keys=[m.id,m.displayName,m.bankName,m.accountName,m.accountNumber,m.payId].map(v=>String(v??'').trim().toLowerCase()).filter(Boolean);return (rid&&rid===String(m.id))||names.some(v=>keys.includes(v))?sum+Math.abs(num(r.amount)):sum;},0);
-        const max=num(m.maxAmount);
-        const pctRaw=max>0?(Math.max(0,total)/max)*100:0;
-        const pct=Math.min(100,pctRaw);
-        const fillClass=max>0?(pctRaw>=100?'is-over':pctRaw>=80?'is-warn':''):'';
-        const mark=(name.replace(/[^A-Za-z0-9]/g,'')||'B').charAt(0).toUpperCase();
-        const account=m.accountNumber?String(m.accountNumber).trim():'';
-        const method=m.displayName&&String(m.displayName).trim()!==name?String(m.displayName).trim():(m.methodType||'');
-        const meta=[method,account].filter(Boolean).join(' · ')||'Payment method';
-        const meter=max>0
-          ?`<div class="deposit-bank-meter" title="${esc(money(total)+' / '+money(max))}">
-              <div class="deposit-bank-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct.toFixed(0)}" aria-label="Max amount usage for ${esc(name)}">
-                <div class="deposit-bank-fill ${fillClass}" style="width:${pct.toFixed(2)}%"></div>
-              </div>
-              <div class="deposit-bank-meter-line"><span>Max ${money(max)}</span><span>${pctRaw.toFixed(0)}%</span></div>
-            </div>`
-          :`<div class="deposit-bank-meter is-empty">
-              <div class="deposit-bank-track" aria-hidden="true"><div class="deposit-bank-fill" style="width:0%"></div></div>
-              <div class="deposit-bank-meter-line"><span>Max amount</span><span>No max</span></div>
-            </div>`;
-        return `<article class="deposit-bank-card" data-bank-id="${esc(m.id)}">
-          <div class="deposit-bank-card-head">
-            <div class="deposit-bank-mark" aria-hidden="true">${esc(mark)}</div>
-            <div class="deposit-bank-id">
-              <b>${esc(name)}</b>
-              <small>${esc(meta)}</small>
-            </div>
-          </div>
-          <div class="deposit-bank-total">
-            <strong>${money(total)}</strong>
-          </div>
-          ${meter}
-        </article>`;
-      }).join('');
+        const usage=num(m.bankUsage);
+        return [String(m.id),{id:m.id,name:name,label:window.BO_BANK_SELECTOR.detailLabel(m,name),
+          balance:usage,
+          // A missing or zero usage figure is reported as not available rather than as a real
+          // 0.00: the field is what the withdrawal flow deducts from, and 0 there already means
+          // "this bank cannot fund anything".
+          balanceKnown:usage>0,pending:0,flow:0}];
+      }));
+      dated.forEach(function(r){
+        const m=matchWithdrawBank(r,methods);
+        if(!m)return;
+        const entry=bankIndex.get(String(m.id));
+        if(entry&&String(r?.status||'').toUpperCase()==='PENDING') entry.pending+=1;
+      });
+      filtered.forEach(function(r){
+        const m=matchWithdrawBank(r,methods);
+        if(!m)return;
+        const entry=bankIndex.get(String(m.id));
+        if(entry) entry.flow+=Math.abs(num(r.amount));
+      });
+      paintBankCards(host);
     }catch(e){
-      host.innerHTML=`<article class="deposit-bank-card is-empty"><div class="deposit-bank-total"><span>Banks</span><strong>-</strong></div><div class="bo-summary-note">${esc(e.message||'Failed to load')}</div></article>`;
+      bankIndex=null;
+      host.innerHTML='<span class="bo-bank-chip is-empty">'+esc(e.message||'Failed to load')+'</span>';
     }
+  }
+
+  /* The three slots of one bank's card. Balance is the bank's own usage figure and Start is
+     derived from it and the flow the table is showing; a figure that cannot be known prints `n/a`
+     with the reason in its tooltip. */
+  function bankColumns(){
+    const cols=[];
+    if(!bankIndex) return cols;
+    bankIndex.forEach(function(bank){
+      const hasBalance=bank.balanceKnown;
+      // Withdrawals leave the bank, so the opening figure is the balance plus this range's
+      // withdrawals. A figure that cannot be reconciled prints n/a with the reason in its
+      // tooltip, never a guess.
+      const derived=hasBalance?bank.balance+num(bank.flow):null;
+      const hasStart=derived!=null&&derived>=0;
+      cols.push({
+        id:bank.id,name:bank.name,count:bank.pending,selected:String(bank.id)===String(selectedBankId),
+        aria:[bank.name,num(bank.pending)>0?', '+num(bank.pending)+' pending':''].join(''),
+        start:{value:derived,known:hasStart,text:'n/a',
+          title:hasStart?'Balance plus the withdrawal in this range':'Not derivable from the current balance'},
+        flow:{value:num(bank.flow),known:true,title:'Withdrawals in the range shown above'},
+        balance:{value:bank.balance,known:hasBalance,text:'n/a',title:'Bank usage from the payment method list'}
+      });
+    });
+    return cols;
+  }
+
+  function paintBankCards(host){
+    const el=host||document.getElementById('depositBankCards');
+    if(!el||!window.BO_BANK_SELECTOR) return;
+    el.innerHTML=window.BO_BANK_SELECTOR.bankCardsHtml(bankColumns(),money);
+  }
+
+  /* One selected bank at a time; clicking the selected column clears it. Selection decides which
+     rows the table shows, and the column keeps its tint while the figures stay visible for every
+     bank. Repainted in place rather than rebuilt: rebuilding would throw away the button the
+     admin just clicked, and with it the keyboard focus. */
+  function paintChipSelection(){
+    const host=document.getElementById('depositBankCards');
+    if(!host)return;
+    const current=selectedBankId==null?'':String(selectedBankId);
+    Array.prototype.forEach.call(host.querySelectorAll('.bo-bank-chip[data-bank-id]'),function(btn){
+      const on=String(btn.dataset.bankId)===current;
+      btn.classList.toggle('is-selected',on);
+      btn.setAttribute('aria-pressed',on?'true':'false');
+      const col=btn.closest('.bo-bank-matrix-head');
+      const cells=col?[col]:([]);
+      // the three figure cells of the same column: they follow the head cell in the grid
+      let next=col?col.nextElementSibling:null;
+      for(let i=0;i<3&&next;i++){ cells.push(next); next=next.nextElementSibling; }
+      cells.forEach(function(cell){ cell.classList.toggle('is-selected',on); });
+    });
+  }
+  function selectBank(id){
+    selectedBankId=(id==null||String(id)===String(selectedBankId))?null:String(id);
+    page=1;
+    paintChipSelection();
+    load();
   }
   function formatBankLabel(row){
     const name=String(row?.bankName||'-').trim()||'-';
@@ -149,28 +274,50 @@
     return account?`${name} (${account})`:name;
   }
   function statusClass(status){status=String(status||'').toUpperCase();if(status==='APPROVED')return'active';if(status==='REJECTED')return'off';return'';}
+
   function render(rows,pagination){currentRows=rows;const body=document.getElementById('withdrawBody');if(!body)return;if(!rows.length)body.innerHTML='<tr><td colspan="9">No withdraw request found.</td></tr>';else body.innerHTML=rows.map(r=>{const pending=String(r.status||'').toUpperCase()==='PENDING';const bankLabel=formatBankLabel(r);return `<tr><td>${dtCell(r.createdAt||r.created_at)}</td><td>${esc(r.username||'-')}</td><td>${money(r.amount)}</td><td><b>${esc(bankLabel)}</b></td><td>${esc(r.referenceNo||'-')}</td><td>${esc(r.remark||'-')}</td><td><span class="status-pill ${statusClass(r.status)}">${esc(r.status||'-')}</span></td><td>${esc(dt(r.processedAt))}</td><td>${pending?`<div class="bo-tx-actions"><button type="button" class="bo-tx-action-btn is-approve" data-approve="${esc(r.id)}" title="Approve" aria-label="Approve"><i class="bi bi-check-lg" aria-hidden="true"></i></button><button type="button" class="bo-tx-action-btn is-reject" data-reject="${esc(r.id)}" title="Reject" aria-label="Reject"><i class="bi bi-x-lg" aria-hidden="true"></i></button></div>`:`<div class="bo-tx-actions"><a class="bo-tx-action-btn is-ledger" href="wallet-ledger.html?memberId=${encodeURIComponent(r.memberId)}" title="Ledger" aria-label="Ledger"><i class="bi bi-journal-text" aria-hidden="true"></i></a></div>`}</td></tr>`;}).join('');totalPages=Number(pagination?.totalPages)||1;const pageSize=resolvePageSize(document.getElementById('withdrawSize')?.value);publishPagerMeta(pagination,pageSize);document.getElementById('withdrawPager').innerHTML=pageButtons(page,totalPages);document.getElementById('withdrawPrevBtn').disabled=page<=1;document.getElementById('withdrawNextBtn').disabled=page>=totalPages;requestAnimationFrame(()=>scheduleEvenFill());}
-  let loadGeneration=0;
-  async function load(){const generation=++loadGeneration;const body=document.getElementById('withdrawBody');if(body)body.innerHTML='<tr><td colspan="9">Loading withdraw requests...</td></tr>';try{const json=await api(endpoint('MEMBER_WITHDRAW_LIST')+'?'+query());if(generation!==loadGeneration)return;const data=json.data||{};const pagination=data.pagination||{};render(Array.isArray(data.content)?data.content:[],pagination);await refreshTxTabCounts(pagination?.totalElements);}catch(e){if(generation!==loadGeneration)return;if(body)body.innerHTML='<tr><td colspan="9" class="text-danger">'+esc(e.message||'Load failed')+'</td></tr>';}}
-  async function action(id,type,externalRow=null,externalMode=false){
-    const row=externalRow||currentRows.find(x=>String(x.id)===String(id));
+
+  /* Only the newest load may paint. Selecting a bank reads every page of the current
+     filters while a plain filter change reads one, so responses can arrive out of order and
+     an older, unfiltered one would otherwise overwrite the bank-filtered table. */
+  let loadToken=0;
+  async function load(){const token=++loadToken;const body=document.getElementById('withdrawBody');if(body)body.innerHTML='<tr><td colspan="9">Loading withdraw requests...</td></tr>';try{if(selectedBankId!=null){
+    // A bank is selected: the table shows that bank only, so the list is read for the
+    // current filters and narrowed here (see loadBankRows). The same filters feed the matrix's
+    // Withdraw column, so the figures and the rows always agree.
+    const [rows,methods]=await Promise.all([loadBankRows(),paymentMethods().catch(()=>[])]);
+    if(token!==loadToken) return;
+    const mine=rows.filter(r=>{const m=matchWithdrawBank(r,methods);return !!m&&String(m.id)===String(selectedBankId);});
+    const size=resolvePageSize(document.getElementById('withdrawSize')?.value);
+    const pages=Math.max(1,Math.ceil(mine.length/size));
+    if(page>pages) page=pages;
+    render(mine.slice((page-1)*size,((page-1)*size)+size),{totalElements:mine.length,totalPages:pages});
+    return;
+  }const json=await api(endpoint('MEMBER_WITHDRAW_LIST')+'?'+query());if(token!==loadToken) return;const data=json.data||{};render(Array.isArray(data.content)?data.content:[],data.pagination||{});}catch(e){if(token!==loadToken) return;if(body)body.innerHTML='<tr><td colspan="9" class="text-danger">'+esc(e.message||'Load failed')+'</td></tr>';}}
+  async function action(id,type){
+    const row=currentRows.find(x=>String(x.id)===String(id));
     if(type==='reject'){
       const adminRemark=await BO_DIALOG.prompt(`Enter admin remark to reject this withdraw request${row?' #'+row.id+' ('+money(row.amount)+')':''}.`,'',{title:'Admin Remark',inputLabel:'Admin remark',confirmText:'Continue'});if(adminRemark===null)return;
       if(!(await BO_DIALOG.confirm('Confirm reject this withdraw request?',{title:'Confirm Withdrawal Rejection'})))return;
-      try{const json=await api(endpoint('MEMBER_WITHDRAW_REJECT')+'/'+encodeURIComponent(id),{method:'POST',headers:{'Content-Type':'application/json','X-Admin-Username':String(BO_AUTH.user()?.username||'ADMIN'),...BO_AUTH.authHeader()},body:JSON.stringify({adminRemark})});BO_DIALOG.alert(json.message||'Done',{title:'Withdraw Updated'});if(!externalMode)await load();await renderBankCards();document.dispatchEvent(new CustomEvent('bo:wallet-request-updated',{detail:{type:'withdraw',action:type,id:String(id)}}));}catch(e){BO_DIALOG.alert(e.message||'Action failed',{title:'Withdraw Action Failed',type:'error'});}return;
+      try{const json=await api(endpoint('MEMBER_WITHDRAW_REJECT')+'/'+encodeURIComponent(id),{method:'POST',headers:{'Content-Type':'application/json','X-Admin-Username':String(BO_AUTH.user()?.username||'ADMIN'),...BO_AUTH.authHeader()},body:JSON.stringify({adminRemark})});BO_DIALOG.alert(json.message||'Done',{title:'Withdraw Updated'});await load();await renderBankCards();document.dispatchEvent(new CustomEvent('bo:wallet-request-updated',{detail:{type:'withdraw',action:type,id:String(id)}}));}catch(e){BO_DIALOG.alert(e.message||'Action failed',{title:'Withdraw Action Failed',type:'error'});}return;
     }
     try{
       const methods=await paymentMethods();
       const picked=await approvalPopup({title:'Final Withdrawal Confirmation',subtitle:'Double-confirm the member payout destination and the casino bank funding this withdrawal.',methods,defaultBankId:'',amount:row?.amount,bankLabel:'Casino Funding Bank (Bank Usage Deduction)',confirmText:'Approve Withdrawal',warning:'Only the selected casino funding bank affects Bank Deposit Usage. Approved deposit = + usage; approved withdrawal = - usage. The member bank above is the payout destination only.',summaryHtml:`<div class="bank-approval-summary"><b>Member:</b> ${esc(row?.username||'-')} (#${esc(row?.memberId||'-')})<br><b>Withdraw Amount:</b> ${money(row?.amount)}<div class="withdraw-destination-detail"><div><span>Member Destination Bank</span><b>${esc(row?.bankName||'-')}</b></div><div><span>Account Name</span><b>${esc(row?.accountName||'-')}</b></div><div><span>Account Number</span><b>${esc(row?.bankAccount||'-')}</b></div><div><span>Reference</span><b>${esc(row?.referenceNo||'-')}</b></div></div></div>`});
       if(!picked)return;
       if(!(await BO_DIALOG.confirm(`Final check: approve ${money(row?.amount)} withdrawal and deduct -${money(row?.amount)} from ${picked.paymentMethodLabel||'the selected funding bank'}? Bank Usage will change from ${money(picked.bankUsage)} to ${money(picked.remainingUsage)}.`,{title:'Confirm Withdrawal Approval'})))return;
-      const json=await api(endpoint('MEMBER_WITHDRAW_APPROVE')+'/'+encodeURIComponent(id),{method:'POST',headers:{'Content-Type':'application/json','X-Admin-Username':String(BO_AUTH.user()?.username||'ADMIN'),...BO_AUTH.authHeader()},body:JSON.stringify({adminRemark:picked.adminRemark,fundingPaymentMethodId:picked.paymentMethodId})});BO_DIALOG.alert(json.message||'Done',{title:'Withdraw Updated'});if(!externalMode)await load();await renderBankCards();document.dispatchEvent(new CustomEvent('bo:wallet-request-updated',{detail:{type:'withdraw',action:type,id:String(id)}}));
+      const json=await api(endpoint('MEMBER_WITHDRAW_APPROVE')+'/'+encodeURIComponent(id),{method:'POST',headers:{'Content-Type':'application/json','X-Admin-Username':String(BO_AUTH.user()?.username||'ADMIN'),...BO_AUTH.authHeader()},body:JSON.stringify({adminRemark:picked.adminRemark,fundingPaymentMethodId:picked.paymentMethodId})});BO_DIALOG.alert(json.message||'Done',{title:'Withdraw Updated'});await load();await renderBankCards();document.dispatchEvent(new CustomEvent('bo:wallet-request-updated',{detail:{type:'withdraw',action:type,id:String(id)}}));
     }catch(e){BO_DIALOG.alert(e.message||'Action failed',{title:'Withdraw Action Failed',type:'error'});}
   }
-  window.BO_MEMBER_WITHDRAW_ACTION=(id,type,row)=>action(id,type,row,true);
   // Action buttons are rendered dynamically, so use delegated clicks.
   // This keeps Approve / Reject working after load, search, pagination and refresh.
   document.addEventListener('click',e=>{
+    const chip=e.target.closest?.('[data-bank-id]');
+    if(chip){
+      e.preventDefault();
+      selectBank(chip.dataset.bankId);
+      return;
+    }
     const approveBtn=e.target.closest?.('[data-approve]');
     const rejectBtn=e.target.closest?.('[data-reject]');
     if(approveBtn){
@@ -184,16 +331,13 @@
     }
   });
 
-  let txCountGeneration=0;
-  async function refreshTxTabCounts(knownWithdrawTotal){
-    const generation=++txCountGeneration;
+  async function refreshTxTabCounts(){
     const from=document.getElementById('withdrawFrom')?.value||'';
     const to=document.getElementById('withdrawTo')?.value||'';
     const status=document.getElementById('withdrawStatus')?.value||'';
     const statusFilter=status==='ALL'?'':status;
-    const keyword=document.getElementById('withdrawKeyword')?.value.trim()||'';
-    async function count(key){const params=new URLSearchParams({page:'1',size:'1'});if(from)params.set('dateFrom',from);if(to)params.set('dateTo',to);if(statusFilter)params.set('status',statusFilter);if(keyword)params.set('keyword',keyword);const json=await api(endpoint(key)+'?'+params);const d=json.data||{};const pg=json.pagination||d.pagination||d;const n=Number(pg.totalElements);if(Number.isFinite(n))return Math.max(0,n);const rows=d.content||d.items||d.list||[];return rows.length;}
-    try{const [d,w]=await Promise.all([count('MEMBER_DEPOSIT_LIST'),knownWithdrawTotal==null?count('MEMBER_WITHDRAW_LIST'):Promise.resolve(Number(knownWithdrawTotal)||0)]);if(generation!==txCountGeneration)return;const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=String(v);};set('boTxCountDeposit',d);set('boTxCountWithdraw',w);set('boTxCountAll',d+w);}catch(_e){}
+    async function count(key){const params=new URLSearchParams({page:'1',size:'1'});if(from)params.set('dateFrom',from);if(to)params.set('dateTo',to);if(statusFilter)params.set('status',statusFilter);const json=await api(endpoint(key)+'?'+params);const d=json.data||{};const pg=json.pagination||d.pagination||d;const n=Number(pg.totalElements);if(Number.isFinite(n))return Math.max(0,n);const rows=d.content||d.items||d.list||[];return rows.length;}
+    try{const [d,w]=await Promise.all([count('MEMBER_DEPOSIT_LIST'),count('MEMBER_WITHDRAW_LIST')]);const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=String(v);};set('boTxCountDeposit',d);set('boTxCountWithdraw',w);set('boTxCountAll',d+w);}catch(_e){}
   }
   function syncTxTypeTabs(defaultType){
     const params=new URLSearchParams(location.search);
@@ -209,16 +353,15 @@
       const n=Number(String(el?.textContent||'').replace(/[^\d.-]/g,''));
       return Number.isFinite(n)?Math.max(0,Math.round(n)):0;
     };
-    // Wait for the first filtered table response before publishing counts.
+    refreshTxTabCounts();
     const track=document.querySelector('.bo-tx-tabs');
     if(track&&window.BO_SEG_BOUNCE) window.BO_SEG_BOUNCE.mount(track,{button:':scope > .bo-tx-tab',anim:'bounce'});
   }
 
   const initWithdrawPage=()=>{
-    if(new URLSearchParams(location.search).get('tab')==='all')return;
     syncTxTypeTabs('withdraw');
     let keywordTimer=0;
-    const runSearch=()=>{page=1;clearLockedAutoSize();load();};
+    const runSearch=()=>{page=1;clearLockedAutoSize();load();renderBankCards();};
     document.getElementById('withdrawKeyword')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();clearTimeout(keywordTimer);runSearch();}});
     document.getElementById('withdrawKeyword')?.addEventListener('input',()=>{clearTimeout(keywordTimer);keywordTimer=setTimeout(runSearch,350);});
     document.getElementById('withdrawStatus')?.addEventListener('change',runSearch);
@@ -240,7 +383,7 @@
     }));
     let resizeTimer=0;
     window.addEventListener('resize',()=>{
-      if(!isAutoPageSize(document.getElementById('withdrawSize')?.value)) return;
+        if(!isAutoPageSize(document.getElementById('withdrawSize')?.value)) return;
       clearTimeout(resizeTimer);
       resizeTimer=setTimeout(()=>{
         const prev=lockedAutoSize;
@@ -265,9 +408,6 @@
     if(signature===realtimeWithdrawSignature)return;
     const hadBaseline=realtimeWithdrawSignature!=='';
     realtimeWithdrawSignature=signature;
-    // The first realtime snapshot also refreshes once. This closes the small race
-    // where a member submits after the page's initial API load but before the first
-    // notification snapshot reaches this tab.
     clearTimeout(realtimeWithdrawTimer);
     realtimeWithdrawTimer=setTimeout(()=>{
       page=1;
@@ -277,7 +417,7 @@
     },hadBaseline?80:120);
   });
 
-  window.addEventListener('pagehide',()=>{clearTimeout(realtimeWithdrawTimer);loadGeneration++;txCountGeneration++;});
+  window.addEventListener('pagehide',()=>{clearTimeout(realtimeWithdrawTimer);loadToken++;});
   window.addEventListener('pageshow',e=>{
     if(!e.persisted)return;
     page=1;clearLockedAutoSize();load();renderBankCards();

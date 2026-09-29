@@ -1,0 +1,176 @@
+/* Page-level module navigation.
+   ------------------------------------------------------------------
+   A module whose pages are peers of one workspace (Transaction: 3.1 New Deposit /
+   3.3 Bulk Adjustment / 3.4 Bank Deposit Usage) keeps ONE row in the sidebar and puts
+   its section links on the page itself, directly under the page header, on the content
+   container's own left edge. The sidebar therefore no longer opens a floating submenu
+   over the page content; the module row only carries the module's active state.
+
+   Visual language is the Admin Management tab row (.mad-tab in
+   menu-permission-executive.css): text only — no buttons, no per-tab cards, no
+   gradient — active state is dark text over a 2px orange underline.
+
+   Tokens are the Transaction module's own set. bo-wallet-transaction-amber.css states
+   --bo-border / --bo-text / --bo-muted / --bo-cyan on body.bo-wallet-tx and re-states
+   them for dark mode, so the row follows the page's theme without a second copy of the
+   palette here; the literals are only a fallback for a page that misses that sheet.
+   ------------------------------------------------------------------ */
+
+.bo-module-tabs{
+  display:flex;
+  align-items:stretch;
+  flex-wrap:nowrap;
+  gap:4px;
+  width:100%;
+  height:48px;
+  min-height:48px;
+  box-sizing:border-box;
+  /* No bottom margin: every page this row appears on is a `bo-wallet-tx` content column
+     (`display:flex; flex-direction:column` with its own gap), so a margin here would be a
+     second, competing space between the tabs and whatever follows them. */
+  margin:0;
+  padding:0;
+  border-bottom:1px solid var(--bo-border,#EADCC8);
+  /* A narrow screen scrolls this row sideways. The module never falls back to a
+     second-level sidebar. */
+  overflow-x:auto;
+  overflow-y:hidden;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior-x:contain;
+  scrollbar-width:none;
+  -ms-overflow-style:none;
+}
+
+.bo-module-tabs::-webkit-scrollbar{
+  width:0;
+  height:0;
+  display:none;
+}
+
+.bo-module-tabs .bo-module-tab{
+  display:inline-flex;
+  align-items:center;
+  flex:0 0 auto;
+  height:100%;
+  margin:0;
+  padding:0 12px;
+  border:0;
+  border-bottom:2px solid transparent;
+  border-radius:0;
+  background:transparent!important;
+  color:var(--bo-muted,#71717A);
+  font-size:13.5px;
+  font-weight:650;
+  line-height:1.2;
+  white-space:nowrap;
+  text-decoration:none;
+  cursor:pointer;
+  transition:color .16s var(--bo-ease,ease),border-color .16s var(--bo-ease,ease);
+}
+
+.bo-module-tabs .bo-module-tab:hover{
+  background:transparent!important;
+  color:var(--bo-text,#18191C);
+}
+
+.bo-module-tabs .bo-module-tab.is-active{
+  background:transparent!important;
+  color:var(--bo-text,#18191C)!important;
+  font-weight:800;
+  border-bottom-color:var(--bo-cyan,#D97706)!important;
+}
+
+.bo-module-tabs .bo-module-tab:focus-visible{
+  outline:2px solid var(--bo-cyan,#D97706);
+  outline-offset:2px;
+  box-shadow:0 0 0 3px var(--bo-cyan-tint,rgba(217,119,6,.14));
+}
+
+@media(max-width:991.98px){
+  .bo-module-tabs{
+    height:44px;
+    min-height:44px;
+    margin-bottom:12px;
+  }
+  .bo-module-tabs .bo-module-tab{
+    padding:0 10px;
+    font-size:13px;
+  }
+}
+
+/* ------------------------------------------------------------------
+   The module's sidebar row, now that it opens no submenu.
+   The row is the module's active marker for every page inside the module, and it keeps
+   exactly the look it had while its submenu was open — the "cream chip + left amber pill
+   bar (locked reference)" rules in bo-wallet-transaction-amber.css — restated for the
+   direct-anchor shape so the module's active state does not disappear with the flyout.
+   Same values, no new palette. The selector is deliberately as long as theirs: the idle
+   rule `... .nav-group .nav-group-btn{background:transparent!important}` is itself
+   specific, and a shorter selector here would lose to it and leave the row unmarked.
+   ------------------------------------------------------------------ */
+html:not([data-bo-theme="dark"]) body.bo-wallet-tx .report-sidebar .report-nav .nav-group .nav-group-btn.nav-group-direct.active{
+  position:relative;
+  background:linear-gradient(135deg,#FFF8EF 0%,#FFE8CC 48%,#FFF3E0 100%)!important;
+  color:#6b360c!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.85),
+    0 0 0 1px rgba(217,119,6,.18),
+    0 6px 16px rgba(217,119,6,.12)!important;
+  border:0!important;
+  border-radius:10px!important;
+  overflow:hidden;
+  text-shadow:none;
+}
+
+html:not([data-bo-theme="dark"]) body.bo-wallet-tx .report-sidebar .report-nav .nav-group .nav-group-btn.nav-group-direct.active::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:7px;
+  bottom:7px;
+  width:3px;
+  border-radius:999px;
+  background:linear-gradient(180deg,#FBBF24 0%,#D97706 100%);
+  box-shadow:0 0 10px rgba(217,119,6,.35);
+  pointer-events:none;
+  z-index:1;
+}
+
+html:not([data-bo-theme="dark"]) body.bo-wallet-tx .report-sidebar .report-nav .nav-group .nav-group-btn.nav-group-direct.active i{
+  color:#6b360c!important;
+  opacity:1;
+  filter:none;
+}
+
+html[data-bo-theme="dark"] body.bo-wallet-tx .report-sidebar .report-nav .nav-group .nav-group-btn.nav-group-direct.active{
+  position:relative;
+  background:linear-gradient(90deg,rgba(245,158,11,.16) 0%,rgba(245,158,11,.05) 45%,transparent 100%)!important;
+  color:#FBBF24!important;
+  box-shadow:
+    inset 0 1px 0 rgba(245,158,11,.18),
+    inset 0 -1px 0 rgba(245,158,11,.10),
+    0 0 28px rgba(245,158,11,.12)!important;
+  border:0!important;
+  border-radius:8px!important;
+  overflow:hidden;
+  text-shadow:0 0 18px rgba(245,158,11,.45);
+}
+
+html[data-bo-theme="dark"] body.bo-wallet-tx .report-sidebar .report-nav .nav-group .nav-group-btn.nav-group-direct.active::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:8px;
+  bottom:8px;
+  width:2px;
+  border-radius:999px;
+  background:linear-gradient(180deg,#FDE68A 0%,#F59E0B 55%,#D97706 100%);
+  box-shadow:0 0 10px rgba(245,158,11,.9),0 0 18px rgba(245,158,11,.5);
+  pointer-events:none;
+  z-index:1;
+}
+
+html[data-bo-theme="dark"] body.bo-wallet-tx .report-sidebar .report-nav .nav-group .nav-group-btn.nav-group-direct.active i{
+  color:#FBBF24!important;
+  filter:drop-shadow(0 0 8px rgba(245,158,11,.65));
+}

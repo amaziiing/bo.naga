@@ -139,9 +139,72 @@
     return p;
   }
 
+  // Page-level module navigation.
+  // A module whose pages are peers of one workspace lists its sections on the page itself,
+  // directly under the page header, instead of expanding them inside the sidebar (Admin
+  // Management already works this way with .mad-tabs). The sidebar keeps a single row carrying
+  // the module's active state and never opens a floating submenu over the page content.
+  // Routing is untouched: every section is a plain link to the same page file the sidebar
+  // submenu used to point at. A page listed here must also link assets/css/bo-module-tabs.css.
+  //
+  // `module` names the workspace a page belongs to and `order` is its place in the row. The
+  // anchor in MODULE_ANCHORS is the page a group must own to BE that module's group: without
+  // it, a database group that merely shares two files with a module (a Wallet group holding
+  // Member Wallet + Wallet Ledger, say) would lose its own submenu to this feature.
+  //
+  // A section that is two pages, not one, lists them in `sections` — Bulk Adjustment is
+  // Win/Lose Adjustment or Bonus Adjustment, and the module row never shows a single
+  // "Bulk Adjustment" entry in its place: every page of the module shows the same two
+  // destinations, so the whole workspace reads as one set of tabs.
+  const MODULE_TABS = {
+    // 3. Transaction
+    'member-deposit.html':{label:'Deposit Approval',order:1,module:'transaction'},
+    'bulk-adjustment.html':{order:2,module:'transaction',sections:[
+      {label:'Win/Lose Adjustment',href:'bulk-adjustment.html?tab=winlose'},
+      {label:'Bonus Adjustment',href:'bulk-adjustment.html?tab=bonus'}
+    ]},
+    'bank-deposit-usage.html':{label:'Bank Deposit Usage',order:3,module:'transaction'},
+    // 4. Member
+    'index.html':{label:'User Management',order:1,module:'member'},
+    'member-wallet.html':{label:'Member Wallet',order:2,module:'member'},
+    'wallet-ledger.html':{label:'Wallet Ledger',order:3,module:'member'},
+    'referral.html':{label:'Referral Network',order:4,module:'member'}
+  };
+
+  const MODULE_ANCHORS = {transaction:'member-deposit.html', member:'index.html'};
+  const MODULE_LABELS = {transaction:'Transaction', member:'Member'};
+
+  // Those two pages are the ones that own that pair, and each already authors it as its
+  // own .bulk-family-tabs row — a second row of links under the module row, drawn like
+  // the module row, saying the same two things. Such a page hands its own authored links
+  // to the module row instead of using the list above, so the destinations and the active
+  // state stay exactly what the page declared (including its redirect stubs), and a page
+  // that renders without this script keeps its own row where it always was.
+  const MODULE_SECTION_PAGES = {
+    'bulk-adjustment.html':'bulk-adjustment.html',
+    'bulk-bonus-adjustment.html':'bulk-adjustment.html'
+  };
+
   // Sidebar group metadata is loaded from the database only via /admin/access/menu-groups.
   // Do not define, seed or repair sidebar groups in frontend code.
   const GROUP_META = window.BO_MENU_GROUP_META = {};
+
+  // A section row whose links the module row now carries. Inline and !important because
+  // the page themes set these rows with !important of their own.
+  function hiddenSectionRow(row){
+    if(!row || row.dataset.boModuleAdopted === '1') return;
+    row.dataset.boModuleAdopted = '1';
+    row.style.setProperty('display','none','important');
+    row.setAttribute('aria-hidden','true');
+  }
+
+  // One module-row tab. Same element for every source of sections, so a tab can never
+  // look or announce itself differently depending on where its link came from.
+  function moduleTabHtml(label, href, active){
+    return '<a class="bo-module-tab' + (active ? ' is-active' : '') + '" role="tab" href="' + esc(href) + '"' +
+      ' aria-selected="' + (active ? 'true' : 'false') + '"' + (active ? ' aria-current="page"' : '') + '>' +
+      esc(label) + '</a>';
+  }
 
   function canonicalMenuUrl(menuKey, rawUrl){
     // Database Menu Management is authoritative. Never rewrite a configured menu URL in the sidebar.
@@ -549,8 +612,91 @@
       }
       return true;
     },
+    /* Page-level module navigation: the section links the sidebar submenu used to hold,
+       painted under the page header on the content container's left edge.
+       Sections come from the admin's own assigned menus, so a section the role cannot
+       open never appears; the page being viewed always keeps its own tab even when access
+       came from a parent menu permission (see the aliases in enforcePageAccess). */
+    moduleTabsHtml: function(user, state){
+      const current = pageName();
+      const isSectionPage = Object.prototype.hasOwnProperty.call(MODULE_SECTION_PAGES, current);
+      const currentTab = MODULE_TABS[current];
+      const moduleKey = currentTab ? currentTab.module
+        : (isSectionPage ? MODULE_TABS[MODULE_SECTION_PAGES[current]].module : null);
+      if(!moduleKey) return '';
+      const assigned = {};
+      this.allowedMenus(user || this.user()).forEach(function(m){
+        const file = pageFile(m.url || '');
+        const tab = MODULE_TABS[file];
+        if(tab && tab.module === moduleKey) assigned[file] = true;
+      });
+      assigned[current] = true;
+      const files = Object.keys(MODULE_TABS)
+        .filter(function(f){ return MODULE_TABS[f].module === moduleKey && assigned[f]; })
+        .sort(function(a,b){ return MODULE_TABS[a].order - MODULE_TABS[b].order; });
+      // The page's own section links, handed over in place of the one section it covers.
+      const owned = isSectionPage ? this.ownedSectionLinks() : null;
+      const slot = MODULE_SECTION_PAGES[current];
+      const useOwned = !!(owned && owned.links.length && files.indexOf(slot) !== -1);
+      const tabs = [];
+      files.forEach(function(f){
+        const section = MODULE_TABS[f];
+        if(section.sections){
+          if(useOwned && f === slot) owned.links.forEach(function(l){ tabs.push(l.html); });
+          else section.sections.forEach(function(s){ tabs.push(moduleTabHtml(s.label, s.href, false)); });
+          return;
+        }
+        tabs.push(moduleTabHtml(section.label, f, f === current));
+      });
+      // One section is not navigation; a single tab would only repeat the page title.
+      if(tabs.length < 2) return '';
+      if(state) state.adoptRow = useOwned ? owned.row : null;
+      return '<nav class="bo-module-tabs" role="tablist" aria-label="' + esc(MODULE_LABELS[moduleKey] || 'Module') + ' sections">' + tabs.join('') + '</nav>';
+    },
+    /* The section links this page already authored for itself, as module-row tabs.
+       Only the destination and the label travel; the appearance is the module row's. */
+    ownedSectionLinks: function(){
+      const row = document.querySelector('.report-content > .bulk-family-tabs');
+      if(!row) return null;
+      const links = [];
+      Array.prototype.forEach.call(row.querySelectorAll('a[href]'), function(a){
+        const href = String(a.getAttribute('href') || '');
+        if(!href) return;
+        const active = a.classList.contains('is-active') || a.getAttribute('aria-current') === 'page';
+        links.push({ html: moduleTabHtml(String(a.textContent || '').trim(), href, active) });
+      });
+      return { row: row, links: links };
+    },
+    renderModuleTabs: function(user){
+      const content = document.querySelector('.report-main .report-content') || document.querySelector('.report-content');
+      if(!content) return;
+      const state = {};
+      const html = this.moduleTabsHtml(user, state);
+      let existing = null;
+      for(let i=0;i<content.children.length;i++){
+        if(content.children[i].classList.contains('bo-module-tabs')){ existing = content.children[i]; break; }
+      }
+      if(!html){ if(existing) existing.remove(); return; }
+      const holder = document.createElement('div');
+      holder.innerHTML = html;
+      const next = holder.firstElementChild;
+      if(existing){
+        if(existing.innerHTML === next.innerHTML){ if(state.adoptRow) hiddenSectionRow(state.adoptRow); return; }
+        existing.replaceWith(next);
+      } else {
+        content.insertBefore(next, content.firstChild);
+      }
+      // Its links are on the module row now, so the page's own row has nothing left to
+      // show. It is hidden rather than removed: it stays the one source of those links,
+      // and renderModuleTabs runs on every menu refresh, so the next pass must still be
+      // able to read them and rebuild the same row.
+      if(state.adoptRow) hiddenSectionRow(state.adoptRow);
+    },
     renderSidebar: function(user){
       const nav = document.querySelector('.report-nav');
+      // The page-level module tabs need no sidebar of their own, so they are painted even
+      // on a page that has no .report-nav to fill.
+      this.renderModuleTabs(user);
       if(!nav) return;
       user = user || this.user();
       const sourceMenus = Array.isArray(user && user.menus) ? user.menus : [];
@@ -645,6 +791,34 @@
       });
       roots.sort(function(a,b){ return Number(a.sortOrder||0)-Number(b.sortOrder||0)||String(a.title||'').localeCompare(String(b.title||'')); });
 
+      // Every page file a group owns, whether or not it is visible in the sidebar. A group
+      // can be assigned with its children hidden, and those hidden children still identify
+      // which module the group is.
+      function groupPageFiles(root){
+        const files=new Set();
+        root.items.forEach(function(m){ files.add(pageFile(m.url||'')); });
+        (activeAssignedChildrenByGroup[root.key]||[]).forEach(function(m){ files.add(pageFile(m.url||'')); });
+        return files;
+      }
+      // Which module (if any) owns this group? At least two of the module's pages, and the
+      // module's own anchor page, are required. The anchor is what keeps a database group that
+      // merely shares files with a module — a Wallet group holding Member Wallet + Wallet
+      // Ledger — as a normal group with its own submenu. The name fallback covers a group that
+      // holds one of a module's pages and is titled for that module.
+      function groupModuleKey(root){
+        const files=groupPageFiles(root);
+        let best=null,bestHits=0;
+        Object.keys(MODULE_ANCHORS).forEach(function(key){
+          let hits=0;
+          files.forEach(function(f){ const tab=MODULE_TABS[f]; if(tab&&tab.module===key) hits++; });
+          if(hits>bestHits){ bestHits=hits; best=key; }
+        });
+        if(!best) return null;
+        if(bestHits>=2 && files.has(MODULE_ANCHORS[best])) return best;
+        if(bestHits===1 && new RegExp(best,'i').test(String(root.key||'')+' '+String(root.title||''))) return best;
+        return null;
+      }
+
       const activePage=sidebarActivePage();
       const activeFile=pageFile(activePage);
       // Same HTML can appear under multiple groups (e.g. wallet-ledger in Transaction + Member).
@@ -695,6 +869,19 @@
               '<a href="'+esc(target.url)+'" class="nav-group-btn nav-group-direct '+(targetActive?'active':'')+'" data-menu-key="'+esc(target.menuKey)+'" data-rail-label="'+esc(root.title)+'">'+
               '<span><i class="bi '+esc(root.icon)+' me-2"></i>'+esc(root.title)+'</span></a></div>';
           }
+          return;
+        }
+        // This module's sections live on the page (see renderModuleTabs), so its sidebar row
+        // links straight into the module instead of opening a floating submenu over the
+        // content. Deliberately the same markup as the all-children-hidden case above: one
+        // anchor, no chevron, no .nav-group-list, so the rail label, the active state and the
+        // mobile tap already behave and the hover/click flyout handlers skip it.
+        if(groupModuleKey(root)){
+          const target=root.items[0];
+          const targetActive=primaryGroupKey!=null && root.key===primaryGroupKey;
+          html+='<div class="nav-group nav-group-empty" data-menu-group="'+esc(root.key)+'">'+
+            '<a href="'+esc(target.url)+'" class="nav-group-btn nav-group-direct '+(targetActive?'active':'')+'" data-menu-key="'+esc(target.menuKey)+'" data-rail-label="'+esc(root.title)+'">'+
+            '<span><i class="bi '+esc(root.icon)+' me-2"></i>'+esc(root.title)+'</span></a></div>';
           return;
         }
         // `.bo-flyout-title` heads the panel in the collapsed rail, where the rail
@@ -1306,10 +1493,11 @@
 
   // Warm the small set of sibling workspace tabs in the browser cache. Tabs remain
   // normal links/full navigations; this only removes avoidable HTML wait when users
-  // switch between Admin/Merchant/Provider/Report tabs. No UI or routing is replaced.
+  // switch between Admin/Merchant/Provider/Report tabs — and between the page-level
+  // module tabs, which are the same kind of link. No UI or routing is replaced.
   function warmWorkspaceTabs(){
     const seen=new Set();
-    document.querySelectorAll('.mad-tabs a[href]').forEach(function(a){
+    document.querySelectorAll('.mad-tabs a[href], .bo-module-tabs a[href]').forEach(function(a){
       let u;
       try{ u=new URL(a.getAttribute('href'),location.href); }catch(e){ return; }
       if(u.origin!==location.origin || u.href===location.href || seen.has(u.href)) return;

@@ -20,6 +20,7 @@
 <link href="assets/css/bo-seg-bounce.css?v=fcde0bb3" rel="stylesheet"/>
 <link href="assets/css/bo-scrollbar.css?v=7c2a456b" rel="stylesheet"/>
 <link href="assets/css/bo-field-standard.css?v=06f5ae19" rel="stylesheet">
+<link href="assets/css/bo-bank-selector.css?v=341f77ed" rel="stylesheet"/>
 <script>
 (function(){
   try{
@@ -27,7 +28,7 @@
   }catch(e){}
 })();
 </script>
-<link href="assets/css/bo-shell.css?v=2" rel="stylesheet" />
+<link href="assets/css/bo-shell.css?v=029c7655" rel="stylesheet" />
 </head>
 <body class="report-body standardized-listing-page withdraw-approval-page bo-wallet-tx">
 <div class="report-shell">
@@ -42,8 +43,10 @@
 <header class="report-topbar" data-bo-topbar data-bo-title="Withdraw Approval" data-bo-icon="bi-cash-stack" data-bo-subtitle="Review and process member withdrawal requests."></header>
 <script src="assets/js/bo-topbar.js?v=1"></script>
 <section class="report-content">
-<div class="quick-stats approval-pending-stats deposit-bank-card-stats" id="withdrawBankCards">
-<article class="deposit-bank-card is-empty"><div class="deposit-bank-total"><span>Banks</span><strong>-</strong></div><div class="bo-summary-note">Loading bank totals...</div></article>
+<div class="bo-bank-dock">
+<div class="quick-stats approval-pending-stats deposit-bank-card-stats bo-bank-chips" id="withdrawBankCards">
+<span class="bo-bank-chip is-empty">Loading banks...</span>
+</div>
 </div>
 <div class="table-card">
 <div class="filter-card deposit-inline-filter">
@@ -95,11 +98,12 @@
 <script src="assets/js/brand-context.js?v=3bb07655"></script>
 <script src="assets/js/main-currency-runtime.js?v=bc97a89c"></script>
 <script src="assets/js/currency-runtime.js?v=71496e4c"></script>
-<script src="assets/js/auth.js?v=1.0.31"></script>
+<script src="assets/js/auth.js?v=1.0.32"></script>
 <script src="assets/js/bo-theme.js?v=b1e789f3"></script>
 <script src="assets/js/reports.js?v=063b42e4"></script>
 <script src="assets/js/bo-date-range.js?v=20f731df"></script>
-<script src="assets/js/member-withdraw.js?v=1.0.44"></script>
+<script src="assets/js/bo-bank-selector.js?v=16f30888"></script>
+<script src="assets/js/member-withdraw.js?v=1.0.62"></script>
 <script src="assets/js/bo-seg-bounce.js?v=0c2f53d2"></script>
 <!-- Global live-chat listener: keeps the custom MP3 notification active throughout the BO. -->
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>

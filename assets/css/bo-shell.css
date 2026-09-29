@@ -71,6 +71,25 @@ html:has(.report-topbar[data-bo-topbar]){
   }
 }
 
+/* 0c-1. The module row (auth.js MODULE_TABS) is the first child of .report-content, and it
+   is drawn as a 1:1 copy of Admin Management's .mad-chrome row - so it takes the same 8px
+   inset under the header that Admin Management's workspace carries. Left to the pages it
+   inherited whatever .report-content padding they happened to declare: 18px on the Member
+   and Transaction listing pages, 12px on referral, i.e. the same row at two heights on one
+   page switch. This replaces the per-page rule that retired bo-group-tabs.css used to carry
+   for the Member pages, and covers the Transaction module row with it. Desktop only, like
+   the two insets above. */
+@media (min-width:1024px){
+  html:not(#bo-charcoal-off) body.report-body .report-shell .report-main .report-content:has(> .bo-module-tabs){
+    padding-top:8px!important;
+  }
+  /* Referral's two-id guard again, mirrored for the same reason as 0c. */
+  html:not([data-bo-theme="dark"]) body:not(#bo-charcoal-off):not(#bo-charcoal-legacy).referral-page.report-body.bo-charcoal .report-content:has(> .bo-module-tabs),
+  html[data-bo-theme="dark"] body:not(#bo-charcoal-off):not(#bo-charcoal-legacy).referral-page.report-body.bo-charcoal .report-content:has(> .bo-module-tabs){
+    padding-top:8px!important;
+  }
+}
+
 /* 0d. Sidebar rows. The BO rail drifts the same way the header did: the wallet family
    (member-wallet / wallet-ledger / member-deposit) ships its own rail metrics, so the
    same category sat 5px higher there than on User Management and the row text rendered

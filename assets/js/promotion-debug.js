@@ -161,7 +161,6 @@
     paintRows(lastRows);
   }
   async function load(){try{set('Loading claims…','');const rows=await request(endpoint());render(rows);set('','ok');}catch(e){tbody.innerHTML='<tr><td colspan="9" class="pl-empty-cell">'+esc(e.message)+'</td></tr>';updateShowing(0,0,0);renderPager(0,0,true);set(e.message,'err');}}
-  async function syncBetLogs(){try{set('Syncing provider bet logs…','');const data=await request('/admin/promotion/debug/sync-bet-logs',{method:'POST',body:JSON.stringify({})});set('Synced · checked '+(data.checked||0)+' · applied '+(data.applied||0)+' · skipped '+(data.skipped||0),'ok');await load();}catch(e){set(e.message,'err');}}
   async function action(id,act){try{let path='/admin/promotion/debug/'+act, body={claimId:id}; if(act==='progress'){let amount=await BO_DIALOG.prompt('Enter the valid bet / winover amount:','10',{title:'Add Progress',inputLabel:'Amount',confirmText:'Add'}); if(amount===null)return; body.amount=Number(amount||0); path='/admin/promotion/debug/add-progress';} if(act==='reset'&&!(await BO_DIALOG.confirm('Reset will DELETE this claim, then member can claim again. Continue?', {title:'Reset Claim', confirmText:'Reset'})))return; if(act==='forfeit'&&!(await BO_DIALOG.confirm('Forfeit this promotion claim?', {title:'Forfeit Claim', confirmText:'Forfeit'})))return; await request(path,{method:'POST',body:JSON.stringify(body)}); set('Claim updated','ok'); await load();}catch(e){set(e.message,'err');}}
   function ensureActTip(){
     let tip=document.getElementById('plActTip');
@@ -240,8 +239,6 @@
   });
   window.addEventListener('scroll',hideActTip,true);
   window.addEventListener('resize',hideActTip);
-  $('dbgRefreshBtn')?.addEventListener('click',load);
-  $('dbgSyncBetLogsBtn')?.addEventListener('click',syncBetLogs);
   $('dbgKeyword')?.addEventListener('keydown',e=>{if(e.key==='Enter'){page=0;load();}});
   $('dbgPageSize')?.addEventListener('change',()=>{page=0;paintRows(lastRows);});
   document.addEventListener('DOMContentLoaded',()=>{

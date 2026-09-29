@@ -11,7 +11,9 @@
       'game-category.html': {formId:'categoryForm', idSelector:'#categoryId', refType:'game_category'},
       'game-sub-category.html': {formId:'subCategoryForm', idSelector:'#subCategoryId', refType:'game_sub_category'},
       'game.html': {formId:'gameForm', idSelector:'#gameId', refType:'game'},
-      'bonus-category-title.html': {formId:'bonusForm', idSelector:'#bonusId', refType:'bonus_category'},
+      // bonus-category-title.html folded into promotion.html; that page attaches its
+      // category form declaratively through data-translation-ref-type (see promotion.html),
+      // so no page-name registration is needed for it here.
       'bonus-category-item.html': {formId:'bonusItemForm', idSelector:'#bonusItemId', refType:'bonus_category_item'},
       'site-customize.html': {assetPanel:true, refType:'main_layout', refId:1, containerSelector:'#main-layout'}
     };

@@ -1986,3 +1986,31 @@ html[data-bo-theme="dark"] body.report-body.bo-charcoal .action-menu{
 html[data-bo-theme="dark"] body.report-body.bo-charcoal .action-menu button:hover{
   background:#2A2C36 !important;
 }
+
+/* Agent detail / performance pages kept a different card recipe — radius 16, or a card whose
+   top edge is merged with the filter strip (bottom-only rounding, no border). Per request they
+   now show the same card surface as every Agent listing: #FFF8EB + 1px #EADCC8 + radius 8 + the
+   same soft amber lift. Page-scoped, so the rest of the brand-agent family is untouched. */
+html:not([data-bo-theme="dark"]) body.agent-detail-page .table-card,
+html:not([data-bo-theme="dark"]) body.agent-performance-report-page .table-card,
+html:not([data-bo-theme="dark"]) body.agent-performance-detail-page .table-card{
+  background:#FFF8EB!important;
+  border:1px solid #EADCC8!important;
+  border-radius:8px!important;
+  box-shadow:0 5px 18px rgba(217,119,6,.035)!important;
+}
+/* The performance pages merge their filter strip (perf-filter-card) into the table card,
+   but the strip keeps agent-performance-report.css's base 16px while the card below it is
+   rounded 8 — so one box showed 16px top corners over 8px bottom ones. Match the card. */
+body.agent-performance-report-page .perf-filter-card,
+body.agent-performance-detail-page .perf-filter-card{
+  border-radius:8px 8px 0 0!important;
+}
+html[data-bo-theme="dark"] body.agent-detail-page .table-card,
+html[data-bo-theme="dark"] body.agent-performance-report-page .table-card,
+html[data-bo-theme="dark"] body.agent-performance-detail-page .table-card{
+  background:#383A46!important;
+  border:1px solid rgba(255,255,255,.14)!important;
+  border-radius:8px!important;
+  box-shadow:0 5px 18px rgba(245,158,11,.035)!important;
+}

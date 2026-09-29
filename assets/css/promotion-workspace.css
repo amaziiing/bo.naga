@@ -1,0 +1,356 @@
+/* Promotion workspace — one page, two levels.
+   ------------------------------------------------------------------
+   promotion.html is the single Promotion page: a row per Bonus Category Title,
+   each expanding into the Promotion Bonuses that belong to it
+   (promotion.bonusCategoryTitleId -> category.id).
+
+   Scope: body.promotion-workspace-page. Nothing here touches the BO shell
+   (.report-topbar / .report-sidebar / .report-content / ...), so
+   scripts/check-shell-drift.js has nothing to refuse — and nothing here
+   re-declares a shell metric.
+
+   The parent row and the category form are deliberately rendered with the
+   classes the old Bonus Category Title page used (.bonus-title-table-row,
+   .category-main-cell, ...) and the page carries its body scope, so the parent
+   rows inherit that page's existing light/dark treatment instead of a second
+   copy of it. Only the child panel is styled here.
+
+   Colours are the palette bo-charcoal-cms.css already uses for this module:
+     light  border rgb(234,220,200)  surface rgb(255,248,235)  stripe rgb(255,241,220)
+     dark   border rgba(255,255,255,.12) surface rgb(58,60,72)   stripe rgb(67,70,83)
+   ------------------------------------------------------------------ */
+
+body.promotion-workspace-page{
+  --promo-ws-border: rgb(234, 220, 200);
+  --promo-ws-panel: rgb(255, 244, 227);
+  --promo-ws-panel-stripe: rgb(255, 249, 240);
+  --promo-ws-panel-text: rgb(24, 25, 28);
+  --promo-ws-panel-muted: rgb(120, 113, 108);
+  --promo-ws-accent: rgb(240, 147, 43);
+}
+
+html[data-bo-theme="dark"] body.promotion-workspace-page{
+  --promo-ws-border: rgba(255, 255, 255, 0.12);
+  --promo-ws-panel: rgb(50, 52, 63);
+  --promo-ws-panel-stripe: rgb(56, 58, 70);
+  --promo-ws-panel-text: rgb(240, 238, 234);
+  --promo-ws-panel-muted: rgb(178, 174, 168);
+}
+
+/* -------------------------------------------------------------------- toggle */
+
+/* Replaces the old decorative drag grip in the row's first column, so it has to
+   read as a control rather than as decoration. */
+body.promotion-workspace-page .promo-tree-toggle{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--promo-ws-panel-muted);
+  cursor: pointer;
+}
+
+body.promotion-workspace-page .promo-tree-toggle:hover{
+  background: var(--promo-ws-panel-stripe);
+  color: var(--promo-ws-panel-text);
+}
+
+body.promotion-workspace-page .promo-tree-toggle:focus-visible{
+  outline: 2px solid var(--promo-ws-accent);
+  outline-offset: 1px;
+}
+
+body.promotion-workspace-page .promo-tree-toggle i{
+  transition: transform .15s ease;
+}
+
+body.promotion-workspace-page .promo-tree-toggle[aria-expanded="true"] i{
+  transform: rotate(90deg);
+}
+
+/* How many promotions a collapsed row is hiding. */
+body.promotion-workspace-page .promo-tree-count{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: 9px;
+  background: rgb(255, 241, 220);
+  color: var(--promo-ws-panel-muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+html[data-bo-theme="dark"] body.promotion-workspace-page .promo-tree-count{
+  background: rgb(67, 70, 83);
+}
+
+/* Status column of a category row: the pill, and the hidden-promotion count when the
+   row is collapsed. One row on the column's own x, which the promotion rows share. */
+body.promotion-workspace-page .promotion-workspace-table .category-status-cell{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* One thumbnail treatment at both levels. The category thumbnail is 70x58 in a heavy
+   box while the promotion thumbnail is 96x48 — two specs for one job is what made an
+   expanded group look assembled rather than designed. Both are now the promotion
+   thumbnail's box. Selector matches the specificity of the bo-charcoal-cms rule it
+   replaces; this sheet loads after that one, so equal-or-higher specificity wins. */
+html body.promotion-workspace-page.page-bonus-category-title.report-body.bo-charcoal:not(#bo-charcoal-off):not(#bo-charcoal-legacy)
+  .bonus-title-table-row .category-thumb-full{
+  width: 96px !important;
+  height: 48px !important;
+  flex: 0 0 96px !important;
+  padding: 0 !important;
+  border-radius: 8px !important;
+}
+
+html:not([data-bo-theme="dark"]) body.promotion-workspace-page.page-bonus-category-title.report-body.bo-charcoal:not(#bo-charcoal-off):not(#bo-charcoal-legacy)
+  .bonus-title-table-row .category-thumb-full{
+  border: 1px solid rgb(234, 220, 200) !important;
+  background: rgb(255, 248, 235) !important;
+  color: rgb(120, 113, 108) !important;
+}
+
+html[data-bo-theme="dark"] body.promotion-workspace-page.page-bonus-category-title.report-body.bo-charcoal:not(#bo-charcoal-off):not(#bo-charcoal-legacy)
+  .bonus-title-table-row .category-thumb-full{
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  background: rgb(42, 44, 54) !important;
+  color: rgb(161, 161, 170) !important;
+}
+
+body.promotion-workspace-page .promotion-row .promotion-thumb{
+  width: 96px;
+  height: 48px;
+  flex: 0 0 96px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+/* A row is a disclosure: the whole row is the target, not just the 24px chevron. */
+body.promotion-workspace-page .promotion-workspace-table .bonus-title-table-row{
+  cursor: pointer;
+}
+
+body.promotion-workspace-page .promotion-workspace-table .bonus-title-table-row[aria-expanded="true"]{
+  box-shadow: inset 3px 0 0 var(--promo-ws-accent) !important;
+}
+
+body.promotion-workspace-page .promotion-workspace-table .bonus-title-table-row:focus-visible{
+  outline: 2px solid var(--promo-ws-accent);
+  outline-offset: -2px;
+}
+
+/* ---------------------------------------------------------------- child panel
+
+   The panel is NOT indented. Its rows reuse the category row's column grid, and any
+   left offset would push every child column off the parent's line — which is exactly
+   what made the first version look untidy: the child status pill sat ~150px left of
+   the parent's, and its icons missed the parent's by the same kind of margin. */
+
+body.promotion-workspace-page .promo-group-panel{
+  position: relative;
+  background: var(--promo-ws-panel);
+  color: var(--promo-ws-panel-text);
+  /* An inset shadow, not border-left: a border eats 2px of the panel's content box and
+     pushed every child column 2px off the category row's. A shadow paints without
+     taking layout space, so the grid stays identical. */
+  box-shadow: inset 2px 0 0 var(--promo-ws-accent);
+}
+
+body.promotion-workspace-page .promo-group-panel[hidden]{
+  display: none;
+}
+
+/* Same four tracks, in the same order and with the same values, as
+   .bonus-title-table-row and .bonus-title-table-head in bo-charcoal-cms.css:
+   26px | minmax(200px,1fr) | 130px | 156px */
+body.promotion-workspace-page .promotion-row{
+  display: grid;
+  grid-template-columns: 26px minmax(200px, 1fr) 130px 156px;
+  align-items: center;
+  min-height: 56px;
+  background: var(--promo-ws-panel-stripe);
+  border-bottom: 1px solid var(--promo-ws-border);
+  transition: background .14s;
+}
+
+body.promotion-workspace-page .promotion-row:hover{
+  background: var(--promo-ws-panel);
+}
+
+/* Padding is the other half of alignment: a column whose label starts at x and whose
+   content starts at x+4 is still visibly off. These are the same numbers the shared
+   header rule below pins, and the same the category row cells already use. */
+body.promotion-workspace-page .promotion-row > .promotion-main-cell,
+body.promotion-workspace-page .promotion-row > .promotion-status-cell,
+body.promotion-workspace-page .promotion-row > .promotion-action-cell{
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  padding: 10px 16px;
+}
+
+body.promotion-workspace-page .promotion-row > .promotion-action-cell{
+  justify-content: flex-end;
+}
+
+body.promotion-workspace-page .promotion-main-cell .promotion-main-inner{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  width: 100%;
+}
+
+body.promotion-workspace-page .promotion-row .promotion-copy{
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+body.promotion-workspace-page .promotion-row .promo-title{
+  color: var(--promo-ws-panel-text);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Chips ride on the code line rather than in a column of their own, so the status
+   column and the action column can stay on the parent's line. */
+body.promotion-workspace-page .promotion-row .promo-meta{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex-wrap: nowrap;
+  overflow: hidden;
+}
+
+body.promotion-workspace-page .promotion-row .promo-code{
+  flex: 0 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+body.promotion-workspace-page .promotion-row .promo-order,
+body.promotion-workspace-page .promotion-row .promo-chip,
+body.promotion-workspace-page .promotion-row .promo-rebate{
+  flex: 0 0 auto;
+}
+
+body.promotion-workspace-page .promotion-row .promo-chip{
+  background: var(--promo-ws-panel);
+  border-color: var(--promo-ws-border);
+  color: var(--promo-ws-panel-text);
+}
+
+body.promotion-workspace-page .promotion-row .promo-rebate{
+  color: var(--promo-ws-panel-muted);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+body.promotion-workspace-page .promotion-row .promo-rebate.is-on{
+  color: rgb(22, 163, 74);
+}
+
+body.promotion-workspace-page .promo-group-empty{
+  padding: 18px 16px;
+  background: var(--promo-ws-panel-stripe);
+  border-bottom: 1px solid var(--promo-ws-border);
+  color: var(--promo-ws-panel-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+body.promotion-workspace-page .promo-group-empty i{
+  margin-right: 6px;
+}
+
+/* Add affordance. Its label starts on the same x as the promotion names above it,
+   so it reads as the next row of the group instead of as a separate control. */
+body.promotion-workspace-page .promo-group-add{
+  display: grid;
+  grid-template-columns: 26px minmax(200px, 1fr) 130px 156px;
+  align-items: center;
+  min-height: 44px;
+  background: var(--promo-ws-panel-stripe);
+  border-bottom: 1px solid var(--promo-ws-border);
+  color: var(--promo-ws-panel-muted);
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+body.promotion-workspace-page .promo-group-add-label{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 10px 16px;
+}
+
+body.promotion-workspace-page .promo-group-add:hover .promo-group-add-label{
+  color: var(--promo-ws-accent);
+}
+
+/* The header labels must start on the same x as the content they describe. The theme
+   sheet pads the head cells 12px while the row cells carry 16px, so the label sat 4px
+   off its whole column. Pinned here to the row value. The header itself is rendered into
+   the list by the page script, so it also shares the scroll container's width. */
+body.promotion-workspace-page .promo-workspace-wrap .bonus-title-table-head{
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+html body.promotion-workspace-page.page-bonus-category-title.report-body.bo-charcoal:not(#bo-charcoal-off):not(#bo-charcoal-legacy)
+  .promo-workspace-wrap .bonus-title-table-head > span{
+  padding-left: 16px !important;
+  padding-right: 16px !important;
+}
+
+html body.promotion-workspace-page.page-bonus-category-title.report-body.bo-charcoal:not(#bo-charcoal-off):not(#bo-charcoal-legacy)
+  .promo-workspace-wrap .bonus-title-table-head > .bonus-title-head-drag{
+  padding-left: 16px !important;
+  padding-right: 0 !important;
+}
+
+/* Rows and panels interleave, so the inherited nth-child zebra would land on
+   every category row. Turn it off for this page; the panel provides the
+   separation instead. Colours only — safe for the shell drift guard. */
+html body.promotion-workspace-page.report-body.bo-charcoal:not(#bo-charcoal-off) .bonus-title-table-row:nth-child(2n){
+  background: rgb(255, 248, 235) !important;
+}
+
+html[data-bo-theme="dark"] body.promotion-workspace-page.report-body.bo-charcoal:not(#bo-charcoal-off) .bonus-title-table-row:nth-child(2n){
+  background: rgb(58, 60, 72) !important;
+}
+
+/* Rows whose promotion carries no (or a deleted) bonus category title. A safety
+   net, not a real category, so it is quiet and its thumbnail asks a question
+   instead of pretending to be an image. */
+body.promotion-workspace-page .bonus-title-table-row.is-synthetic .category-thumb-full{
+  border-style: dashed;
+}
+
+body.promotion-workspace-page .bonus-title-table-row.is-synthetic .category-copy b{
+  font-style: italic;
+}

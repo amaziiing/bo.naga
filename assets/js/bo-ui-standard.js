@@ -27,7 +27,7 @@
 
   const DATE_PICKER_SELECTOR='.ref-range-picker,.bo-range-pop';
   const DATE_RANGE_SELECTOR='.bo-filter-range-item,.ref-date-field,.bo-range-field,.bo-date-range-field,.dash-date-field,[data-bo-date-range],.ref-range-trigger,.bo-range-trigger';
-  const FILTER_BUTTON_EXCLUDE=DATE_PICKER_SELECTOR+','+DATE_RANGE_SELECTOR+',.rounded-select-wrap,.rounded-select-menu,.bo-tx-tabs,.mad-pills,.mp-scope';
+  const FILTER_BUTTON_EXCLUDE=DATE_PICKER_SELECTOR+','+DATE_RANGE_SELECTOR+',.rounded-select-wrap,.rounded-select-menu,.bo-tx-tabs,.mad-pills,.mp-scope,.agent-detail-tabs';
   const canvas=document.createElement('canvas');
   const ctx=canvas.getContext('2d');
   let alertModal,dialogModal,dialogResolver;

@@ -108,6 +108,11 @@
     if(p==='provider-detail.html') return 'main-accounting-report.html';
     if(p==='slider-edit.html') return 'slider.html';
     if(p==='promotion-edit.html') return 'promotion.html';
+    // Bonus Category Title is no longer its own page: a promotion carries
+    // `bonusCategoryTitleId`, so the category list is the parent level of the
+    // promotion list. That URL is a redirect stub onto promotion.html
+    // (bonus-category-title.html), so the sidebar must highlight that row.
+    if(p==='bonus-category-title.html') return 'promotion.html';
     if(p==='vip-level-edit.html') return 'vip-management.html';
     // Game Category create/edit is a drill-down of Game Category Management.
     if(p==='game-category-edit.html') return 'game-category.html';
@@ -168,11 +173,35 @@
     'index.html':{label:'User Management',order:1,module:'member'},
     'member-wallet.html':{label:'Member Wallet',order:2,module:'member'},
     'wallet-ledger.html':{label:'Wallet Ledger',order:3,module:'member'},
-    'referral.html':{label:'Referral Network',order:4,module:'member'}
+    'referral.html':{label:'Referral Network',order:4,module:'member'},
+    // 5. Promotion. Bonus Category Title is no longer a peer page — it is the parent level
+    // inside promotion.html (bonus-category-title.html is a redirect stub onto it, see
+    // sidebarActivePage), so the row carries four tabs while the group may still hold five
+    // rows: the stub's row resolves onto the Promotion Bonus tab instead of a fifth tab
+    // pointing at the same page twice.
+    'promotion.html':{label:'Promotion Bonus',order:1,module:'promotion'},
+    'promotion-debug.html':{label:'Promotion Log',order:2,module:'promotion'},
+    'rebate-management.html':{label:'Rebate Management',order:3,module:'promotion'},
+    'manual-rebate-approval.html':{label:'Rebate Approval',order:4,module:'promotion'},
+    // 6. VIP. vip-level-edit.html is a drill-down of VIP Management, and
+    // vip-worker-settings.html is not one of the group's sidebar rows.
+    'vip-management.html':{label:'VIP Management',order:1,module:'vip'},
+    'vip-exp-log.html':{label:'VIP EXP Log',order:2,module:'vip'},
+    'vip-reward-log.html':{label:'VIP Reward Log',order:3,module:'vip'},
+    // 7. Agent (BO side only — agent-dashboard/players/wallet/... are the agent portal,
+    // which keeps its own shell and its own navigation). agent-detail.html and
+    // agent-performance-detail.html are drill-downs, and agent-settlement.html is a
+    // redirect stub onto the portal's agent-withdraw.html, so none of them is a row here.
+    'agent-management.html':{label:'Agents',order:1,module:'agent'},
+    'agent-commission-admin.html':{label:'Agent Commission',order:2,module:'agent'},
+    'agent-payout-admin.html':{label:'Withdraw / Payout',order:3,module:'agent'},
+    'agent-settlement-admin.html':{label:'Agent Settlement',order:4,module:'agent'},
+    'agent-reimbursement-admin.html':{label:'Reimbursement / Ad Claim',order:5,module:'agent'},
+    'agent-promotion-admin.html':{label:'Agent Promotion',order:6,module:'agent'}
   };
 
-  const MODULE_ANCHORS = {transaction:'member-deposit.html', member:'index.html'};
-  const MODULE_LABELS = {transaction:'Transaction', member:'Member'};
+  const MODULE_ANCHORS = {transaction:'member-deposit.html', member:'index.html', promotion:'promotion.html', vip:'vip-management.html', agent:'agent-management.html'};
+  const MODULE_LABELS = {transaction:'Transaction', member:'Member', promotion:'Promotion', vip:'VIP', agent:'Agent'};
 
   // Those two pages are the ones that own that pair, and each already authors it as its
   // own .bulk-family-tabs row — a second row of links under the module row, drawn like
@@ -358,14 +387,19 @@
       if(current === 'slider-edit.html') current = 'slider.html';
       // Promotion create/edit is a drill-down of Promotion Bonus listing.
       if(current === 'promotion-edit.html') current = 'promotion.html';
+      // Bonus Category Title folded into Promotion Bonus (bonus-category-title.html is
+      // now a redirect stub). A role that only holds the old `bonus_category_title`
+      // menu must still open the merged page, not be bounced to its landing page.
+      if(current === 'bonus-category-title.html') current = 'promotion.html';
       // VIP Level create/edit is a drill-down of VIP Management.
       if(current === 'vip-level-edit.html') current = 'vip-management.html';
       // Game Category create/edit inherits Game Category Management menu permission.
       if(current === 'game-category-edit.html') current = 'game-category.html';
       // Game Sub Category create/edit inherits Game Sub Category Management menu permission.
       if(current === 'game-sub-category-edit.html') current = 'game-sub-category.html';
-      // Bonus Category Item is a drill-down of Bonus Category Title (Manage Items).
-      if(current === 'bonus-category-item.html') current = 'bonus-category-title.html';
+      // Bonus Category Item is a drill-down of Bonus Category Title (Manage Items),
+      // which now lives on the Promotion Bonus page.
+      if(current === 'bonus-category-item.html') current = 'promotion.html';
       // Transaction history is intentionally a separate page, but it inherits the
       // Payment Gateway menu selected in ROOT Role/Menu Permission. No new hardcoded
       // permission/menu row is required for this drill-down.
@@ -444,11 +478,11 @@
       }
       let allowed = menus.some(function(m){ return pageFile(m.url || '') === current; });
       // Bonus Category Item may be assigned as its own menu row, or only opened via
-      // Manage Items from Bonus Category Title. Allow either permission.
+      // Manage Items from the merged Promotion Bonus page. Allow either permission.
       if(!allowed && pageName() === 'bonus-category-item.html'){
         allowed = menus.some(function(m){
           const file = pageFile(m.url || '');
-          return file === 'bonus-category-item.html' || file === 'bonus-category-title.html';
+          return file === 'bonus-category-item.html' || file === 'bonus-category-title.html' || file === 'promotion.html';
         });
       }
       // Backward compatibility: older roles may only have the original
@@ -759,6 +793,14 @@
       Object.keys(groups).forEach(function(key){
         const meta=GROUP_META[key]||{};
         let items=groups[key].sort(function(a,b){return a.sortOrder-b.sortOrder||a.title.localeCompare(b.title);});
+        // One page keeps one row. Bonus Category Title folded into promotion.html
+        // (bonus-category-title.html is a redirect stub), and Menu Management still carries
+        // a row for the old URL. Drop that duplicate — but ONLY when this same group also
+        // exposes the merged page. A role that holds nothing but the old menu keeps its row,
+        // because dropping it there would leave the group with no way in at all.
+        if(items.some(function(m){ return pageFile(m.url || '') === 'promotion.html'; })){
+          items = items.filter(function(m){ return pageFile(m.url || '') !== 'bonus-category-title.html'; });
+        }
         // Report group: ensure both Win/Lose Report and Provider Report are present.
         const keyLower=String(key||'').toLowerCase();
         if(keyLower==='main_reports_group' || keyLower==='report' || /report/i.test(String(meta.title||''))){

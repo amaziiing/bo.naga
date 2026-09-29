@@ -23,9 +23,11 @@
 <link href="assets/css/bo-charcoal-primitives.css?v=335690e2" rel="stylesheet" />
 <link href="assets/css/bo-charcoal-cms.css?v=c51e8c0e" rel="stylesheet" />
 <link href="assets/css/promotion-table-align.css?v=6562deb3" rel="stylesheet" />
+<link href="assets/css/promotion-workspace.css?v=b82bf284" rel="stylesheet" />
 <link href="assets/css/bo-input-fill.css?v=1969f85a" rel="stylesheet" />
 <link href="assets/css/bo-scrollbar.css?v=7c2a456b" rel="stylesheet"/>
 <link href="assets/css/bo-field-standard.css?v=06f5ae19" rel="stylesheet">
+<link href="assets/css/bo-module-tabs.css?v=9cd7f1b0" rel="stylesheet"/>
 <script>
 (function(){
   try{
@@ -35,7 +37,23 @@
 </script>
 <link href="assets/css/bo-shell.css?v=029c7655" rel="stylesheet" />
 </head>
-<body class="report-body standardized-content-management promotion-bonus-page bo-charcoal bo-account-chip">
+<!--
+  Promotion is ONE page with two levels.
+
+  A Promotion Bonus carries `bonusCategoryTitleId`, so a Bonus Category Title is
+  its parent, not a peer listing of the same data. This page renders the category
+  rows and expands each one into the promotions that belong to it.
+
+  Bonus Category Title used to be the separate page bonus-category-title.html; that
+  file is now a redirect stub onto this page, so old bookmarks, the old sidebar row
+  and roles that only hold the `bonus_category_title` menu all keep working
+  (assets/js/auth.js maps that permission onto promotion.html).
+
+  `page-bonus-category-title` on <body> is deliberate: it lets the parent row and
+  the category form reuse that page's existing light/dark treatment instead of a
+  second copy of it. Only the child panel is new — assets/css/promotion-workspace.css.
+-->
+<body class="report-body standardized-content-management promotion-workspace-page promotion-bonus-page page-bonus-category-title bo-charcoal bo-account-chip" data-crud-no-add="1">
 <div class="report-shell">
 <aside class="report-sidebar" id="reportSidebar">
 <div class="report-brand">
@@ -49,45 +67,72 @@
 <script src="assets/js/bo-topbar.js?v=1"></script>
 <section class="report-content">
 <div class="manage-page-grid crud-list-only-grid">
-<div class="manage-list-card game-modern-page promotion-modern-page">
+<div class="manage-list-card game-modern-page promotion-modern-page promotion-workspace-card">
 <div class="game-filter-card promotion-filter-card bo-filter-row" data-bo-filter-exempt="1">
-<label><span class="promo-filter-label">Search Promotion</span><div class="category-search-control"><i class="bi bi-search" aria-hidden="true"></i><input id="promoSearchInput" placeholder="Search Promotion" type="search" aria-label="Search Promotion"/></div></label>
-<label><span class="promo-filter-label">Category</span><select id="promoCategoryFilter" aria-label="Category" data-bo-auto-width="0"><option value="">All Categories</option></select></label>
-<label><span class="promo-filter-label">Status</span><select id="promoStatusFilter" aria-label="Status" data-bo-auto-width="0"><option value="">All Statuses</option><option value="1">Active</option><option value="2">Inactive</option></select></label>
-<label><span class="promo-filter-label">Sort By</span><select id="promoSortFilter" aria-label="Sort By" data-bo-auto-width="0"><option value="orderAsc">Display Order (Asc)</option><option value="orderDesc">Display Order (Desc)</option><option value="nameAsc">Name (A-Z)</option><option value="nameDesc">Name (Z-A)</option></select></label>
+<label><span class="promo-filter-label">Search Promotion</span><div class="category-search-control"><i class="bi bi-search" aria-hidden="true"></i><input id="promoWorkspaceSearch" placeholder="Search category or promotion" type="search" aria-label="Search category or promotion"/></div></label>
+<label><span class="promo-filter-label">Status</span><select id="promoWorkspaceStatus" aria-label="Status" data-bo-auto-width="0"><option value="">All Statuses</option><option value="1">Active</option><option value="2">Inactive</option></select></label>
+<label><span class="promo-filter-label">Sort By</span><select id="promoWorkspaceSort" aria-label="Sort By" data-bo-auto-width="0"><option value="sortAsc">Sort Order (Asc)</option><option value="sortDesc">Sort Order (Desc)</option><option value="nameAsc">Name (A-Z)</option><option value="nameDesc">Name (Z-A)</option></select></label>
 <div class="section-title slider-list-title standardized-toolbar-title game-toolbar-title promotion-toolbar-actions">
-<button class="clean-btn" id="promoRefreshBtn" type="button"><i class="bi bi-arrow-clockwise"></i>
-                                    Refresh</button>
+<button class="clean-btn primary" id="promoAddCategoryBtn" type="button"><i class="bi bi-plus-lg" aria-hidden="true"></i><span class="btn-label">Add Bonus Category</span></button>
 <a class="clean-btn primary" id="promoAddBtn" href="promotion-edit.html"><i class="bi bi-plus-lg" aria-hidden="true"></i><span class="btn-label">Add Promotion Bonus</span></a>
 </div>
 </div>
-<div class="promotion-table-wrap">
-<div class="promotion-tx-head">
-<table class="report-table promotion-head-table">
-<colgroup>
-<col class="promo-col-promotion"/><col class="promo-col-bonus"/><col class="promo-col-status"/><col class="promo-col-actions"/>
-</colgroup>
-<thead><tr>
-<th>Promotion</th><th>Bonus</th><th>Status</th><th>Actions</th>
-</tr></thead>
-</table>
-</div>
-<div class="promotion-tx-body" id="promoListScroll">
-<table class="report-table promotion-body-table">
-<colgroup>
-<col class="promo-col-promotion"/><col class="promo-col-bonus"/><col class="promo-col-status"/><col class="promo-col-actions"/>
-</colgroup>
-<tbody id="promoList"><tr><td colspan="4">Loading...</td></tr></tbody>
-</table>
-</div>
-</div>
-<div class="table-footer">
-<div class="entries-control">Show <select id="promoPageSize" aria-label="Show entries" data-no-rounded="1"><option value="-" selected>-</option><option value="10">10</option><option value="20">20</option><option value="50">50</option><option value="100">100</option><option value="All">All</option></select>
+
+<div class="category-table-wrap bonus-title-table-wrap promotion-workspace-wrap">
+<div class="manage-list category-table bonus-title-table promotion-workspace-table" id="promoWorkspaceList" role="rowgroup"></div>
+<div class="table-footer standard-pagination category-table-footer bonus-title-footer bo-pagination-standard">
+<div class="entries-control">Show
+                                    <select id="promoWorkspacePageSize" aria-label="Show entries"><option value="-" selected>-</option><option value="10">10</option><option value="20">20</option><option value="50">50</option><option value="100">100</option><option value="All">All</option></select>
                                     entries</div>
-<div class="table-info" id="promoShowingText">Showing 0 to 0 of 0
+<div class="table-info" id="promoWorkspaceShowingText">Showing 0 to 0 of 0
                                     entries</div>
-<div class="pagination-clean" id="promoPager"></div>
+<nav class="pagination-clean bo-pagination-buttons mad-pager" id="promoWorkspacePager" aria-label="Table pagination"></nav>
 </div>
+</div>
+<div class="upload-status" id="promoWorkspaceStatusBox"></div>
+</div>
+
+<!-- Category create/edit. crud-modal-pattern.js lifts this card into the shared
+     modal; this page opens it (Add / a row's edit button) so the modal can be titled
+     for a category rather than inheriting the page's own "Promotion Bonus" label —
+     hence data-crud-no-add on <body>, which stops the pattern injecting its own Add
+     button. The Chinese fields are not authored here: dynamic-translation.js owns them
+     through the declarative data-translation-* attributes below (it strips the legacy
+     nameZh/imageZh inputs). -->
+<div class="manage-form-card">
+<div class="section-title mb-3">
+<div>
+<h3 id="bonusFormTitle">Create Bonus Title</h3>
+</div>
+</div>
+<form id="bonusForm" class="slider-form" data-translation-ref-type="bonus_category" data-translation-id-selector="#bonusId">
+<input type="hidden" id="bonusId" name="id" />
+<div class="slider-upload-box" id="bonusDropZone">
+<input type="file" id="bonusImage" name="image" accept="image/*" />
+<div class="slider-upload-placeholder" id="bonusUploadPlaceholder">
+<i class="bi bi-cloud-arrow-up"></i>
+<strong>Choose image or drag here</strong>
+<small>PNG, JPG, WEBP, GIF accepted</small>
+</div>
+<img id="bonusPreview" alt="Bonus category preview" hidden />
+</div>
+<div class="slider-current-image" id="bonusCurrentImage" hidden>
+                  Current image will remain if no new image selected.
+                </div>
+<div class="field mt-3">
+<label>Name</label>
+<input id="bonusName" name="name" type="text" placeholder="Example: Hot Promotion" />
+</div>
+<div class="field">
+<label>Sort Order</label>
+<input id="bonusSortOrder" name="sortOrder" type="number" min="0" value="0" />
+</div>
+<div class="slider-form-actions">
+<button class="clean-btn primary" id="saveBonusBtn" type="submit"><i class="bi bi-save"></i> Save Category</button>
+<button class="clean-btn" id="resetBonusBtn" type="button"><i class="bi bi-arrow-counterclockwise"></i> Reset</button>
+</div>
+<div class="upload-status" id="bonusStatusBox"></div>
+</form>
 </div>
 </div>
 </section>
@@ -97,9 +142,12 @@
 <script src="assets/js/brand-context.js?v=3bb07655"></script>
 <script src="assets/js/main-currency-runtime.js?v=bc97a89c"></script>
 <script src="assets/js/currency-runtime.js?v=71496e4c"></script>
-<script src="assets/js/auth.js?v=1.0.32"></script>
+<script src="assets/js/auth.js?v=18abdbbc"></script>
 <script src="assets/js/reports.js?v=063b42e4"></script>
-<script src="assets/js/promotion.js?v=462730c9"></script>
+<script src="assets/js/dynamic-translation.js?v=15f7a262"></script>
+<script src="assets/js/promotion-workspace.js?v=6b3f1f1c"></script>
+<script src="assets/js/dynamic-translation-init.js?v=c2b032a8"></script>
+<script src="assets/js/crud-modal-pattern.js?v=15c3c1ec"></script>
 <!-- Global live-chat listener: keeps the custom MP3 notification active throughout the BO. -->
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>

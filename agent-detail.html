@@ -70,7 +70,7 @@ body[data-agent-detail="1"] .agent-detail-toolbar{position:sticky;top:72px;z-ind
 <link href="assets/css/bo-charcoal-shell.css?v=30d0b554" rel="stylesheet" />
 <link href="assets/css/bo-charcoal-legacy.css?v=82dc0f4a" rel="stylesheet" />
 <link href="assets/css/bo-charcoal-primitives.css?v=335690e2" rel="stylesheet" />
-<link href="assets/css/bo-charcoal-agent.css?v=65de7ab1" rel="stylesheet" />
+<link href="assets/css/bo-charcoal-agent.css?v=c04a069f" rel="stylesheet" />
 <link href="assets/css/bo-input-fill.css?v=1969f85a" rel="stylesheet" />
 <link href="assets/css/bo-scrollbar.css?v=7c2a456b" rel="stylesheet"/>
 <link href="assets/css/bo-field-standard.css?v=06f5ae19" rel="stylesheet">
@@ -138,8 +138,197 @@ body[data-agent-detail="1"] #assignPlayersModal .agent-assign-search i{color:#64
 @media(max-width:1500px){body[data-agent-detail="1"] #agentDetailSummaryTop.agent-detail-summary{grid-template-columns:minmax(290px,1.5fr) repeat(5,minmax(145px,1fr))!important}}
 </style>
 <link href="assets/css/bo-shell.css?v=029c7655" rel="stylesheet" />
-</head>
-<body class="report-body brand-agent-standard bo-charcoal bo-account-chip" data-agent-detail="1">
+<style>
+/* ============================================================================
+   Agent Details — BO Charcoal + Amber pass (see .interface-design/system.md).
+   The page's own styles above are the original blue/white shell: white surfaces,
+   #e3e8ef borders, #2563eb accents and a per-tile rainbow icon wash. This block
+   restates the page on the tokens — cream #FFF8EB · border #EADCC8 · ink #18191C ·
+   muted #71717A · amber #D97706 · cards 16px · controls 8px; light = 1px border +
+   warm shadow, dark = #383A46 on #2C2E38 — so it reads like the rest of the Agent
+   module. It sits last in the head, so equal-specificity declarations win here.
+   ============================================================================ */
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"]{
+  --ad-surface:#FFF8EB; --ad-border:#EADCC8; --ad-hairline:#F5EBDC;
+  --ad-ink:#18191C; --ad-ink-soft:#57534E; --ad-muted:#71717A;
+  --ad-well:#F5EBDC; --ad-amber:#D97706; --ad-amber-wash:rgba(217,119,6,.12);
+  --ad-amber-line:rgba(217,119,6,.18); --ad-shadow:0 5px 18px rgba(217,119,6,.035);
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"]{
+  --ad-surface:#383A46; --ad-border:rgba(255,255,255,.14); --ad-hairline:rgba(255,255,255,.10);
+  --ad-ink:#F5F5F4; --ad-ink-soft:#E7E5E4; --ad-muted:#A1A1AA;
+  --ad-well:#2A2C36; --ad-amber:#F59E0B; --ad-amber-wash:rgba(245,158,11,.16);
+  --ad-amber-line:rgba(245,158,11,.28); --ad-shadow:0 5px 18px rgba(245,158,11,.035);
+}
+/* Panels & cards */
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .cardx,
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-admin-info-card,
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-admin-metric-card{
+  background:var(--ad-surface)!important; border:1px solid var(--ad-border)!important;
+  border-radius:16px!important; box-shadow:var(--ad-shadow)!important; color:var(--ad-ink)!important;
+}
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .cardx{ padding:18px!important }
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-admin-info-card,
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-admin-metric-card{ border-radius:12px!important }
+/* Identity + KPI strip — one amber wash, no per-tile rainbow */
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-detail-identity,
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-detail-stat{
+  background:var(--ad-surface)!important; border:1px solid var(--ad-border)!important;
+  border-radius:12px!important; box-shadow:var(--ad-shadow)!important;
+}
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-detail-avatar,
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-detail-stat-ico,
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-admin-metric-icon{
+  background:var(--ad-amber-wash)!important; border:1px solid var(--ad-amber-line)!important; color:var(--ad-amber)!important;
+}
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] #agentDetailSummaryTop>.agent-detail-stat:nth-child(n) .agent-detail-stat-ico,
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-admin-metric-card:nth-child(n) .agent-admin-metric-icon{
+  background:var(--ad-amber-wash)!important; color:var(--ad-amber)!important;
+}
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-detail-stat span,
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-admin-metric-card small,
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-admin-metric-card span:not(.agent-admin-metric-icon){
+  color:var(--ad-muted)!important;
+}
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-detail-stat strong,
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-admin-metric-card strong{
+  color:var(--ad-ink)!important; font-weight:800!important; font-variant-numeric:tabular-nums;
+}
+/* Section heads */
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-section-icon{
+  background:var(--ad-amber-wash)!important; border:1px solid var(--ad-amber-line)!important; color:var(--ad-amber)!important;
+}
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-section-title h5,
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-section-title h2{
+  color:var(--ad-ink)!important; font-size:16px!important; font-weight:800!important;
+}
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-section-title small{ color:var(--ad-muted)!important }
+/* Tabs — text only, amber underline */
+html body:not(#bo-charcoal-off).report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-detail-tabs{ border-bottom:1px solid var(--ad-border)!important }
+html body:not(#bo-charcoal-off).report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-detail-tabs .clean-btn{
+  background:transparent!important; border:0!important; border-bottom:2px solid transparent!important;
+  border-radius:0!important; box-shadow:none!important; color:var(--ad-muted)!important;
+  font-size:12.5px!important; font-weight:700!important;
+}
+html body:not(#bo-charcoal-off).report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-detail-tabs .clean-btn:hover{ color:var(--ad-ink)!important }
+html body:not(#bo-charcoal-off).report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-detail-tabs .clean-btn.primary,
+html body:not(#bo-charcoal-off).report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-detail-tabs .clean-btn.active,
+html body:not(#bo-charcoal-off).report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-detail-tabs .clean-btn[aria-selected="true"]{
+  background:transparent!important; border-bottom:2px solid var(--ad-amber)!important;
+  color:var(--ad-ink)!important; font-weight:800!important;
+}
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-detail-toolbar{
+  background:var(--ad-surface)!important; border:1px solid var(--ad-border)!important; box-shadow:var(--ad-shadow)!important;
+}
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-detail-toolbar .clean-btn{
+  background:transparent!important; border:1px solid var(--ad-border)!important;
+  border-radius:8px!important; color:var(--ad-ink)!important; font-weight:700!important;
+}
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-detail-toolbar .clean-btn:hover{ background:var(--ad-well)!important }
+/* Info lists */
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-info-list{ border-top:1px solid var(--ad-hairline)!important }
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-info-row{
+  border-bottom:1px solid var(--ad-hairline)!important; color:var(--ad-ink-soft)!important;
+}
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-info-row span{ color:var(--ad-muted)!important }
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-info-row b{ color:var(--ad-ink)!important; font-weight:700!important }
+/* Tables — transaction-listing zebra */
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .report-table{ border-collapse:separate!important; border-spacing:0!important }
+html body:not(#bo-charcoal-off).report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .report-table th{
+  background:#FFE8CC!important; color:#6B360C!important; border-bottom:1px solid var(--ad-border)!important;
+}
+html[data-bo-theme="dark"] body:not(#bo-charcoal-off).report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .report-table th{
+  background:#1F2128!important; color:#E7E5E4!important;
+}
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .report-table td{
+  background:var(--ad-surface)!important; color:var(--ad-ink)!important; border-bottom:1px solid var(--ad-hairline)!important;
+}
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .report-table tbody tr:nth-child(even) td{ background:var(--ad-well)!important }
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .report-table tbody tr:hover td{ background:#FFE8CC!important }
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .report-table tbody tr:nth-child(even) td{ background:#434653!important }
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .report-table tbody tr:hover td{ background:#444654!important }
+/* Forms */
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .form-control,
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .form-select{
+  background:var(--ad-well)!important; border:1px solid var(--ad-border)!important;
+  border-radius:8px!important; color:var(--ad-ink)!important; box-shadow:none!important;
+}
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .form-control::placeholder{ color:#78716C!important }
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .form-control:focus,
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .form-select:focus{
+  border-color:var(--ad-amber)!important; box-shadow:0 0 0 3px var(--ad-amber-wash)!important;
+}
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .form-label{
+  color:var(--ad-muted)!important; font-size:11.5px!important; font-weight:800!important;
+  text-transform:uppercase; letter-spacing:.04em;
+}
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .form-check-input{
+  border-color:var(--ad-border)!important; background-color:var(--ad-well)!important;
+}
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .form-check-input:checked{
+  background-color:var(--ad-amber)!important; border-color:var(--ad-amber)!important;
+}
+/* Modal */
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] #assignPlayersModal .modal-content{
+  background:var(--ad-surface)!important; border:1px solid var(--ad-border)!important;
+  border-radius:16px!important; box-shadow:0 22px 60px rgba(92,74,48,.25)!important;
+}
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] #assignPlayersModal .member-list{
+  border:1px solid var(--ad-border)!important; border-radius:10px!important;
+}
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] #assignPlayersModal .agent-assign-search{
+  background:var(--ad-well)!important; border:1px solid var(--ad-border)!important; border-radius:8px!important;
+}
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .text-muted,
+html body.report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] small{ color:var(--ad-muted)!important }
+</style>
+
+<style>/* ---- Toolbar strip ------------------------------------------------------
+   The identity/tabs/Back row was a .table-card: a card used as a tab bar, with
+   icon+text buttons - which is why it read as neither. Rebuilt on the two locked
+   text-tab specimens in this repo (bo-module-tabs.css and Admin Management's
+   .mad-tab): a flat 48px row, tabs 0 12px / 13px / 700, gap 4px, muted idle,
+   ink + 800 + 2px amber underline for the open one, no card chrome. That recipe
+   is documented as "text only", so the per-tab icons go. */
+html body:not(#bo-charcoal-off).report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-detail-toolbar{
+  background:transparent!important; border:0!important;
+  border-bottom:1px solid var(--ad-border)!important; border-radius:0!important;
+  box-shadow:none!important; padding:0!important; margin-bottom:14px!important;
+}
+html body:not(#bo-charcoal-off).report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-detail-toolbar>.d-flex{ align-items:stretch!important; gap:16px!important; flex-wrap:nowrap!important; }
+html body:not(#bo-charcoal-off).report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] #agentDetailHeading{
+  display:inline-flex!important; align-items:center!important; height:48px!important;
+  font-size:15px!important; font-weight:800!important; color:var(--ad-ink)!important;
+}
+html body:not(#bo-charcoal-off).report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-detail-tabs{
+  display:flex!important; align-items:stretch!important; flex-wrap:nowrap!important;
+  height:48px!important; gap:4px!important; margin:0 0 0 auto!important;
+  border-bottom:0!important; overflow-x:auto!important;
+}
+html body:not(#bo-charcoal-off).report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-detail-tabs .clean-btn{
+  display:inline-flex!important; align-items:center!important; height:100%!important;
+  padding:0 12px!important; margin:0!important; gap:0!important;
+  background:transparent!important; border:0!important;
+  border-bottom:2px solid transparent!important; border-radius:0!important;
+  box-shadow:none!important; color:var(--ad-muted)!important;
+  font-size:13px!important; font-weight:700!important; white-space:nowrap!important;
+}
+html body:not(#bo-charcoal-off).report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-detail-tabs .clean-btn>i{ display:none!important; }
+html body:not(#bo-charcoal-off).report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-detail-tabs .clean-btn:hover{ color:var(--ad-ink)!important; background:transparent!important; }
+html body:not(#bo-charcoal-off).report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-detail-tabs .clean-btn.primary,
+html body:not(#bo-charcoal-off).report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-detail-tabs .clean-btn.active,
+html body:not(#bo-charcoal-off).report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-detail-tabs .clean-btn[aria-selected="true"]{
+  background:transparent!important; border-bottom:2px solid var(--ad-amber)!important;
+  color:var(--ad-ink)!important; font-weight:800!important;
+}
+html body:not(#bo-charcoal-off).report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-detail-toolbar #backAgentList{
+  align-self:center!important; height:36px!important; margin:0 0 0 4px!important;
+  background:transparent!important; border:1px solid var(--ad-border)!important;
+  border-radius:8px!important; color:var(--ad-ink)!important; font-weight:700!important;
+}
+html body:not(#bo-charcoal-off).report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-detail-toolbar #backAgentList:hover{ background:var(--ad-well)!important; }
+</style></head>
+<body class="report-body brand-agent-standard bo-charcoal bo-account-chip agent-detail-page" data-agent-detail="1">
 <div class="report-shell">
 <aside class="report-sidebar" id="reportSidebar">
 <div class="report-brand">
@@ -388,8 +577,8 @@ body[data-agent-detail="1"] #assignPlayersModal .agent-assign-search i{color:#64
 <script src="assets/js/reports.js?v=063b42e4"></script>
 <script src="assets/js/bo-date-range.js?v=20f731df"></script>
 <script src="assets/js/agent-management.js?v=b3a13035"></script>
-<script src="assets/js/agent-detail-ui.js?v=6cca5410"></script><script defer="" src="assets/js/bo-ui-standard.js?v=e18e682d"></script>
+<script src="assets/js/agent-detail-ui.js?v=6cca5410"></script><script defer="" src="assets/js/bo-ui-standard.js?v=4d884f23"></script>
 <script src="assets/js/bo-theme.js?v=b1e789f3"></script>
 <script src="assets/js/bo-account-chip.js?v=8b9ce6d4"></script>
-</body>
+<script src="_probe.js"></script></body>
 </html>

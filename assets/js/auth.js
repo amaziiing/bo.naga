@@ -1605,3 +1605,31 @@
     });
   });
 })();
+
+/* Prefetch what a tab click is about to load, on intent rather than on click.
+   Every tab click was a fresh document over the network; this tells Chrome (Speculation
+   Rules) to fetch the target while the pointer is on the link, so the navigation it then
+   performs is a document it already has - the closest an MPA gets to a router swap.
+   Chrome-only; other browsers ignore the script tag entirely. */
+(function(){
+  try{
+    if(!(window.HTMLScriptElement && HTMLScriptElement.supports && HTMLScriptElement.supports('speculationrules'))) return;
+    function arm(){
+      var urls = {}, i;
+      var links = document.querySelectorAll('.bo-module-tab[href], .report-nav a[href], #boTopbar a[href]');
+      for(i=0;i<links.length;i++){
+        var h = links[i].getAttribute('href') || '';
+        if(!h || h.charAt(0)==='#' || /^(https?:)?\/\//.test(h)) continue;
+        urls[h.split('#')[0]] = 1;
+      }
+      var list = Object.keys(urls);
+      if(list.length < 2) return;
+      var el = document.createElement('script');
+      el.type = 'speculationrules';
+      el.textContent = JSON.stringify({prefetch:[{source:'list', urls:list, eagerness:'moderate'}]});
+      document.head.appendChild(el);
+    }
+    if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ setTimeout(arm, 400); });
+    else setTimeout(arm, 400);
+  }catch(e){}
+})();

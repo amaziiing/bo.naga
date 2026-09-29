@@ -4663,3 +4663,8 @@ body.main-admin-security-page.main-merchant-security-page .mas-search{
 @view-transition{
   navigation:auto;
 }
+
+/* The default cross-document crossfade is a slow linear 0.25s; a shorter, slightly
+   eased pair reads as "the new page arrived" instead of "something faded". */
+::view-transition-old(root){animation-duration:.14s;animation-timing-function:cubic-bezier(.4,0,1,1)}
+::view-transition-new(root){animation-duration:.22s;animation-timing-function:cubic-bezier(0,0,.2,1)}

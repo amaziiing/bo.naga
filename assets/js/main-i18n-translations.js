@@ -1,4 +1,4 @@
-/* Main-account UI translations. Add future languages here without changing page HTML. */
+/* Main-account UI translations */
 window.MAIN_I18N_TRANSLATIONS = {
   "zh-CN": {
     "Backoffice": "后台管理",

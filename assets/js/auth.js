@@ -208,11 +208,19 @@
     'promotion-report.html':{label:'Promotion',order:6,module:'report'},
     'transaction-report.html':{label:'Transaction',order:7,module:'report'},
     'casino-provider-winloss-report.html':{label:'Provider Win/Loss',order:8,module:'report'},
-    'agent-performance-report.html':{label:'Agent Performance',order:9,module:'report'}
+    'agent-performance-report.html':{label:'Agent Performance',order:9,module:'report'},
+    // Game Management. Order and labels follow the sidebar flyout.
+    'game-provider.html':{label:'Provider',order:1,module:'game'},
+    'player-provider-session.html':{label:'Provider Sessions',order:2,module:'game'},
+    'provider-wallet-transaction.html':{label:'Provider Transactions',order:3,module:'game'},
+    'provider-bet-report.html':{label:'Provider Bet Report',order:4,module:'game'},
+    'game-category.html':{label:'Game Category',order:5,module:'game'},
+    'game-sub-category.html':{label:'Game Sub Category',order:6,module:'game'},
+    'game.html':{label:'Game',order:7,module:'game'}
   };
 
-  const MODULE_ANCHORS = {transaction:'member-deposit.html', member:'index.html', promotion:'promotion.html', vip:'vip-management.html', agent:'agent-management.html', report:'casino-overview-report.html'};
-  const MODULE_LABELS = {transaction:'Transaction', member:'Member', promotion:'Promotion', vip:'VIP', agent:'Agent', report:'Report'};
+  const MODULE_ANCHORS = {transaction:'member-deposit.html', member:'index.html', promotion:'promotion.html', vip:'vip-management.html', agent:'agent-management.html', report:'casino-overview-report.html', report:'casino-overview-report.html', game:'game-provider.html'};
+  const MODULE_LABELS = {transaction:'Transaction', member:'Member', promotion:'Promotion', vip:'VIP', agent:'Agent', report:'Report', game:'Game Management'};
 
   // Those two pages are the ones that own that pair, and each already authors it as its
   // own .bulk-family-tabs row — a second row of links under the module row, drawn like

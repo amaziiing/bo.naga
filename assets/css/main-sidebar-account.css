@@ -1,0 +1,194 @@
+/* Main panel - the signed-in account block, docked in the sidebar above the Logout line.
+
+   The block, its markup and its sync with auth.js are explained in
+   assets/js/main-sidebar-account.js. This sheet is the presentation half and is loaded
+   by the Main panel pages only (main-*.html, main_*.html, menu-permission.html).
+
+   NAMING - WHY THESE CLASSES ARE NOT SHELL CLASSES
+   The BO shell's layout metrics live in assets/css/bo-shell.css, and
+   scripts/check-shell-drift.js refuses a NEW metric declaration on a shell selector in
+   any other sheet. The Main panel keeps its own shell (AGENTS.md, "Scope: BO pages
+   only"), so this block is named inside its own `main-side-account-*` namespace and its
+   selectors carry neither `.report-sidebar` nor `.bo-sidebar-`/`.report-avatar`/
+   `.bo-account-*`. The guard therefore keeps protecting the BO shell untouched, and no
+   baseline entry is needed. Run `node scripts/check-shell-drift.js` after editing.
+
+   GEOMETRY - DO NOT MOVE THE HAIRLINE
+   The block is a sibling ABOVE `.bo-sidebar-account-footer`. The footer's border-top
+   stays the single line between the account block and Logout, and the footer keeps the
+   height bo-ui-standard.css pins per page (73/71/69/68/65/60px) to meet the page's
+   sticky action bar. Nothing here may change the footer's box - that alignment is the
+   reason the block lives outside it.
+
+   Values: the rail's own rhythm. Name 14px/800 like the Logout row, role 11px muted like
+   the topbar chip's role line, avatar 34px/radius 10 like `.report-brand .logo` and the
+   nav icon tiles, row padding 8px/10px and radius 10px exactly like a `.report-nav` row,
+   so the block reads as part of the rail rather than a chip dropped into it. */
+
+.main-side-account{
+  flex:0 0 auto;
+  padding:10px 10px 2px;
+}
+
+/* The row box is the Logout pill's, measured on this family: padding 10px/12px, radius 10,
+   font 14px/800. That is what puts both rows' left edge and type on the same line. */
+.main-side-account-link{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 12px;
+  border-radius:10px;
+  text-decoration:none!important;
+  color:#6B360C;
+  background:rgba(255,243,224,0);
+  /* FOUR layers in every state, transparent where unused - see STATES below. */
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0), 0 1px 2px rgba(60,48,32,0),
+             0 0 0 1px rgba(217,119,6,0), 0 6px 16px rgba(217,119,6,0);
+  transition:background .16s ease, box-shadow .16s ease, color .16s ease;
+}
+
+/* ============================ STATES
+   The rail's own three materials, read off bo-charcoal-shell.css on a Main panel page
+   rather than invented (light hover/chip at lines 731-758, dark hover/chip at 939-951,
+   measured computed values confirmed with a real hover + mouse press):
+
+     row hover / focus-visible   light  background rgba(255,243,224,.78)  (#FFF3E0 78%)
+                                        shadow 0 1px 2px rgba(60,48,32,.05)
+     row selected (amber chip)   light  gradient 135deg #FFF8EF -> #FFE8CC -> #FFF3E0
+                                        inset 0 1px 0 rgba(255,255,255,.85)
+                                        0 0 0 1px rgba(217,119,6,.18)
+                                        0 6px 16px rgba(217,119,6,.12)
+     row selected                dark   gradient 90deg rgba(245,158,11,.16) -> .05 -> transparent
+                                        inset top rgba(245,158,11,.18) / inset bottom .1
+                                        0 0 28px rgba(245,158,11,.12)
+
+   The account block is never "the current page", so the amber chip is its PRESSED and
+   keyboard-focus state and the cream wash is its hover. Dark hover is amber at the same
+   strength as its sibling footer row (Logout hovers at rgba(248,113,113,.1)) instead of
+   the rail row's rgba(255,255,255,.04), which reads as no feedback at all next to a pill
+   that does light up.
+
+   LAYER COUNT: every state declares the same four shadow layers in the same order.
+   box-shadow interpolates layer by layer, so a 1-layer hover handing over to a 3-layer
+   chip interpolated into a full-width amber wash for one frame (measured: a focused row
+   reported `inset 0 0 0 999px rgba(217,119,6,.22)`). Same shapes = only colours move. */
+.main-side-account-link:hover{
+  background:rgba(255,243,224,.78);
+  color:#6B360C;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0), 0 1px 2px rgba(60,48,32,.05),
+             0 0 0 1px rgba(217,119,6,0), 0 6px 16px rgba(217,119,6,0);
+}
+.main-side-account-link:active{
+  background:linear-gradient(135deg,#FFF8EF 0%,#FFE8CC 48%,#FFF3E0 100%);
+  color:#6B360C;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.85), 0 1px 2px rgba(60,48,32,0),
+             0 0 0 1px rgba(217,119,6,.18), 0 6px 16px rgba(217,119,6,.12);
+}
+
+/* KEYBOARD FOCUS - the rail's own rule, quoted from reports.css (@layer bo-focus):
+   "The rail's L1 rows and sub-items mirror their hover fill exactly rather than the wash
+   above". So focus-visible is the SAME fill as hover, not a chip and not that wash.
+
+   It has to be declared inside `@layer bo-focus` too. The generic rule in that layer
+   replaces every focus ring in the back office with an amber wash through !important, and
+   reports.css says exactly how a component is meant to opt out: "a page that wants its own
+   focus style has to join this layer, not just add !important". An un-layered rule here
+   lost to it and the focused row painted `inset 0 0 0 999px rgba(217,119,6,.22)` (measured). */
+@layer bo-focus{
+  /* The `body.report-body` step is the specificity, not decoration: the layer's generic
+     rule is (0,4,1) - `html:not([attr]) :is(...[tabindex]:not([tabindex]))` - and it only
+     declares outline + box-shadow, which is why this row kept the fill above but still
+     painted the wash underneath it. One more class level reaches (0,4,2) and the rail's
+     treatment lands whole. Same escalation idiom the shell sheets use. */
+  html:not([data-bo-theme="dark"]) body.report-body .main-side-account-link:focus-visible{
+    outline:0!important;
+    background:rgba(255,243,224,.78)!important;
+    color:#6B360C!important;
+    box-shadow:0 1px 2px rgba(60,48,32,.05)!important;
+  }
+  html[data-bo-theme="dark"] .main-side-account-link:focus-visible{
+    outline:0!important;
+    background:rgba(245,158,11,.1)!important;
+    color:#F5F5F4!important;
+  }
+}
+
+.main-side-account-avatar{
+  width:34px;
+  height:34px;
+  flex:0 0 34px;
+  display:grid;
+  place-items:center;
+  border-radius:10px;
+  background:#D97706;
+  color:#FFFFFF;
+  font-size:16px;
+  line-height:1;
+}
+
+.main-side-account-text{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+  min-width:0;
+  line-height:1.15;
+}
+.main-side-account-name{
+  font-size:14px;
+  font-weight:800;
+  /* The rail's row colour, not the topbar chip's near-black: this row now sits in the
+     rail, and #6B360C is what every label around it resolves to. */
+  color:#6B360C;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.main-side-account-role{
+  font-size:11px;
+  font-weight:600;
+  color:#78716C;
+  letter-spacing:.02em;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+/* ---- Dark: the Main panel's rail is #3A3226 / var(--bo-sidebar-bg) ---- */
+html[data-bo-theme="dark"] .main-side-account-link{
+  color:#F5F5F4;
+  background:rgba(245,158,11,0);
+  box-shadow:inset 0 1px 0 rgba(245,158,11,0), inset 0 -1px 0 rgba(245,158,11,0),
+             0 0 0 1px rgba(245,158,11,0), 0 0 28px rgba(245,158,11,0);
+}
+html[data-bo-theme="dark"] .main-side-account-link:hover{
+  background:rgba(245,158,11,.1);
+  color:#F5F5F4;
+  box-shadow:inset 0 1px 0 rgba(245,158,11,0), inset 0 -1px 0 rgba(245,158,11,0),
+             0 0 0 1px rgba(245,158,11,0), 0 0 28px rgba(245,158,11,0);
+}
+/* The dark rail's selected chip. Its text goes amber there (#FBBF24); the account block
+   keeps its own white/amber text so a press does not recolour the name - only the
+   surface changes. */
+html[data-bo-theme="dark"] .main-side-account-link:active{
+  background:linear-gradient(90deg,rgba(245,158,11,.16) 0%,rgba(245,158,11,.05) 45%,rgba(245,158,11,0) 100%);
+  color:#F5F5F4;
+  box-shadow:inset 0 1px 0 rgba(245,158,11,.18), inset 0 -1px 0 rgba(245,158,11,.1),
+             0 0 0 1px rgba(245,158,11,0), 0 0 28px rgba(245,158,11,.12);
+}
+html[data-bo-theme="dark"] .main-side-account-name{color:#F5F5F4}
+html[data-bo-theme="dark"] .main-side-account-role{color:#F59E0B}
+
+/* ---- Collapsed rail (bo-ui-standard.css: body.sidebar-mini, desktop only) ----
+   The avatar IS the row, exactly as Logout keeps its icon; the name travels in
+   data-rail-label and is painted by the rail label panel on hover. `body.sidebar-mini`
+   alone is enough: the rail never slides out under the pointer any more (reports.css,
+   2026-09-24), so there is no hover state to mirror - and the selector stays clear of
+   `.report-sidebar`, which is what keeps this sheet out of the shell drift guard. */
+@media (min-width:992px){
+  body.sidebar-mini .main-side-account{padding:10px 8px 2px}
+  body.sidebar-mini .main-side-account-link{
+    justify-content:center;
+    padding:10px 0;
+  }
+  body.sidebar-mini .main-side-account-text{display:none}
+}

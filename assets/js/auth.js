@@ -197,11 +197,22 @@
     'agent-payout-admin.html':{label:'Withdraw / Payout',order:3,module:'agent'},
     'agent-settlement-admin.html':{label:'Agent Settlement',order:4,module:'agent'},
     'agent-reimbursement-admin.html':{label:'Reimbursement / Ad Claim',order:5,module:'agent'},
-    'agent-promotion-admin.html':{label:'Agent Promotion',order:6,module:'agent'}
+    'agent-promotion-admin.html':{label:'Agent Promotion',order:6,module:'agent'},
+    // 7. Report. Labels drop the trailing "Report" because every row here is one; the
+    // full name still shows on the page itself (menu row / data-bo-title).
+    'casino-overview-report.html':{label:'Overview',order:1,module:'report'},
+    'casino-deposit-withdraw-report.html':{label:'Deposit / Withdraw',order:2,module:'report'},
+    'win-lose-report.html':{label:'Win/Lose',order:3,module:'report'},
+    'casino-breakdown-report.html':{label:'Breakdown',order:4,module:'report'},
+    'casino-bonus-report.html':{label:'Bonus',order:5,module:'report'},
+    'promotion-report.html':{label:'Promotion',order:6,module:'report'},
+    'transaction-report.html':{label:'Transaction',order:7,module:'report'},
+    'casino-provider-winloss-report.html':{label:'Provider Win/Loss',order:8,module:'report'},
+    'agent-performance-report.html':{label:'Agent Performance',order:9,module:'report'}
   };
 
-  const MODULE_ANCHORS = {transaction:'member-deposit.html', member:'index.html', promotion:'promotion.html', vip:'vip-management.html', agent:'agent-management.html'};
-  const MODULE_LABELS = {transaction:'Transaction', member:'Member', promotion:'Promotion', vip:'VIP', agent:'Agent'};
+  const MODULE_ANCHORS = {transaction:'member-deposit.html', member:'index.html', promotion:'promotion.html', vip:'vip-management.html', agent:'agent-management.html', report:'casino-overview-report.html'};
+  const MODULE_LABELS = {transaction:'Transaction', member:'Member', promotion:'Promotion', vip:'VIP', agent:'Agent', report:'Report'};
 
   // Those two pages are the ones that own that pair, and each already authors it as its
   // own .bulk-family-tabs row — a second row of links under the module row, drawn like

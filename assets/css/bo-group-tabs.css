@@ -1,0 +1,115 @@
+/* Section tabs bar for sibling pages that belong to one sidebar group
+   (User Management / Member Wallet / Wallet Ledger / Referral Network).
+
+   1:1 copy of Admin Management's `.mad-chrome` + `.mad-tabs` + `.mad-tab`
+   (assets/css/main-admin-detail-executive.css) so the two tab bars are
+   identical in font, size, colour and placement.
+
+   The Admin Management page settles on its "Charcoal + Amber" token block
+   (main-admin-detail-executive.css:7053), which is what these literals match:
+     inactive text #71717A · active text #18191C · active bar #D97706
+     row hairline #EADCC8   (the earlier Deep Navy Cyan #E2E7F0 block loses)
+   Dark theme keeps the same amber bar but swaps the neutrals to
+   #A1A1AA / #F5F5F4 and the hairline to rgba(255,255,255,.08).
+
+   Scope note: every rule is keyed on `.report-content > .bo-group-tabs`, which
+   only matches the four listing pages that carry this nav. Nothing else in the
+   app is affected. */
+
+/* Placement: Admin Management's workspace is padded 8px at the top, so its tab
+   row sits 8px under the topbar. These listing pages pad .report-content 18px,
+   which would leave the bar floating; trim it back to the same 8px.
+   Desktop only: below Admin Management's own 1024px switch point these pages
+   carry deliberate mobile padding that this bar has no business overriding. */
+@media(min-width:1024px){
+  .report-content:has(> .bo-group-tabs){padding-top:8px!important}
+
+  /* Referral is the one page whose content padding is owned by a two-id
+     `!important` rule (bo-charcoal-legacy.css:2608, `padding:12px 22px 16px`),
+     so a plain `.report-content:has(...)` cannot bring its top back to 8px.
+     Mirror that rule's own selector and append the :has() guard to out-rank it,
+     the same idiom these sheets already use for id-guarded pages. */
+  html:not([data-bo-theme="dark"]) body:not(#bo-charcoal-off):not(#bo-charcoal-legacy).referral-page.report-body.bo-charcoal .report-content:has(> .bo-group-tabs),
+  html[data-bo-theme="dark"] body:not(#bo-charcoal-off):not(#bo-charcoal-legacy).referral-page.report-body.bo-charcoal .report-content:has(> .bo-group-tabs){
+    padding-top:8px!important;
+  }
+}
+
+/* The row itself — Admin Management's .mad-chrome: 48px tall, hairline
+   underline, no side padding, tabs starting at the content edge.
+   `flex:0 0 48px` mirrors .mad-chrome too: these containers are flex columns, so
+   without a rigid basis the bar is treated as a shrinkable item and gets
+   squashed on short screens.
+   No bottom margin on purpose — every one of these four pages already makes
+   .report-content a flex column with `gap:16px` (bo-charcoal-legacy for
+   index/referral, bo-wallet-transaction-amber for the two wallet pages), which
+   does the same job as Admin Management's .mad-workspace gap. A margin on top of
+   that gap doubled the space under the bar to 32px instead of the reference 16px. */
+.report-content > .bo-group-tabs{
+  display:flex;align-items:stretch;gap:4px;flex-wrap:nowrap;
+  flex:0 0 48px;
+  width:100%;height:48px;min-height:48px;max-height:48px;
+  box-sizing:border-box;
+  padding:0;margin:0;
+  border-bottom:1px solid #EADCC8;
+  background:transparent;
+}
+
+/* .mad-tab */
+.report-content > .bo-group-tabs > .bo-group-tab{
+  display:inline-flex;align-items:center;height:100%;min-height:0;flex:0 0 auto;
+  padding:0 12px;margin:0;
+  border:0;border-bottom:2px solid transparent;border-radius:0;
+  background:transparent!important;
+  color:#71717A;
+  font-family:ui-sans-serif,"Segoe UI",system-ui,sans-serif;
+  font-size:13.5px;font-weight:650;line-height:1.2;
+  text-decoration:none;cursor:pointer;white-space:nowrap;
+  transition:color .16s cubic-bezier(.23,1,.32,1),border-color .16s cubic-bezier(.23,1,.32,1);
+}
+
+/* Admin Management's final word on hover/active is its "Top tabs — orange
+   underline only; text stays neutral" block, which out-ranks the earlier
+   .mad-tab rules: the active bar is amber, the text stays a neutral dark. */
+.report-content > .bo-group-tabs > .bo-group-tab:hover:not(.is-disabled){
+  color:#18191C!important;background:transparent!important;
+}
+.report-content > .bo-group-tabs > .bo-group-tab.is-active,
+.report-content > .bo-group-tabs > .bo-group-tab[aria-current="page"]{
+  background:transparent!important;
+  color:#18191C!important;font-weight:800;
+  border-bottom:2px solid #D97706!important;
+}
+.report-content > .bo-group-tabs > .bo-group-tab:focus-visible{
+  outline:2px solid #D97706!important;outline-offset:2px!important;
+}
+.report-content > .bo-group-tabs > .bo-group-tab.is-disabled{opacity:.4;cursor:not-allowed}
+
+/* permission-tabs.js hides a tab the viewer has no permission for by setting the
+   `hidden` attribute. The UA sheet's [hidden]{display:none} is out-ranked by the
+   display:inline-flex above, so the tab must be hidden explicitly here. */
+.report-content > .bo-group-tabs > .bo-group-tab[hidden]{display:none!important}
+
+/* Admin Management, dark theme. Its dark token block re-declares the neutral
+   greys but not --bo-sidebar-active, so the amber bar carries over unchanged. */
+html[data-bo-theme="dark"] .report-content > .bo-group-tabs{border-bottom-color:rgba(255,255,255,.08)}
+html[data-bo-theme="dark"] .report-content > .bo-group-tabs > .bo-group-tab{color:#A1A1AA}
+html[data-bo-theme="dark"] .report-content > .bo-group-tabs > .bo-group-tab:hover:not(.is-disabled){
+  color:#F5F5F4!important;
+}
+html[data-bo-theme="dark"] .report-content > .bo-group-tabs > .bo-group-tab.is-active,
+html[data-bo-theme="dark"] .report-content > .bo-group-tabs > .bo-group-tab[aria-current="page"]{
+  color:#F5F5F4!important;border-bottom:2px solid #D97706!important;
+}
+
+/* Admin Management, ≤1023.98px: the row grows, the tab strip scrolls and the
+   tabs get 44px touch targets instead of the 48px desktop row. */
+@media(max-width:1023.98px){
+  .report-content > .bo-group-tabs{
+    flex:0 0 auto;height:auto;min-height:0;max-height:none;padding-bottom:10px;
+    overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;
+    scrollbar-width:none;overscroll-behavior-x:contain;
+  }
+  .report-content > .bo-group-tabs::-webkit-scrollbar{display:none}
+  .report-content > .bo-group-tabs > .bo-group-tab{min-height:44px;padding:10px 14px 8px}
+}

@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
   <head>
+<script>window.boContentBoot=function(){try{var path=(location.pathname.split('/').pop()||'').toLowerCase();if(!/\.html$/.test(path))return;var raw=localStorage.getItem('bo_content_v1_'+path);if(!raw)return;var o=JSON.parse(raw);if(!o||!o.h)return;if(!o.t||(Date.now()-o.t)>6*3600*1000)return;var u={};try{u=JSON.parse(localStorage.getItem('bo_admin_user')||'{}')||{};}catch(e){}var s=String(u.id||u.username||u.email||'');if(s&&o.u&&o.u!==s)return;var c=document.querySelector('.report-content');if(!c)return;c.innerHTML=o.h;c.setAttribute('data-bo-content-restore','1');}catch(e){}};</script>
 <script>!function(){try{var t=localStorage.getItem('bo_theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-bo-theme',t);}catch(e){}}();window.boShellBoot=function(){try{var h=localStorage.getItem('bo_shell_nav_v1');if(!h)return;var u={};try{u=JSON.parse(localStorage.getItem('bo_admin_user')||'{}')||{};}catch(e){}var stamp=String(u.id||u.username||u.email||'');if(stamp&&localStorage.getItem('bo_shell_nav_user_v1')!==stamp)return;var nav=document.querySelector('.report-nav');if(nav)nav.innerHTML=h;}catch(e){}};</script>
 
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -45,7 +46,7 @@
       <main class="report-main">
         <header class="report-topbar" data-bo-topbar data-bo-title="Game Provider Management" data-bo-icon="bi-controller"></header>
 <script src="assets/js/bo-topbar.js?v=1"></script>
-        <section class="report-content">
+        <section class="report-content"><script>window.boContentBoot&&window.boContentBoot()</script>
           <div class="manage-page-grid">
             <div class="manage-list-card">
               <div class="section-title slider-list-title standardized-list-toolbar"><div class="d-flex gap-2 flex-nowrap align-items-center listing-toolbar-actions"><label class="provider-list-search" for="providerSearchInput"><i class="bi bi-search" aria-hidden="true"></i><input id="providerSearchInput" type="search" placeholder="Search providers..." autocomplete="off" /></label><button class="clean-btn primary" id="syncSelectedProviderBtn" type="button"><i class="bi bi-cloud-download"></i> Sync Selected Games</button><button class="clean-btn" id="debugSelectedProviderBtn" type="button"><i class="bi bi-bug"></i> Debug Game List</button><button class="clean-btn" id="toggleApiDebugToolsBtn" type="button" aria-expanded="false" aria-haspopup="dialog" aria-controls="apiDebugToolsModal"><i class="bi bi-terminal"></i> API Debug Tools</button><a class="clean-btn primary" id="addGameProviderBtn" href="game-provider-create.html"><i class="bi bi-plus-circle"></i> Add Game Provider</a></div></div>
@@ -91,7 +92,7 @@
     <script src="assets/js/config.js?v=8732ba44"></script>
 <script src="assets/js/brand-context.js?v=3bb07655"></script>
 <script src="assets/js/main-currency-runtime.js?v=bc97a89c"></script>
-<script src="assets/js/currency-runtime.js?v=71496e4c"></script><script src="assets/js/auth.js?v=549eadd4"></script><script src="assets/js/reports.js?v=063b42e4"></script><script src="assets/js/game-provider.js?v=042ea15c"></script>
+<script src="assets/js/currency-runtime.js?v=71496e4c"></script><script src="assets/js/auth.js?v=bb302131"></script><script src="assets/js/reports.js?v=063b42e4"></script><script src="assets/js/game-provider.js?v=042ea15c"></script>
       
 
 <!-- Global live-chat listener: keeps the custom MP3 notification active throughout the BO. -->

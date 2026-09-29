@@ -2,6 +2,7 @@
 
 <html lang="en">
 <head>
+<script>window.boContentBoot=function(){try{var path=(location.pathname.split('/').pop()||'').toLowerCase();if(!/\.html$/.test(path))return;var raw=localStorage.getItem('bo_content_v1_'+path);if(!raw)return;var o=JSON.parse(raw);if(!o||!o.h)return;if(!o.t||(Date.now()-o.t)>6*3600*1000)return;var u={};try{u=JSON.parse(localStorage.getItem('bo_admin_user')||'{}')||{};}catch(e){}var s=String(u.id||u.username||u.email||'');if(s&&o.u&&o.u!==s)return;var c=document.querySelector('.report-content');if(!c)return;c.innerHTML=o.h;c.setAttribute('data-bo-content-restore','1');}catch(e){}};</script>
 <script>!function(){try{var t=localStorage.getItem('bo_theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-bo-theme',t);}catch(e){}}();window.boShellBoot=function(){try{var h=localStorage.getItem('bo_shell_nav_v1');if(!h)return;var u={};try{u=JSON.parse(localStorage.getItem('bo_admin_user')||'{}')||{};}catch(e){}var stamp=String(u.id||u.username||u.email||'');if(stamp&&localStorage.getItem('bo_shell_nav_user_v1')!==stamp)return;var nav=document.querySelector('.report-nav');if(nav)nav.innerHTML=h;}catch(e){}};</script>
 
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -41,7 +42,7 @@
 <main class="report-main">
 <header class="report-topbar" data-bo-topbar data-bo-title="Frequently Played Games" data-bo-icon="bi-controller"><span data-bo-topbar-title-extra class="users-found-badge" id="gameRankCount">0 Members</span></header>
 <script src="assets/js/bo-topbar.js?v=1"></script>
-<section class="report-content">
+<section class="report-content"><script>window.boContentBoot&&window.boContentBoot()</script>
 <div class="filter-card">
 <div class="user-search-grid bo-filter-row">
 <div class="field">
@@ -92,7 +93,7 @@
 <script src="assets/js/brand-context.js?v=3bb07655"></script>
 <script src="assets/js/main-currency-runtime.js?v=bc97a89c"></script>
 <script src="assets/js/currency-runtime.js?v=71496e4c"></script>
-<script src="assets/js/auth.js?v=549eadd4.0.33"></script>
+<script src="assets/js/auth.js?v=bb302131.0.33"></script>
 <script src="assets/js/reports.js?v=063b42e4"></script>
 <script>
       window.GAME_RANKING_MODE = "frequent";

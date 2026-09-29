@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 
 <html lang="en"><head>
+<script>window.boContentBoot=function(){try{var path=(location.pathname.split('/').pop()||'').toLowerCase();if(!/\.html$/.test(path))return;var raw=localStorage.getItem('bo_content_v1_'+path);if(!raw)return;var o=JSON.parse(raw);if(!o||!o.h)return;if(!o.t||(Date.now()-o.t)>6*3600*1000)return;var u={};try{u=JSON.parse(localStorage.getItem('bo_admin_user')||'{}')||{};}catch(e){}var s=String(u.id||u.username||u.email||'');if(s&&o.u&&o.u!==s)return;var c=document.querySelector('.report-content');if(!c)return;c.innerHTML=o.h;c.setAttribute('data-bo-content-restore','1');}catch(e){}};</script>
 <script>!function(){try{var t=localStorage.getItem('bo_theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-bo-theme',t);}catch(e){}}();window.boShellBoot=function(){try{var h=localStorage.getItem('bo_shell_nav_v1');if(!h)return;var u={};try{u=JSON.parse(localStorage.getItem('bo_admin_user')||'{}')||{};}catch(e){}var stamp=String(u.id||u.username||u.email||'');if(stamp&&localStorage.getItem('bo_shell_nav_user_v1')!==stamp)return;var nav=document.querySelector('.report-nav');if(nav)nav.innerHTML=h;}catch(e){}};</script>
 <script>
 window.BO_AUTH = {
@@ -57,7 +58,7 @@ window.BO_AUTH = {
       </button>
       <div data-bo-profile></div>
     </div></header>
-<section class="report-content">
+<section class="report-content"><script>window.boContentBoot&&window.boContentBoot()</script>
 <div class="quick-stats"><div class="metric"><span>Total Bet</span><strong id="wlTotalBet">0.00</strong></div><div class="metric"><span>Valid Bet</span><strong id="wlValidBet">0.00</strong></div><div class="metric"><span>Win/Lose</span><strong id="wlWinLose">0.00</strong></div><div class="metric"><span>Members</span><strong id="wlMembers">0</strong></div></div>
 <div class="filter-card"><div class="user-search-grid bo-filter-row">
 <div class="field"><input id="wlFrom" type="date" aria-label="Date From"/></div><div class="field"><input id="wlTo" type="date" aria-label="Date To"/></div>

@@ -1668,10 +1668,10 @@
    Only these pages opt in, so a page that double-renders cannot be affected yet. */
 (function(){
   try{
-    var PILOT=/^(casino-overview-report|casino-deposit-withdraw-report|win-lose-report|casino-breakdown-report|casino-bonus-report|promotion-report|transaction-report|casino-provider-winloss-report|agent-performance-report)\.html$/;
+    var P=/\.html$/;
     var TTL=6*3600*1000, KEY='bo_content_v1_';
     var path=(location.pathname.split('/').pop()||'').toLowerCase();
-    if(!PILOT.test(path)) return;
+    if(!P.test(path)) return;
     function stamp(){ try{ var u=JSON.parse(localStorage.getItem('bo_admin_user')||'{}')||{}; return String(u.id||u.username||u.email||''); }catch(e){ return ''; } }
     window.boContentBoot=function(){
       try{

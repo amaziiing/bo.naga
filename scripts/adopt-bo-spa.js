@@ -32,7 +32,11 @@
       already applied when the first sheet is matched. 9 pages were missing it and
       flashed light before turning dark.
 
-   4. <link rel="stylesheet"> for bo-global-quicknav.css at the END of <head>
+   4. <script src="assets/js/bo-spa.js"> just before </body>, if the page does not have it
+      already. Opting in with the attribute alone is not enough - the router has to be on the
+      page to read it, and two pages carried the attribute without the script.
+
+   5. <link rel="stylesheet"> for bo-global-quicknav.css at the END of <head>
       auth.js#mountSidebarToggle used to inject this sheet from a body-end script, so on
       every page load the rail painted once and was then RESTYLED when the sheet arrived
       (it carries the pin button and the row's right padding). That late re-style is the
@@ -133,6 +137,20 @@ function transform(html, shell) {
   }
 
   if (!head) return { html, notes };
+
+  // 5. the router itself. A page can carry data-bo-spa and still not load bo-spa.js - two
+  //    did (main-dashboard.html, currency-management.html), which leaves the attribute inert
+  //    and the page silently never swapped. Opting in has to include the script. Appended at
+  //    the very end of the body, the position it already has on the pages that load it.
+  if (!/bo-spa\.js/.test(html)) {
+    const i = html.lastIndexOf('</body>');
+    if (i === -1) {
+      notes.push('!! NO </body>: bo-spa.js NOT inserted');
+    } else {
+      html = html.slice(0, i) + '<script src="assets/js/bo-spa.js?v=0"></script>' + '\n' + html.slice(i);
+      notes.push('bo-spa.js script tag');
+    }
+  }
 
   // 4. the quicknav sheet, pinned last in <head> (see the header comment).
   if (!/bo-global-quicknav\.css/.test(html)) {

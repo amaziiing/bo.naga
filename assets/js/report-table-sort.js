@@ -158,7 +158,12 @@
     var cmp;
     if (!isNaN(av.n) && !isNaN(bv.n)) cmp = av.n === bv.n ? 0 : (av.n < bv.n ? -1 : 1);
     else cmp = av.s.localeCompare(bv.s, undefined, { numeric: true, sensitivity: 'base' });
-    if (cmp === 0) cmp = a.rowIndex - b.rowIndex;                 /* stable for equal keys */
+
+    /* Equal values must never be reversed or shuffled when DESC is selected.
+       Returning 0 lets modern stable Array.sort preserve the rows' current relative order.
+       This is critical for report columns containing repeated 0.00/status/provider values: only
+       genuinely different sort keys should move. */
+    if (cmp === 0) return 0;
     return dir === 'desc' ? -cmp : cmp;
   }
 

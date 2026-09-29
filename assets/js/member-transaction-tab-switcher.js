@@ -317,19 +317,7 @@
   // the header/tab counters may already refresh to the current filters. That
   // produced e.g. All (1) with old Aug/Sep rows until Ctrl+F5. Always rebuild
   // the All table from the current controls after a BFCache restore.
-  let realtimeAllWithdrawSignature='';
-  let realtimeAllTimer=0;
-  document.addEventListener('bo:operation-counts',e=>{
-    if(state.type!=='all')return;
-    const detail=e?.detail||{};
-    const ids=Array.isArray(detail.withdrawIds)?detail.withdrawIds.map(String).sort():[];
-    const signature=String(Number(detail.withdraw||0)||0)+'|'+ids.join(',');
-    if(signature===realtimeAllWithdrawSignature)return;
-    realtimeAllWithdrawSignature=signature;
-    clearTimeout(realtimeAllTimer);
-    realtimeAllTimer=setTimeout(()=>{state.page=1;reload();},120);
-  });
-  window.addEventListener('pagehide',()=>{clearTimeout(realtimeAllTimer);reloadGeneration++;countGeneration++;});
+  window.addEventListener('pagehide',()=>{reloadGeneration++;countGeneration++;});
   window.addEventListener('pageshow',async e=>{
     if(!e.persisted||state.type!=='all')return;
     await waitForDateRangeReady();

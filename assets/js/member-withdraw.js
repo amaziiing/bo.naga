@@ -251,33 +251,7 @@
       },180);
     });
   };
-  // Keep an already-open Withdraw listing synchronized with the global realtime
-  // notification poll. Use pending request IDs as well as the count so a new
-  // withdrawal is detected even if another pending request disappeared in the
-  // same polling interval and the numeric badge did not change.
-  let realtimeWithdrawSignature='';
-  let realtimeWithdrawTimer=0;
-  document.addEventListener('bo:operation-counts',e=>{
-    if(new URLSearchParams(location.search).get('tab')==='all')return;
-    const detail=e?.detail||{};
-    const ids=Array.isArray(detail.withdrawIds)?detail.withdrawIds.map(String).sort():[];
-    const signature=String(Number(detail.withdraw||0)||0)+'|'+ids.join(',');
-    if(signature===realtimeWithdrawSignature)return;
-    const hadBaseline=realtimeWithdrawSignature!=='';
-    realtimeWithdrawSignature=signature;
-    // The first realtime snapshot also refreshes once. This closes the small race
-    // where a member submits after the page's initial API load but before the first
-    // notification snapshot reaches this tab.
-    clearTimeout(realtimeWithdrawTimer);
-    realtimeWithdrawTimer=setTimeout(()=>{
-      page=1;
-      clearLockedAutoSize();
-      load();
-      renderBankCards().catch(()=>{});
-    },hadBaseline?80:120);
-  });
-
-  window.addEventListener('pagehide',()=>{clearTimeout(realtimeWithdrawTimer);loadGeneration++;txCountGeneration++;});
+  window.addEventListener('pagehide',()=>{loadGeneration++;txCountGeneration++;});
   window.addEventListener('pageshow',e=>{
     if(!e.persisted)return;
     page=1;clearLockedAutoSize();load();renderBankCards();

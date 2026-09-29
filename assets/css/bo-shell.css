@@ -157,6 +157,67 @@ html:not(#bo-charcoal-off) body.report-body .report-shell .report-sidebar .bo-si
   box-sizing:border-box!important;
 }
 
+/* 0f. The app-style content frame (Live Chat). That page is a fixed-height app: the
+   inbox and the room are sized from the frame, so the frame has to be exactly the space
+   left under the topbar - the workspace scrolls, the frame does not.
+
+   The height used to be a guess: `height: calc(100vh - 60px)` while every page pins the
+   topbar to `--bo-header-h` (64px, bo-charcoal-shell.css). It was therefore 4px taller
+   than the box it sits in - `.report-main` clipped the excess silently and the card came
+   out 10px off the bottom of the viewport, against an 18px inset on the other three
+   sides. Nothing ties the number 60 to the header, so the two were free to drift apart
+   again the moment a theme changed the header height.
+
+   The frame is instead the remainder of a column: the topbar takes its own height and
+   the frame takes what is left, so it can not disagree with the header. Same idea the
+   Live Chat template page already uses for its frame.
+
+   The frame's four insets are then all 18px, which is the value the sides already
+   resolve to from 1024px up (0c above) and the top elsewhere. They are declared as one
+   `padding` rather than only a bottom because `reports.css` insets the frame to
+   16px / 14px below 1200px in a media query of its own - pinning just the bottom would
+   have left the frame lopsided the other way in that band. Below 1024px the page sheets
+   keep their own, smaller, insets and only the height is fixed here.
+
+   Both halves live here rather than one here and one in reports.css: below 992px the
+   workspace unstacks and the page scrolls again. */
+@media (min-width:992px){
+  body.report-body.livechat-bo-page .report-main{
+    display:flex!important;
+    flex-direction:column!important;
+    height:100vh!important;
+    overflow:hidden!important;
+  }
+  body.report-body.livechat-bo-page .report-main .report-topbar[data-bo-topbar]{
+    flex:0 0 auto!important;
+  }
+  body.report-body.livechat-bo-page .report-main .report-content{
+    display:flex!important;
+    flex-direction:column!important;
+    flex:1 1 auto!important;
+    height:auto!important;
+    min-height:0!important;
+    overflow:hidden!important;
+  }
+}
+@media (min-width:1024px){
+  body.report-body.livechat-bo-page .report-main .report-content{
+    padding:18px!important;
+  }
+}
+@media (max-width:991.98px){
+  body.report-body.livechat-bo-page .report-main{
+    display:block!important;
+    height:auto!important;
+    overflow:visible!important;
+  }
+  body.report-body.livechat-bo-page .report-main .report-content{
+    display:block!important;
+    height:auto!important;
+    overflow:visible!important;
+  }
+}
+
 /* 1. Page title */
 .report-topbar[data-bo-topbar] .user-title-wrap h1{
   font-size:22px!important;

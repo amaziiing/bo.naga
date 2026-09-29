@@ -248,7 +248,8 @@ function showEmpty(){
   applyFilters();
 }
 
-async function load(){
+let merchantReportLoadSeq=0;
+async function load(){const loadSeq=++merchantReportLoadSeq;
   if(FORCE_EMPTY_UI){
     showEmpty();
     syncedAt=Date.now();
@@ -256,7 +257,7 @@ async function load(){
     return;
   }
   try{
-    const [d,merchants]=await Promise.all([api('/admin/main/reports/provider-settlement'+qs()),api('/admin/merchants').catch(()=>api('/admin/brands').catch(()=>[]))]);
+    const [d,merchants]=await Promise.all([api('/admin/main/reports/provider-settlement'+qs()),api('/admin/merchants').catch(()=>api('/admin/brands').catch(()=>[]))]);if(loadSeq!==merchantReportLoadSeq)return;
     merchantMeta=Array.isArray(merchants)?merchants:(merchants?.rows||merchants?.items||[]);
     currentMerchants=normalizeMerchants(d.brands||[]);
     updateCounts();

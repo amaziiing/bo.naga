@@ -428,7 +428,9 @@
     if(!r.ok||j.status==='error')throw new Error(j.message||`Unable to load report (${r.status})`);
     return Array.isArray(j.data)?j.data:(j.data?.content||[]);
   }
+  let reportLoadSeq=0;
   async function load(){
+    const loadSeq=++reportLoadSeq;
     bodyEl.innerHTML=`<tr><td colspan="${cols.length}" class="table-empty">Loading...</td></tr>`;
     try{
       if(window.OP_REPORT_KIND==='transaction-report'){
@@ -442,8 +444,9 @@
         const type=window.OP_REPORT_KIND==='promotion-report'?'':document.getElementById('reportType').value;
         allRows=await fetchRows(type);
       }
+      if(loadSeq!==reportLoadSeq)return;
       page=1;if(isAutofit())lockedAutoSize=null;render();
-    }catch(e){allRows=[];if(isAutofit())lockedAutoSize=null;render();if(window.BO_DIALOG)await BO_DIALOG.alert(e.message||'Unable to load report.',{title:'Report Error',type:'error'});}
+    }catch(e){if(loadSeq!==reportLoadSeq)return;allRows=[];if(isAutofit())lockedAutoSize=null;render();if(window.BO_DIALOG)await BO_DIALOG.alert(e.message||'Unable to load report.',{title:'Report Error',type:'error'});}
   }
   /* No Search / Reset buttons on this family (owner: "report的所有reset，search，refresh按键
      全去除"). Every control below reloads on its own change event, which is what those buttons

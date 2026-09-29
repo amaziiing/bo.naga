@@ -241,6 +241,23 @@
   window.addEventListener('resize',hideActTip);
   $('dbgKeyword')?.addEventListener('keydown',e=>{if(e.key==='Enter'){page=0;load();}});
   $('dbgPageSize')?.addEventListener('change',()=>{page=0;paintRows(lastRows);});
+
+  // The shared date-range picker updates the hidden dbgFrom/dbgTo inputs.
+  // Promotion Log previously never reloaded when those values changed, so the
+  // page could stay on the initial (today) empty result even after selecting
+  // This Year / another range. Coalesce the picker's two change events into
+  // one API reload.
+  let dateReloadTimer=0;
+  function queueDateReload(){
+    window.clearTimeout(dateReloadTimer);
+    dateReloadTimer=window.setTimeout(()=>{
+      page=0;
+      load();
+    },0);
+  }
+  $('dbgFrom')?.addEventListener('change',queueDateReload);
+  $('dbgTo')?.addEventListener('change',queueDateReload);
+
   document.addEventListener('DOMContentLoaded',()=>{
     const track=statusTrack();
     if(track&&window.BO_SEG_BOUNCE){

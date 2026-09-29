@@ -1774,11 +1774,12 @@ html[data-bo-theme="dark"] .report-content textarea{
 }
 
 
-/* Live chat keeps the composer available while only the message history scrolls. */
+/* Live chat keeps the composer available while only the message history scrolls.
+   The fixed-height frame itself (`.report-main` / `.report-content`) is shell layout and
+   lives in bo-shell.css 0f - it is derived from `--bo-header-h` there rather than from a
+   guessed number here. */
 .livechat-bo-page{overflow:hidden!important}
-.livechat-bo-page .report-main{height:100vh!important;overflow:hidden!important}
-.livechat-bo-page .report-content{height:calc(100vh - 60px)!important;overflow:hidden!important;padding-bottom:14px!important}
-.livechat-bo-page .livechat-admin-shell{height:100%!important;min-height:0!important}
+.livechat-bo-page .livechat-admin-shell{flex:1 1 auto!important;min-height:0!important}
 .livechat-bo-page .livechat-inbox-card,.livechat-bo-page .livechat-room-card{height:100%!important;min-height:0!important}
 .livechat-bo-page .livechat-inbox-card{display:flex;flex-direction:column}
 .livechat-bo-page .livechat-inbox-list{flex:1;max-height:none!important;min-height:0;overflow-y:auto}
@@ -1818,7 +1819,7 @@ html[data-bo-theme="dark"] .report-content textarea{
 .slider-pill{border-radius:999px!important;padding:4px 9px!important;font-size:10px!important;font-weight:900!important}
 
 @media(max-width:991.98px){
-  .livechat-bo-page{overflow:auto!important}.livechat-bo-page .report-main{height:auto!important;overflow:visible!important}.livechat-bo-page .report-content{height:auto!important;overflow:visible!important}
+  .livechat-bo-page{overflow:auto!important}
   .livechat-bo-page .livechat-admin-shell{height:auto!important}.livechat-bo-page .livechat-inbox-card{height:auto!important}.livechat-bo-page .livechat-room-card{height:680px!important}
   .manage-card,.slider-card{grid-template-columns:96px minmax(0,1fr)!important}.manage-thumb,.slider-card-img{width:96px!important;height:70px!important}.slider-card-actions{grid-column:1/-1;justify-content:flex-end!important}
 }

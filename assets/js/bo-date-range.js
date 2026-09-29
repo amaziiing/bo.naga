@@ -38,7 +38,22 @@
         if(match)b.setAttribute('aria-current','true');else b.removeAttribute('aria-current');
       });
     }
-    function commit(a,b){start=iso(a);end=iso(b);from.value=start;to.value=end;from.dispatchEvent(new Event('change',{bubbles:true}));to.dispatchEvent(new Event('change',{bubbles:true}));syncText();syncPresetActive()}
+    function commit(a,b){
+      const nextStart=iso(a),nextEnd=iso(b);
+      // Re-clicking the active preset/month/year must be idempotent. Previously it
+      // dispatched two change events even when the range was unchanged, which made
+      // report pages reload and visibly jump for a no-op click.
+      const changed=start!==nextStart||end!==nextEnd||from.value!==nextStart||to.value!==nextEnd;
+      start=nextStart;end=nextEnd;from.value=start;to.value=end;
+      syncText();syncPresetActive();
+      if(!changed)return false;
+      // A completed range is one logical filter change. Both hidden values are
+      // already updated above, so emit exactly ONE native change event. Emitting
+      // one event for each hidden input made report pages load twice for a single
+      // preset click and allowed their loading/render paths to visibly jump.
+      to.dispatchEvent(new Event('change',{bubbles:true}));
+      return true;
+    }
     function setMode(next){mode=next;monthGrid.classList.toggle('show',mode==='months');yearGrid.classList.toggle('show',mode==='years');dayView.classList.toggle('hide',mode!=='days')}
     function renderMonthGrid(){monthGrid.innerHTML=MONTHS.map((m,i)=>`<button type="button" data-month="${i}" class="${i===view.getMonth()?'active':''}">${m}</button>`).join('')}
     function renderYearGrid(){yearGrid.innerHTML=Array.from({length:12},(_,i)=>yearPageStart+i).map(y=>`<button type="button" data-year="${y}" class="${y===view.getFullYear()?'active':''}">${y}</button>`).join('')}
@@ -58,7 +73,8 @@
         }else{
           if(v<start){end=start;start=v}else end=v;
           from.value=start;to.value=end;
-          from.dispatchEvent(new Event('change',{bubbles:true}));
+          // The range becomes valid only after the end date is chosen. Notify
+          // consumers once, after BOTH hidden values contain the final range.
           to.dispatchEvent(new Event('change',{bubbles:true}));
           syncText();syncPresetActive();render();
           setTimeout(()=>pop.classList.remove('show'),120);

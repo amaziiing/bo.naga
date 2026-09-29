@@ -111,6 +111,15 @@
       if (th.querySelector('.' + BTN)) continue;                  /* the page built its own */
       var label = th.textContent.trim();
       if (!label) continue;                                       /* no label, no sort target */
+      /* The leading # column is a display row number, not record data. Keep it fixed as
+         the visual position number instead of sorting/moving the original row number. */
+      if (i === 0 && label === '#') {
+        th.setAttribute(READY, '1');
+        th.classList.remove(TH, 'is-sorted', 'is-asc', 'is-desc');
+        th.removeAttribute('data-sort');
+        th.setAttribute('aria-sort', 'none');
+        continue;
+      }
       th.setAttribute(READY, '1');
       th.classList.add(TH);
       th.setAttribute('data-sort', String(i));
@@ -149,8 +158,30 @@
     var cmp;
     if (!isNaN(av.n) && !isNaN(bv.n)) cmp = av.n === bv.n ? 0 : (av.n < bv.n ? -1 : 1);
     else cmp = av.s.localeCompare(bv.s, undefined, { numeric: true, sensitivity: 'base' });
-    if (cmp === 0) cmp = a.rowIndex - b.rowIndex;                 /* stable for equal keys */
+
+    /* Equal values must never be reversed or shuffled when DESC is selected.
+       Returning 0 lets modern stable Array.sort preserve the rows' current relative order.
+       This is critical for report columns containing repeated 0.00/status/provider values: only
+       genuinely different sort keys should move. */
+    if (cmp === 0) return 0;
     return dir === 'desc' ? -cmp : cmp;
+  }
+
+  function renumberDisplayRows(table, rows) {
+    var ths = table.head.querySelectorAll('thead th');
+    if (!ths.length || (ths[0].textContent || '').trim() !== '#') return;
+    if (!rows || !rows.length) return;
+
+    /* Preserve the current page numbering base while # follows the displayed row position. */
+    var nums = rows.map(function (tr) {
+      var td = tr.children[0];
+      var n = td ? Number((td.textContent || '').trim()) : NaN;
+      return Number.isFinite(n) ? n : NaN;
+    }).filter(function (n) { return Number.isFinite(n); });
+    var base = nums.length ? Math.min.apply(Math, nums) : 1;
+    for (var i = 0; i < rows.length; i++) {
+      if (rows[i].children[0]) rows[i].children[0].textContent = String(base + i);
+    }
   }
 
   function apply(table) {
@@ -181,8 +212,9 @@
         if (rows[k] !== inPlace[k]) { same = false; break; }
       }
     }
-    if (same) { resyncScroll(table); return; }
+    if (same) { renumberDisplayRows(table, inPlace); resyncScroll(table); return; }
     for (var i = 0; i < rows.length; i++) tbody.appendChild(rows[i]);
+    renumberDisplayRows(table, rows);
     if (scroller && keepScroll) scroller.scrollLeft = keepScroll;
     resyncScroll(table);
   }

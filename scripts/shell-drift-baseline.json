@@ -2123,8 +2123,6 @@
     "assets\\css\\reports.css :: .bo-header-counter-text small :: font-size",
     "assets\\css\\reports.css :: .bo-header-counter-text small :: font-weight",
     "assets\\css\\reports.css :: .bo-header-counters :: gap",
-    "assets\\css\\reports.css :: .livechat-bo-page .report-content :: height",
-    "assets\\css\\reports.css :: .livechat-bo-page .report-content :: padding-bottom",
     "assets\\css\\reports.css :: .nav-group-btn .bi-chevron-down :: flex",
     "assets\\css\\reports.css :: .nav-group-btn :: font-weight",
     "assets\\css\\reports.css :: .nav-group-btn :: gap",

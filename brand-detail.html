@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script>!function(){try{var t=localStorage.getItem('bo_theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-bo-theme',t);}catch(e){}}();</script>
+<script>!function(){try{var t=localStorage.getItem('bo_theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-bo-theme',t);}catch(e){}}();window.boShellBoot=function(){try{var h=localStorage.getItem('bo_shell_nav_v1');if(!h)return;var u={};try{u=JSON.parse(localStorage.getItem('bo_admin_user')||'{}')||{};}catch(e){}var stamp=String(u.id||u.username||u.email||'');if(stamp&&localStorage.getItem('bo_shell_nav_user_v1')!==stamp)return;var nav=document.querySelector('.report-nav');if(nav)nav.innerHTML=h;}catch(e){}};</script>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Brand Detail</title>
@@ -23,7 +23,7 @@
 <div class="report-shell">
   <aside class="report-sidebar" id="reportSidebar">
     <div class="report-brand"><div>Backoffice</div><button class="close-side" data-close-sidebar><i class="bi bi-x-lg"></i></button></div>
-    <nav class="report-nav"></nav>
+    <nav class="report-nav"></nav><script>window.boShellBoot&&window.boShellBoot()</script>
   </aside>
   <div class="sidebar-overlay" data-close-sidebar></div>
   <main class="report-main">
@@ -89,7 +89,7 @@
 <script src="assets/js/main-currency-runtime.js?v=bc97a89c"></script>
 <script src="assets/js/currency-runtime.js?v=71496e4c"></script>
 <script src="assets/js/reports.js?v=063b42e4"></script>
-<script src="assets/js/auth.js?v=660026a5.0.33"></script>
+<script src="assets/js/auth.js?v=549eadd4.0.33"></script>
 <script src="assets/js/brand-detail-executive.js?v=67b2506e"></script>
 <script src="assets/js/bo-ui-standard.js?v=e18e682d"></script>
 <script src="assets/js/bo-theme.js?v=b1e789f3"></script>

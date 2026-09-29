@@ -2,7 +2,7 @@
 
 <html>
 <head>
-<script>!function(){try{var t=localStorage.getItem('bo_theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-bo-theme',t);}catch(e){}}();</script>
+<script>!function(){try{var t=localStorage.getItem('bo_theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-bo-theme',t);}catch(e){}}();window.boShellBoot=function(){try{var h=localStorage.getItem('bo_shell_nav_v1');if(!h)return;var u={};try{u=JSON.parse(localStorage.getItem('bo_admin_user')||'{}')||{};}catch(e){}var stamp=String(u.id||u.username||u.email||'');if(stamp&&localStorage.getItem('bo_shell_nav_user_v1')!==stamp)return;var nav=document.querySelector('.report-nav');if(nav)nav.innerHTML=h;}catch(e){}};</script>
 
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
@@ -37,7 +37,7 @@
 <div class="report-brand">
 <div>Backoffice</div>
 </div>
-<nav class="report-nav"></nav>
+<nav class="report-nav"></nav><script>window.boShellBoot&&window.boShellBoot()</script>
 </aside>
 <main class="report-main">
 <header class="report-topbar" data-bo-topbar data-bo-title="Transaction Report" data-bo-icon="bi-table"></header>
@@ -87,7 +87,7 @@
 <script src="assets/js/bo-date-range.js?v=1.0.31"></script>
 <script src="assets/js/operations-report.js?v=report-race-20260929"></script>
 <script src="assets/js/reports.js?v=063b42e4"></script><script src="assets/js/report-table-sort.js?v=1.0.28-stable-equal"></script>
-<script src="assets/js/auth.js?v=660026a5"></script>
+<script src="assets/js/auth.js?v=549eadd4"></script>
 <script src="assets/js/bo-ui-standard.js?v=e18e682d"></script>
 <script src="assets/js/operation-global-notification.js?v=1.0.31"></script>
 <!-- Global live-chat unread reminder: sounds across BO until admin unread count reaches 0. -->

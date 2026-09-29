@@ -2,7 +2,7 @@
 
 <html lang="en">
 <head>
-<script>!function(){try{var t=localStorage.getItem('bo_theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-bo-theme',t);}catch(e){}}();</script>
+<script>!function(){try{var t=localStorage.getItem('bo_theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-bo-theme',t);}catch(e){}}();window.boShellBoot=function(){try{var h=localStorage.getItem('bo_shell_nav_v1');if(!h)return;var u={};try{u=JSON.parse(localStorage.getItem('bo_admin_user')||'{}')||{};}catch(e){}var stamp=String(u.id||u.username||u.email||'');if(stamp&&localStorage.getItem('bo_shell_nav_user_v1')!==stamp)return;var nav=document.querySelector('.report-nav');if(nav)nav.innerHTML=h;}catch(e){}};</script>
 <script>
 window.BO_AUTH = {
   token: function () { return "h"; },
@@ -55,7 +55,7 @@ window.BO_AUTH = {
 <div class="report-shell">
 <aside class="report-sidebar" id="reportSidebar">
 <div class="report-brand"><div>Backoffice</div><button class="close-side" data-close-sidebar=""><i class="bi bi-x-lg"></i></button></div>
-<nav class="report-nav"></nav>
+<nav class="report-nav"></nav><script>window.boShellBoot&&window.boShellBoot()</script>
 </aside>
 <div class="sidebar-overlay" data-close-sidebar="" id="reportOverlay"></div>
 <main class="report-main">

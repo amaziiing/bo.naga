@@ -184,6 +184,20 @@ function transform(html, shell) {
     }
   }
 
+  // 4b. the generated manifest of swappable pages, immediately BEFORE the router. The
+  //     router reads it synchronously to decide whether a link is worth intercepting at all;
+  //     without it, it fetches the destination first and only then discovers it cannot swap
+  //     it, which is a wasted request in front of every ordinary navigation.
+  if (!/bo-spa-manifest\.js/.test(html)) {
+    const j = html.search(/<script[^>]*src="[^"]*bo-spa\.js/);
+    if (j === -1) {
+      notes.push('!! bo-spa.js tag not found: manifest NOT inserted');
+    } else {
+      html = html.slice(0, j) + '<script src="assets/js/bo-spa-manifest.js?v=0"></script>' + html.slice(j);
+      notes.push('bo-spa manifest');
+    }
+  }
+
   // 4. the quicknav sheet, pinned last in <head> (see the header comment).
   if (!/bo-global-quicknav\.css/.test(html)) {
     // Prefer </head>. One page (casino-overview-report.html) ships a <head> with no closing

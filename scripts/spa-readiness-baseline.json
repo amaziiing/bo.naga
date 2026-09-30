@@ -1,0 +1,11 @@
+{
+  "_note": "Pages that are in the BO/Main shell but do not carry every smoothness marker. They are not defects: each renders its own top bar and/or its own content frame, so the standard shell markers do not apply to it. Keep this list short, keep the reason honest, and remove an entry when the page stops needing it. A page without a content frame (.report-content) is NOT exemptible - it simply is not a swap target, and the generated manifest already leaves it out.",
+  "exempt": {
+    "dashboard.html": "own dashboard shell (body.dashboard-shell, .dashboard-workspace) with its own top bar; not the standard report topbar",
+    "currency-management.html": "legacy .report-main layout without .report-content - not a swap target",
+    "main-dashboard.html": "Main-panel dashboard: legacy .report-main layout, not a swap target",
+    "provider-detail.html": "detail page with its own header markup",
+    "contact-sync.html": "legacy layout, its own header markup",
+    "brand-detail.html": "detail page with its own header markup"
+  }
+}

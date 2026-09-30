@@ -179,7 +179,22 @@
     var u = href_of(a);
     if (!u || u.origin !== location.origin) return false;
     if (u.pathname === location.pathname && u.search === location.search) return false;
-    return /\.html$/.test(u.pathname);
+    if (!/\.html$/.test(u.pathname)) return false;
+    /* Is the destination actually swappable? Knowing this BEFORE the fetch is the whole
+       point of the manifest: without it the router fetched the target document, noticed it
+       had no content frame (or had never opted in), and only then handed the link back to
+       the browser - one wasted request in front of every ordinary navigation, which on a
+       slow connection is worse than never intercepting the link at all. The agent portal,
+       the redirect stubs and the legacy layouts are all left to the browser here.
+
+       A page that is missing from the manifest is not broken: its links navigate
+       normally. Regenerate with `node scripts/check-spa-readiness.js --write-manifest`
+       after adopting a page, or that page simply keeps reloading until you do. */
+    if (window.__BO_SPA_PAGES) {
+      var file = u.pathname.replace(/^.*\//, '');
+      if (!window.__BO_SPA_PAGES[file]) return false;
+    }
+    return true;
   }
 
   function getDoc(href) {
@@ -753,6 +768,9 @@
     on: true,
     go: function (href) { var u = new URL(href, location.href); go(u.href, u, true); },
     current: function () { return current; },
+    /* Which pages this session will swap into. Copied from the generated manifest so the
+       console can answer "why did that link just reload?" without a debugger. */
+    pages: function () { return window.__BO_SPA_PAGES ? Object.keys(window.__BO_SPA_PAGES).length : 0; },
     /* Paste the string this returns: it carries every navigation with the offset at which
        each phase finished (a stalled one says where it stalled) plus the runtime errors. */
     report: function () {
@@ -769,6 +787,13 @@
     /* Read-only diagnostics for the console and for integration tests. */
     debug: {
       isBusy: function () { return busy; },
+      /* "Why did that link reload instead of swapping?" - answers without navigating and
+         without fetching, because it is the same decision the click handler makes. */
+      canSwap: function (href) {
+        var a = DOC.createElement('a');
+        a.setAttribute('href', String(href));
+        return eligible(a);
+      },
       epoch: function () { return window.__boDclEpoch || 0; },
       navlog: function () { return NAVLOG; },
       errors: function () { return ERRORS; }

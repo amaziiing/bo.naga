@@ -154,3 +154,45 @@ container. Two real misses in this codebase: a `letter-spacing` that made one pa
 sidebar read cramped was set on the label `<span>` (inherited from the open group button's
 `-0.01em`) while the row element reported `normal`; and the theme toggle's icon size lives
 on `i[data-theme-icon]`, not on the button, whose inherited `font-size` does not matter.
+
+## The SPA layer (bo-spa.js)
+
+`assets/js/bo-spa.js` makes the rail and the module-tab row swap the content frame instead
+of reloading the page. It is opt-in per page via `<html data-bo-spa="1">` and only
+ever intercepts a link whose destination is listed in the generated
+`assets/js/bo-spa-manifest.js`. Everything else - the agent portal, the redirect stubs, the
+fragments, the legacy layouts - is left to the browser, which is also the safe direction: a
+link that cannot be swapped costs one navigation, never a fetch followed by a reload.
+
+Adding a BO page means running the rollout and regenerating the manifest:
+
+    node scripts/adopt-bo-spa.js --check     # what a page is missing
+    node scripts/adopt-bo-spa.js             # stamp it
+    node scripts/check-spa-readiness.js --write-manifest
+    node scripts/pin-spa.js
+
+### The readiness and pin guards
+
+`scripts/check-spa-readiness.js` tests every page for the markers a smooth swap needs
+(`data-bo-spa`, the `.report-content` frame, the first-paint canvas, the head bootstrap and
+DCL registry, the static quicknav `<link>`, the router tag at the current pin) and refuses a
+built manifest that no longer matches the tree. `scripts/pin-spa.js` refuses a commit whose
+pages still request the previous revision of the router or the manifest - a browser that
+cached it keeps running it for the whole session, which is indistinguishable from a fix that
+did not work.
+
+Both run in `scripts/git-hooks/pre-commit`, unconditionally, before the deletion check's
+`exit 0`. A page that is in the shell but genuinely not a swap target belongs in
+`scripts/spa-readiness-baseline.json` with a reason; a page without a `.report-content`
+frame is left out of the manifest instead.
+
+### Diagnosing a swap that goes wrong
+
+    BO_SPA.report()          # JSON string: every navigation with the ms offset of each phase
+    BO_SPA.debug.navlog()    # the same as records
+    BO_SPA.debug.canSwap('x.html')   # why a link did not swap (no fetch, no navigation)
+
+Each navigation logs one line per phase (`fetched` / `content` / `scripts` / `ok`). A swap
+that wedges writes the phase it was stuck in into the record as the 8s watchdog gives up and
+falls back to a full load, so the failure names its own cause. Kill switches:
+`localStorage.bo_spa = '0'` or `window.BO_SPA_OFF = true`.

@@ -1044,6 +1044,17 @@ html[data-bo-theme="dark"] body:not(#bo-charcoal-off).report-body.bo-charcoal .b
 html[data-bo-theme="dark"] body:not(#bo-charcoal-off).report-body.bo-charcoal .import-panel{
   background:#2A2C36!important;border-color:rgba(255,255,255,.12)!important;
 }
+/* The account card's sub-line and its rule (reports.css: `.admin-form-card p` is #18191C
+   with !important, `.admin-card-head` underlines itself #F5EBDC - light values, neither of
+   which had a dark counterpart). On the dark #2A2C36 card the description vanished into
+   the surface and the rule read as a bright cream line. Same two values the CMS banner
+   card already resolves to in dark: #A1A1AA sub-line, rgba(255,255,255,.12) rule. */
+html[data-bo-theme="dark"] body:not(#bo-charcoal-off).report-body.bo-charcoal .admin-form-card p{
+  color:#A1A1AA!important;
+}
+html[data-bo-theme="dark"] body:not(#bo-charcoal-off).report-body.bo-charcoal .admin-card-head{
+  border-bottom-color:rgba(255,255,255,.12)!important;
+}
 html:not([data-bo-theme="dark"]) body:not(#bo-charcoal-off).report-body.bo-charcoal #adminEditModal .modal-clean-panel,
 html:not([data-bo-theme="dark"]) body:not(#bo-charcoal-off).report-body.bo-charcoal #adminEditModal .modal-clean-body{
   background:#FFFCF7!important;border-color:#EADCC8!important;

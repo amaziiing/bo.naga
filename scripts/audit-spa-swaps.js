@@ -213,8 +213,16 @@ const STEP = (target, start, twice) => `(async () => {
         console.log('ok   ' + page);
       }
       n++;
-      process.stdout.write(`\r[${n}/${pages.length}] ${bad} flagged        `);
-      if (f.landed && f.landed !== '/' + page) { await send('Page.navigate', { url: BASE + '/' + start }); await sleep(3500); }
+      // progress on stderr so stdout stays a clean list of findings (grep-able)
+      process.stderr.write(`\r[${n}/${pages.length}] ${bad} flagged        `);
+      /* Get back to a known page after anything abnormal. A page that redirects itself (or any
+         navigation) leaves the session somewhere else, and auditing the next page from there
+         reports findings about a document that is being torn down - twenty-seven pages once
+         came back with every stylesheet missing because of exactly this. */
+      if (f.bad || !f.landed || f.landed !== '/' + page) {
+        await send('Page.navigate', { url: BASE + '/' + start });
+        await sleep(4000);
+      }
     }
     console.log('');
     console.log(pages.length + ' page(s) audited, ' + bad + ' flagged');

@@ -922,11 +922,32 @@
       var t = window.__boLastTimings || {};
       t.total = Date.now() - navStart;
       note('ok', { timings: { total: t.total, fetch: t.fetch, css: t.css, scripts: t.scripts } });
+      /* The header is shell chrome and sits OUTSIDE the frame, so a swap used to keep whatever
+         header the first page happened to have. Landing on dashboard.html - whose header is not a
+         [data-bo-topbar] host, because that page renders its own - left every page reached after
+         it without a top bar at all: measured from the dashboard to member-deposit.html, header
+         height 0, no h1, data-bo-topbar-ready absent - and reported from the live site as a blank
+         band under the top bar. Converge it like the frame: take the target page's own header,
+         then let bo-topbar.js mount it, which is what a fresh load does. */
+      var liveHeader = DOC.querySelector('.report-main > .report-topbar');
+      var wantHeader = doc.querySelector('.report-main > .report-topbar');
+      if (liveHeader && wantHeader) {
+        var freshHeader = wantHeader.cloneNode(true);
+        freshHeader.removeAttribute('data-bo-topbar-ready');
+        liveHeader.parentNode.replaceChild(freshHeader, liveHeader);
+        if (window.BO_TOPBAR && BO_TOPBAR.mount) { try { BO_TOPBAR.mount(freshHeader); } catch (e) {} }
+      }
+      /* The pinned-pages bar (bo-global-quicknav) is built by auth.js and belongs to dashboard.html
+         only - on every other page auth.js removes it. A full load drops it for free; a swap used
+         to carry it along, so it sat under every later page as a full-width band with the pinned
+         icons. Ask the shell to re-derive it for the page we are now on. */
+      if (window.BO_AUTH && BO_AUTH.renderQuickNav) {
+        try { BO_AUTH.renderQuickNav(window.__boUiSetting || { headerMenuKeys: [] }); } catch (e) {}
+      }
       /* Re-asserted: a target page's script may have rebuilt the tab row or moved the active
          state while the boot replay ran. */
       /* auth.js binds the dashboard workspace once per document and guards that on window - and the
-         workspace's height, which its iframes fill, is set by that binding. Arriving at
-         dashboard.html through a swap found the guard already set (by whatever page loaded
+         workspace's height, which its iframes fill, is set by that binding. Arriving at         dashboard.html through a swap found the guard already set (by whatever page loaded
          first), so nothing was bound and both iframes stayed 0px tall: "the page does not
          display". Same shape as crud-modal-pattern's body flag. Clear it and ask for the bind
          when the target page really has a workspace. */

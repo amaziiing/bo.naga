@@ -384,7 +384,7 @@ Sidebar **3. Transaction** pages use listing chrome: filter/select = surface `#F
 
 **Deposit / Withdraw shell (locked):** bank selector above the panel = **one segmented strip on no rail** (34px skewed segments, house 6px radius, uniform width from the longest name, unselected on `--bo-control-well`, selected on `--bo-surface` with a 1px accent ring and an accent wedge pointing into the panel, pending count inline, `data-bo-ui-skip`, scrolls sideways with 4px side room) with a constant-height three-zone summary bar under it (Start / Deposit / Balance only — no account/period block and no explanation sentence; an impossible figure shows `n/a` with its reason in that slot's tooltip; 1px separators, no second fill, Balance the only accent, 8px radius; selecting a bank also narrows the table to it) · mad-pill tabs Deposit→Withdraw→All **left** + inline filters **right** inside `.table-card` (no Reset/Search/Page Size in the filter row) · filter boxes = listing **`36px`** · date `240` · keyword `140` · status `150` · gap `10` · Bank column = bold `Name (account)` · Member = username only · action chips `.bo-tx-action-btn` 26×26 / icon 15px (Approve/Reject/Ledger) · no Pending metrics strip · no Filtered Total bar · Withdraw Remark without `Admin:` sub-line. Selector styles `bo-bank-selector.css`, markup `bo-bank-selector.js`; balance contract `BANK_BALANCE_API.md` — a figure that is not known prints `-`, never a guess.
 
-**Module navigation, not a sidebar submenu (locked):** a module whose pages are peers of one workspace lists them as page-level tabs under the page header, on the content container's left edge, and the sidebar keeps a single row that merely carries the module's active state — clicking it never opens a floating submenu over the content. Two modules use this today: **Transaction** (`Deposit Approval · Win/Lose Adjustment · Bonus Adjustment · Bank Deposit Usage`) and **Member** (`User Management · Member Wallet · Wallet Ledger · Referral Network`). Sections come from the admin's own assigned menus, so a section the role cannot open never appears, and one section alone renders no row. A database group counts as a module's group only when it holds at least two of that module's pages **and owns the module's anchor page** (`MODULE_ANCHORS`: `member-deposit.html` for Transaction, `index.html` for Member) — without the anchor test a group that merely shares two files (a Wallet group holding Member Wallet + Wallet Ledger) would lose its own submenu to this feature. A section that is two pages (Bulk Adjustment) hands the page's own authored pair to the row instead of showing one entry. Styles `bo-module-tabs.css` (text-only tabs, active = dark text + 2px amber underline), logic in `auth.js` (`MODULE_TABS` / `MODULE_ANCHORS` / `renderModuleTabs`).
+**Module navigation, not a sidebar submenu (locked):** a module whose pages are peers of one workspace lists them as page-level tabs under the page header, on the content container's left edge, and the sidebar keeps a single row that merely carries the module's active state — clicking it never opens a floating submenu over the content. Nine groups use this today — **Transaction** (`Deposit Approval · Win/Lose Adjustment · Bonus Adjustment · Bank Deposit Usage`), **Member** (`User Management · Member Wallet · Wallet Ledger · Referral Network`), **Promotion**, **VIP**, **Agent**, **Report**, **Game Management**, **Design** and **Setting**; `MODULE_TABS` in `auth.js` is the authoritative list of both the modules and the pages each row carries. **Membership carries two contracts** — a page listed there must link `assets/css/bo-module-tabs.css`, and every sidebar row of the group must be listed there — see *A module's pages must be registered and must load its row sheet* at the end of this file. Sections come from the admin's own assigned menus, so a section the role cannot open never appears, and one section alone renders no row. A database group counts as a module's group only when it holds at least two of that module's pages **and owns the module's anchor page** (`MODULE_ANCHORS` holds one anchor page per module) — without the anchor test a group that merely shares two files (a Wallet group holding Member Wallet + Wallet Ledger) would lose its own submenu to this feature. A section that is two pages (Bulk Adjustment) hands the page's own authored pair to the row instead of showing one entry. Styles `bo-module-tabs.css` (text-only tabs, active = dark text + 2px amber underline), logic in `auth.js` (`MODULE_TABS` / `MODULE_ANCHORS` / `renderModuleTabs`).
 
 
 **Payment Method Config** (`payment-method.html`): same Transaction listing table/pager · Edit/Delete `.bo-tx-action-btn` wells · amber QR View link · form-well modal. **Bank Deposit Usage** twin: Active/Suspend/All pills · View QR + mad-pager · no Config link. **Bulk Adjustment / Bulk Bonus:** Manual split **60% / 40%** (Select Members · Configure) · panel pill scrollbars on member picker + selected table — light chocolate `#8B6B4A` / hover `#5C4A30` · dark `#F59E0B` / `#D97706` · **`6px`** · no arrows (not cool slate). **Wallet Ledger:** `bo-wallet-tx` · split **`.bo-tx-table-head` (fixed)** + **`.bo-tx-table-body`** (`#ledgerTableScroll` · only vertical scroller · panel pill chocolate · **`6px`**) · wrap `overflow:hidden` · type menu same pill · **specimen** for 36px filter geometry · **Created/Posted Time** = date `DD/MM/YYYY` in cell · cream pill tip `HH:MM:SS` · **no arrow** · footer **Show N entries** = same as Deposit (`-` · `10` · `20` · `50` · `100` · `All` · Role select chrome · `#ledgerSize` hidden). Full notes: `.interface-design/system.md` → Bulk / Wallet Ledger / Panel pill scrollbar / Listing filter controls / Date time tips.
@@ -5484,3 +5484,49 @@ to five different `?v=` keys — `auth.js` was pinned `1.0.32` on one page, `18a
 references, every other shared asset) are untouched and remain a separate pass. Deleting `bo-page-canvas.css` trips
 `scripts/git-hooks/pre-commit`’s deletion guard, which is written for accidental deletions; the intended-deletion path is
 `git commit --no-verify`.
+
+### A module's pages must be registered and must load its row sheet (2026-09-30, owner: “这个帮我一样移去表头下方”)
+
+Moving the Game Management group onto the row (the owner's third such request, after Design and Setting) ran into a
+merge with the SPA branch, and that merge exposed two defects the same mechanism will produce again the next time a
+group joins. Both were measured, not inferred.
+
+**1. A registered page that does not link `bo-module-tabs.css` renders a bare row.** `auth.js`'s own comment states the
+contract — “A page listed here must also link assets/css/bo-module-tabs.css” — and 16 pages broke it: the seven Game
+Management pages and the nine Report pages, registered in `81715c5e` / `2aa6d686`, carried no link at all. Their row
+measured `display:block`, 21px tall, no bottom rule, 0px underline and Bootstrap blue `rgb(13,110,253)` for the active
+tab: a line of plain links under the header. The sheet is what makes the row *the row* — flex, 48px, 1px `#EADCC8`
+bottom rule, 2px amber active underline. Fixed with one line per page, in the same position every other module page
+uses.
+
+**2. A sidebar row added to a module's group must be registered in the same change.** The moment a group is claimed as
+a module's group, `renderSidebar` replaces its submenu with the single module row — so a visible page with no
+`MODULE_TABS` entry is then reachable from *neither* the sidebar *nor* the row. `MODULE_TABS` is a complete list, not a
+sample, and the group must keep owning the module's anchor page (`MODULE_ANCHORS`). Add a page to a group in Menu
+Management and it has to be added here too.
+
+**3. The name fallback could claim a group that had nothing to do with the module.** `groupModuleKey()`'s fallback tests
+the group's key and title with a regex built from the module key, so a group holding *one* of a module's pages and
+called “Game Report” was claimed as the Game module — its submenu replaced by a one-tab row, hiding that group's other
+rows. The fallback now also requires that every row the group exposes is carried by a registered tab (directly, or
+through `MODULE_SECTION_PAGES` for a section's second page, e.g. Bulk Adjustment's bonus page). The primary test — two
+or more of the module's pages **and** the anchor — is deliberately untouched, because a group that satisfies it cannot
+hide anything by construction; that is why this guard cannot regress Promotion, Transaction or any other module that
+was already working.
+
+**4. `bo-shell.css` 0c-2 needed the five Game pages** whose content column computes a 0px gap (Provider, Provider
+Sessions, Game Category, Game Sub Category, Game), so the row sits 16px above the first block as it does everywhere
+else; Provider Transactions and Provider Bet Report already carried 16px of their own. The Report pages needed no
+spacing work — their own column gap is 16px.
+
+**5. A cache pin left behind is a feature left broken.** The SPA merge changed `assets/js/auth.js` (content hash
+`a0f5ca99`) without re-stamping its cache key, so 136 pages still asked for `auth.js?v=e2d80ce7`. The module
+registrations for Report, Game Management, Design and Setting all live in that file, so a browser holding the old key
+would render none of those rows at all. Re-stamped with the house recipe (`scripts/stamp-asset-pins.py`'s content
+hash).
+
+**Measured after** (light and dark): Game 7 tabs, Report 9, Design 8, Member 4 — every row `display:flex`, 48px, 1px
+rule, 2px amber active underline, row-to-content 16px, and each module's sidebar group collapsed to one row.
+`node scripts/check-shell-drift.js` OK · `node scripts/check-global-collisions.js` 0 collisions ·
+`node scripts/check-spa-readiness.js` byte-identical before and after this work (it reports 130 pages missing
+`router-pin`, a pre-existing finding of the SPA audit that this change does not touch).

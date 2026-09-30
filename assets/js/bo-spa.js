@@ -502,6 +502,11 @@
     var from = DOC.querySelector(CONTENT);
     var to = doc.querySelector(CONTENT);
     if (!from || !to) return Promise.resolve(false);
+    /* A frame with no ELEMENT children cannot be swapped in usefully - it would leave the
+       user looking at an empty page. Some pages build their content from script, and a
+       fetched document is not guaranteed to carry any. Report it as a failure so the
+       caller re-enters a real navigation, which renders it the ordinary way. */
+    if (!to.children.length) return Promise.resolve(false);
     var prevRail = captureRail();
 
     return syncHead(doc).then(function () {
@@ -552,7 +557,7 @@
     try {
       DOC.dispatchEvent(new CustomEvent('bo:spa:fail', { detail: { url: href, reason: String(reason || '') } }));
     } catch (e) {}
-    if (window.console && console.warn) console.warn('[bo-spa] falling back to a full load:', reason);
+    if (window.console && console.warn) console.warn('[bo-spa] falling back to a full load:', href, '-', reason);
     location.href = href;
   }
 
@@ -572,6 +577,32 @@
 
   var pendingNav = null;
   var navStart = 0;
+  var navWatchdog = 0;
+
+  /* One place that ends a navigation: releases the lock, cancels the watchdog and starts
+     anything the user clicked while it was in flight. */
+  function settle() {
+    clearTimeout(navWatchdog);
+    busy = false;
+    drainNav();
+  }
+
+  /* Take the lock, start the clock and arm the watchdog. Whatever goes wrong mid-swap - a
+     stylesheet that never settles, a script whose load event never arrives, an exception
+     outside the guarded paths - the user must not be left with an empty frame and a router
+     that ignores every click. If the navigation has not settled in 8s, give up on it and do
+     the ordinary full load, which renders the page the way it always did. */
+  function beginNav(href) {
+    busy = true;
+    navStart = Date.now();
+    clearTimeout(navWatchdog);
+    navWatchdog = setTimeout(function () {
+      if (!busy) return;
+      pendingNav = null;
+      settle();
+      fallback(href, 'swap did not settle within 8s');
+    }, 8000);
+  }
 
   /* Queue, don't drop. A click that lands while a swap is in flight used to be discarded,
      and with a handful of slow first-time stylesheets that wait could last seconds - every
@@ -594,17 +625,15 @@
       pendingNav = { href: href, u: u, push: push };
       return;
     }
-    busy = true;
-    navStart = Date.now();
     var timings = {};
     window.__boLastTimings = timings;
     scrollMemo[here()] = window.pageYOffset || 0;
+    beginNav(href);
     getDoc(href).then(function (doc) {
       timings.fetch = Date.now() - navStart;
       var why = swapBlocker(doc);
       if (why) {
-        busy = false;
-        drainNav();
+        settle();
         fallback(href, why);
         return;
       }
@@ -613,15 +642,13 @@
       // harness (two replaceChildren calls, one boot replay against the other swap's
       // in-flight content); clicks that arrive meanwhile are queued by drainNav.
       commitOf(doc, u, push, href).then(function () {
-        busy = false;
-        drainNav();
+        settle();
         if (window.console && console.info && timings.total) {
           console.info('[bo-spa] swap ' + href, timings);
         }
-      }, function () { busy = false; drainNav(); });
+      }, function () { settle(); });
     })['catch'](function (e) {
-      busy = false;
-      drainNav();
+      settle();
       fallback(href, e && e.message);
     });
   }
@@ -638,19 +665,20 @@
     if (busy) return;
     var u = new URL(location.href);
     if (!/\.html$/.test(u.pathname)) { location.reload(); return; }
-    busy = true;
+    window.__boLastTimings = {};
+    beginNav(u.href);
     getDoc(u.href).then(function (doc) {
       var why = swapBlocker(doc);
-      if (why) { busy = false; fallback(u.href, why); return; }
+      if (why) { settle(); fallback(u.href, why); return; }
       var target = u.pathname + u.search;
       var restore = scrollMemo[target];
       // Same hold-busy rule as go(): the swap, the script run and the boot replay must all
       // finish before the router accepts the next navigation.
       commitOf(doc, u, false, u.href).then(function (ok) {
         if (ok && typeof restore === 'number') scrollTo(restore);
-        busy = false;
-      }, function () { busy = false; location.reload(); });
-    })['catch'](function () { busy = false; location.reload(); });
+        settle();
+      }, function () { settle(); location.reload(); });
+    })['catch'](function () { settle(); location.reload(); });
   });
 
   /* Warm the pages the rail and the tab row can reach, so the first click on each is

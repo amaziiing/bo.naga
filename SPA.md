@@ -3,6 +3,22 @@
 > 给所有需要新增页面、改造现有页面的同事。
 > 读完这一页，你应该能做到：**新页面自动获得无刷新切换；改页面时不破坏换页机制；出问题时自己定位。**
 
+## TL;DR（赶时间只看这段）
+
+新增页面 / 改造完页面，**四步跑完就能交付**：
+
+```bash
+node scripts/adopt-bo-spa.js                      # 补标记（幂等）
+node scripts/check-spa-readiness.js --write-manifest   # 更新可换页清单
+node scripts/pin-spa.js                           # 重算指纹（改了资源必须跑）
+node scripts/serve-static.js 8098 & node scripts/audit-spa-swaps.js 你的页面.html  # 验证
+```
+
+写页面脚本时只需记两条最容易致命的（详细见第 4 节）：
+
+1. **整个文件包在 `(function () { ... })();` 里**，且不与别的脚本重名（否则换页/回访直接 `SyntaxError`，整段脚本不执行）；
+2. **可重复执行**：切换出去再切回来时不能报错、不能翻倍、不能重复绑定。
+
 ---
 
 ## 0. 一句话原理

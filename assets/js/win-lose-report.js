@@ -16,7 +16,7 @@ function today(){if(window.BO_FORMAT?.today)return BO_FORMAT.today();const d=new
    可是仍然能scroll". `pageSizeLock` keeps one fit per session so the size cannot drift
    between loads; it is measured from the BODY scroller, subtracting the head only when
    the head is still inside it (report-table-split.js lifts it out at ≥992px). */
-function isAutoPageSize(){const v=String(wlPageSize?.value??'-').trim();return v===''||v==='-'||/^auto$/i.test(v)}
+function isAutoPageSize(){const el=document.getElementById('wlPageSize');const v=String(el?el.value:'-').trim();return v===''||v==='-'||/^auto$/i.test(v)}
 function measureAutoPageSize(){
   const wrap=document.querySelector('.table-card .table-wrap');
   if(!wrap)return null;

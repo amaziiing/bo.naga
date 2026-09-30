@@ -184,10 +184,13 @@ Adding a BO page means running the rollout and regenerating the manifest:
 A swap is meant to be indistinguishable from a full load, and these are the parts that make
 it so - each one was a measured difference first:
 
-- **The stylesheet set converges.** Sheets the next page does not have are removed in the same
-task as the content swap, so nothing is painted in between. Before this the set only grew:
-arriving at `promotion.html` by swap carried 25 sheets against 22 for a direct load, and a
-page could look different depending on which page you came from.
+- **The stylesheet set only grows, deliberately.** The router adds the target's sheets and never
+removes one. The shell's own CSS (`bo-charcoal-shell.css`, `bo-module-tabs.css`,
+`bo-global-quicknav.css` ...) is linked by whichever page needs it, and the page you navigate to
+routinely does not link it, so removing "sheets the target does not declare" strips the shell:
+measured, the module tab row came back at padding-left 0 / margin-right 0 on
+casino-overview-report.html, and bo-charcoal-shell.css itself vanished on the way back to
+member-deposit.html. A few extra sheets in a long session is the smaller price.
 - **A page can declare its own content frame** with `data-bo-frame` on the element to swap
 (`currency-management.html` uses `.cur-page`, `main-dashboard.html` uses `#mainExec`). When
 the two pages disagree about the frame, the element itself is replaced rather than only its

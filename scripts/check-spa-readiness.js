@@ -83,6 +83,22 @@ function classify(file, html) {
   return 'fragment';
 }
 
+/* A page whose module tab row exists has to link the sheet that styles it - auth.js states the
+   contract next to the table and sixteen of the forty-eight pages had drifted away from it, so
+   their tab row rendered as plain links with no spacing and no active state (on a fresh load as
+   much as after a swap; origin/main had the same gap). */
+function moduleTabPages() {
+  const auth = fs.readFileSync(path.join(ROOT, 'assets/js/auth.js'), 'utf8');
+  const start = auth.indexOf('const MODULE_TABS');
+  const table = auth.slice(start, auth.indexOf('const MODULE_ANCHORS', start));
+  const anchors = auth.slice(auth.indexOf('const MODULE_ANCHORS', start), auth.indexOf('const MODULE_LABELS', start));
+  return new Set([
+    ...[...table.matchAll(/'(\w[\w\-.]*\.html)'\s*:\s*\{/g)].map((m) => m[1]),
+    ...[...anchors.matchAll(/'(\w[\w\-.]*\.html)'/g)].map((m) => m[1])
+  ]);
+}
+const needsModuleTabsCss = moduleTabPages();
+
 const pages = fs.readdirSync(ROOT)
   .filter((f) => f.endsWith('.html') && !f.startsWith('_') && !f.startsWith('.'))
   .sort();
@@ -95,6 +111,8 @@ for (const file of pages) {
   const spa = /<html[^>]*\sdata-bo-spa="1"/i.test(html);
   // Inverted marker: the old per-page canvas must not be present (see the header).
   const staleCanvas = /First-paint canvas/.test(head);
+  const hasModuleTabsCss = /bo-module-tabs\.css/.test(head);
+  const needsTabsCss = needsModuleTabsCss.has(file);
   const boot = /window\.__boDCL/.test(head);
   /* The sheet has to be a real <link> in <head>, which is what keeps the rail's styling out
      of a body-end script that restyled it after first paint (the font jump). The
@@ -121,6 +139,7 @@ for (const file of pages) {
        the mechanism that makes it harmless rather than the audit having to fail forever. */
     if (!frame) missing.push('frame');
     if (staleCanvas) missing.push('stale-canvas');
+    if (needsTabsCss && !hasModuleTabsCss) missing.push('module-tabs.css');
     if (shell === 'bo') {
       if (!topbar) missing.push('topbar');
       if (!shellCss) missing.push('bo-shell.css');

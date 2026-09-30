@@ -219,6 +219,10 @@ if (reset) reset.onclick = resetForm;
 - **`assets/css/bo-shell.css` 是外壳布局度量的唯一来源**（`padding*` / `gap*` / `font-size` / `height` / `flex*` …）。
   主题 sheet 只管**颜色、背景、边框色、阴影、自定义属性**，**不要**再声明外壳度量。
 - **不要在新页面或模块 sheet 里写外壳度量 CSS**——`scripts/check-shell-drift.js` 会拦下提交并指出文件、选择器、属性。
+- **有模块 tab 行的页面必须链接 `assets/css/bo-module-tabs.css`**。这是 `auth.js` 紧跟模块表写明的约定
+  （"A page listed here must also link assets/css/bo-module-tabs.css"）：tab 行由 `renderModuleTabs` 生成，
+  样式全靠这张表。曾经有 16 个页面漏链（整个 Report / Game 家族）→ 这些页面**刷新后**tab 行也是无样式纯链接。
+  闸门 `check-spa-readiness.js` 现在会按 `auth.js` 的模块表逐页检查（缺了就报 `module-tabs.css`）。
 - 常用 `data-bo-*` 属性（写在 `<header class="report-topbar" data-bo-topbar>` 上）：
 
 | 属性 | 作用 |

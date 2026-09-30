@@ -5628,3 +5628,49 @@ re-run cannot double-bind), the same fix in `main-dashboard.js`'s duplicate copy
 load `bo-theme.js`), and a `BO_THEME.initThemeToggle()` call in `bo-spa.js` after the header is mounted — the button
 is rebuilt from markup, so its *state* has to be re-applied even though the handler no longer needs rebinding.
 Recorded for page authors in `SPA.md` section 10.4: **any listener bound to a topbar element dies on a swap**.
+
+### The Transaction module lost its rail highlight - two independent causes, both measured (2026-09-30)
+
+Owner: “在transaction 页面 我点 Win/Lose Adjustment / Bonus Adjustment / Bank Deposit Usage sidebard的
+transaction不会active着”. Reproduced in the browser before anything was changed, and the two causes are
+separate - each one alone was enough to leave the rail with nothing lit.
+
+**A. A module page whose file appears in no menu row.** A module's rail row is ONE direct link (to the
+module's first page) and the highlight was resolved by matching the **current file** against the group's menu
+rows. Bulk Adjustment's Win/Lose and Bonus entries come from the page's own tab row, so no menu row points at
+`bulk-adjustment.html`; every comparison missed and the whole rail rendered unmarked - measured
+`bulk-adjustment.html` → `active row(s): NONE`, while `member-deposit.html` and `bank-deposit-usage.html`
+lit the row (their rows exist in the harness menus).
+
+Fixed in `auth.js` (`renderSidebar`): the existing search became `resolvePrimary(file)`, and **only when
+nothing matched** it retries against the module's ANCHOR page (`MODULE_ANCHORS` - the page a group is
+required to own to be claimed as that module's group at all). Because it is a fallback, every page that
+already had a row keeps exactly the row it lit before. Measured after: `bulk-adjustment.html` →
+`nav-group-btn "Wallet Management"` (the owner's database calls that group Transaction).
+
+**B. `activateRail` cleared the highlight and then had nothing to set.** `bo-spa.js` looked for a rail link
+whose href equals the destination, fell back to “the element that was active before the swap” when
+`nav.contains(prev)`, and then **unconditionally cleared every `.active`**. But several page scripts call
+`BO_AUTH.renderSidebar()` on boot (`bank-deposit-usage.js:309`, `bulk-member-operation.js`,
+`game-category-edit.js`, …), which rewrites `nav.innerHTML` and **detaches** the node captured a moment
+earlier - so `nav.contains(prev)` was false, the fallback did nothing, and the clear left the rail blank.
+
+Proved it was a rebuild rather than a stale reference: marking `.report-nav` and its active `<a>` before the
+swap, the nav node survived (`true`) while the marked anchor was gone from the DOM (`false`). Measured
+before the fix, `member-deposit.html → bank-deposit-usage.html` (clicking the module tab): the row went from
+`[ACTIVE]` to no marked row, while a DIRECT load of the same page lights it - and the two paths really are
+different code (`renderSidebar` vs `activateRail`).
+
+Fixed in `bo-spa.js`: when `prev` is detached, the row is re-found by the keys it carries
+(`data-menu-key` first, then `href`) instead of by node identity; and **when there is no target at all the
+function now returns without clearing** - either the rail already shows the correct row, or the rebuild has
+just resolved it from the new URL, and clearing there is exactly what produced "nothing is lit".
+
+Measured after: same-module navigation keeps the row (`member-deposit → bank-deposit-usage`,
+`[ACTIVE]` throughout), and a cross-module navigation still MOVES it (`index.html → promotion.html`:
+Wallet Management off, Bonus Management on). Twelve module pages re-measured for the direct-load path;
+`agent-management.html` reads `NONE` in the harness only because that fixture's admin has no Agent menus at
+all (no Agent row is rendered), and the fallback can only ever ADD a highlight, never remove one.
+
+Pins: `auth.js` and `bo-spa.js` re-stamped across the 136 pages that reference them (`check-asset-pins` 0
+stale). Guards: shell-drift OK · global-collisions 0 · spa-readiness exit 0 · pin-spa 0.

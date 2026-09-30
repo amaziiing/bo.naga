@@ -947,28 +947,48 @@
       // MD: only the first match (menu sort order) owns the active chip / open L1 bar.
       let primaryGroupKey=null;
       let primaryMenuKey=null;
-      roots.some(function(root){
-        if(root.kind==='menu'){
-          if(pageFile(root.menu.url||'')===activeFile){
-            primaryMenuKey=root.menu.menuKey;
+      function resolvePrimary(file){
+        roots.some(function(root){
+          if(root.kind==='menu'){
+            if(pageFile(root.menu.url||'')===file){
+              primaryMenuKey=root.menu.menuKey;
+              return true;
+            }
+            return false;
+          }
+          // Groups whose visible children are all hidden from the sidebar (e.g. Admin,
+          // Merchant) render as a single direct anchor with no items in root.items, so the
+          // lookup above never matched and the group never received the active style.
+          // Fall back to the assigned (possibly hidden) children so the direct anchor can
+          // still be recognised as the active row for its own drill-down pages.
+          const hit=root.items.find(function(m){return pageFile(m.url||'')===file;})
+            || (activeAssignedChildrenByGroup[root.key]||[]).find(function(m){return pageFile(m.url||'')===file;});
+          if(hit){
+            primaryGroupKey=root.key;
+            primaryMenuKey=hit.menuKey;
             return true;
           }
           return false;
-        }
-        // Groups whose visible children are all hidden from the sidebar (e.g. Admin,
-        // Merchant) render as a single direct anchor with no items in root.items, so the
-        // lookup above never matched and the group never received the active style.
-        // Fall back to the assigned (possibly hidden) children so the direct anchor can
-        // still be recognised as the active row for its own drill-down pages.
-        const hit=root.items.find(function(m){return pageFile(m.url||'')===activeFile;})
-          || (activeAssignedChildrenByGroup[root.key]||[]).find(function(m){return pageFile(m.url||'')===activeFile;});
-        if(hit){
-          primaryGroupKey=root.key;
-          primaryMenuKey=hit.menuKey;
-          return true;
-        }
-        return false;
-      });
+        });
+      }
+      resolvePrimary(activeFile);
+      /* A page of a module the rail carries ONE row for, but whose own file appears in NO menu
+         row, left the rail with nothing lit while you were on it - reported by the owner as
+         "在transaction 页面 我点 Win/Lose Adjustment / Bonus Adjustment / Bank Deposit Usage
+         sidebard的transaction不会active着". Bulk Adjustment's two halves are reached from the
+         page's own tab row, so no menu row points at bulk-adjustment.html and the search above
+         finds nothing. The module owns one rail row for the whole workspace, and the group is
+         required to own the module's ANCHOR page (MODULE_ANCHORS - that is what stops a group
+         merely sharing two files from being claimed), so falling back to the anchor lights the
+         row that owns the workspace. Only when NOTHING matched: every page that already has a
+         row keeps exactly the row it has always lit. */
+      if(primaryGroupKey==null){
+        const ownTab=MODULE_TABS[activeFile];
+        const ownSlot=MODULE_SECTION_PAGES[activeFile];
+        const ownModule=ownTab ? ownTab.module
+          : (ownSlot && MODULE_TABS[ownSlot] ? MODULE_TABS[ownSlot].module : null);
+        if(ownModule && MODULE_ANCHORS[ownModule]) resolvePrimary(pageFile(MODULE_ANCHORS[ownModule]));
+      }
       let html='';
       roots.forEach(function(root){
         if(root.kind==='menu'){

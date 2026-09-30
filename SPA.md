@@ -417,3 +417,42 @@ BO ↔ Main 一律整页刷新：两侧 `data-bo-shell` 不同，`bo-spa.js` 的
 
 它不会打断别的监听（每个监听独立），但控制台会一直脏。属于第 4 节第 ④ 条「元素查找要做 null 保护」，
 按这条修即可。
+
+### 10.6 换页后侧栏要把「当前所在模块」那一行点亮
+
+owner 报的：「在 transaction 页面 我点 Win/Lose Adjustment / Bonus Adjustment / Bank Deposit Usage，
+sidebar 的 transaction 不会 active 着」。实测是两个**独立**缺陷，各自都会把那一行弄丢：
+
+**缺陷 A —— 模块页在自己的菜单里没有行。** 模块组的侧栏行是**一条直链**（指向模块的第一个页面），而
+高亮是拿**当前文件名**去和组内菜单行比对的。`bulk-adjustment.html` 的 Win/Lose 与 Bonus 两个入口来自
+页面自己的 tab 行，数据库里没有任何菜单行指向它，所以比对全部落空 → 整条侧栏**没有任何一行**是 active。
+
+修法（`auth.js` → `renderSidebar`）：原来的匹配逻辑抽成 `resolvePrimary(file)`，先按当天文件找；**一个都没
+匹配到时**，再拿这个页面所属模块的 **anchor 页**（`MODULE_ANCHORS`，模块组本来就"必须拥有 anchor"才会被
+认领）重找一次。只在"什么都没匹配到"时兜底，所以任何本来就有行的页面，亮的行和以前**完全一样**。
+
+实测（本地 harness，同一套菜单）：`bulk-adjustment.html` 修复前 `active row(s): NONE`，修复后
+`nav-group-btn:"Wallet Management"`（owner 的库里就是 `Transaction`）。
+
+**缺陷 B —— 换页时侧栏如果被重建，`activateRail` 会先把高亮清掉，然后因为找不到目标什么都不点亮。**
+`bo-spa.js` 的 `activateRail()` 原本这样：找出 href 等于目标文件的 rail 链接；找不到就退回"换页前那一个
+active 元素"（`nav.contains(prev)`）；**然后无条件清掉所有 `.active`**。
+
+而好几个页面脚本在 boot 时会调用 `BO_AUTH.renderSidebar()`（`bank-deposit-usage.js:309`、
+`bulk-member-operation.js` 等），它会重写 `nav.innerHTML` → 换页前捕获的那个节点**被摘掉**了，
+`nav.contains(prev)` 变 false → 退回失败 → 清空之后再无目标 → **整条侧栏空白**。
+
+实测证据：换页前给 `.report-nav` 和那个 active `<a>` 打标记，换页后 `.report-nav` 节点还在（`true`），
+但标记过的那个 `<a>` 已经不在 DOM 里（`false`）——即行被重建了。
+
+修法（`bo-spa.js`）：
+1. `prev` 已经脱离 DOM 时，改按**它携带的 key 重新认行**（先 `data-menu-key`，再 `href`），不再依赖节点同一性；
+2. **找不到目标就直接 return，不清空**——要么它本来就亮着正确的行，要么重建已经按新 URL 算好了，
+   在这里清掉正是"什么都没有"的来源。
+
+实测：`member-deposit.html → bank-deposit-usage.html`（点模块 tab）换页后
+`nav-group-btn "Wallet Management" ... active [ACTIVE]` 保持不变；跨模块时高亮正确**移动**
+（`index.html → promotion.html`：Wallet Management 灭、Bonus Management 亮）。
+
+> 排查手法：想知道"侧栏该亮哪一行"，直接打开页面比对比对，别只看换页——**直接打开**和**换页进入**是两条
+> 不同的代码路径（`renderSidebar` vs `activateRail`），这次两个 bug 分属其中一条。

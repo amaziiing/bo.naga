@@ -198,6 +198,9 @@
     'agent-settlement-admin.html':{label:'Agent Settlement',order:4,module:'agent'},
     'agent-reimbursement-admin.html':{label:'Reimbursement / Ad Claim',order:5,module:'agent'},
     'agent-promotion-admin.html':{label:'Agent Promotion',order:6,module:'agent'},
+    /* Report and Game Management rows come from this branch, the Design rows from
+       origin/main. Both sides added to the same table, so the merge resolution is the union:
+       taking either side alone drops a module's tab row. */
     // 7. Report. Labels drop the trailing "Report" because every row here is one; the
     // full name still shows on the page itself (menu row / data-bo-title).
     'casino-overview-report.html':{label:'Overview',order:1,module:'report'},
@@ -216,11 +219,23 @@
     'provider-bet-report.html':{label:'Provider Bet Report',order:4,module:'game'},
     'game-category.html':{label:'Game Category',order:5,module:'game'},
     'game-sub-category.html':{label:'Game Sub Category',order:6,module:'game'},
-    'game.html':{label:'Game',order:7,module:'game'}
+    'game.html':{label:'Game',order:7,module:'game'},
+    // 8. Design. slider-edit.html is a drill-down of Banner Management, so it is not a row;
+    // every entry below is one of the group's sidebar rows, so the row carries all of them
+    // and the sidebar keeps a single Design entry. Labels follow the Menu Management
+    // titles, not the page <title>s: the row reads Social Link, not Social.
+    'slider.html':{label:'Banner Management',order:1,module:'design'},
+    'site-customize.html':{label:'Site Customize',order:2,module:'design'},
+    'advertisement-popup.html':{label:'Advertisement Popup',order:3,module:'design'},
+    'frontend-display.html':{label:'Frontend Display',order:4,module:'design'},
+    'social.html':{label:'Social Link',order:5,module:'design'},
+    'layout-section.html':{label:'Layout Section',order:6,module:'design'},
+    'page-customize.html':{label:'Page Customize',order:7,module:'design'},
+    'image-to-url.html':{label:'Image To URL',order:8,module:'design'}
   };
 
-  const MODULE_ANCHORS = {transaction:'member-deposit.html', member:'index.html', promotion:'promotion.html', vip:'vip-management.html', agent:'agent-management.html', report:'casino-overview-report.html', game:'game-provider.html'};
-  const MODULE_LABELS = {transaction:'Transaction', member:'Member', promotion:'Promotion', vip:'VIP', agent:'Agent', report:'Report', game:'Game Management'};
+  const MODULE_ANCHORS = {transaction:'member-deposit.html', member:'index.html', promotion:'promotion.html', vip:'vip-management.html', agent:'agent-management.html', report:'casino-overview-report.html', game:'game-provider.html', design:'slider.html'};
+  const MODULE_LABELS = {transaction:'Transaction', member:'Member', promotion:'Promotion', vip:'VIP', agent:'Agent', report:'Report', game:'Game Management', design:'Design'};
 
   // Those two pages are the ones that own that pair, and each already authors it as its
   // own .bulk-family-tabs row — a second row of links under the module row, drawn like

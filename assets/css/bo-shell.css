@@ -90,6 +90,29 @@ html:has(.report-topbar[data-bo-topbar]){
   }
 }
 
+/* 0c-2. The module row's BOTTOM spacing, on the pages whose content column has no gap of
+   its own. 0c-1 nailed the row to the same 8px under the header everywhere, but its
+   distance to the first content block still came from the page: the Member, Transaction,
+   Promotion, VIP and Agent content columns are `display:flex; flex-direction:column`
+   with a 16px gap, so there the row sat 16px above the first block, while the Design
+   pages declare no gap at all - Banner Management's column is even `display:block` - so
+   the row was welded to the card below it.
+
+   Measured on all 27 module pages: 16px is what the majority already computes and what
+   User Management shows, so the six pages that computed 0 get exactly that. The rule is
+   scoped by page class on purpose - a container-level `gap` would also re-space every
+   OTHER sibling on those pages, which is a different change nobody asked for. Pages that
+   already resolve to a gap of their own keep it: Page Customize 14px (the same rhythm as
+   Deposit Approval) and Image To URL 16px.
+
+   Desktop only, like the insets above; bo-module-tabs.css already carries 12px of its own
+   for the narrow layout. */
+@media (min-width:1024px){
+  html:not(#bo-charcoal-off) body.report-body:is(.banner-management-page,.site-customize-page,.advertisement-popup-page,.frontend-display-page,.social-page,.layout-section-page) .report-shell .report-main .report-content:has(> .bo-module-tabs) > .bo-module-tabs{
+    margin-bottom:16px!important;
+  }
+}
+
 /* 0d. Sidebar rows. The BO rail drifts the same way the header did: the wallet family
    (member-wallet / wallet-ledger / member-deposit) ships its own rail metrics, so the
    same category sat 5px higher there than on User Management and the row text rendered

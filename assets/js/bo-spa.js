@@ -936,6 +936,13 @@
         freshHeader.removeAttribute('data-bo-topbar-ready');
         liveHeader.parentNode.replaceChild(freshHeader, liveHeader);
         if (window.BO_TOPBAR && BO_TOPBAR.mount) { try { BO_TOPBAR.mount(freshHeader); } catch (e) {} }
+        /* mount() builds the title, icon, theme button and the [data-bo-profile] host. What goes
+           INSIDE that host - the counter row (Members / Deposit / Withdraw) and the account link
+           - is auth.js's job, and it had already run for the previous header, so replacing the
+           header without this left the top bar without its counters: reported as "the spacing on
+           some pages has drifted", the bar being half its height with everything under it moved
+           up. injectProfile() is the same call a fresh load makes. */
+        if (window.BO_AUTH && BO_AUTH.injectProfile) { try { BO_AUTH.injectProfile(); } catch (e) {} }
       }
       /* The pinned-pages bar (bo-global-quicknav) is built by auth.js and belongs to dashboard.html
          only - on every other page auth.js removes it. A full load drops it for free; a swap used

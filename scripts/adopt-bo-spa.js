@@ -65,18 +65,25 @@ const SHELL = /data-bo-topbar|<nav class="report-nav"/;
    own profile host" and keeps its own shell, so it is not the shared BO shell and must not
    be unified with it. Its rail is painted by agent-portal.js#initShell from the agent's own
    /agent/me payload, not by auth.js#renderSidebar, so a swap would have neither the render
-   path nor the correct shell - it would just lose its navigation. Excluded here rather than
-   in bo-spa.js so that the reason is recorded next to the rollout, not only in the router. */
-const EXCLUDED = /^agent-/;
+   path nor the correct shell - it would just lose its navigation.
+
+   The test is the one AGENTS.md states - does the page load agent-portal.js - and NOT the
+   file name. Nine pages called agent-*.html are ordinary back-office pages that sit in the
+   BO shell (agent-management.html and the module tabs beside it: commission, payout,
+   settlement, reimbursement, promotion, detail, performance report and detail). Excluding
+   them by name left them out of the router, so every click from the BO rail to them was a
+   full page load - the thing this whole exercise exists to remove. Reported from a real
+   session, on agent-management.html. */
+const AGENT_PORTAL = /assets\/js\/agent-portal\.js/;
 
 /* Shell identity, declared instead of inferred. bo-spa.js compares this value and refuses
-   to swap when it differs or is absent. The rule is the file-name rule AGENTS.md already
-   uses to scope the shell, which is the only one that gets all 147 pages right - matching
-   on body-class substrings misclassifies 30 of them (every agent page reads as BO, and
-   main-accounting-report / main-profile / main-stat-detail / main-balance-adjustment carry
-   no `main-` token). */
-function shellOf(name) {
-  if (EXCLUDED.test(name)) return 'agent';
+   to swap when it differs or is absent. Decided from the page's own markup, not its name:
+   the file-name rule misclassifies nine agent-* back-office pages as the portal, and
+   matching on body-class substrings misclassifies 30 of them (every agent page reads as BO,
+   and main-accounting-report / main-profile / main-stat-detail / main-balance-adjustment
+   carry no `main-` token). */
+function shellOf(name, html) {
+  if (AGENT_PORTAL.test(html || '')) return 'agent';
   if (/^main[-_]/.test(name) || name === 'menu-permission.html') return 'main';
   return 'bo';
 }
@@ -228,8 +235,9 @@ function main() {
     const before = fs.readFileSync(file, 'utf8');
     if (before.indexOf('\u0000') !== -1) continue;   // not text
     if (!SHELL.test(before)) continue;
-    if (EXCLUDED.test(name)) continue;
-    const { html, notes } = transform(before, shellOf(name));
+    const shell = shellOf(name, before);
+    if (shell === 'agent') continue;
+    const { html, notes } = transform(before, shellOf(name, before));
     if (!notes.length) continue;
     touched.push({ name, notes });
     if (!CHECK) fs.writeFileSync(file, html, 'utf8');

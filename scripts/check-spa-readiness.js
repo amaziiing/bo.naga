@@ -58,10 +58,24 @@ const exempt = baseline.exempt || {};
      a fragment      an HTML snippet pulled in by a workspace script, with no <html> or no
                      <body class> of its own. Never navigated to.
    None of them is a defect; they are classified so the adopted count means something. */
+/* Which shell owns a page.
+
+   Three kinds of file in this tree look like a page and are not:
+     the agent portal  the pages that load agent-portal.js. They keep their own shell on
+                     purpose (AGENTS.md); the router must not swap into them, and links to
+                     them are meant to reload. The test is that script, NOT the file name:
+                     nine agent-*.html pages are ordinary back-office pages in the BO shell
+                     (agent-management.html and the module tabs beside it), and excluding
+                     them by name left every click to them a full page load.
+     a redirect stub a few hundred bytes that meta-refreshes or location.replaces onto a
+                     real page (an old bookmark's landing spot). Nothing to adopt.
+     a fragment      an HTML snippet pulled in by a workspace script, with no <html> or no
+                     <body class> of its own. Never navigated to.
+   None of them is a defect; they are classified so the adopted count means something. */
 function classify(file, html) {
   const declared = (html.match(/<html[^>]*\sdata-bo-shell="([a-z]+)"/i) || [])[1];
   if (declared) return declared;
-  if (/^agent-/.test(file)) return 'agent';
+  if (/assets\/js\/agent-portal\.js/.test(html)) return 'agent';
   if (/http-equiv="refresh"/i.test(html) || /location\.(replace|href)\s*=/.test(html)) return 'stub';
   return 'fragment';
 }

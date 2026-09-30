@@ -111,8 +111,12 @@ The hook is per-clone (like the deletion guard above):
 ### Scope: BO pages only
 
 The BO shell applies to the normal backoffice pages. The **Main panel** (`main-*`,
-`main_*`, `menu-permission.html`) and the **agent portal** (`agent-*.html`, which uses
-`agent-portal.js` and its own profile host) keep their own shells. Do not unify them.
+`main_*`, `menu-permission.html`) and the **agent portal** keep their own shells. Do not
+unify them. The agent portal is the set of pages that load `agent-portal.js` - **not** the
+files whose name starts with `agent-`: nine of those (`agent-management.html` and the module
+tabs beside it: commission, payout, settlement, reimbursement, promotion, detail,
+performance report and detail) are ordinary back-office pages in the BO shell, and treating
+them as the portal left every click from the BO rail to them a full page load.
 
 ### Adding a BO page
 

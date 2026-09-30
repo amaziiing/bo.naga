@@ -5344,3 +5344,62 @@ square frame to match; the report pages' own cards and table-wraps there sit at 
 `admin-login-log` at 8px), so no single value would unify that stack. The Access Control strip is deliberately
 unframed — `access-control-executive.css` gives it `background:transparent; border:0`. The changed sheet's pin was
 re-stamped with `scripts/stamp-asset-pins.py`'s recipe (`--check` clean for it).
+
+### The module row's top and bottom spacing — 8px under the header, 16px to the first block (2026-09-30, owner: “这个框和上方TABS的位子也要统一。需要有间距”)
+
+**What was still drifting, measured rather than eyeballed.** `auth.js`'s module row is the first child of `.report-content`.
+Its **top** inset was already unified — `bo-shell.css` block `0c-1`, desktop only: `padding-top:8px` on
+`.report-content:has(> .bo-module-tabs)`, which every module page now computes. Its **bottom** spacing was still whatever
+the page's own content column happened to declare. Measured with the row painted on every page that renders it — 27 captured
+in the browser, and page-customize read from its own sheet because its headless run never settles:
+
+| Content column | Pages | row → first block |
+|---|---|---|
+| `display:flex; flex-direction:column; gap:16px` | index, member-wallet, wallet-ledger, referral, bank-deposit-usage, rebate-management, manual-rebate-approval, promotion-debug, vip-management, vip-exp-log, vip-reward-log, all six Agent pages, image-to-url | **16px** |
+| `display:block` (no column at all) | slider (Banner Management) | **0px** |
+| `display:flex; flex-direction:column; gap:0px` | site-customize, social, layout-section | **0px** |
+| `display:flex; flex-direction:column`, `gap` unset (`normal`) | advertisement-popup, frontend-display | **0px** |
+| own rhythm | page-customize **14px** (its own `gap:14px`), member-deposit **14px** (its own `gap:14px`) | 14px |
+
+So the row sat 16px above the first block on the Member / Transaction / Promotion / VIP / Agent modules and was **welded to
+the card below it** on six Design pages — the same row, two spacings, on a page switch. `16px` is the value the majority
+already computes and what User Management (the owner's own reference) shows.
+
+**The rule — `bo-shell.css` block `0c-2`.** One declaration, desktop only like the three insets above it, scoped by body
+page class to exactly the six pages that computed 0:
+
+```css
+@media (min-width:1024px){
+  html:not(#bo-charcoal-off) body.report-body:is(.banner-management-page,.site-customize-page,
+      .advertisement-popup-page,.frontend-display-page,.social-page,.layout-section-page)
+    .report-shell .report-main .report-content:has(> .bo-module-tabs) > .bo-module-tabs{
+    margin-bottom:16px!important;
+  }
+}
+```
+
+`margin-bottom` on the row, not `gap` on the container, on purpose: a container gap re-spaces **every** sibling on those
+pages, so site-customize / social / layout-section / advertisement-popup / frontend-display would each have gained 16px
+between their own cards as well — a different change nobody asked for. Scoped by page class for the same reason: the
+pages that already resolve to a gap of their own are not touched at all, so nothing doubles.
+
+It lands in `bo-shell.css` because `.report-content` is a shell selector and `scripts/check-shell-drift.js` refuses a new
+`gap` / `padding` / `flex` declaration on it anywhere else. `node scripts/check-shell-drift.js` → **OK** (2616 known
+declarations still on the baseline).
+
+**Measured after.** The six pages compute row `margin-bottom:16px` and row → first block **16px**; index, image-to-url and
+bank-deposit-usage keep `margin-bottom:0` with their own 16px gap; member-deposit keeps 14px. Re-checked in both themes
+(light `#FFF8EB` card on the cream canvas, dark `#383A46`) — the tab row's 1px bottom border and the 2px amber active
+underline are unchanged.
+
+**Left alone, deliberately.** `page-customize` keeps its own 14px (the same rhythm as Deposit Approval, and it already has
+a gap — it is not the welded case) and `image-to-url` keeps 16px from its own column. `promotion.html` computes 0 for the
+same reason as the six but belongs to the Promotion module; the owner scoped this change to Design and left that one for
+its own decision. The narrow layout is untouched: `bo-module-tabs.css` already carries `margin-bottom:12px` at
+`max-width:991.98px`, and `0c-2` is `min-width:1024px`.
+
+**Outstanding.** The changed sheet's pin (`assets/css/bo-shell.css?v=c58ff0e3`, shared by ~150 pages) was **not**
+re-stamped, together with `assets/js/auth.js?v=1.0.33` for the module row itself: a site-wide pin bump is its own
+decision. The repo is already carrying that drift — hashing every `assets/css|js/...?v=` reference against its file finds
+~1400 out-of-date ones today, so restamping `bo-shell.css` alone would rewrite ~150 pages in one unrelated pass. Until
+that pass happens, a browser holding the old `?v=` can serve the previous sheet — hard-refresh to see this change.

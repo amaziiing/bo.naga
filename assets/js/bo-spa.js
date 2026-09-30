@@ -184,6 +184,55 @@
       STYLE_SEEN[key] = 1;
       s.setAttribute('data-bo-spa-style', key);
     });
+    if (!seededExtras) {
+      seededExtras = true;
+      each(extraOf(DOC), ownExtra);
+    }
+  }
+
+  /* Body-level elements the page itself declares outside the shell: the modal markup a page
+     keeps beside its content (#approveModal on manual-rebate-approval.html, #ruleModal and
+     #auditDetailModal on rebate-management.html). They are neither inside the swapped frame
+     nor inside .report-shell, so nothing brought them in or took them out - arriving there
+     from another page left the body as it was, the page's own script set .onclick on a
+     missing node, and EVERY binding after that line never ran. The page rendered and did
+     nothing, and a second visit "worked" because the stale modal from the first one was still
+     sitting in the body.
+
+     Only what the fetched markup declares is touched. The shell's own containers (crud-pattern
+     modal, quicknav, alert/dialog) are created lazily or at DOMContentLoaded by shared
+     scripts, so they appear in no page's markup and are never marked or removed. The scan runs
+     at PARSE time only - at that point the body holds the page's own markup and nothing else. */
+  var EXTRAS = [];
+  var seededExtras = false;
+
+  function extraOf(doc) {
+    var out = [];
+    each(doc.body ? doc.body.children : [], function (e) {
+      if (e.tagName === 'SCRIPT') return;
+      if (e.matches && e.matches('.report-shell')) return;
+      if (e.querySelector && e.querySelector('.report-shell')) return;
+      out.push(e);
+    });
+    return out;
+  }
+
+  function ownExtra(e) {
+    e.setAttribute('data-bo-spa-extra', '1');
+    EXTRAS.push(e);
+  }
+
+  function convergeExtras(doc) {
+    for (var i = EXTRAS.length - 1; i >= 0; i--) {
+      var e = EXTRAS[i];
+      if (DOC.contains(e) && e.parentNode) e.parentNode.removeChild(e);
+      EXTRAS.splice(i, 1);
+    }
+    each(extraOf(doc), function (src) {
+      var clone = src.cloneNode(true);
+      ownExtra(clone);
+      DOC.body.appendChild(clone);
+    });
   }
   /* The stylesheets and inline styles this document is currently running, so a swap can take
      the ones the next page does not have back out again. Only what is marked here is ever
@@ -396,21 +445,58 @@
 
   /* Strictly sequential: a page's scripts were authored to run in document order, and
      several of them depend on the previous one having defined its globals. */
+  /* Start a fetch for a script we are about to run, without executing it. A <link rel=preload
+     as=script> shares the same HTTP cache entry the tag below will use, so the requests go out
+     in parallel while the strict order of execution is untouched. */
+  function preloadScript(src) {
+    if (!src) return;
+    try {
+      var l = DOC.createElement('link');
+      l.rel = 'preload';
+      l.as = 'script';
+      l.href = src;
+      DOC.head.appendChild(l);
+      setTimeout(function () { if (l.parentNode) l.parentNode.removeChild(l); }, 4000);
+    } catch (e) {}
+  }
+
+  var scriptTimes = [];
+
   function runScripts(list, done) {
+    scriptTimes = [];
+    window.__boScriptTimes = scriptTimes;
+    /* Fetch everything at once, then execute in document order. Inserting the tags one at a
+       time and waiting for each load serialised the network: measured 800ms for one page's own
+       scripts on a first visit, nearly all of it waiting rather than executing, and that wait
+       is what the user sees as a slow click. */
+    each(list, function (item) { preloadScript(item.src); });
     var i = 0;
     (function next() {
       if (i >= list.length) { done(); return; }
       var item = list[i++];
       var el = DOC.createElement('script');
       el.setAttribute('data-bo-spa-script', '1');
+      /* Once it has run the tag is inert, so it is dropped again - otherwise every navigation
+         left another handful of <script> elements in the body for the rest of the session
+         (measured: 22 body children on the landing page, 36 after eight swaps, one page's
+         worth of tags per hop). */
+      function drop() { if (el.parentNode) el.parentNode.removeChild(el); }
       if (!item.src) {
         el.textContent = item.text;
         DOC.body.appendChild(el);
+        drop();
         next();
         return;
       }
       var settled = false;
-      function finish() { if (settled) return; settled = true; next(); }
+      var t0 = Date.now();
+      function finish() {
+        if (settled) return;
+        settled = true;
+        scriptTimes.push({ src: String(item.src || 'inline').split('/').pop(), ms: Date.now() - t0 });
+        drop();
+        next();
+      }
       el.src = item.src;
       el.async = false;
       el.onload = finish;
@@ -679,6 +765,7 @@
          become the target's, and a page therefore looks the same whether it was swapped into
          or opened directly. */
       convergeSheets(head.want);
+      convergeExtras(doc);
       note('content');
 
       // URL first: page scripts re-read location.search/pathname, and a drill-down page
@@ -860,7 +947,15 @@
     var u = href_of(a);
     if (!u || CACHE[u.href]) return;
     if (Object.keys(CACHE).length >= CACHE_MAX) return;
-    getDoc(u.href)['catch'](function () {});
+    getDoc(u.href).then(function (doc) {
+      /* The document is one round trip; its own scripts are the next, and the swap cannot
+         start them until it has the document. Warming them here is what makes the click itself
+         cheap - by the time it happens the page's scripts are already in the HTTP cache. */
+      each(doc.querySelectorAll('script[src]'), function (s) {
+        var key = assetKey(s.getAttribute('src'));
+        if (key && !EXECUTED[key]) preloadScript(s.getAttribute('src'));
+      });
+    })['catch'](function () {});
   }
   DOC.addEventListener('pointerenter', prefetchFrom, true);
   DOC.addEventListener('focusin', prefetchFrom, true);
@@ -956,6 +1051,7 @@
       },
       epoch: function () { return window.__boDclEpoch || 0; },
       navlog: function () { return NAVLOG; },
+      scriptTimes: function () { return scriptTimes; },
       errors: function () { return ERRORS; }
     }
   };

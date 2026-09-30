@@ -4654,3 +4654,9 @@ body.main-admin-security-page.main-merchant-security-page .mas-search{
     max-width:100%!important;
   }
 }
+
+/* Cross-document view transitions: the BO is an MPA, so a tab click was a hard cut
+   (browser drops the document, paints white, then paints the new page). Opting in here
+   gives the same crossfade a client-side router would, with no JS and no per-page edit.
+   Browsers without support ignore the at-rule, and Chrome honours
+   prefers-reduced-motion by skipping the crossfade, so this is progressive only. */

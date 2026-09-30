@@ -198,6 +198,28 @@
     'agent-settlement-admin.html':{label:'Agent Settlement',order:4,module:'agent'},
     'agent-reimbursement-admin.html':{label:'Reimbursement / Ad Claim',order:5,module:'agent'},
     'agent-promotion-admin.html':{label:'Agent Promotion',order:6,module:'agent'},
+    /* Report and Game Management rows come from this branch, the Design rows from
+       origin/main. Both sides added to the same table, so the merge resolution is the union:
+       taking either side alone drops a module's tab row. */
+    // 7. Report. Labels drop the trailing "Report" because every row here is one; the
+    // full name still shows on the page itself (menu row / data-bo-title).
+    'casino-overview-report.html':{label:'Overview',order:1,module:'report'},
+    'casino-deposit-withdraw-report.html':{label:'Deposit / Withdraw',order:2,module:'report'},
+    'win-lose-report.html':{label:'Win/Lose',order:3,module:'report'},
+    'casino-breakdown-report.html':{label:'Breakdown',order:4,module:'report'},
+    'casino-bonus-report.html':{label:'Bonus',order:5,module:'report'},
+    'promotion-report.html':{label:'Promotion',order:6,module:'report'},
+    'transaction-report.html':{label:'Transaction',order:7,module:'report'},
+    'casino-provider-winloss-report.html':{label:'Provider Win/Loss',order:8,module:'report'},
+    'agent-performance-report.html':{label:'Agent Performance',order:9,module:'report'},
+    // Game Management. Order and labels follow the sidebar flyout.
+    'game-provider.html':{label:'Provider',order:1,module:'game'},
+    'player-provider-session.html':{label:'Provider Sessions',order:2,module:'game'},
+    'provider-wallet-transaction.html':{label:'Provider Transactions',order:3,module:'game'},
+    'provider-bet-report.html':{label:'Provider Bet Report',order:4,module:'game'},
+    'game-category.html':{label:'Game Category',order:5,module:'game'},
+    'game-sub-category.html':{label:'Game Sub Category',order:6,module:'game'},
+    'game.html':{label:'Game',order:7,module:'game'},
     // 8. Design. slider-edit.html is a drill-down of Banner Management, so it is not a row;
     // every entry below is one of the group's sidebar rows, so the row carries all of them
     // and the sidebar keeps a single Design entry. Labels follow the Menu Management
@@ -218,8 +240,8 @@
     'compliance-policy.html':{label:'Compliance Policy',order:4,module:'setting'}
   };
 
-  const MODULE_ANCHORS = {transaction:'member-deposit.html', member:'index.html', promotion:'promotion.html', vip:'vip-management.html', agent:'agent-management.html', design:'slider.html', setting:'timezone-setting.html'};
-  const MODULE_LABELS = {transaction:'Transaction', member:'Member', promotion:'Promotion', vip:'VIP', agent:'Agent', design:'Design', setting:'Setting'};
+  const MODULE_ANCHORS = {transaction:'member-deposit.html', member:'index.html', promotion:'promotion.html', vip:'vip-management.html', agent:'agent-management.html', report:'casino-overview-report.html', game:'game-provider.html', design:'slider.html', setting:'timezone-setting.html'};
+  const MODULE_LABELS = {transaction:'Transaction', member:'Member', promotion:'Promotion', vip:'VIP', agent:'Agent', report:'Report', game:'Game Management', design:'Design', setting:'Setting'};
 
   // Those two pages are the ones that own that pair, and each already authors it as its
   // own .bulk-family-tabs row — a second row of links under the module row, drawn like
@@ -332,7 +354,7 @@
     user: function(){ try { return JSON.parse(localStorage.getItem(this.userKey) || '{}'); } catch(e){ return {}; } },
     save: function(json){ localStorage.setItem(this.tokenKey, json.token || ''); localStorage.setItem(this.userKey, JSON.stringify(json.data || {})); try{sessionStorage.setItem('bo_admin_me_refreshed_at',String(Date.now()));}catch(e){} },
     saveUser: function(user){ localStorage.setItem(this.userKey, JSON.stringify(user || {})); this.renderProfile(); this.renderSidebar(user); },
-    logout: function(){ try{ const t=localStorage.getItem(this.tokenKey); if(t) fetch(API_CONFIG.BASE_URL + '/auth/admin/logout',{method:'POST',headers:{'Authorization':'Bearer '+t},keepalive:true}).catch(()=>{}); }catch(e){} localStorage.removeItem(this.tokenKey); localStorage.removeItem(this.userKey); try{ sessionStorage.removeItem('bo_operation_login_marker'); sessionStorage.removeItem('bo_operation_login_played'); sessionStorage.removeItem('bo_admin_me_refreshed_at'); sessionStorage.removeItem('bo_brand_context_cache_v3'); }catch(e){} window.location.href = 'login.html'; },
+    logout: function(){ try{ const t=localStorage.getItem(this.tokenKey); if(t) fetch(API_CONFIG.BASE_URL + '/auth/admin/logout',{method:'POST',headers:{'Authorization':'Bearer '+t},keepalive:true}).catch(()=>{}); }catch(e){} localStorage.removeItem(this.tokenKey); localStorage.removeItem(this.userKey); try{ localStorage.removeItem('bo_shell_nav_v1'); localStorage.removeItem('bo_shell_nav_user_v1'); for(var _i=localStorage.length-1;_i>=0;_i--){var _k=localStorage.key(_i);if(_k&&_k.indexOf('bo_shell_nav_v1_')===0){try{localStorage.removeItem(_k);}catch(e){}}} }catch(e){} try{ sessionStorage.removeItem('bo_operation_login_marker'); sessionStorage.removeItem('bo_operation_login_played'); sessionStorage.removeItem('bo_admin_me_refreshed_at'); sessionStorage.removeItem('bo_brand_context_cache_v3'); }catch(e){} window.location.href = 'login.html'; },
     requireLogin: function(){
       if(!this.token() && pageName() !== 'login.html'){
         // Preserve the BO page the admin explicitly requested. Previously a direct
@@ -1576,6 +1598,10 @@
   // switch between Admin/Merchant/Provider/Report tabs — and between the page-level
   // module tabs, which are the same kind of link. No UI or routing is replaced.
   function warmWorkspaceTabs(){
+    // Runs from DOMContentLoaded, which bo-spa.js replays after every swap: without this
+    // guard each navigation appends another prefetch link for the same handful of targets.
+    if(window.__boTabsWarmed) return;
+    window.__boTabsWarmed = true;
     const seen=new Set();
     document.querySelectorAll('.mad-tabs a[href], .bo-module-tabs a[href]').forEach(function(a){
       let u;
@@ -1596,11 +1622,91 @@
     window.BO_AUTH.bindDynamicSidebarEvents();
     if('requestIdleCallback' in window) requestIdleCallback(warmWorkspaceTabs,{timeout:1200});
     else setTimeout(warmWorkspaceTabs,250);
+    /* bo-spa.js re-dispatches DOMContentLoaded after a content-only swap, so this handler
+       hears it once per navigation while the shell it binds to is never rebuilt. Two parts
+       of it must not simply repeat:
+
+       - the logout delegate. A second copy calls BO_AUTH.logout() twice per click, and one
+         copy leaked per navigation.
+       - the /me + menu-group round trip. Repeating it spends two requests per navigation
+         and ends in renderSidebar, which rebuilds the rail - exactly the rebuild this whole
+         change exists to avoid.
+
+       The round trip is still wanted "immediately after navigation" in the MPA sense (the
+       comment below), so it is not dropped: it is throttled to one per 30s. A real page
+       load has no throttle state to inherit and always refreshes, so a ROOT menu change is
+       still picked up on the next real load or within 30s, not only at login. */
+    if(!window.__boAuthBooted){
+      window.__boAuthBooted = true;
+      document.addEventListener('click', function(e){
+        const logout = e.target.closest && e.target.closest('[data-bo-logout]');
+        if(logout){ e.preventDefault(); window.BO_AUTH.logout(); }
+      });
+    }
     // Sidebar is intentionally rendered only after fresh DB-backed /me + menu-group data returns.
+    const now = Date.now();
+    if(window.__boMenusRefreshedAt && now - window.__boMenusRefreshedAt < 30000) return;
+    window.__boMenusRefreshedAt = now;
     window.BO_AUTH.refreshMe(true).then(function(){ return window.BO_AUTH.loadUiSetting(); }).catch(function(){ window.BO_AUTH.loadUiSetting(); });
-    document.addEventListener('click', function(e){
-      const logout = e.target.closest && e.target.closest('[data-bo-logout]');
-      if(logout){ e.preventDefault(); window.BO_AUTH.logout(); }
-    });
   });
+})();
+
+/* Prefetch what a tab click is about to load, on intent rather than on click.
+   Every tab click was a fresh document over the network; this tells Chrome (Speculation
+   Rules) to fetch the target while the pointer is on the link, so the navigation it then
+   performs is a document it already has - the closest an MPA gets to a router swap.
+   Chrome-only; other browsers ignore the script tag entirely. */
+(function(){
+  try{
+    if(!(window.HTMLScriptElement && HTMLScriptElement.supports && HTMLScriptElement.supports('speculationrules'))) return;
+    function arm(){
+      // Same replay concern as warmWorkspaceTabs: a second <script type="speculationrules">
+      // would duplicate every prefetch rule the first one already installed.
+      if(window.__boSpeculationArmed) return;
+      window.__boSpeculationArmed = true;
+      var urls = {}, i;
+      var links = document.querySelectorAll('.bo-module-tab[href], .report-nav a[href], #boTopbar a[href]');
+      for(i=0;i<links.length;i++){
+        var h = links[i].getAttribute('href') || '';
+        if(!h || h.charAt(0)==='#' || /^(https?:)?\/\//.test(h)) continue;
+        urls[h.split('#')[0]] = 1;
+      }
+      var list = Object.keys(urls);
+      if(list.length < 2) return;
+      var el = document.createElement('script');
+      el.type = 'speculationrules';
+      el.textContent = JSON.stringify({prefetch:[{source:'list', urls:list, eagerness:'moderate'}]});
+      document.head.appendChild(el);
+    }
+    if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ setTimeout(arm, 400); });
+    else setTimeout(arm, 400);
+  }catch(e){}
+})();
+
+/* Paint the rail from the previous render instead of rebuilding it after parse.
+   The rail markup is generated by renderSidebar, so every navigation painted an empty
+   sidebar and then filled it - the flash. Cache the markup (tagged with the user it was
+   built for) so the next page can write it in at parse time and the rail is part of the
+   first paint. The real render still runs right after and overwrites it with live data. */
+(function(){
+  try{
+    var AUTH = window.BO_AUTH;
+    if(!AUTH || typeof AUTH.renderSidebar !== 'function') return;
+    var original = AUTH.renderSidebar;
+    AUTH.renderSidebar = function(user){
+      var out = original.apply(this, arguments);
+      try{
+        var nav = document.querySelector('.report-nav');
+        var u = user || (typeof this.user === 'function' ? this.user() : null) || {};
+        var stamp = String(u.id || u.username || u.email || '');
+        if(false && nav && nav.children.length && stamp){   /* cache disabled: it could boot an empty/stale rail */
+          var page = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
+          localStorage.setItem('bo_shell_nav_v1', nav.innerHTML);                 // fallback
+          localStorage.setItem('bo_shell_nav_v1_' + page, nav.innerHTML);        // per page
+          localStorage.setItem('bo_shell_nav_user_v1', stamp);
+        }
+      }catch(e){}
+      return out;
+    };
+  }catch(e){}
 })();

@@ -1,10 +1,11 @@
+(function () {
 function adminApi(pathKey) { return API_CONFIG.BASE_URL + API_CONFIG.ENDPOINTS[pathKey]; }
 function escapeHtml(value) { return String(value ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;'); }
 function statusPill(value) { const active = Number(value) === 1; return `<span class="slider-pill ${active ? 'active' : 'inactive'}"><i class="bi ${active ? 'bi-check-circle' : 'bi-pause-circle'}"></i>${active ? 'Active' : 'Inactive'}</span>`; }
 async function fetchJson(url, options) { const res = await fetch(url, options); const json = await res.json().catch(() => ({})); if (!res.ok || json.status === 'error') throw new Error(json.message || 'Request failed'); return json; }
 
 const PROVIDER_API = { list: adminApi('GAME_PROVIDER_LIST'), create: adminApi('GAME_PROVIDER_CREATE'), update: adminApi('GAME_PROVIDER_UPDATE'), delete: adminApi('GAME_PROVIDER_DELETE') };
-const GAME_API = { list: adminApi('GAME_LIST') };
+const GAME_API_PROVIDER = { list: adminApi('GAME_LIST') };
 const CATEGORY_API = { list: adminApi('GAME_CATEGORY_LIST') };
 const WALLET_API = {
   createPlayer: adminApi('PROVIDER_WALLET_CREATE_PLAYER'),
@@ -821,4 +822,5 @@ const CALLBACK_API = { previewBase: API_CONFIG.BASE_URL + API_CONFIG.ENDPOINTS.P
       }catch(err){ result.textContent = err.message || 'Launch test failed'; }
     });
   });
+})();
 })();

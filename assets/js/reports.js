@@ -1,4 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => {
+  /* bo-spa.js replays DOMContentLoaded, scoped, after every content swap. This handler binds
+     straight onto SHELL rows when they exist at fire time: .nav-group-btn rows get a
+     preventDefault+stopPropagation click, and .report-nav a / .nav-group rows get their own
+     listeners. On a real page load the rail is still empty when this runs (the /me round
+     trip has not returned), so these bindings never apply there - the rail's real behaviour
+     comes from auth.js's delegated bindDynamicSidebarEvents. Replayed with the rail already
+     populated, the double-bound click listener ate every later navigation: it stopped the
+     event before it could reach the router's document-level handler, leaving a nav-group-
+     direct rail link that did nothing when clicked. Bind once, like auth.js's own banner. */
+  if (window.__boReportsShellBound) return;
+  window.__boReportsShellBound = true;
   const sidebar = document.getElementById('reportSidebar');
   let overlay = document.getElementById('reportOverlay') || document.querySelector('.sidebar-overlay,.sidebar-backdrop');
 
@@ -363,6 +374,9 @@ document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('DOMContentLoaded', function(){
     var sidebar = document.getElementById('reportSidebar');
     if(!sidebar) return;
+    // SPA replay re-dispatches DOMContentLoaded; these are permanent DOM listeners, so bind once.
+    if(sidebar.dataset.boMiniHoverBound==='1') return;
+    sidebar.dataset.boMiniHoverBound='1';
     sidebar.addEventListener('mouseenter', function(){
       if(!isDesktop() || !document.body.classList.contains('sidebar-mini')) return;
       sidebar.classList.add('is-mini-hover');
@@ -447,6 +461,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   function boot(){
+    // SPA replay re-dispatches DOMContentLoaded (and the else branch boots directly); the observer below is cumulative, so guard here.
+    if(window.__boIconNormalizerBooted) return; window.__boIconNormalizerBooted=1;
     normalize(document);
     new MutationObserver(function(mutations){
       mutations.forEach(function(m){ m.addedNodes.forEach(function(n){ if(n.nodeType===1) normalize(n); }); });
@@ -479,7 +495,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function run(root){
     (root||document).querySelectorAll('.quick-stats:not(.user-stats) .metric,.manage-summary .manage-card').forEach(decorate);
   }
-  function boot(){run(document);new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType===1)run(n)}))).observe(document.body,{childList:true,subtree:true});}
+  function boot(){if(window.__boSummaryDecorateBooted)return;window.__boSummaryDecorateBooted=1;run(document);new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType===1)run(n)}))).observe(document.body,{childList:true,subtree:true});}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
 
@@ -868,6 +884,8 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   function boot(){
+    // SPA replay re-dispatches DOMContentLoaded; the observer below is cumulative, so guard inside boot (it also runs via setTimeout).
+    if(window.__boSelectSyncBooted) return; window.__boSelectSyncBooted=1;
     syncScope(document);
     new MutationObserver(function(records){
       records.forEach(function(record){

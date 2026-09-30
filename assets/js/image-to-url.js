@@ -1,3 +1,4 @@
+(function () {
 const API_UPLOAD_URL =
     API_CONFIG.BASE_URL +
     API_CONFIG.ENDPOINTS.UPLOAD_IMAGE;
@@ -135,4 +136,5 @@ const API_UPLOAD_URL =
 
   copyUrlBtn.addEventListener('click', () => copyText(imageUrl.value, copyUrlBtn));
   copyCssBtn.addEventListener('click', () => copyText(cssCode.value, copyCssBtn));
+})();
 })();

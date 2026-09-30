@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
+<html lang="en" data-bo-spa="1" data-bo-shell="bo">
+<head><script>!function(){try{var t=localStorage.getItem('bo_theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-bo-theme',t);}catch(e){}try{var R=window.__boDCL=window.__boDCL||[],O=EventTarget.prototype.addEventListener;EventTarget.prototype.addEventListener=function(t,f,o){if(t==='DOMContentLoaded'&&typeof f==='function'){try{var s=document.currentScript,x=null;if(s&&s.tagName==='SCRIPT')x=String(s.getAttribute('src')||'').split('?')[0].split('/').pop()||null;var d=false;for(var i=0;i<R.length;i++){if(R[i].t===this&&R[i].f===f){d=true;break;}}if(!d)R.push({t:this,f:f,s:x,o:(o&&typeof o==='object'&&o.once===true)?1:0,e:window.__boDclEpoch||0});}catch(e){}}return O.call(this,t,f,o);};}catch(e){}}();</script>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
 <meta charset="utf-8"/>
@@ -18,18 +18,12 @@
 <link href="assets/css/bo-charcoal-primitives.css?v=335690e2" rel="stylesheet"/>
 <link href="assets/css/bo-input-fill.css?v=1969f85a" rel="stylesheet"/>
 <link href="assets/css/game-provider.css?v=61aafa62" rel="stylesheet"/>
-<script>
-(function(){
-  try{
-    if(localStorage.getItem('bo_theme')==='dark') document.documentElement.setAttribute('data-bo-theme','dark');
-  }catch(e){}
-})();
-</script>
+
 <link href="assets/css/main-mobile-responsive.css?v=d7737bec" rel="stylesheet"/>
 <link href="assets/css/bo-scrollbar.css?v=7c2a456b" rel="stylesheet"/>
 <link href="assets/css/bo-field-standard.css?v=06f5ae19" rel="stylesheet">
 <link href="assets/css/bo-shell.css?v=1aa0789c" rel="stylesheet" />
-</head>
+<link href="assets/css/bo-global-quicknav.css?v=0" rel="stylesheet" data-bo-quicknav-css="1"/></head>
 <body class="report-body standardized-listing-page main-admin-detail-page main-admin-create-page main-merchant-create-page page-game-provider-create bo-charcoal bo-account-chip">
 <div class="report-shell">
 <aside class="report-sidebar" id="reportSidebar">
@@ -506,5 +500,6 @@
 <script src="assets/js/bo-ui-standard.js?v=e18e682d"></script>
 <script src="assets/js/bo-theme.js?v=b1e789f3"></script>
 <script src="assets/js/bo-account-chip.js?v=1.0.20"></script>
+<script src="assets/js/bo-spa-manifest.js?v=afa9dfeb"></script><script src="assets/js/bo-spa.js?v=a9d4c984"></script>
 </body>
 </html>

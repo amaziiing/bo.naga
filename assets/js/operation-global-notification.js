@@ -31,6 +31,10 @@
 
   function init(){
     if (!window.BO_AUTH || !window.API_CONFIG || !BO_AUTH.token()) return;
+    // SPA replay re-dispatches DOMContentLoaded; this leaks a Worker, a setInterval and
+    // document/window listeners, so init once. Guard sits AFTER the session check above so
+    // a first call that had no token yet does not burn the one attempt.
+    if(window.__BO_OPERATION_INITED) return; window.__BO_OPERATION_INITED=1;
     installUnlock();
     bindHeaderAcknowledgement();
     check(true);

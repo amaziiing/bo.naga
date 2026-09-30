@@ -1,3 +1,4 @@
+(function () {
 
 function adminApi(pathKey) {
   return API_CONFIG.BASE_URL + API_CONFIG.ENDPOINTS[pathKey];
@@ -74,19 +75,19 @@ function setupImagePicker(input, dropZone, preview, placeholder, onFile, setStat
   return { showPreview, clearPreview };
 }
 
-const GAME_CATEGORY_API = {
+const GAME_API_CATEGORY_HUB = {
   list: adminApi('GAME_CATEGORY_LIST')
 };
 
-const GAME_SUB_CATEGORY_API = {
+const GAME_API_SUB_CATEGORY_HUB = {
   list: adminApi('GAME_SUB_CATEGORY_LIST')
 };
 
-const GAME_PROVIDER_API = {
+const GAME_API_PROVIDER_HUB = {
   list: adminApi('GAME_PROVIDER_LIST')
 };
 
-const GAME_API = {
+const GAME_API_HUB = {
   list: adminApi('GAME_LIST'),
   create: adminApi('GAME_CREATE'),
   update: adminApi('GAME_UPDATE'),
@@ -359,9 +360,9 @@ const GAME_API = {
 
   async function loadSetup() {
     const [catJson, subJson, providerJson] = await Promise.all([
-      fetchJson(GAME_CATEGORY_API.list),
-      fetchJson(GAME_SUB_CATEGORY_API.list),
-      fetchJson(GAME_PROVIDER_API.list).catch(() => ({ data: [] }))
+      fetchJson(GAME_API_CATEGORY_HUB.list),
+      fetchJson(GAME_API_SUB_CATEGORY_HUB.list),
+      fetchJson(GAME_API_PROVIDER_HUB.list).catch(() => ({ data: [] }))
     ]);
     categories = (catJson.data || []).map(normalizeCategory);
     subCategories = (subJson.data || []).map(normalizeSubCategory);
@@ -864,7 +865,7 @@ const GAME_API = {
       if (selectedCategory) params.set('categoryId', selectedCategory);
       if (selectedSubCategory) params.set('subCategoryId', selectedSubCategory);
       if (selectedProvider) params.set('providerCode', selectedProvider);
-      const requestUrl = GAME_API.list + (params.toString() ? `?${params.toString()}` : '');
+      const requestUrl = GAME_API_HUB.list + (params.toString() ? `?${params.toString()}` : '');
       const json = await fetchJson(requestUrl);
       let rows = (json.data || []).map(normalizeGame);
 
@@ -937,7 +938,7 @@ const GAME_API = {
     setBusy(true);
     setStatus(isUpdate ? 'Updating game...' : 'Creating game...', '');
     try {
-      const res = await fetch(isUpdate ? GAME_API.update : GAME_API.create, { method: 'POST', body: fd });
+      const res = await fetch(isUpdate ? GAME_API_HUB.update : GAME_API_HUB.create, { method: 'POST', body: fd });
       const json = await res.json().catch(() => ({}));
       if (!res.ok || json.status === 'error') throw new Error(json.message || 'Save failed');
       setStatus(json.message || 'Game saved successfully.', 'success');
@@ -958,7 +959,7 @@ const GAME_API = {
     downloadImagesBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Downloading...';
     setStatus('Downloading only game images that are not yet labelled as downloaded...', '');
     try {
-      const res = await fetch(GAME_API.downloadImages, { method: 'POST' });
+      const res = await fetch(GAME_API_HUB.downloadImages, { method: 'POST' });
       const json = await res.json().catch(() => ({}));
       if (!res.ok || json.status === 'error') throw new Error(json.message || 'Image download failed');
       const d = json.data || {};
@@ -977,7 +978,7 @@ const GAME_API = {
     const fd = new FormData();
     fd.append('id', gameId);
     try {
-      const res = await fetch(GAME_API.delete, { method: 'POST', body: fd });
+      const res = await fetch(GAME_API_HUB.delete, { method: 'POST', body: fd });
       const json = await res.json().catch(() => ({}));
       if (!res.ok || json.status === 'error') throw new Error(json.message || 'Delete failed');
       setStatus(json.message || 'Game deleted.', 'success');
@@ -1105,4 +1106,5 @@ const GAME_API = {
   })();
   if (addCustomVariableBtn) addCustomVariableBtn.addEventListener('click', () => addCustomVariableRow());
 
+})();
 })();

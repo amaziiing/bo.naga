@@ -111,8 +111,12 @@ The hook is per-clone (like the deletion guard above):
 ### Scope: BO pages only
 
 The BO shell applies to the normal backoffice pages. The **Main panel** (`main-*`,
-`main_*`, `menu-permission.html`) and the **agent portal** (`agent-*.html`, which uses
-`agent-portal.js` and its own profile host) keep their own shells. Do not unify them.
+`main_*`, `menu-permission.html`) and the **agent portal** keep their own shells. Do not
+unify them. The agent portal is the set of pages that load `agent-portal.js` - **not** the
+files whose name starts with `agent-`: nine of those (`agent-management.html` and the module
+tabs beside it: commission, payout, settlement, reimbursement, promotion, detail,
+performance report and detail) are ordinary back-office pages in the BO shell, and treating
+them as the portal left every click from the BO rail to them a full page load.
 
 ### Adding a BO page
 
@@ -154,3 +158,94 @@ container. Two real misses in this codebase: a `letter-spacing` that made one pa
 sidebar read cramped was set on the label `<span>` (inherited from the open group button's
 `-0.01em`) while the row element reported `normal`; and the theme toggle's icon size lives
 on `i[data-theme-icon]`, not on the button, whose inherited `font-size` does not matter.
+
+## The SPA layer (bo-spa.js)
+
+The team-facing guide is `SPA.md` (Chinese) - what the router does step by step, what a page
+must declare, the six rules a page script has to follow, every guard and how to run it, and a
+troubleshooting table. Read it before changing a page; this section is the short version.
+
+`assets/js/bo-spa.js` makes the rail and the module-tab row swap the content frame instead
+of reloading the page. It is opt-in per page via `<html data-bo-spa="1">` and only
+ever intercepts a link whose destination is listed in the generated
+`assets/js/bo-spa-manifest.js`. Everything else - the agent portal, the redirect stubs, the
+fragments, the legacy layouts - is left to the browser, which is also the safe direction: a
+link that cannot be swapped costs one navigation, never a fetch followed by a reload.
+
+Adding a BO page means running the rollout and regenerating the manifest:
+
+    node scripts/adopt-bo-spa.js --check     # what a page is missing
+    node scripts/adopt-bo-spa.js             # stamp it
+    node scripts/check-spa-readiness.js --write-manifest
+    node scripts/pin-spa.js
+
+### What the router guarantees
+
+A swap is meant to be indistinguishable from a full load, and these are the parts that make
+it so - each one was a measured difference first:
+
+- **The stylesheet set converges.** Sheets the next page does not have are removed in the same
+task as the content swap, so nothing is painted in between. Before this the set only grew:
+arriving at `promotion.html` by swap carried 25 sheets against 22 for a direct load, and a
+page could look different depending on which page you came from.
+- **A page can declare its own content frame** with `data-bo-frame` on the element to swap
+(`currency-management.html` uses `.cur-page`, `main-dashboard.html` uses `#mainExec`). When
+the two pages disagree about the frame, the element itself is replaced rather than only its
+children - otherwise the legacy markup lands inside the standard frame and keeps the standard
+frame's padding.
+- **The page-level permission check re-runs** (`BO_AUTH.enforcePageAccess`). It lives in
+auth.js's boot, which a swap does not repeat, so without this a swappable link was a way onto
+a page the account's menus do not include.
+- **Destinations are prefetched on hover/focus/touch**, into a bounded document cache
+(16 entries). A pointer swept down the rail cannot evict a page the user actually visited.
+- **The visible state is settled before the target's scripts run**, so the title, the lit tab,
+the active rail row and the scroll position move with the click instead of waiting 2-300ms
+for the scripts. They are re-asserted afterwards, because a script may rebuild the tab row.
+- **A page's own scripts run again every time it is entered.** Only files the page you are
+leaving also loads are skipped (auth.js, reports.js, bo-topbar.js - global side effects that
+must not happen twice). This matters because a page script usually ends with a plain call
+(`promotion-workspace.js` ends with `load()`) and registers no DOMContentLoaded listener, so
+"already executed in this session" meant the list was never rendered again: reported as
+"switch back to Promotion Bonus and the data is incomplete".
+- **Everything else the page owns travels with it**: body-level elements outside the shell
+(the modal markup), and the page's own siblings after the frame inside `.report-main`
+(`slider-edit.html`'s `<footer id="bannerEditFooter">` holds the Save/Reset row). Marked at
+parse time, removed on the next swap, replaced by the target's.
+- **Per-document marks on the body are cleared per swap.** `crud-modal-pattern.js` sets
+`body.dataset.crudModalReady` so it lifts a page's form card into its modal only once - and
+the body survives a swap, so the mark suppressed that work for every later page while the
+modal kept the previous page's card (two elements with the same ids, and a modal showing the
+wrong form). Its stale card is dropped and the init runs again.
+
+### The readiness and pin guards
+
+`scripts/check-global-collisions.js` refuses a page script that declares a global
+(`const`/`let`/`class` at the top level of the file, outside any IIFE) which another page
+script also declares. On a full load only one page's scripts run; a swap runs the target's in
+the same global scope, the second declaration is a SyntaxError and that script does nothing at
+all. It walks each file with a small tokenizer, because a column-based scan flags the
+thousands of declarations that sit inside a file-wide IIFE and cannot collide.
+
+`scripts/check-spa-readiness.js` tests every page for the markers a smooth swap needs
+(`data-bo-spa`, a content frame - `.report-content` or `data-bo-frame` - the first-paint
+canvas, the head bootstrap and DCL registry, the static quicknav `<link>`, the router tag at
+the current pin) and refuses a built manifest that no longer matches the tree.
+`scripts/pin-spa.js` refuses a commit whose pages still request the previous revision of the
+router or the manifest - a browser that cached it keeps running it for the whole session,
+which is indistinguishable from a fix that did not work.
+
+Both run in `scripts/git-hooks/pre-commit`, unconditionally, before the deletion check's
+`exit 0`. A page that is in the shell but genuinely not a swap target belongs in
+`scripts/spa-readiness-baseline.json` with a reason; a page without a `.report-content`
+frame is left out of the manifest instead.
+
+### Diagnosing a swap that goes wrong
+
+    BO_SPA.report()          # JSON string: every navigation with the ms offset of each phase
+    BO_SPA.debug.navlog()    # the same as records
+    BO_SPA.debug.canSwap('x.html')   # why a link did not swap (no fetch, no navigation)
+
+Each navigation logs one line per phase (`fetched` / `content` / `scripts` / `ok`). A swap
+that wedges writes the phase it was stuck in into the record as the 8s watchdog gives up and
+falls back to a full load, so the failure names its own cause. Kill switches:
+`localStorage.bo_spa = '0'` or `window.BO_SPA_OFF = true`.

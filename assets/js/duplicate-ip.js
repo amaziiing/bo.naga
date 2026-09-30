@@ -1,4 +1,5 @@
 (function () {
+(function () {
   let rows = [];
   let currentPage = 1;
   const esc = (v) =>
@@ -221,4 +222,5 @@
   });
 
   load();
+})();
 })();

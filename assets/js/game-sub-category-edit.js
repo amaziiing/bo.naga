@@ -1,3 +1,4 @@
+(function () {
 function adminApi(pathKey) {
   return API_CONFIG.BASE_URL + API_CONFIG.ENDPOINTS[pathKey];
 }
@@ -18,9 +19,9 @@ async function fetchJson(url) {
   return json;
 }
 
-const GAME_CATEGORY_API = { list: adminApi('GAME_CATEGORY_LIST') };
-const GAME_PROVIDER_API = { list: adminApi('GAME_PROVIDER_LIST') };
-const GAME_SUB_CATEGORY_API = {
+const GAME_API_CATEGORY_SUB_EDIT = { list: adminApi('GAME_CATEGORY_LIST') };
+const GAME_API_PROVIDER_SUB_EDIT = { list: adminApi('GAME_PROVIDER_LIST') };
+const GAME_API_SUB_CATEGORY_EDIT = {
   list: adminApi('GAME_SUB_CATEGORY_LIST'),
   create: adminApi('GAME_SUB_CATEGORY_CREATE'),
   update: adminApi('GAME_SUB_CATEGORY_UPDATE')
@@ -121,8 +122,8 @@ const GAME_SUB_CATEGORY_API = {
 
   async function loadSetup() {
     const [catJson, providerJson] = await Promise.all([
-      fetchJson(GAME_CATEGORY_API.list),
-      fetchJson(GAME_PROVIDER_API.list).catch(() => ({ data: [] }))
+      fetchJson(GAME_API_CATEGORY_SUB_EDIT.list),
+      fetchJson(GAME_API_PROVIDER_SUB_EDIT.list).catch(() => ({ data: [] }))
     ]);
     categories = catJson.data || [];
     providers = (providerJson.data || []).filter(x => Number(x.status) === 1 || x.status == null);
@@ -178,7 +179,7 @@ const GAME_SUB_CATEGORY_API = {
       return;
     }
     try {
-      const json = await fetchJson(GAME_SUB_CATEGORY_API.list);
+      const json = await fetchJson(GAME_API_SUB_CATEGORY_EDIT.list);
       const items = json.data || [];
       const item = items.find(x => String(x.id) === String(editId));
       if (!item) throw new Error('Sub category not found.');
@@ -225,7 +226,7 @@ const GAME_SUB_CATEGORY_API = {
     setBusy(true);
     setStatus(isUpdate ? 'Updating sub category...' : 'Creating sub category...', '');
     try {
-      const res = await fetch(isUpdate ? GAME_SUB_CATEGORY_API.update : GAME_SUB_CATEGORY_API.create, {
+      const res = await fetch(isUpdate ? GAME_API_SUB_CATEGORY_EDIT.update : GAME_API_SUB_CATEGORY_EDIT.create, {
         method: 'POST',
         body: fd,
         headers: { ...(BO_AUTH.authHeader ? BO_AUTH.authHeader() : {}) }
@@ -264,4 +265,5 @@ const GAME_SUB_CATEGORY_API = {
       setStatus(err.message || 'Unable to load setup data.', 'error');
     }
   })();
+})();
 })();

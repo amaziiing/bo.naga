@@ -1,3 +1,4 @@
+(function () {
 function adminApi(pathKey){ return API_CONFIG.BASE_URL + API_CONFIG.ENDPOINTS[pathKey]; }
 function esc(v){ return String(v ?? '').replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[s])); }
 async function apiJson(url, opt){ const res = await fetch(url,opt); const json = await res.json().catch(()=>({})); if(!res.ok || json.status==='error') throw new Error(json.message || 'Request failed'); return json; }
@@ -85,3 +86,4 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('translationEditor')?.addEventListener('click', e=>{ const t=e.target.closest('[data-save-text]'); const i=e.target.closest('[data-save-image]'); if(t) saveText(t).catch(err=>setBox('translationStatus',err.message,'error')); if(i) saveImage(i).catch(err=>setBox('translationStatus',err.message,'error')); });
   document.getElementById('translationEditor')?.addEventListener('change', e=>{ const f=e.target.closest('input[type="file"][data-lang][data-field]'); if(f) previewImage(f); });
 });
+})();

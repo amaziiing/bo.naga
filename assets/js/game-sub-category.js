@@ -1,3 +1,4 @@
+(function () {
 function adminApi(pathKey) {
   return API_CONFIG.BASE_URL + API_CONFIG.ENDPOINTS[pathKey];
 }
@@ -23,9 +24,9 @@ async function fetchJson(url) {
   return json;
 }
 
-const GAME_CATEGORY_API = { list: adminApi('GAME_CATEGORY_LIST') };
-const GAME_PROVIDER_API = { list: adminApi('GAME_PROVIDER_LIST') };
-const GAME_SUB_CATEGORY_API = {
+const GAME_API_CATEGORY_SUB = { list: adminApi('GAME_CATEGORY_LIST') };
+const GAME_API_PROVIDER_SUB = { list: adminApi('GAME_PROVIDER_LIST') };
+const GAME_API_SUB_CATEGORY = {
   list: adminApi('GAME_SUB_CATEGORY_LIST'),
   delete: adminApi('GAME_SUB_CATEGORY_DELETE')
 };
@@ -322,8 +323,8 @@ const GAME_SUB_CATEGORY_API = {
 
   async function loadSetup() {
     const [catJson, providerJson] = await Promise.all([
-      fetchJson(GAME_CATEGORY_API.list),
-      fetchJson(GAME_PROVIDER_API.list).catch(() => ({ data: [] }))
+      fetchJson(GAME_API_CATEGORY_SUB.list),
+      fetchJson(GAME_API_PROVIDER_SUB.list).catch(() => ({ data: [] }))
     ]);
     categories = catJson.data || [];
     providers = providerJson.data || [];
@@ -417,7 +418,7 @@ const GAME_SUB_CATEGORY_API = {
     empty.hidden = true;
     try {
       const params = filter?.value ? '?categoryId=' + encodeURIComponent(filter.value) : '';
-      const json = await fetchJson(GAME_SUB_CATEGORY_API.list + params);
+      const json = await fetchJson(GAME_API_SUB_CATEGORY.list + params);
       renderList(json.data || [], true);
     } catch (err) {
       list.innerHTML = '';
@@ -434,7 +435,7 @@ const GAME_SUB_CATEGORY_API = {
     const fd = new FormData();
     fd.append('id', subCategoryId);
     try {
-      const res = await fetch(GAME_SUB_CATEGORY_API.delete, { method: 'POST', body: fd });
+      const res = await fetch(GAME_API_SUB_CATEGORY.delete, { method: 'POST', body: fd });
       const json = await res.json().catch(() => ({}));
       if (!res.ok || json.status === 'error') throw new Error(json.message || 'Delete failed');
       setStatus(json.message || 'Sub category deleted.', 'success');
@@ -485,4 +486,5 @@ const GAME_SUB_CATEGORY_API = {
       empty.innerHTML = `<i class="bi bi-exclamation-triangle"></i><b>Unable to load setup data</b><small>${escapeHtml(err.message || 'Please create category first.')}</small>`;
     }
   })();
+})();
 })();

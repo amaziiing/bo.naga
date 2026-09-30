@@ -1,3 +1,4 @@
+(function () {
 const NAGA_API_CONFIG = (window.API_CONFIG || (typeof API_CONFIG !== 'undefined' ? API_CONFIG : {}));
 const API_CUSTOMIZE_MAIN_LAYOUT_URL =
     (NAGA_API_CONFIG.BASE_URL || 'https://bo.corepayx.com/api') +
@@ -1019,4 +1020,5 @@ const API_CUSTOMIZE_MAIN_LAYOUT_URL =
         }
         loadSection(activeSection);
     })();
+})();
 })();

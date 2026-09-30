@@ -1,3 +1,4 @@
+(function () {
 function adminApi(pathKey) { return API_CONFIG.BASE_URL + API_CONFIG.ENDPOINTS[pathKey]; }
 function escapeHtml(value) { return String(value ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;'); }
 function statusPill(value) { const active = Number(value) === 1; return `<span class="slider-pill ${active ? 'active' : 'inactive'}"><i class="bi ${active ? 'bi-check-circle' : 'bi-pause-circle'}"></i>${active ? 'Active' : 'Inactive'}</span>`; }
@@ -821,4 +822,5 @@ const CALLBACK_API = { previewBase: API_CONFIG.BASE_URL + API_CONFIG.ENDPOINTS.P
       }catch(err){ result.textContent = err.message || 'Launch test failed'; }
     });
   });
+})();
 })();

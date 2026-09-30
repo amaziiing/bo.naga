@@ -1,3 +1,4 @@
+(function () {
 function adminApi(pathKey) {
   return API_CONFIG.BASE_URL + API_CONFIG.ENDPOINTS[pathKey];
 }
@@ -485,4 +486,5 @@ const GAME_API_SUB_CATEGORY = {
       empty.innerHTML = `<i class="bi bi-exclamation-triangle"></i><b>Unable to load setup data</b><small>${escapeHtml(err.message || 'Please create category first.')}</small>`;
     }
   })();
+})();
 })();

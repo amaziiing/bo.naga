@@ -1,3 +1,4 @@
+(function () {
 function adminApi(pathKey) {
   return API_CONFIG.BASE_URL + API_CONFIG.ENDPOINTS[pathKey];
 }
@@ -592,4 +593,5 @@ const GAME_API_CATEGORY_EDIT = {
     await loadProviderConfigData();
     await loadExisting();
   })();
+})();
 })();

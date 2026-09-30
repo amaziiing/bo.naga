@@ -1,3 +1,4 @@
+(function () {
 const SLIDER_API_LIST = {
   list: API_CONFIG.BASE_URL + API_CONFIG.ENDPOINTS.SLIDER_LIST,
   update: API_CONFIG.BASE_URL + API_CONFIG.ENDPOINTS.SLIDER_UPDATE,
@@ -204,4 +205,5 @@ const SLIDER_API_LIST = {
   });
 
   loadSliders();
+})();
 })();

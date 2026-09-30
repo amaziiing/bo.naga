@@ -161,6 +161,10 @@ on `i[data-theme-icon]`, not on the button, whose inherited `font-size` does not
 
 ## The SPA layer (bo-spa.js)
 
+The team-facing guide is `SPA.md` (Chinese) - what the router does step by step, what a page
+must declare, the six rules a page script has to follow, every guard and how to run it, and a
+troubleshooting table. Read it before changing a page; this section is the short version.
+
 `assets/js/bo-spa.js` makes the rail and the module-tab row swap the content frame instead
 of reloading the page. It is opt-in per page via `<html data-bo-spa="1">` and only
 ever intercepts a link whose destination is listed in the generated

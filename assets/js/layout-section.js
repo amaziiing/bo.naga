@@ -3,6 +3,8 @@
  * Requires importmap on the page (see layout-section.html) so all @codemirror/*
  * packages share one @codemirror/state instance.
  */
+(function () {
+
 import {
   EditorView,
   keymap,
@@ -671,3 +673,4 @@ export function mountLayoutCodeEditors(textareas) {
 }
 
 export default mountLayoutCodeEditors;
+})();

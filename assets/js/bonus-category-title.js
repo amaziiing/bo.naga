@@ -1,3 +1,4 @@
+(function () {
 function adminApi(pathKey) {
   return API_CONFIG.BASE_URL + API_CONFIG.ENDPOINTS[pathKey];
 }
@@ -344,4 +345,5 @@ const BONUS_CATEGORY_TITLE_API = {
   });
 
   loadCategories();
+})();
 })();

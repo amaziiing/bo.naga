@@ -1,3 +1,4 @@
+(function () {
 (function(){
   const state={members:[],downline:[],selected:null,rewardMember:null,defaultReward:{enabled:0,mode:'FIXED',value:0}};
   function endpoint(k){return API_CONFIG.BASE_URL+API_CONFIG.ENDPOINTS[k];}
@@ -514,4 +515,5 @@
     loadRewardConfig();
     loadMembers();
   });
+})();
 })();

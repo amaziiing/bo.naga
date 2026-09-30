@@ -1,0 +1,330 @@
+# BO / Main 内容替换（SPA）开发指南
+
+> 给所有需要新增页面、改造现有页面的同事。
+> 读完这一页，你应该能做到：**新页面自动获得无刷新切换；改页面时不破坏换页机制；出问题时自己定位。**
+
+---
+
+## 0. 一句话原理
+
+点击侧栏 / 模块 tab 时**不再整页刷新**，路由 `assets/js/bo-spa.js` 会：
+
+1. 取出目标页的 HTML（`fetch` + `DOMParser`，不执行）；
+2. 把**目标页的样式表、内容帧、页面自有标记**在当前文档里收敛成一致；
+3. 用 `pushState` 更新地址，再**按文档顺序执行目标页尚未运行过（或属于目标页自身）的脚本**；
+4. 重放目标页脚本注册的 `DOMContentLoaded` 监听。
+
+目标是：**换页进来的页面，跟直接打开这一页长得一样、行为一样。**
+
+---
+
+## 1. 范围与边界（先确认你的页面在不在范围内）
+
+| 类别 | 判定方式 | 是否启用 SPA |
+|---|---|---|
+| **BO 页面**（Backoffice 外壳） | `<html data-bo-shell="bo">` | ✅ 在范围内 |
+| **Main 面板页面** | `<html data-bo-shell="main">`（文件名 `main-*` / `main_*` / `menu-permission.html`） | ✅ 在范围内 |
+| **agent 门户** | 页面里加载了 `assets/js/agent-portal.js` | ❌ 明确排除（有自己的外壳，见 `AGENTS.md`） |
+| 跳转存根 | 只有 `meta refresh` 或 `location.replace('xxx.html')`，几百字节 | ❌ 不是页面 |
+| 片段 | 没有 `<html>` / 没有 `<body class>`，被别的脚本拼进去用 | ❌ 不是页面 |
+
+⚠️ **最容易搞错的一点**：判定 agent 门户**看的是"是否加载 `agent-portal.js`"，不是文件名**。
+`agent-management.html`、`agent-detail.html`、`agent-commission-admin.html` 等 **9 个 `agent-*.html` 是普通 BO 页面**（它们就是 Agent 模块的 tab 行）。按文件名一刀切会把它们排除掉，从侧栏点进去就变成整页刷新。
+
+---
+
+## 2. 新增 / 改造一个页面：三步
+
+### 第一步：打标记（一条命令，别手改）
+
+```bash
+node scripts/adopt-bo-spa.js --check     # 先看它缺什么
+node scripts/adopt-bo-spa.js             # 自动补齐（幂等，可重复跑）
+```
+
+它会补上：
+
+| 补的东西 | 作用 |
+|---|---|
+| `<html data-bo-spa="1" data-bo-shell="bo">` | 声明"我参与换页 + 我属于哪个外壳"（**外壳必须声明，不能靠猜**） |
+| `<head>` 最前面的首屏画布 `<style>` | 防止切换时闪白（只给 BO 页；Main 页不能覆盖 `html{background}`） |
+| `<head>` 最前面的主题引导 + `__boDCL` 注册表 | 防止主题闪 + 让路由器能重放页面的 `DOMContentLoaded` |
+| `bo-global-quicknav.css` 的静态 `<link>` | 侧栏样式在首屏就位，避免"字体跳一下" |
+| `<script src="assets/js/bo-spa-manifest.js">` + `<script src="assets/js/bo-spa.js">` | 清单 + 路由本体 |
+
+### 第二步：重新生成清单 + 重算指纹
+
+```bash
+node scripts/check-spa-readiness.js --write-manifest   # 生成"可被换入的页面清单"
+node scripts/pin-spa.js                                # 重算 ?v= 指纹
+```
+
+> **指纹必须重算**：页面用 `?v=<sha1[:8]>` 引用这几个文件。内容变了指纹不变，浏览器会继续用缓存里的旧版本——这正是"我明明修了却没生效"的主因。
+
+### 第三步：验证
+
+```bash
+node scripts/check-spa-readiness.js      # 静态检查：135 页全部达标 / 0 short
+node scripts/serve-static.js 8098 &      # 起本地服务（并发，别用 python 的单线程）
+node scripts/audit-spa-swaps.js           # 真实浏览器里逐页换页审计
+node scripts/audit-spa-swaps.js --twice    # 再走一遍：每页进入两次（验证"可重复执行"）
+node scripts/audit-spa-swaps.js 你的页面.html   # 只测你改的页
+```
+
+### 如果你的页面**外壳不标准**（没有 `.report-content`）
+
+老布局页面用属性声明自己的内容帧（帧 = 换页时被替换的那个元素）：
+
+```html
+<section class="cur-page" data-bo-frame>   <!-- currency-management.html 的做法 -->
+```
+
+规则：`[data-bo-frame]` 优先，找不到才用 `.report-content`。**两侧页面帧元素不同时，路由器会整体替换这个元素**（不是只换子节点），这样换页后的样子与直接打开完全一致。
+
+### 如果要把页面加进某个模块的 tab 行
+
+在 `assets/js/auth.js` 里加一行（`MODULE_TABS`）：
+
+```js
+'你的页面.html':{label:'显示名', order:9, module:'report'},
+```
+
+并在需要时把模块锚点写进 `MODULE_ANCHORS`。tab 行由 `renderModuleTabs` 依据当前 URL 生成，**不要自己在页面里写死 tab 行**。
+
+---
+
+## 3. 路由一次换页做了什么（顺序与"为什么"）
+
+理解这张表，就知道自己的改动会不会踩坑。
+
+| # | 步骤 | 为什么必须这样 |
+|---|---|---|
+| 1 | **拦截判定**：链接目的地是否在 `bo-spa-manifest.js` 清单里 | 不在清单（agent 门户、存根、无内容帧的页面）**一律交给浏览器原生跳转**；否则会"先 fetch 一次再整页跳"，比不拦截更慢 |
+| 2 | `fetch` + `DOMParser` 解析目标页 | 只解析、不执行；解析结果缓存（上限 16 份，避免长会话内存膨胀） |
+| 3 | **样式表收敛**：补上目标页有新表、**移除目标页没有的旧表** | 与内容替换在**同一个任务**里完成，中间不给浏览器绘制机会 → 不会闪；同时避免"从 A 页进 B 页，B 页带着 A 页的样式表"（旧版本会累积到 25 张，直接打开只有 22 张） |
+| 4 | **内容帧替换** | 帧元素相同 → 只换子节点（保留脚本可能持有的引用）；帧元素不同 → 整体替换 |
+| 5 | **body 级页面自有标记收敛**：`body > 非 shell、非 script` 的元素 | 页面自己的模态框（`#approveModal`、`#ruleModal`）在 body 级，既不进帧也不属外壳。不做这一步：换页后它们不存在 → 脚本 `$('x').onclick` 抛 null → **后面所有绑定都不执行，页面"在但用不了"** |
+| 6 | **帧的后续兄弟节点收敛** | `slider-edit.html` 的 Save/Reset 在 `<footer id="bannerEditFooter">`——帧的兄弟。不做这一步 `#resetSliderBtn` 不存在，`slider-edit.js` 第一句绑定就抛错 |
+| 7 | **清理 body 上的"本页已完成"标记** | 共享脚本常把 `body.dataset.xxx='1'` 当"只做一次"的守卫。**body 不参与换页**，标记会永久保留 → 后续页面该做的工作全被跳过（`crud-modal-pattern` 就是这个坑） |
+| 8 | `pushState` → 重建模块 tab 行 → **重跑页面权限校验** | 权限校验在 auth.js 启动时执行一次；不重跑的话，换页可以绕到菜单权限以外的页面 |
+| 9 | **立即绘制外壳状态**：标题/图标、高亮 tab、侧栏高亮、滚动归零 | 目标页脚本要跑 2–300ms；先绘制让点击**立刻有反馈** |
+| 10 | **执行目标页脚本**：先并行预载，再按文档顺序执行 | 顺序不能变（同页脚本互相依赖）；预载只是把网络并行起来 |
+| 11 | **重放 `DOMContentLoaded`**：只重放本次注册的 / 目标页自己的 / 白名单共享脚本的 | 不能无差别派发（会把上一页的监听在新 DOM 上再跑一遍 → 报错 + 请求风暴） |
+| 12 | 再绘制一次外壳，派发 `bo:spa:content` | 目标页脚本可能重建了 tab 行 |
+
+**关于"脚本跑不跑"的两条规则**（第 10 步的细节）：
+
+- **页面私有脚本（只有这一页加载）→ 每次进入都重跑**。因为整页加载就是这样：`promotion-workspace.js` 结尾直接调用 `load()`、**没有 `DOMContentLoaded`**，若按"本会话执行过就不再跑"，切回来的页面就不会再渲染数据（曾报"从 Promotion Log 切回 Promotion Bonus 数据不完整"）。
+- **共享脚本（当前页也加载，如 `auth.js` / `reports.js` / `bo-topbar.js`）→ 不重跑**。它们的作用是全局的（定时器、document 监听、注入容器），重跑就是重复副作用。
+
+---
+
+## 4. 写页面脚本的 6 条铁律 ⭐
+
+同事改页面时最常踩的就是这里。
+
+### ① 顶层 `const / let / class` 不能与其他页面脚本重名
+
+整页加载只跑一个页面的脚本，所以不报错；**换页时两个脚本进同一个全局作用域**，第二个声明直接 `SyntaxError`，**整段脚本一行都不执行**。
+
+```js
+// ❌ 曾真实出事：game-category.js 与 game-category-edit.js 都写了
+const GAME_CATEGORY_API = { ... };
+// ✅ 用 IIFE 包起来（本文件自用），或起唯一名字
+(function () { const GAME_CATEGORY_API = { ... }; /* ... */ })();
+```
+
+闸门 `scripts/check-global-collisions.js` 会拦这类问题（它只看**文件顶层**、不在任何 IIFE 内的声明）。
+
+### ② 页面脚本必须**可重复执行**（并且整体包在 IIFE 里）
+
+因为私有脚本每次进入都会重跑（见第 3 节第 10 步），所以它必须**能在一个 realm 里跑第二次**：
+
+```js
+// ❌ 顶层 const 第二次执行直接 SyntaxError，整段脚本一行都不跑
+const PROVIDER_API = { ... };
+// ✅ 整体包进 IIFE（本文件自用）—— assets/js 里绝大多数文件都是这个形状
+(function () { const PROVIDER_API = { ... }; /* ... */ })();
+```
+
+其次才是**副作用幂等**：
+
+```js
+// ❌ 每次回访都往表格追加一行 → 越切越多
+list.appendChild(makeRow(x));
+// ✅ 先清空再渲染
+list.innerHTML = ''; rows.forEach(x => list.appendChild(makeRow(x)));
+
+// ❌ 每次都注册新的全局监听/定时器
+window.addEventListener('resize', onResize);
+setInterval(poll, 5000);
+// ✅ 用守卫，或先清理旧句柄
+if (!window.__xResizeBound) { window.__xResizeBound = 1; window.addEventListener('resize', onResize); }
+```
+
+### ③ 不要在 `body` 上放"只做一次"的标记
+
+```js
+// ❌ body 不参与换页，标记会留到下一个页面，把该做的工作永久跳过
+if (document.body.dataset.xxxReady === '1') return;
+document.body.dataset.xxxReady = '1';
+// ✅ 用"当前页面元素"上的标记（会随内容帧一起被替换），或做成幂等的
+if (root.querySelector('.xxx-ready')) return;
+```
+
+### ④ 元素查找要做 null 保护，别让一句失败拖垮整段脚本
+
+页面脚本常见写法是**一整块连续绑定**，中间一句 null 就全废：
+
+```js
+// ❌ 第 2 句为 null，后面 20 个绑定全部不执行
+$('save').onclick = save;
+$('reset').onclick = reset;
+// ✅ 至少给可能不存在的元素加保护
+const reset = $('resetSliderBtn');
+if (reset) reset.onclick = resetForm;
+```
+
+### ⑤ 页面自有标记放在这三个位置之一
+
+都会被收敛：**内容帧内**、**`body` 级（`body > 非 shell、非 script`）**、**帧的后续兄弟**。
+不要把它们搬进别的地方（尤其是**共享容器**）再假设路由器还会替你搬。
+
+### ⑥ 不要用 `location.reload()` 刷新；换页就用普通 `<a href="xxx.html">`
+
+路由只拦截 `.report-nav a` / `.bo-module-tabs a` / `.bo-global-quicknav a` / `[data-bo-spa-link]` 这几类链接（同源、`.html`、且在清单内）。整页跳转的入口（钻取页、`location.href = ...`）**按设计保持整页加载**。
+
+另：需要**强制走整页跳转**时，给链接加 `data-bo-no-spa`，链路就不会被拦截。
+
+---
+
+## 5. 外壳相关规范（与 `AGENTS.md` 一致）
+
+- **`assets/css/bo-shell.css` 是外壳布局度量的唯一来源**（`padding*` / `gap*` / `font-size` / `height` / `flex*` …）。
+  主题 sheet 只管**颜色、背景、边框色、阴影、自定义属性**，**不要**再声明外壳度量。
+- **不要在新页面或模块 sheet 里写外壳度量 CSS**——`scripts/check-shell-drift.js` 会拦下提交并指出文件、选择器、属性。
+- 常用 `data-bo-*` 属性（写在 `<header class="report-topbar" data-bo-topbar>` 上）：
+
+| 属性 | 作用 |
+|---|---|
+| `data-bo-topbar` | 这个 header 由 `bo-topbar.js` 渲染（标题/图标取自菜单行） |
+| `data-bo-title` / `data-bo-icon` | 本页固定标题/图标（不取菜单行） |
+| `data-bo-subtitle` | 标题下第二行 |
+| `data-bo-topbar-title-extra` | 标题旁的实时计数/徽标 |
+| `data-bo-topbar-extra` | 右侧按钮组里的页面专属按钮 |
+| `data-bo-frame` | 声明本页的内容帧（非标准外壳页用） |
+| `data-bo-spa-link` | 强制让这个链接参与换页 |
+| `data-bo-no-spa` | 强制让这个链接走整页跳转 |
+
+---
+
+## 6. 四道闸门（已接入 pre-commit）
+
+```bash
+node scripts/check-shell-drift.js          # 外壳度量漂移（新声明就拦）
+node scripts/check-global-collisions.js    # ① 跨文件全局重名 ② 页面脚本不可重跑
+node scripts/check-spa-readiness.js        # 每页 7 项标记 + 清单是否最新
+node scripts/pin-spa.js --check            # 指纹是否与磁盘文件一致
+```
+
+本地装钩子（**每个新克隆都要装一次**，hooks 不随 git 传递）：
+
+```bash
+cp scripts/git-hooks/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+```
+
+- 需要**知情豁免**某一项标记：把页面写进 `scripts/spa-readiness-baseline.json`，并写清理由（保持列表短、理由诚实、能修就删条目）。
+- 清单过期：`node scripts/check-spa-readiness.js --write-manifest`。
+- 指纹过期：`node scripts/pin-spa.js`。
+- 确有紧急情况：`git commit --no-verify`（请说明原因）。
+
+---
+
+## 7. 排查手册
+
+### 打开控制台，粘这一行
+
+```js
+copy(BO_SPA.report())     // → 剪贴板，直接粘给同事/我
+```
+
+返回的 JSON 里：
+
+| 字段 | 含义 |
+|---|---|
+| `nav[]` | 最近的每次换页记录 |
+| `nav[].phase` | 停在哪一步：`start` / `fetched` / `content` / `scripts` / `ok` / `fallback` / `timeout` |
+| `nav[].phases` | 各阶段耗时(ms)：`fetched` `content` `scripts` `ok` |
+| `nav[].stuckAt` | **看门狗放弃时卡在哪一步**（定位关键） |
+| `errors[]` | 同期 JS 报错（脚本文件名+行号） |
+
+### 其他调试接口
+
+```js
+BO_SPA.debug.canSwap('xxx.html')   // 这个链接会不会被换页？（不发起请求、不跳转）
+BO_SPA.debug.navlog()              // 换页记录数组
+BO_SPA.debug.scriptTimes()         // 本次换页每个脚本的加载+执行耗时（找慢脚本）
+BO_SPA.debug.scroll()              // 真正在滚动的容器与位置（外壳里 window 不滚动）
+BO_SPA.debug.isBusy()              // 当前是否正在换页
+```
+
+### 控制台日志怎么看
+
+```
+[bo-spa] nav /promotion.html (via link, from /bulk-adjustment.html)      ← 开始换页
+[bo-spa] /promotion.html | fetched {"timings":{"fetch":0}}               ← 取到目标文档
+[bo-spa] /promotion.html | content                                        ← 内容/样式已替换（此刻界面已换）
+[bo-spa] /promotion.html | scripts {"timings":{"scripts":212}}            ← 目标页脚本执行完
+[bo-spa] /promotion.html | ok {"timings":{"total":213,...}}               ← 完成
+[bo-spa] falling back to a full load: xxx.html - <原因>                    ← 放弃换页，改整页加载
+```
+
+- 有 `nav` 没有 `ok`：**卡在中间**，8 秒后看门狗会写 `| timeout {"stuckAt":"..."}` 并自动降级为整页加载（**不会再永久卡死**）。
+- 频繁 `falling back`：看原因。`target has not opted in` = 该页没打标记 → 跑第 2 节第一步。
+
+### 症状 → 常见原因
+
+| 症状 | 先查什么 | 常见原因 |
+|---|---|---|
+| 某页点了整页刷新 | `BO_SPA.debug.canSwap('该页.html')` | 不在清单里（未打标记 / 无内容帧 / 跨外壳 / agent 门户） |
+| 页面"在但用不了"（按钮没反应） | `BO_SPA.report()` 的 `errors` | 元素没到 → 脚本首句 `null.onclick` 中断；或页面脚本与别的页面**全局重名**（SyntaxError） |
+| 切回来数据不全 | `BO_SPA.debug.scriptTimes()` | 页面私有脚本没重跑（脚本不是可重入的）或渲染被 body 级"只做一次"标记跳过 |
+| 切换时报 `Identifier 'X' has already been declared` | `node scripts/check-global-collisions.js` | 脚本没包 IIFE / 与他页重名（见第 4 节 ① ②） |
+| 样式不对/像上一个页面 | 对比直接打开 | 样式表未收敛（多半是页面的样式表不是静态 `<link>`，而是被脚本延迟注入） |
+| 切换瞬间闪一下 | 看该页有没有首屏画布 | 缺 `data-bo-spa` / 首屏画布（重跑 `adopt-bo-spa.js`） |
+| 切换时字体跳 | 侧栏样式是不是静态 `<link>` | `bo-global-quicknav.css` 由脚本延迟注入 |
+
+### 紧急关停（无需改代码）
+
+```js
+localStorage.setItem('bo_spa', '0');   // 关掉换页，恢复整页跳转
+localStorage.removeItem('bo_spa');     // 恢复
+```
+
+或让运维注入 `window.BO_SPA_OFF = true`。
+
+---
+
+## 8. 已知边界（不是 bug，别去改）
+
+1. **跨外壳一律整页跳转**：BO ↔ Main、以及任何页面 → agent 门户。这是 `AGENTS.md` 明确要求（不同外壳不能统一）。
+2. **首次进入某页仍需加载该页脚本**（并行预载只消除串行等待）。第二次进入几乎为 0（已执行且在清单/缓存内）。
+3. **钻取页缺参数会自己跳走**：例如 `provider-detail.html` 没有 `providerCode` 会 `location.replace('main-accounting-report.html')`。直接打开也是同样行为。
+4. **5 个页面外壳不标准**（在 `scripts/spa-readiness-baseline.json` 登记）：`dashboard.html`（自有 dashboard 外壳）、`currency-management.html` / `main-dashboard.html`（旧布局）、`provider-detail.html` / `contact-sync.html` / `brand-detail.html`（自有 header）。它们**可以作为换页目标**，只是不带标准顶栏。
+5. **审计器的 3 类"预期内 flagged"**（见 `scripts/audit-spa-swaps.js` 末尾）：`context died`（页面自身跳转）、`ids missing`（id 在 `<template>` 里或页面启动时主动剥离）、少数字段差异。
+
+---
+
+## 9. 交付前自检清单
+
+- [ ] `node scripts/adopt-bo-spa.js --check` → 0 项待补
+- [ ] `node scripts/check-spa-readiness.js --write-manifest` → 清单已更新
+- [ ] `node scripts/pin-spa.js` → 0 页需要重算
+- [ ] `node scripts/check-global-collisions.js` → 0 冲突、0 个不可重跑的页面脚本
+- [ ] `node scripts/check-shell-drift.js` → OK
+- [ ] 页面脚本**整体包在 IIFE 里**且**可重复执行**（切换出去再切回来，数据/行数不翻倍）
+- [ ] 页面自有的模态框 / 页脚在**帧内、body 级或帧后兄弟**位置
+- [ ] 元素绑定做了 null 保护
+- [ ] `node scripts/audit-spa-swaps.js 你的页面.html` → 0 flagged
+- [ ] `node scripts/audit-spa-swaps.js --twice 你的页面.html` → 0 flagged（第二次进入不报错）
+- [ ] 手动切 2–3 次（含从别的模块切过来、再切回去），看数据与控制台

@@ -1,3 +1,4 @@
+(function () {
 const SLIDER_API_EDIT = {
   list: API_CONFIG.BASE_URL + API_CONFIG.ENDPOINTS.SLIDER_LIST,
   create: API_CONFIG.BASE_URL + API_CONFIG.ENDPOINTS.SLIDER_CREATE,
@@ -268,4 +269,5 @@ const SLIDER_API_EDIT = {
   const id = qs().get('id');
   if (id) loadBanner(id);
   else setMode(false);
+})();
 })();

@@ -1,108 +1,134 @@
 #!/usr/bin/env node
-/* A page script may not declare a global that another page script declares.
+/* Two rules that a page script has to satisfy for content replacement to be safe:
 
-   On a full page load only one page's scripts ever share the global scope, so two files may
-   each declare `const X` and nothing notices. A swap runs the target page's scripts in the
-   SAME global scope as the page it came from, so the second declaration is a SyntaxError and
-   that whole script - and everything it wires - never runs. That is how
-   game-category.html broke after game-sub-category-edit.html: both declare
-   `const GAME_CATEGORY_API`, and the page rendered with nothing working.
+   A. It must not declare a global that another script (page or shared) also declares.
+      A full page load runs one page's scripts, so two files may each `const X` and nothing
+      notices; a swap runs the target's scripts in the same global scope as the page it came
+      from, so the second declaration is a SyntaxError and that whole script never runs. This is
+      how game-category.html broke after game-sub-category-edit.html (both `const
+      GAME_CATEGORY_API`) and how game-provider.html broke on re-entry (`const PROVIDER_API`).
 
-   Only a `const` / `let` / `class` at the TOP LEVEL of a file is such a global. A file whose
-   body sits inside (function(){ ... })() declares nothing global even though its lines start
-   at column 0 - which is most of this tree - so this walks each file with a small tokenizer
-   (strings, template literals, comments and regex literals) and records declarations only at
-   brace depth 0. A column-based scan reports collisions that cannot happen.
+   B. A page's own script must be re-runnable, because the router runs it again every time the
+      page is entered - that is what re-renders its data. A file whose body is `const X = ...` at
+      the top level cannot run twice in one realm (SyntaxError). (function(){ ... })() declares
+      nothing and is fine; that is what the ~160 other files in assets/js already do.
+
+   "Top level" means: not inside a wrapper, and not indented. A column-based scan alone reports
+   the thousands of declarations that sit inside a file-wide IIFE (most of this tree starts with
+   `(function(){` and never indents), so a file whose first code is a wrapper call is skipped
+   entirely.
 
    usage:
-     node scripts/check-global-collisions.js            # exit 1 on a new collision
-     node scripts/check-global-collisions.js --list     # every top-level global per file       */
+     node scripts/check-global-collisions.js            # exit 1 on a new violation
+     node scripts/check-global-collisions.js --list     # every top-level global, per file        */
 'use strict';
 const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..');
-const DIR = path.join(ROOT, 'assets/js');
+const JS_DIR = path.join(ROOT, 'assets/js');
 const listAll = process.argv.includes('--list');
 
-/* Names already known to collide, if any. Keep this empty if you can - the fix is a rename in
-   one of the two files, which is what makes the class disappear for good. */
+/* Violations that already existed when this check was added, each with a reason. Empty is the
+   goal: the fix is to wrap the file or rename the name, which removes the class for good. */
 const baselinePath = path.join(__dirname, 'global-collisions-baseline.json');
 const baseline = fs.existsSync(baselinePath)
   ? (JSON.parse(fs.readFileSync(baselinePath, 'utf8')).known || {})
   : {};
 
-function topLevelNames(src) {
+const DECL = /^(const|let|class|function|var)\s+([A-Za-z_$][\w$]*)/;
+
+function stripLeadingComments(src) {
+  let i = 0;
+  for (;;) {
+    while (i < src.length && /\s/.test(src[i])) i++;
+    if (src[i] === '/' && src[i + 1] === '/') { while (i < src.length && src[i] !== '\n') i++; continue; }
+    if (src[i] === '/' && src[i + 1] === '*') { i += 2; while (i < src.length && !(src[i] === '*' && src[i + 1] === '/')) i++; i += 2; continue; }
+    return src.slice(i);
+  }
+}
+
+/* A file is "wrapped" when its body is one wrapper call: (function(){ ... })() and friends.
+   Nothing it declares reaches the global scope, so it can collide with nothing and can run
+   again. Detected from the shape of the file rather than by tracking braces, because brace
+   tracking over regex literals and template strings is where a scanner goes wrong. */
+function isWrapped(src) {
+  const body = stripLeadingComments(src).replace(/\s+/g, ' ').trim();
+  if (!/^\(\s*(async\s+)?function\b/.test(body) && !/^\(\s*(\([^)]*\)|[A-Za-z_$][\w$]*)\s*=>/.test(body)) return false;
+  return /\(\s*\)\s*;?\s*$/.test(body) || /\)\s*\(\s*\)\s*;?\s*$/.test(body) || /\(\s*\)\s*\)\s*;?\s*$/.test(body);
+}
+
+function topLevelDecls(src) {
+  if (isWrapped(src)) return [];
   const out = [];
-  let i = 0, depth = 0, n = src.length;
-  while (i < n) {
-    const c = src[i], d = src[i + 1];
-    if (c === '\n') { i++; continue; }
-    if (c === '/' && d === '/') { while (i < n && src[i] !== '\n') i++; continue; }
-    if (c === '/' && d === '*') { i += 2; while (i < n && !(src[i] === '*' && src[i + 1] === '/')) i++; i += 2; continue; }
-    if (c === '"' || c === "'" || c === '`') {
-      const q = c; i++;
-      while (i < n) { if (src[i] === '\\') { i += 2; continue; } if (src[i] === q) { i++; break; } i++; }
-      continue;
-    }
-    if (c === '/') {
-      let j = i - 1;
-      while (j >= 0 && /\s/.test(src[j])) j--;
-      const prev = j >= 0 ? src[j] : '';
-      if (!/[\w$)\]'"`]/.test(prev)) {
-        i++;
-        while (i < n) {
-          if (src[i] === '\\') { i += 2; continue; }
-          if (src[i] === '[') { while (i < n && src[i] !== ']') { if (src[i] === '\\') i++; i++; } }
-          if (src[i] === '/' || src[i] === '\n') { i++; break; }
-          i++;
-        }
-        continue;
-      }
-    }
-    if (c === '{') { depth++; i++; continue; }
-    if (c === '}') { if (depth > 0) depth--; i++; continue; }
-    if (depth === 0 && /[A-Za-z_$]/.test(c)) {
-      const m = /^(const|let|class)\s+([A-Za-z_$][\w$]*)/.exec(src.slice(i, i + 200));
-      if (m) {
-        let j = i - 1;
-        while (j >= 0 && /\s/.test(src[j])) j--;
-        const prev = j >= 0 ? src[j] : '';
-        if (prev === '' || prev === ';' || prev === '}' || src[j] === '\n') {
-          out.push(m[2]);
-          i += m[0].length;
-          continue;
-        }
-      }
-    }
-    i++;
+  const lines = src.split(/\r?\n/);
+  let inBlockComment = false;
+  for (const line of lines) {
+    if (inBlockComment) { if (line.includes('*/')) inBlockComment = false; continue; }
+    const t = line.trimStart();
+    if (t.startsWith('/*')) { if (!t.includes('*/')) inBlockComment = true; continue; }
+    if (/^\s/.test(line)) continue;            // indented: inside something
+    if (t.startsWith('//') || !t) continue;
+    const m = t.match(DECL);
+    if (m) out.push({ kind: m[1], name: m[2] });
   }
   return out;
 }
 
-const files = fs.readdirSync(DIR).filter((f) => f.endsWith('.js')).sort();
-const byName = {};
+/* Which pages load each file - a file loaded by many pages is shared and is never re-run. */
+const pages = fs.readdirSync(ROOT)
+  .filter((f) => f.endsWith('.html') && !f.startsWith('_') && !f.startsWith('.'))
+  .sort();
+const loads = {};
+for (const p of pages) {
+  const html = fs.readFileSync(path.join(ROOT, p), 'utf8');
+  for (const m of html.matchAll(/assets\/js\/([\w\-.]+\.js)/g)) (loads[m[1]] = loads[m[1]] || new Set()).add(p);
+}
+
+const files = fs.readdirSync(JS_DIR).filter((f) => f.endsWith('.js')).sort();
 const perFile = {};
+const byName = {};
 for (const f of files) {
-  const names = topLevelNames(fs.readFileSync(path.join(DIR, f), 'utf8'));
-  perFile[f] = names;
-  for (const nm of names) (byName[nm] = byName[nm] || []).push(f);
+  const src = fs.readFileSync(path.join(JS_DIR, f), 'utf8');
+  const decls = topLevelDecls(src);
+  perFile[f] = decls;
+  for (const d of decls) {
+    if (d.kind === 'function' || d.kind === 'var') continue;   // legal to redeclare
+    (byName[d.name] = byName[d.name] || []).push(f);
+  }
 }
 
 if (listAll) {
-  for (const f of files) if (perFile[f].length) console.log(f.padEnd(34) + perFile[f].join(', '));
+  for (const f of files) {
+    if (!perFile[f].length) continue;
+    const who = (loads[f] || new Set()).size;
+    console.log(f.padEnd(34) + 'pages=' + String(who).padEnd(4) + perFile[f].map((d) => d.kind + ' ' + d.name).join(', '));
+  }
   console.log('');
 }
-// Only place a page could actually load both is a real break; but two different pages in one
-// session is enough, so every collision counts.
-const clash = Object.keys(byName).filter((k) => byName[k].length > 1).sort();
-const fresh = clash.filter((k) => !baseline[k]);
-console.log('files scanned: ' + files.length + '   top-level globals: ' + Object.keys(byName).length + '   colliding names: ' + clash.length);
-for (const k of clash) console.log('  ' + (baseline[k] ? '(known) ' : '!! ') + k + '  declared in: ' + byName[k].join(', '));
-if (fresh.length) {
+
+const collisions = Object.keys(byName).filter((n) => byName[n].length > 1).sort();
+const freshCollisions = collisions.filter((n) => !baseline['collision:' + n]);
+
+/* A page-own script that declares globals cannot be re-run, which is rule B. */
+const notRerunnable = files.filter((f) => {
+  const who = (loads[f] || new Set()).size;
+  if (who === 0 || who > 3) return false;                     // shared scripts are never re-run
+  return perFile[f].some((d) => d.kind === 'const' || d.kind === 'let' || d.kind === 'class');
+}).filter((f) => !baseline['notRerunnable:' + f]);
+
+console.log('files scanned: ' + files.length + '   wrapped (nothing global): ' + files.filter((f) => isWrapped(fs.readFileSync(path.join(JS_DIR, f), 'utf8'))).length);
+console.log('global names declared by more than one file: ' + collisions.length + (freshCollisions.length ? '  (' + freshCollisions.length + ' new)' : ''));
+for (const n of collisions) console.log('  ' + (baseline['collision:' + n] ? '(known) ' : '!! ') + n + '  in: ' + byName[n].join(', '));
+console.log('page scripts that cannot be re-run (top-level declaration, <=3 pages): ' + notRerunnable.length);
+for (const f of notRerunnable) console.log('  !! ' + f + '  pages=' + (loads[f] || new Set()).size + '  ' + perFile[f].filter((d) => d.kind !== 'function' && d.kind !== 'var').map((d) => d.name).join(', '));
+
+const fails = freshCollisions.length + notRerunnable.length;
+if (fails) {
   console.log('');
-  console.log('  ⛔ ' + fresh.length + ' NEW colliding global name(s). A swap into either page will throw');
-  console.log('     "Identifier already been declared" and the rest of that script will not run.');
-  console.log('     Fix: rename one of them in one file (see the comment at the top).');
+  console.log('  ⛔ ' + fails + ' violation(s).');
+  console.log('     A colliding global: rename it in one file. A page script that cannot be re-run:');
+  console.log('     wrap its body in (function () { ... })(); - see SPA.md section 4.');
+  console.log('     Both are SyntaxErrors at run time, and the script that throws does nothing at all.');
 }
-process.exit(fresh.length ? 1 : 0);
+process.exit(fails ? 1 : 0);

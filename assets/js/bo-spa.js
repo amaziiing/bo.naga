@@ -72,6 +72,43 @@
   var busy = false;
   var scrollMemo = {};                   // href (pathname+search) -> scrollY
   var current = null;                    // href we are on / heading to
+  /* Diagnostics. Every navigation keeps a record with the millisecond offset at which each
+     phase finished, so a navigation that never finished still says WHERE it stopped -
+     without that, a wedged swap only ever left an empty console. BO_SPA.report() returns
+     the whole thing as one JSON string; the runtime errors are in the same string so a
+     single paste is enough to tell which of the two is the cause. */
+  var NAVLOG = [];
+  var ERRORS = [];
+  var currentRec = null;
+
+  function log(msg) {
+    try { if (window.console && console.info) console.info('[bo-spa] ' + msg); } catch (e) {}
+  }
+
+  function nav(href, via) {
+    var o = {
+      at: new Date().toISOString().substr(11, 12),
+      from: here().replace(location.origin, ''),
+      to: String(href).replace(location.origin, ''),
+      via: via || 'link',
+      t0: Date.now(),
+      phase: 'start',
+      phases: {}
+    };
+    NAVLOG.push(o);
+    if (NAVLOG.length > 25) NAVLOG.shift();
+    currentRec = o;
+    log('nav ' + o.to + ' (via ' + o.via + ', from ' + o.from + ')');
+    return o;
+  }
+
+  function note(name, extra) {
+    if (!currentRec) return;
+    currentRec.phase = name;
+    currentRec.phases[name] = Date.now() - currentRec.t0;
+    if (extra) for (var k in extra) currentRec[k] = extra;
+    log(currentRec.to + ' | ' + name + (extra ? ' ' + JSON.stringify(extra) : ''));
+  }
   var JS_TYPES = ['', 'text/javascript', 'application/javascript', 'module',
     'text/ecmascript', 'application/ecmascript'];
 
@@ -519,6 +556,7 @@
          location.pathname, which pushState has just updated. */
       from.replaceChildren.apply(from, clone(to.childNodes));
       syncBodyClass(doc);
+      note('content');
 
       // URL first: page scripts re-read location.search/pathname, and a drill-down page
       // that never sees its own query string renders as if it had none.
@@ -537,6 +575,7 @@
         runScripts(collectScripts(doc), function () {
           var t = window.__boLastTimings || {};
           t.scripts = Date.now() - navStart;
+          note('scripts', { timings: { scripts: t.scripts } });
           replayLifecycle(doc);
           resolve(true);
         });
@@ -544,6 +583,7 @@
     }).then(function (ok) {
       var t = window.__boLastTimings || {};
       t.total = Date.now() - navStart;
+      note('ok', { timings: { total: t.total, fetch: t.fetch, css: t.css, scripts: t.scripts } });
       syncShell(doc);
       activateTab(u);
       activateRail(u, prevRail);
@@ -554,6 +594,7 @@
   }
 
   function fallback(href, reason) {
+    note('fallback', { reason: String(reason || '') });
     try {
       DOC.dispatchEvent(new CustomEvent('bo:spa:fail', { detail: { url: href, reason: String(reason || '') } }));
     } catch (e) {}
@@ -598,9 +639,11 @@
     clearTimeout(navWatchdog);
     navWatchdog = setTimeout(function () {
       if (!busy) return;
+      var stuckAt = currentRec ? currentRec.phase : 'n/a';
+      note('timeout', { stuckAt: stuckAt });
       pendingNav = null;
       settle();
-      fallback(href, 'swap did not settle within 8s');
+      fallback(href, 'swap did not settle within 8s (stuck at ' + stuckAt + ')');
     }, 8000);
   }
 
@@ -623,14 +666,17 @@
       // is the only thing dropped; everything else is queued, newest wins.
       if (pendingNav && pendingNav.u.href === href) return;
       pendingNav = { href: href, u: u, push: push };
+      log('queued ' + href + ' (busy with ' + (currentRec ? currentRec.to : '?') + ')');
       return;
     }
+    nav(href, 'link');
     var timings = {};
     window.__boLastTimings = timings;
     scrollMemo[here()] = window.pageYOffset || 0;
     beginNav(href);
     getDoc(href).then(function (doc) {
       timings.fetch = Date.now() - navStart;
+      note('fetched', { timings: { fetch: timings.fetch } });
       var why = swapBlocker(doc);
       if (why) {
         settle();
@@ -643,9 +689,6 @@
       // in-flight content); clicks that arrive meanwhile are queued by drainNav.
       commitOf(doc, u, push, href).then(function () {
         settle();
-        if (window.console && console.info && timings.total) {
-          console.info('[bo-spa] swap ' + href, timings);
-        }
       }, function () { settle(); });
     })['catch'](function (e) {
       settle();
@@ -665,6 +708,7 @@
     if (busy) return;
     var u = new URL(location.href);
     if (!/\.html$/.test(u.pathname)) { location.reload(); return; }
+    nav(u.href, 'popstate');
     window.__boLastTimings = {};
     beginNav(u.href);
     getDoc(u.href).then(function (doc) {
@@ -695,14 +739,39 @@
     }, 1000);
   });
 
+  window.addEventListener('error', function (e) {
+    ERRORS.push({ at: new Date().toISOString().substr(11, 12), msg: String(e.message || e.type), src: String(e.filename || '').replace(location.origin, '') + ':' + (e.lineno || 0) });
+    if (ERRORS.length > 20) ERRORS.shift();
+  });
+  window.addEventListener('unhandledrejection', function (e) {
+    var r = e.reason;
+    ERRORS.push({ at: new Date().toISOString().substr(11, 12), msg: 'unhandled rejection: ' + String((r && (r.message || r.stack)) || r) });
+    if (ERRORS.length > 20) ERRORS.shift();
+  });
+
   window.BO_SPA = {
     on: true,
     go: function (href) { var u = new URL(href, location.href); go(u.href, u, true); },
     current: function () { return current; },
+    /* Paste the string this returns: it carries every navigation with the offset at which
+       each phase finished (a stalled one says where it stalled) plus the runtime errors. */
+    report: function () {
+      var out = {
+        url: here(),
+        busy: busy,
+        epoch: window.__boDclEpoch || 0,
+        nav: NAVLOG.slice(-12),
+        errors: ERRORS.slice(-10)
+      };
+      try { if (window.console && console.table) console.table(NAVLOG.slice(-12)); } catch (e) {}
+      return JSON.stringify(out);
+    },
     /* Read-only diagnostics for the console and for integration tests. */
     debug: {
       isBusy: function () { return busy; },
-      epoch: function () { return window.__boDclEpoch || 0; }
+      epoch: function () { return window.__boDclEpoch || 0; },
+      navlog: function () { return NAVLOG; },
+      errors: function () { return ERRORS; }
     }
   };
 })();

@@ -99,19 +99,21 @@ html:has(.report-topbar[data-bo-topbar]){
    the row was welded to the card below it.
 
    16px is what the majority already computes and what User Management shows, so every page
-   that computed 0 gets exactly that: the six Design pages, and Livechat Template when the
-   Setting module joined (measured again across Setting: Timezone 16, Duplicate IP 12,
-   Compliance Policy 12, Livechat Template 0). The rule is scoped by page class on purpose -
-   a container-level `gap` would also re-space every OTHER sibling on those pages, which is a
-   different change nobody asked for. A page that already resolves to a gap of its own keeps
-   it: Page Customize 14px (the same rhythm as Deposit Approval), Image To URL 16px, and
-   Duplicate IP / Compliance Policy 12px.
+   that computed 0 gets exactly that: the six Design pages, Livechat Template when the Setting
+   module joined (Setting measured again: Timezone 16, Duplicate IP 12, Compliance Policy 12,
+   Livechat Template 0), and five of the seven Game Management pages - Provider, Provider
+   Sessions, Game Category, Game Sub Category and Game all compute 0, while Provider
+   Transactions and Provider Bet Report carry 16 of their own. The rule is scoped by page class
+   on purpose - a container-level `gap` would also re-space every OTHER sibling on those pages,
+   which is a different change nobody asked for. A page that already resolves to a gap of its
+   own keeps it: Page Customize 14px (the same rhythm as Deposit Approval), Image To URL 16px,
+   and Duplicate IP / Compliance Policy 12px.
 
    Desktop only, like the insets above; bo-module-tabs.css already carries 12px of its own
    for the narrow layout. */
 
 @media (min-width:1024px){
-  html:not(#bo-charcoal-off) body.report-body:is(.banner-management-page,.site-customize-page,.advertisement-popup-page,.frontend-display-page,.social-page,.layout-section-page,.livechat-template-page) .report-shell .report-main .report-content:has(> .bo-module-tabs) > .bo-module-tabs{
+  html:not(#bo-charcoal-off) body.report-body:is(.banner-management-page,.site-customize-page,.advertisement-popup-page,.frontend-display-page,.social-page,.layout-section-page,.livechat-template-page,.page-game-provider,.provider-session-page,.page-game-category,.page-game-sub-category,.page-game) .report-shell .report-main .report-content:has(> .bo-module-tabs) > .bo-module-tabs{
     margin-bottom:16px!important;
   }
 }

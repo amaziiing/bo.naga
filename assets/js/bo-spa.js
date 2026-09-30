@@ -386,10 +386,25 @@
     if (doc.title) DOC.title = doc.title;
   }
 
+  /* One tab is active, and it is the one whose href names THIS url. Comparing pathname
+     alone is wrong the moment a page distinguishes its sections by query string:
+     bulk-adjustment.html?tab=winlose and ?tab=bonus share a pathname, so every tab on the
+     row came back is-active and the previous section stayed lit next to the new one.
+     Exact pathname+search wins; when no tab carries a query at all (a drill-down opened
+     with ?new=1, say) the plain pathname match is still the answer. */
   function activateTab(u) {
-    each(DOC.querySelectorAll('.bo-module-tab'), function (t) {
-      var on = false, tu = href_of(t);
-      if (tu) on = tu.pathname === u.pathname;
+    var tabs = [];
+    each(DOC.querySelectorAll('.bo-module-tab'), function (t) { tabs.push(t); });
+    var target = null, loose = null;
+    for (var i = 0; i < tabs.length; i++) {
+      var tu = href_of(tabs[i]);
+      if (!tu || tu.pathname !== u.pathname) continue;
+      if (tu.search === u.search) { if (!target) target = tabs[i]; }
+      else if (!tu.search || !u.search) { if (!loose) loose = tabs[i]; }
+    }
+    if (!target) target = loose;
+    each(tabs, function (t) {
+      var on = t === target;
       t.classList.toggle('is-active', on);
       if (on) t.setAttribute('aria-current', 'page'); else t.removeAttribute('aria-current');
     });
@@ -466,6 +481,23 @@
     return out;
   }
 
+  /* Page-owned <body> classes, applied as a DELTA. Assigning className wholesale replaced
+     the whole token list with the fetched document's, which threw away everything the live
+     shell had put on the body at runtime: the rail's collapsed state (`sidebar-mini`), the
+     mobile drawer flag, a modal's scroll lock. Result: a collapsed rail re-expanded on its
+     own on the next click. pageBodyClass is captured at parse time - before any runtime
+     state exists - so only page-owned tokens are ever removed. */
+  var pageBodyClass = String(DOC.body ? DOC.body.className : '');
+
+  function syncBodyClass(doc) {
+    var want = doc.body ? String(doc.body.className || '') : '';
+    if (!want || want === pageBodyClass) return;
+    var i, drop = pageBodyClass.split(/\s+/), add = want.split(/\s+/);
+    for (i = 0; i < drop.length; i++) if (drop[i]) DOC.body.classList.remove(drop[i]);
+    for (i = 0; i < add.length; i++) if (add[i]) DOC.body.classList.add(add[i]);
+    pageBodyClass = want;
+  }
+
   function apply(doc, u, push) {
     var from = DOC.querySelector(CONTENT);
     var to = doc.querySelector(CONTENT);
@@ -481,7 +513,7 @@
          correct when the target page belongs to a different module: it is derived from
          location.pathname, which pushState has just updated. */
       from.replaceChildren.apply(from, clone(to.childNodes));
-      if (doc.body && doc.body.className) DOC.body.className = doc.body.className;
+      syncBodyClass(doc);
 
       // URL first: page scripts re-read location.search/pathname, and a drill-down page
       // that never sees its own query string renders as if it had none.

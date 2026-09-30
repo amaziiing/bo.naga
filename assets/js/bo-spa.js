@@ -917,7 +917,39 @@
       note('ok', { timings: { total: t.total, fetch: t.fetch, css: t.css, scripts: t.scripts } });
       /* Re-asserted: a target page's script may have rebuilt the tab row or moved the active
          state while the boot replay ran. */
+      /* auth.js binds the dashboard workspace once per document and guards that on window - and the
+         workspace's height, which its iframes fill, is set by that binding. Arriving at
+         dashboard.html through a swap found the guard already set (by whatever page loaded
+         first), so nothing was bound and both iframes stayed 0px tall: "the page does not
+         display". Same shape as crud-modal-pattern's body flag. Clear it and ask for the bind
+         when the target page really has a workspace. */
+      if (doc.querySelector('.dashboard-workspace')) {
+        try { delete window.__boDashboardWorkspaceBound; } catch (e) {}
+        if (window.BO_AUTH && BO_AUTH.bindDashboardWorkspace) {
+          try { BO_AUTH.bindDashboardWorkspace(); } catch (e) {}
+        }
+        /* And make the frames look like they do on a fresh load: the shell keeps two frames and
+           swaps between them as panels are opened, but a swap into the dashboard has no panel
+           state, so neither frame ended up active and BOTH stayed hidden - the content area
+           measured 0px with the workspace itself at its full height. Measured on a direct load:
+           the first frame is active and visible, the second hidden. */
+        each(DOC.querySelectorAll('.dashboard-workspace-frame'), function (f, i) {
+          f.hidden = i !== 0;
+          if (i === 0) f.classList.add('is-bo-frame-active');
+          else f.classList.remove('is-bo-frame-active');
+        });
+      }
       paintShell(doc, u, prevRail);
+      /* A swap replaces the box that everything is measured against, and components that size
+         themselves from their container keep their old measurement. dashboard.html is the clear
+         case: its workspace is an iframe that fills the frame, and after a swap it came back 0px
+         tall - "the page does not display". These components already re-measure on window resize,
+         so tell them to, in the next frame so the new layout has settled. */
+      try {
+        (window.requestAnimationFrame || function (fn) { setTimeout(fn, 16); })(function () {
+          try { window.dispatchEvent(new Event('resize')); } catch (e) {}
+        });
+      } catch (e) {}
       DOC.dispatchEvent(new CustomEvent('bo:spa:content', { detail: { url: u.href } }));
       return ok;
     });

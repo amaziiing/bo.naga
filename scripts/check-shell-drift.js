@@ -44,6 +44,16 @@ const SHELL_SELECTOR = new RegExp([
   '\\.report-content'
 ].join('|'));
 
+/* The Main panel is a DIFFERENT shell, and AGENTS.md forbids unifying the two - but it has
+   its own `.report-shell` / `.report-main` / `.report-content`, so the selector list above
+   catches its frame too. A rule scoped by `data-bo-shell="main"` can never match a BO page:
+   the attribute is stamped per page by scripts/adopt-bo-spa.js and the two values are
+   mutually exclusive. Such a rule is the Main panel's own frame, not the BO shell drifting,
+   so it is out of this guard's scope - otherwise every change to the Main panel's content
+   rhythm would have to be smuggled into bo-shell.css (which no Main page even links) or
+   recorded as a duplicate it is not. */
+const MAIN_SHELL_SCOPE = /data-bo-shell\s*=\s*["']?main/;
+
 /* Layout metrics - the properties that caused every drift so far. Colour, background,
    border-colour, box-shadow and custom properties are deliberately NOT listed. */
 const BANNED = [
@@ -87,7 +97,7 @@ function scan(css) {
         body.replace(/([-a-z]+)\s*:/gi, (m, p) => { props.push(p.toLowerCase()); return m; });
         for (const part of head.split(',')) {
           const sel = part.replace(/\s+/g, ' ').trim();
-          if (SHELL_SELECTOR.test(sel)) {
+          if (SHELL_SELECTOR.test(sel) && !MAIN_SHELL_SCOPE.test(sel)) {
             for (const p of props) if (BANNED.includes(p)) out.push({ selector: sel, property: p });
           }
         }

@@ -1214,3 +1214,12 @@ Two consequences worth keeping in mind when reviewing a page:
 15. **Role select chevron:** pin `bi-chevron-down` at **`right:12px`** (absolute, vertically centered). Do not let it trail the label. Beat `bo-ui-standard` `padding-right:32px` on custom triggers. Copy from Patterns → Role select dropdown.
 16. **Joined cream controls in dark:** any light rule that locks cream with `!important` on a joined control (password+eye, Window+Minutes, etc.) needs a matching dark `#2A2C36` override at equal-or-higher specificity — general input dark rules will lose.
 17. **Provider Bet Report** and other Game-Management report pages that are not yet on `bo-report-family` must opt in when touched — marker + family sheet last + three-slot footer + self-applying filters. Copy from Patterns → Provider Bet Report.
+
+18. **Main panel content rhythm = the same 16px, in `assets/css/main-content-rhythm.css`.** Every Main-shell page
+    (`html[data-bo-shell="main"]`) makes `.report-content` a flex column with a 16px gap and zeroes its children's
+    margins, exactly as BO does — the topbar / rail / canvas stay two separate shells (AGENTS.md), the spacing
+    inside the frame does not. Add a new Main page to the same sheet's link list. `check-shell-drift.js` exempts a
+    selector scoped by `data-bo-shell="main"` for this reason; a plain `.report-content` metric is still refused.
+19. **Anything bound to a topbar element must be delegated.** `bo-spa.js` replaces `.report-main > .report-topbar`
+    with a clone on every swap, so a per-element listener dies with the old node — this is what killed the theme
+    toggle until `bo-theme.js` moved to a document-level delegated handler. See `SPA.md` section 10.4.

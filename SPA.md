@@ -348,3 +348,72 @@ localStorage.removeItem('bo_spa');     // 恢复
 - [ ] `node scripts/audit-spa-swaps.js 你的页面.html` → 0 flagged
 - [ ] `node scripts/audit-spa-swaps.js --twice 你的页面.html` → 0 flagged（第二次进入不报错）
 - [ ] 手动切 2–3 次（含从别的模块切过来、再切回去），看数据与控制台
+
+---
+
+## 10. Main 面板（`data-bo-shell="main"`）
+
+Main 面板和 BO 是**两个外壳**（`AGENTS.md`：不要统一它们），但换页机制是同一套。
+
+### 10.1 Main ↔ Main 本来就能换页
+
+真机实测（1568×900，本地 harness）：
+
+| 起点 | 点的是 | 结果 | 耗时 |
+|---|---|---|---|
+| `main-report.html` | 侧栏 | `main-dashboard.html` | 77–130ms |
+| `main-merchant-detail.html` | 页面内 tab | `main-merchant-settlement.html` | 268ms |
+| `main-admin-detail.html` | 页面内链接 | `main-admin-security.html` | 232ms |
+| `main-provider-detail.html` | 页面内 tab | `main-provider-credentials.html` | 127ms |
+
+结论：**Main 面板内部换页一直是通的**，慢的是下面两类。
+
+### 10.2 Main 页面自己的链接现在也参与换页
+
+路由只拦截这四类链接：`.report-nav a`、`.bo-module-tabs a`、`.bo-global-quicknav a`、`[data-bo-spa-link]`。
+BO 的侧栏/模块 tab 天然命中前两类；**Main 页面自己的 tab、钻取链接不属于任何一类**，所以以前每点一次都是整页刷新。
+
+现在给 **29 个 Main 页面里的 96 个站内链接**加了 `data-bo-spa-link`（目标都在 `bo-spa-manifest.js` 清单里）。
+新增 Main 页面里的站内链接时，记得同样加上这个属性——否则那一条就是整页刷新。
+
+验证（真实浏览器，点 `[data-bo-spa-link]` 后等 `bo:spa:content`）：换页 `phase:"ok"`、**0 个 JS 报错**、
+目标页声明的 id 在换页后的 DOM 里 **0 缺失**、换页后夜间模式按钮仍然可用。
+
+### 10.3 跨外壳仍然是整页跳转（这是规范，不是 bug）
+
+BO ↔ Main 一律整页刷新：两侧 `data-bo-shell` 不同，`bo-spa.js` 的 `swapBlocker()` 直接拒绝
+（fail-closed），因为两个外壳的顶栏、侧栏、画布和样式表是两套。`AGENTS.md` 明确写了不许统一。
+所以「从 BO 点进 Main 面板」永远会刷新一次，这是设计，不要试图绕。
+
+### 10.4 换页会替换整个顶栏——所以绑定必须是委托的
+
+`bo-spa.js` 在每次换页的最后，会用目标页的 header **克隆**替换 `.report-main > .report-topbar`。
+克隆出来的 `#boThemeToggle` 是全新元素，**旧元素的监听不会跟过来**。
+
+后果（owner 报的「切换页面时 我的夜间模式点不了」）：换页后按钮在、但点了没反应。
+实测 `index.html → menu-management.html`：换页前两次点击正常翻转，换页后 `bound=-`、连点两次
+`data-bo-theme` 一直是 `light`。
+
+修法：
+
+- `assets/js/bo-theme.js` —— 点击改成 **document 级委托**（`closest('#boThemeToggle,.bo-theme-btn')`），
+  并在 `window.__boThemeDelegateBound` 上只注册一次。委托是 `reports.js` 对 `[data-open-sidebar]`
+  早就用的做法，同时也避免了这个文件被重跑时绑两份（两份监听 = 一次点击翻两次 = 又像坏了）。
+- `assets/js/main-dashboard.js` —— 它自带了一份重复的 toggle 代码（`main-dashboard.html` 不加载
+  `bo-theme.js`），同样改成委托 + 一次性守卫。
+- `assets/js/bo-spa.js` —— 换完 header 后调用 `BO_THEME.initThemeToggle()`：**状态**（图标 / aria /
+  深色时该显示月亮）是这一步的职责，克隆出来的按钮默认是浅色态。
+
+> 写页面脚本的人注意：**任何绑在顶栏元素上的监听，换页后都会失效**。要么用委托，要么放进
+> `SHARED_REPLAY` 白名单（见第 3 节第 11 步）。主题按钮就是踩了这个坑。
+
+### 10.5 换页后残留的页面级 `document` 监听会报错
+
+换页只替换内容帧，**`document` 上的监听不会消失**。页面脚本里常见的
+`document.addEventListener('click', e => { if(!e.target.closest('.ref-range-wrap')) $('reportRangePicker').classList.remove('show') })`
+在离开该页后继续存在，`$()` 取到 `null` → 之后**每一次点击**都会抛
+`Cannot read properties of null (reading 'classList')`（实测 `main-report.js:41`、
+`main-merchant-report.js:431`）。
+
+它不会打断别的监听（每个监听独立），但控制台会一直脏。属于第 4 节第 ④ 条「元素查找要做 null 保护」，
+按这条修即可。

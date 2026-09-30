@@ -943,6 +943,13 @@
            some pages has drifted", the bar being half its height with everything under it moved
            up. injectProfile() is the same call a fresh load makes. */
         if (window.BO_AUTH && BO_AUTH.injectProfile) { try { BO_AUTH.injectProfile(); } catch (e) {} }
+        /* The theme button in that fresh header is built from the markup, so it carries the
+           light-mode state (sun visible, aria-pressed="false") while the document may be dark.
+           Re-apply the user's theme so the cloned control shows the right icon and label.
+           (The handler itself no longer needs re-binding here - bo-theme.js delegates at the
+           document level precisely so a cloned header cannot orphan it - but the STATE is this
+           call's job, and before it existed the button also read "light" in dark mode.) */
+        if (window.BO_THEME && BO_THEME.initThemeToggle) { try { BO_THEME.initThemeToggle(); } catch (e) {} }
       }
       /* The pinned-pages bar (bo-global-quicknav) is built by auth.js and belongs to dashboard.html
          only - on every other page auth.js removes it. A full load drops it for free; a swap used

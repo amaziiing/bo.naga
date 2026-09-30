@@ -128,6 +128,15 @@ body.bo-wallet-tx .report-content > .user-title-row,
 body.bo-wallet-tx .report-content > .bo-page-head{
   flex:0 0 auto!important;
 }
+/* The content column's own 16px gap is the rhythm between the KPI strip and the panel below
+   (DESIGN.md -> KPI summary card -> "Listing vertical rhythm": the strip's `margin-bottom` must be
+   0 and the flex gap owns the spacing). The strip also carries `margin-bottom:16px` from the
+   `body.bo-wallet-tx .quick-stats` rule above, which stacked on that gap and measured 32px on
+   Member Wallet / Wallet Ledger where Referral Network shows 16px. `.table-card` below zeroes its
+   margin for the same reason. */
+body.bo-wallet-tx .report-content > .quick-stats{
+  margin-bottom:0!important;
+}
 body.bo-wallet-tx .report-content > .table-card,
 body.bo-wallet-tx .report-content .table-card{
   flex:1 1 auto!important;

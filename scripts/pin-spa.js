@@ -19,8 +19,10 @@ const CHECK = process.argv.includes('--check');
 
 const TARGETS = ['assets/js/bo-spa.js', 'assets/js/bo-spa-manifest.js'].map((rel) => ({
   rel,
-  hash: crypto.createHash('sha1').update(fs.readFileSync(path.join(ROOT, rel))).digest('hex').slice(0, 8)
-}));
+  // Line endings normalised: the server checks out LF and this clone CRLF, so hashing the raw
+  // bytes gave the same file two different pins. Matches scripts/stamp-asset-pins.py.
+  hash: crypto.createHash('sha1').update(fs.readFileSync(path.join(ROOT, rel)).toString('binary').replace(/\r\n/g, '\n'), 'binary').digest('hex').slice(0, 8)
+  }));
 
 const files = fs.readdirSync(ROOT)
   .filter((f) => f.endsWith('.html') && !f.startsWith('_') && !f.startsWith('.'))

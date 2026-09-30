@@ -45,7 +45,7 @@ const listAll = process.argv.includes('--list');
 const writeManifest = process.argv.includes('--write-manifest');
 
 const pin = crypto.createHash('sha1')
-  .update(fs.readFileSync(path.join(ROOT, 'assets/js/bo-spa.js')))
+  .update(fs.readFileSync(path.join(ROOT, 'assets/js/bo-spa.js')).toString('binary').replace(/\r\n/g, '\n'), 'binary')
   .digest('hex').slice(0, 8);
 
 const baseline = JSON.parse(fs.readFileSync(path.join(__dirname, 'spa-readiness-baseline.json'), 'utf8'));

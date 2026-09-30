@@ -36,8 +36,7 @@ if command -v node >/dev/null 2>&1; then
   fi
 fi
 
-# SPA readiness + pin guard, also unconditional and for the same reason as above.
-#
+# SPA readiness + pin guard, also unconditional and for the same reason as above.#
 # assets/js/bo-spa.js swaps page content instead of reloading it, so a page that is missing
 # one of its markers does not fail - it silently flashes, jumps or reloads in the middle of a
 # session. check-spa-readiness.js tests every page for those markers AND that
@@ -47,6 +46,15 @@ fi
 # keeps running it for the whole session, which is the "I fixed that already" that cannot be
 # debugged from the outside.
 if command -v node >/dev/null 2>&1; then
+  # Global collision guard: a page script must not declare a global another page script
+  # declares. A full page load only runs one page's scripts, so nothing notices; a swap runs
+  # the target's scripts in the same global scope, the second `const X` is a SyntaxError, and
+  # that whole script never runs. Caught 5 names across 16 pages when it was added.
+  if ! node scripts/check-global-collisions.js; then
+    printf '\n  ⛔ commit blocked — two page scripts declare the same global (details above).\n'
+    printf '     Fix: rename it in one of the files. Bypass with: git commit --no-verify\n\n'
+    exit 1
+  fi
   if ! node scripts/check-spa-readiness.js; then
     printf '\n  ⛔ commit blocked — SPA readiness check failed (details above).\n'
     printf '     Regenerate the manifest: node scripts/check-spa-readiness.js --write-manifest\n'

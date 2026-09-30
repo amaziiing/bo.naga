@@ -1,4 +1,4 @@
-const SLIDER_API = {
+const SLIDER_API_EDIT = {
   list: API_CONFIG.BASE_URL + API_CONFIG.ENDPOINTS.SLIDER_LIST,
   create: API_CONFIG.BASE_URL + API_CONFIG.ENDPOINTS.SLIDER_CREATE,
   update: API_CONFIG.BASE_URL + API_CONFIG.ENDPOINTS.SLIDER_UPDATE
@@ -186,7 +186,7 @@ const SLIDER_API = {
   async function loadBanner(id) {
     setStatus('Loading banner...', '');
     try {
-      const res = await fetch(SLIDER_API.list);
+      const res = await fetch(SLIDER_API_EDIT.list);
       const json = await res.json().catch(() => ({}));
       if (!res.ok || json.status === 'error') throw new Error(json.message || 'Failed to load banner');
       const rows = Array.isArray(json.data) ? json.data : [];
@@ -225,7 +225,7 @@ const SLIDER_API = {
     setBusy(true);
     setStatus(isUpdate ? 'Updating banner...' : 'Creating banner...', '');
     try {
-      const res = await fetch(isUpdate ? SLIDER_API.update : SLIDER_API.create, { method: 'POST', body: fd });
+      const res = await fetch(isUpdate ? SLIDER_API_EDIT.update : SLIDER_API_EDIT.create, { method: 'POST', body: fd });
       const json = await res.json().catch(() => ({}));
       if (!res.ok || json.status === 'error') throw new Error(json.message || 'Save failed');
       setStatus(json.message || 'Banner saved successfully.', 'success');

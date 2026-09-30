@@ -187,7 +187,9 @@
     if (!seededExtras) {
       seededExtras = true;
       each(extraOf(DOC), ownExtra);
+      each(tailOf(DOC), ownTail);
     }
+    PAGE_KEYS = pageKeysOf(DOC);
   }
 
   /* Body-level elements the page itself declares outside the shell: the modal markup a page
@@ -205,6 +207,53 @@
      at PARSE time only - at that point the body holds the page's own markup and nothing else. */
   var EXTRAS = [];
   var seededExtras = false;
+
+  /* Page-owned siblings that follow the frame inside its parent.
+
+     slider-edit.html keeps its action row in a <footer id="bannerEditFooter"> beside
+     .report-content, not inside it; the frame carries only the form card, so after a swap
+     #resetSliderBtn, #bannerFooterTitle and #bannerReadyPill simply were not there and
+     slider-edit.js threw on its first binding - the page rendered and nothing worked. Same
+     shape as the body-level modals, one level down.
+
+     Marked at parse time like the extras (only the page's own markup exists then; the shell's
+     runtime containers appear later), removed on the next swap and replaced by the target's.
+     Script elements are skipped: running them is runScripts' job, and a cloned script tag does
+     not execute. */
+  var TAIL = [];
+
+  function tailOf(doc) {
+    var f = frameOf(doc);
+    if (!f || !f.parentNode) return [];
+    var out = [], n = f.nextElementSibling;
+    while (n) {
+      if (n.tagName !== 'SCRIPT') out.push(n);
+      n = n.nextElementSibling;
+    }
+    return out;
+  }
+
+  function ownTail(e) {
+    e.setAttribute('data-bo-spa-tail', '1');
+    TAIL.push(e);
+  }
+
+  function convergeTail(doc) {
+    for (var i = TAIL.length - 1; i >= 0; i--) {
+      var e = TAIL[i];
+      if (DOC.contains(e) && e.parentNode) e.parentNode.removeChild(e);
+      TAIL.splice(i, 1);
+    }
+    var ref = frameOf(DOC);
+    if (!ref || !ref.parentNode) return;
+    var srcs = tailOf(doc);
+    for (var j = 0; j < srcs.length; j++) {
+      var clone = srcs[j].cloneNode(true);
+      ownTail(clone);
+      ref.parentNode.insertBefore(clone, ref.nextSibling);
+      ref = clone;
+    }
+  }
 
   function extraOf(doc) {
     var out = [];
@@ -246,6 +295,21 @@
      legacy layout that ships no bo-shell.css picked up the previous page's metrics: content
      padding 18px after a swap, 0px on a direct load). */
   var SHEETS = [];
+
+  /* Which scripts the CURRENT document loaded. A swap compares the target's script list
+     against this to tell a page's own script (may run again) from a shared one (must not). */
+  var PAGE_KEYS = {};
+
+  function pageKeysOf(doc) {
+    var out = {};
+    each(doc.querySelectorAll('script'), function (s) {
+      var src = s.getAttribute('src');
+      if (src) { var k = assetKey(src); if (k) out[k] = 1; return; }
+      var text = s.textContent || '';
+      if (text.trim()) out['inline:' + fp(text)] = 1;
+    });
+    return out;
+  }
 
   function own(l, key) {
     if (!key || l.getAttribute('data-bo-spa-sheet') === key) return;
@@ -428,17 +492,32 @@
       var src = s.getAttribute('src');
       if (src) {
         var key = assetKey(src);
-        if (!key || EXECUTED[key]) return;
+        if (!key) return;
+        /* Run it unless THIS page already ran it.
+
+           The old rule was "never run the same file twice in a session", which is wrong for a
+           page's own script: promotion-workspace.js ends with a plain load() call and registers
+           no DOMContentLoaded listener at all, so re-entering promotion.html found the script
+           already executed, skipped it, and the list and its second level were never built -
+           the reported "switch back to Promotion Bonus and the data is incomplete". A full page
+           load runs that script every time, and a swap has to mean the same thing.
+
+           What may NOT run again is a script the page we are leaving also loads: those are the
+           shared ones (auth.js, reports.js, bo-topbar.js ...) whose side effects are global -
+           timers, document listeners, injected containers - and re-running them is exactly the
+           duplication the first version guarded against. PAGE_KEYS is the set the current
+           document loaded, updated on every swap. */
+        if (EXECUTED[key] && PAGE_KEYS[key]) return;
         EXECUTED[key] = 1;
-        out.push({ src: src });
+        out.push({ src: src, key: key });
         return;
       }
       var text = s.textContent || '';
       if (!text.trim()) return;
       var tkey = 'inline:' + fp(text);
-      if (EXECUTED[tkey]) return;
+      if (EXECUTED[tkey] && PAGE_KEYS[tkey]) return;
       EXECUTED[tkey] = 1;
-      out.push({ text: text });
+      out.push({ text: text, key: tkey });
     });
     return out;
   }
@@ -519,7 +598,13 @@
     'bo-date-range.js': 1,
     'pagination-standardizer.js': 1,
     'report-table-split.js': 1,
-    'report-table-sort.js': 1
+    'report-table-sort.js': 1,
+    /* crud-modal-pattern.js lifts the page's own form card into its modal container, and marks
+       the body so it cannot happen twice. The body survives a swap, so without both this entry
+       and the reset in apply(), the NEXT page's card is never lifted while the modal keeps the
+       previous page's - two elements with the same ids, and a modal showing the wrong or empty
+       form. Reported as "switch back to Promotion Bonus and the data is incomplete". */
+    'crud-modal-pattern.js': 1
   };
 
   /* Basenames of every script the target page carries; a page's own listener must still
@@ -766,6 +851,16 @@
          or opened directly. */
       convergeSheets(head.want);
       convergeExtras(doc);
+      convergeTail(doc);
+      /* Per-document marks that live on the body, which is never swapped, so they would
+         otherwise suppress that work for every later page. */
+      if (DOC.body && DOC.body.dataset) delete DOC.body.dataset.crudModalReady;
+      /* The card the previous page lifted into the modal container (the shape
+         crud-modal-pattern.js gives it), so this page's own card can take its place when that
+         init runs again below. */
+      each(DOC.querySelectorAll('#crudPatternBody > .crud-modal-form-card'), function (el) {
+        if (el.parentNode) el.parentNode.removeChild(el);
+      });
       note('content');
 
       // URL first: page scripts re-read location.search/pathname, and a drill-down page
@@ -799,11 +894,31 @@
       // navigation, so the replay below can tell them apart from everything earlier.
       window.__boDclEpoch = (window.__boDclEpoch || 0) + 1;
 
+      var run = collectScripts(doc);
+      /* A script that is about to run again registered its DOMContentLoaded listener against
+         the DOM it ran on - which the swap has just replaced. Its old entry is dropped from the
+         registry (in place: the head wrapper pushes into the same array) so the replay below
+         fires only what this navigation registered, and a re-run page wires its bindings once
+         instead of twice. */
+      (function () {
+        var reg = window.__boDCL;
+        if (!reg || !reg.length) return;
+        var rerun = {};
+        for (var i = 0; i < run.length; i++) {
+          if (run[i].src) rerun[String(run[i].src).split('?')[0].split('/').pop()] = 1;
+        }
+        for (var j = reg.length - 1; j >= 0; j--) {
+          if (reg[j] && reg[j].s && rerun[reg[j].s]) reg.splice(j, 1);
+        }
+      })();
+
       return new Promise(function (resolve) {
-        runScripts(collectScripts(doc), function () {
+        runScripts(run, function () {
           var t = window.__boLastTimings || {};
           t.scripts = Date.now() - navStart;
           note('scripts', { timings: { scripts: t.scripts } });
+          /* This document is now the target's, so its scripts are the ones that have run. */
+          PAGE_KEYS = pageKeysOf(doc);
           replayLifecycle(doc);
           resolve(true);
         });

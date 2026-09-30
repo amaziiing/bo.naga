@@ -78,7 +78,7 @@ function setupImagePicker(input, dropZone, preview, placeholder, onFile, setStat
   return { showPreview, clearPreview };
 }
 
-const GAME_CATEGORY_API = {
+const GAME_API_CATEGORY_EDIT = {
   list: adminApi('GAME_CATEGORY_LIST'),
   create: adminApi('GAME_CATEGORY_CREATE'),
   update: adminApi('GAME_CATEGORY_UPDATE')
@@ -441,7 +441,7 @@ const GAME_CATEGORY_API = {
       return;
     }
     try {
-      const json = await fetchJson(GAME_CATEGORY_API.list);
+      const json = await fetchJson(GAME_API_CATEGORY_EDIT.list);
       const items = json.data || [];
       const item = items.find(x => String(x.id) === String(editId));
       if (!item) throw new Error('Category not found.');
@@ -487,7 +487,7 @@ const GAME_CATEGORY_API = {
     setBusy(true);
     setStatus(isUpdate ? 'Updating category...' : 'Creating category...', '');
     try {
-      const res = await fetch(isUpdate ? GAME_CATEGORY_API.update : GAME_CATEGORY_API.create, {
+      const res = await fetch(isUpdate ? GAME_API_CATEGORY_EDIT.update : GAME_API_CATEGORY_EDIT.create, {
         method: 'POST',
         body: fd,
         headers: { ...(BO_AUTH.authHeader ? BO_AUTH.authHeader() : {}) }

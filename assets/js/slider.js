@@ -1,4 +1,4 @@
-const SLIDER_API = {
+const SLIDER_API_LIST = {
   list: API_CONFIG.BASE_URL + API_CONFIG.ENDPOINTS.SLIDER_LIST,
   update: API_CONFIG.BASE_URL + API_CONFIG.ENDPOINTS.SLIDER_UPDATE,
   delete: API_CONFIG.BASE_URL + API_CONFIG.ENDPOINTS.SLIDER_DELETE
@@ -123,7 +123,7 @@ const SLIDER_API = {
     empty.hidden = true;
     refreshBtn.disabled = true;
     try {
-      const res = await fetch(SLIDER_API.list);
+      const res = await fetch(SLIDER_API_LIST.list);
       const json = await res.json().catch(() => ({}));
       if (!res.ok || json.status === 'error') throw new Error(json.message || 'Failed to load banners');
       currentItems = Array.isArray(json.data) ? json.data : [];
@@ -155,7 +155,7 @@ const SLIDER_API = {
     fd.append('sortOrder', String(item.sortOrder ?? 0));
     fd.append('status', nextStatus);
     try {
-      const res = await fetch(SLIDER_API.update, { method: 'POST', body: fd });
+      const res = await fetch(SLIDER_API_LIST.update, { method: 'POST', body: fd });
       const json = await res.json().catch(() => ({}));
       if (!res.ok || json.status === 'error') throw new Error(json.message || 'Status update failed');
       item.status = Number(nextStatus);
@@ -175,7 +175,7 @@ const SLIDER_API = {
     const fd = new FormData();
     fd.append('id', id);
     try {
-      const res = await fetch(SLIDER_API.delete, { method: 'POST', body: fd });
+      const res = await fetch(SLIDER_API_LIST.delete, { method: 'POST', body: fd });
       const json = await res.json().catch(() => ({}));
       if (!res.ok || json.status === 'error') throw new Error(json.message || 'Delete failed');
       await loadSliders();

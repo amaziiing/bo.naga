@@ -197,8 +197,30 @@ a page the account's menus do not include.
 - **The visible state is settled before the target's scripts run**, so the title, the lit tab,
 the active rail row and the scroll position move with the click instead of waiting 2-300ms
 for the scripts. They are re-asserted afterwards, because a script may rebuild the tab row.
+- **A page's own scripts run again every time it is entered.** Only files the page you are
+leaving also loads are skipped (auth.js, reports.js, bo-topbar.js - global side effects that
+must not happen twice). This matters because a page script usually ends with a plain call
+(`promotion-workspace.js` ends with `load()`) and registers no DOMContentLoaded listener, so
+"already executed in this session" meant the list was never rendered again: reported as
+"switch back to Promotion Bonus and the data is incomplete".
+- **Everything else the page owns travels with it**: body-level elements outside the shell
+(the modal markup), and the page's own siblings after the frame inside `.report-main`
+(`slider-edit.html`'s `<footer id="bannerEditFooter">` holds the Save/Reset row). Marked at
+parse time, removed on the next swap, replaced by the target's.
+- **Per-document marks on the body are cleared per swap.** `crud-modal-pattern.js` sets
+`body.dataset.crudModalReady` so it lifts a page's form card into its modal only once - and
+the body survives a swap, so the mark suppressed that work for every later page while the
+modal kept the previous page's card (two elements with the same ids, and a modal showing the
+wrong form). Its stale card is dropped and the init runs again.
 
 ### The readiness and pin guards
+
+`scripts/check-global-collisions.js` refuses a page script that declares a global
+(`const`/`let`/`class` at the top level of the file, outside any IIFE) which another page
+script also declares. On a full load only one page's scripts run; a swap runs the target's in
+the same global scope, the second declaration is a SyntaxError and that script does nothing at
+all. It walks each file with a small tokenizer, because a column-based scan flags the
+thousands of declarations that sit inside a file-wide IIFE and cannot collide.
 
 `scripts/check-spa-readiness.js` tests every page for the markers a smooth swap needs
 (`data-bo-spa`, a content frame - `.report-content` or `data-bo-frame` - the first-paint

@@ -4,7 +4,7 @@ function statusPill(value) { const active = Number(value) === 1; return `<span c
 async function fetchJson(url, options) { const res = await fetch(url, options); const json = await res.json().catch(() => ({})); if (!res.ok || json.status === 'error') throw new Error(json.message || 'Request failed'); return json; }
 
 const PROVIDER_API = { list: adminApi('GAME_PROVIDER_LIST'), create: adminApi('GAME_PROVIDER_CREATE'), update: adminApi('GAME_PROVIDER_UPDATE'), delete: adminApi('GAME_PROVIDER_DELETE') };
-const GAME_API = { list: adminApi('GAME_LIST') };
+const GAME_API_PROVIDER = { list: adminApi('GAME_LIST') };
 const CATEGORY_API = { list: adminApi('GAME_CATEGORY_LIST') };
 const WALLET_API = {
   createPlayer: adminApi('PROVIDER_WALLET_CREATE_PLAYER'),

@@ -147,7 +147,9 @@ const STEP = (target, start, twice) => `(async () => {
     idsMissing: miss(want.frameIds, all).filter(Boolean).slice(0, 12),
     idsMovedOutOfFrame: miss(want.frameIds, live.frameIds).filter(id => all.indexOf(id) >= 0).slice(0, 8),
     sheetsMissing: miss(want.sheets, live.sheets).slice(0, 8),
-    sheetsExtra: miss(live.sheets, want.sheets).filter(x => !/bo-module-tabs|bo-global-quicknav/.test(x)).slice(0, 6),
+    /* A sheet the target does not declare is NOT a finding: the router never removes a sheet
+       any more (removing them stripped the shell - see bo-spa.js). Only a MISSING sheet is. */
+    sheetsExtra: [],
     extrasMissing: want.extraIds.filter(x => live.extraIds.indexOf(x) < 0).slice(0, 6),
     title: live.h1,
     errs: errs.filter(e => !${NOISE}.test(e)).slice(0, 5)

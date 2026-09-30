@@ -173,9 +173,15 @@
       if (text.trim()) EXECUTED['inline:' + fp(text)] = 1;
     });
     each(DOC.querySelectorAll('link[rel="stylesheet"]'), function (l) {
-      var key = assetKey(l.getAttribute('href'));
-      CSS_SEEN[key] = 1;
-      own(l, key);
+      CSS_SEEN[assetKey(l.getAttribute('href'))] = 1;
+      /* Deliberately NOT marked as ours. A page links the sheets it needs, and some of those are
+         what the SHELL renders with - the module tab row lives on bo-module-tabs.css, the pinned
+         quicknav on bo-global-quicknav.css, the whole charcoal theme on bo-charcoal-shell.css -
+         while the next page you visit does not link them. Removing a sheet for not being declared
+         by the target therefore strips the shell: measured, arriving from livechat.html at
+         casino-overview-report.html dropped bo-module-tabs.css and left the tab row at
+         padding-left 0 / margin-right 0, and coming back to member-deposit.html dropped
+         bo-charcoal-shell.css itself. Only sheets this router added are ever taken out again. */
     });
     each(DOC.querySelectorAll('head style'), function (s) {
       var t = s.textContent || '';
@@ -289,11 +295,14 @@
      ours and is left alone.
 
      Without this the sheet set only ever grew. Measured: arriving at promotion.html by swap
-     carried 25 sheets against 22 for a direct load of the same page, and the extra ones were
-     whatever every previously visited page had brought with it - unbounded in a long session,
-     and the reason a page could look different depending on which page you came from (a
-     legacy layout that ships no bo-shell.css picked up the previous page's metrics: content
-     padding 18px after a swap, 0px on a direct load). */
+     carried 25 sheets against 22 for a direct load of the same page. Sheets are therefore never
+     taken back out: the shell's own CSS (bo-charcoal-shell.css, bo-module-tabs.css,
+     bo-global-quicknav.css ...) is linked by whichever page happens to need it, and the page you
+     navigate to routinely does not link it, so removing "sheets the target does not declare"
+     strips the shell - measured: the module tab row came back at padding-left 0 / margin-right 0
+     arriving at casino-overview-report.html, and bo-charcoal-shell.css itself disappeared coming
+     back to member-deposit.html. The cost of keeping them is a handful of extra sheets in a long
+     session, which is a far smaller price than an unstyled shell. */
   var SHEETS = [];
 
   /* Which scripts the CURRENT document loaded. A swap compares the target's script list
@@ -309,14 +318,6 @@
       if (text.trim()) out['inline:' + fp(text)] = 1;
     });
     return out;
-  }
-
-  function own(l, key) {
-    if (!key || l.getAttribute('data-bo-spa-sheet') === key) return;
-    var i;
-    for (i = 0; i < SHEETS.length; i++) if (SHEETS[i].el === l) return;
-    l.setAttribute('data-bo-spa-sheet', key);
-    SHEETS.push({ el: l, key: key });
   }
 
   seed();
@@ -458,23 +459,10 @@
     return { wait: Promise.all(pending), want: want };
   }
 
-  /* Bring the sheet set down to the target page's, in the same task as the content swap: the
-     browser has no chance to paint in between, so the intermediate state is never seen. */
-  function convergeSheets(want) {
-    for (var i = SHEETS.length - 1; i >= 0; i--) {
-      var rec = SHEETS[i];
-      if (!DOC.contains(rec.el)) { SHEETS.splice(i, 1); continue; }
-      if (want.css[rec.key]) continue;
-      rec.el.parentNode.removeChild(rec.el);
-      SHEETS.splice(i, 1);
-      CSS_SEEN[rec.key] = 0;
-    }
-    each(DOC.querySelectorAll('head style[data-bo-spa-style]'), function (s) {
-      var key = s.getAttribute('data-bo-spa-style');
-      if (want.style[key]) return;
-      s.parentNode.removeChild(s);
-      STYLE_SEEN[key] = 0;
-    });
+  /* Nothing is ever taken back out of the document - see the comment on SHEETS. Kept as a named
+     place so the intent ("converge") and the reason it is not done are both visible. */
+  function convergeSheets() {
+    return;
   }
 
   /* ---- body: scripts ------------------------------------------------------------- */
@@ -849,7 +837,7 @@
       /* Same task as the swap, so the removal is never painted: the document's stylesheets
          become the target's, and a page therefore looks the same whether it was swapped into
          or opened directly. */
-      convergeSheets(head.want);
+      convergeSheets();
       convergeExtras(doc);
       convergeTail(doc);
       /* Per-document marks that live on the body, which is never swapped, so they would

@@ -231,11 +231,17 @@
     'social.html':{label:'Social Link',order:5,module:'design'},
     'layout-section.html':{label:'Layout Section',order:6,module:'design'},
     'page-customize.html':{label:'Page Customize',order:7,module:'design'},
-    'image-to-url.html':{label:'Image To URL',order:8,module:'design'}
+    'image-to-url.html':{label:'Image To URL',order:8,module:'design'},
+    // 12. Setting. Four sidebar rows, all four registered - the group collapses to one Setting row
+    // and the row carries them. Labels follow the Menu Management titles.
+    'timezone-setting.html':{label:'Timezone',order:1,module:'setting'},
+    'livechat-template.html':{label:'Livechat Template',order:2,module:'setting'},
+    'duplicate-ip.html':{label:'Duplicate IP',order:3,module:'setting'},
+    'compliance-policy.html':{label:'Compliance Policy',order:4,module:'setting'}
   };
 
-  const MODULE_ANCHORS = {transaction:'member-deposit.html', member:'index.html', promotion:'promotion.html', vip:'vip-management.html', agent:'agent-management.html', report:'casino-overview-report.html', game:'game-provider.html', design:'slider.html'};
-  const MODULE_LABELS = {transaction:'Transaction', member:'Member', promotion:'Promotion', vip:'VIP', agent:'Agent', report:'Report', game:'Game Management', design:'Design'};
+  const MODULE_ANCHORS = {transaction:'member-deposit.html', member:'index.html', promotion:'promotion.html', vip:'vip-management.html', agent:'agent-management.html', report:'casino-overview-report.html', game:'game-provider.html', design:'slider.html', setting:'timezone-setting.html'};
+  const MODULE_LABELS = {transaction:'Transaction', member:'Member', promotion:'Promotion', vip:'VIP', agent:'Agent', report:'Report', game:'Game Management', design:'Design', setting:'Setting'};
 
   // Those two pages are the ones that own that pair, and each already authors it as its
   // own .bulk-family-tabs row — a second row of links under the module row, drawn like

@@ -214,9 +214,20 @@ html:not([data-bo-theme="dark"]) body.banner-management-page.report-body.bo-char
 
 html:not([data-bo-theme="dark"]) body.banner-management-page.report-body.bo-charcoal:not(#bo-charcoal-off) .banner-gallery-cover .slider-pill.inactive { background: rgba(254, 226, 226, 0.94) !important; border-color: rgba(185, 28, 28, 0.18) !important; color: rgb(185, 28, 28) !important; }
 
-html[data-bo-theme="dark"] body.banner-management-page.report-body.bo-charcoal:not(#bo-charcoal-off) .banner-gallery-cover .slider-pill.active { background: rgba(16, 185, 129, 0.28) !important; border-color: rgba(110, 231, 183, 0.28) !important; color: rgb(110, 231, 183) !important; }
+/* Dark cover pill: a NEUTRAL dark chip, not a coloured wash.
+   Two earlier states failed on this page. (1) rgba(16,185,129,.28) - translucent green - let a BRIGHT banner
+   image straight through and left the mint label at 1.17:1 (Suspend 1.50:1): unreadable. (2) The obvious
+   repair, a 0.94 opaque dark green, was readable (5.43:1) but read as a dirty green stain on a white banner
+   - owner: "这个深绿色背景看起来很肮脏". The colour a status chip needs is on its LABEL, dot and ring, not in
+   its fill, so the fill here is the page's own dark surface (--bo-surface #22242C family) at .88 with the
+   8px backdrop blur the base rule already carries, and the status hue is carried by the text, the ::before
+   dot (currentColor) and a 1px ring. Measured over a white banner 6.97:1 / over a dark banner 10.46:1 for
+   Active, 5.60:1 for Suspend over a white banner - all above the 4.5:1 small-text floor, and nothing in the
+   photo is tinted. Light mode is untouched: it already paints .94 opaque and never had either problem.
+   Owner chose this over a frosted-white chip (7.13/6.29/6.47:1) on 2026-09-30. */
+html[data-bo-theme="dark"] body.banner-management-page.report-body.bo-charcoal:not(#bo-charcoal-off) .banner-gallery-cover .slider-pill.active { background: rgba(34, 36, 44, 0.88) !important; border-color: rgba(110, 231, 183, 0.45) !important; color: rgb(110, 231, 183) !important; }
 
-html[data-bo-theme="dark"] body.banner-management-page.report-body.bo-charcoal:not(#bo-charcoal-off) .banner-gallery-cover .slider-pill.inactive { background: rgba(248, 113, 113, 0.24) !important; border-color: rgba(248, 113, 113, 0.32) !important; color: rgb(252, 165, 165) !important; }
+html[data-bo-theme="dark"] body.banner-management-page.report-body.bo-charcoal:not(#bo-charcoal-off) .banner-gallery-cover .slider-pill.inactive { background: rgba(34, 36, 44, 0.88) !important; border-color: rgba(252, 165, 165, 0.45) !important; color: rgb(252, 165, 165) !important; }
 
 html body.banner-management-page.report-body.bo-charcoal:not(#bo-charcoal-off) .banner-gallery-cover .slider-pill:hover { transform: translateY(-1px) !important; box-shadow: rgba(24, 25, 28, 0.16) 0px 6px 16px !important; border-color: rgba(217, 119, 6, 0.35) !important; }
 

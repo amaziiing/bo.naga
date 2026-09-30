@@ -158,7 +158,15 @@ function transform(html, shell) {
   // already carry the theme snippet without the wrapper (every page in the first rollout
   // did), so `wantsTheme` alone is not enough - the wrapper is a hard requirement for a
   // rollable page, and the old snippet is removed when it lacks it.
-  const wantsCanvas = shell === 'bo' && !/First-paint canvas/.test(html);
+  /* The first-paint canvas used to be injected here on every BO page. main has since unified the
+     page background in ONE place (commit d05bd7c5: "BO canvas: unify page background in one place
+     and drop bo-page-canvas.css") - bo-charcoal-shell.css declares the canvas continuum for the
+     BO shell and the Main panel keeps its own flat one - and removed the per-page canvas from all
+     162 pages, because two sources for one canvas is what made the same shell paint two different
+     backgrounds on a page switch. Re-injecting it would undo that, so the rollout no longer
+     touches the canvas at all. It is not needed for a swap either: the target page's stylesheets
+     are synced and waited for BEFORE the content moves. */
+  const wantsCanvas = false;
   const needsBoot = !/window\.__boDCL/.test(html);
   if (head && (wantsCanvas || needsBoot)) {
     let tail = html.slice(head.at);

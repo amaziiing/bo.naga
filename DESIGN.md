@@ -117,6 +117,23 @@ Reference CSS: `main-dashboard-executive.css` light tokens.
 
 Theme toggle: `data-bo-theme` / `localStorage.bo_theme`. Prefer `--bo-*` tokens over hard-coded hex in new work.
 
+**Canvas ownership — one rule for every new BO page (locked 2026-09-30).** The `Continuum L→R` row above is the
+canvas of **every** BO page, and it is painted in exactly one place: `assets/css/bo-charcoal-shell.css`
+(`html[data-bo-theme] :has(body.report-body.bo-charcoal)`), with `body` left transparent. A new BO page therefore does
+**nothing** for its canvas — it ships `body.report-body.bo-charcoal` (plus the three shell lines: `bo-shell.css`, the
+`data-bo-topbar` header, `bo-topbar.js`) and the continuum arrives. Do not paint `html` / `body` / `.report-shell` /
+`.report-main` / `.report-content` on a BO page: an opaque `background` on any of those five replaces the continuum,
+which is how ~108 pages ended up flat against 13 that showed it (`bo-charcoal-legacy.css` used to flatten the canvas
+with `!important`; those two rules are gone).
+
+**The one opt-out is deliberate and explicit.** A page whose shell is **not** the BO shell — the Main panel
+(`main-*`, `main_*`, `menu-permission.html`) and the agent portal (`agent-*` with `agent-portal.js`) — keeps its own
+flat canvas (light `#FFF1DC`, dark `#2C2E38`), per AGENTS.md: do not unify those shells. A page that must keep a flat
+canvas while still carrying `bo-charcoal` says so itself with `bo-flat-canvas` on its `<body>`; the flat rule in
+`bo-charcoal-legacy.css` is scoped to that marker plus the Main panel's own classes, and it names only classes that sit
+on **no** BO page. Detail and measurements: *Canvas: BO follows the continuum, the Main panel and the agent portal keep
+their flat one* at the end of this file.
+
 > Token names `--bo-navy` / `--bo-cyan` remain in CSS for compatibility but now map to **neutral text / amber accent**, not navy/cyan hues.
 
 ## Colors
@@ -5403,3 +5420,67 @@ re-stamped, together with `assets/js/auth.js?v=1.0.33` for the module row itself
 decision. The repo is already carrying that drift — hashing every `assets/css|js/...?v=` reference against its file finds
 ~1400 out-of-date ones today, so restamping `bo-shell.css` alone would rewrite ~150 pages in one unrelated pass. Until
 that pass happens, a browser holding the old `?v=` can serve the previous sheet — hard-refresh to see this change.
+
+### Canvas: BO follows the continuum, the Main panel and the agent portal keep their flat one (2026-09-30, owner: “这里的背景色也要统一” → “所有的bo 网页背景”, then “只 BO，Main panel 恢复纯色”)
+
+**One shell, two canvases — measured.** `html` carried the locked light/dark continuum on 13 pages (the 11
+`bo-wallet-tx` members of the Member/Transaction families plus `index.html` and `referral.html`, which
+`bo-page-canvas.css` rescued page by page) and an opaque flat cream `#FFF1DC` (dark `#2C2E38`) on the other ~108. The
+cause was two rules in `bo-charcoal-legacy.css`:
+
+```css
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal,
+html:not([data-bo-theme="dark"]):has(body.report-body.bo-charcoal){ background:#FFF1DC!important; }
+```
+
+`bo-charcoal-shell.css` declares the continuum for the same pages but **without** `!important`, so the flatten always
+won the cascade and painted an opaque body over the gradient. Same shell, same class, two different canvases depending
+on which page you opened — e.g. Banner Management flat against User Management in continuum.
+
+**The fix is a deletion, not a copy.** The two declarations are gone; the shell's continuum now reaches every
+`body.report-body.bo-charcoal` page, and `body` stays transparent as the shell already required. Nothing was
+re-stated anywhere, so the canvas has one source instead of a second copy to keep in step.
+
+**The Main panel and the agent portal keep the flat canvas they always had** — AGENTS.md says their shells are not to be
+unified, and the owner chose “只 BO”. The flat rule now names them explicitly. Its class list was **checked page by
+page** against `bo-charcoal` pages:
+
+| Class used | Pages | Verified |
+|---|---|---|
+| `main-mod-page` | 5 | only Main pages |
+| `provider-exec`, `accounting-settlement-page`, `main-provider-create-page`, `main-provider-integration-page`, `main-report-exec-page`, `main-report-page` | 1 + 1 + 1 + 1 + 3 + 1 | only Main pages |
+| `agent-modern` | 12 | only portal pages |
+| `bo-login-body` | `agent-login` + `login` | own opaque auth shell |
+| `bo-flat-canvas` | `main-profile`, `main-stat-detail` | marked in markup (see below) |
+
+`main-admin-detail-page` and `main-admin-create-page` were **rejected** for this: they also sit on
+`admin-user-create`, `role-create` and `game-provider-create`, which are BO pages. `main-profile.html` and
+`main-stat-detail.html` carry no distinguishing class at all — their `<body>` is exactly the BO shell’s — so they opted
+out in markup instead: one class, `bo-flat-canvas`, on the body. That marker is the only thing to add if a future page
+ever needs the flat canvas while carrying `bo-charcoal`; a page that needs nothing does nothing.
+
+**The Main *report* family needed no entry:** `main-report-charcoal.css` already declares the same continuum for it
+against `[data-access-page=...]`, so those pages were never meant to be flat — the legacy flatten was covering their own
+canvas rule too.
+
+**Measured, both themes.** 60 BO pages captured page by page in light mode and 12 in dark: `html` computes the
+continuum (`linear-gradient(90deg, #FFE8CC …)`, `background-attachment: fixed`) and `body` computes
+`rgba(0, 0, 0, 0)`. The Main panel (9 sampled), the agent portal and both login pages compute the flat canvas exactly
+as before the change — verified against a `git stash` of the sheet, i.e. a real before/after rather than an argument
+from an opaque wrapper. `node scripts/check-shell-drift.js` → OK.
+
+**`bo-page-canvas.css` was deleted** with its two `<link>`s (`index.html`, `referral.html`): its three rules were a
+per-page copy of the same continuum, needed only while the flatten existed. `referral.html` still hides most of its
+canvas behind `.report-content`’s own `#F5EBDC`, unchanged.
+
+**Deliberately untouched:** every inner surface that legitimately sits on `#FFF1DC` — control wells, zebra rows, chips,
+permission groups, `.ref-table` even rows, `main-executive-modules.css`’s `.main-mod-page{background:#FFF1DC}` — keeps
+its own rule. Only `html`/`body` canvas paint was in scope.
+
+**Cache pins.** `auth.js`, `bo-shell.css`, `bo-charcoal-legacy.css` and `bo-module-tabs.css` were re-stamped to their own
+content hash across every page that references them (137 / 93 / 124 / 29 pages). The repo carried the same file under up
+to five different `?v=` keys — `auth.js` was pinned `1.0.32` on one page, `18abdbbc` on thirteen, `238cb5af` on three and
+`1.0.33` on 119 — so a browser could hold two vintages of one file at once. The rest of the repo’s stale pins (~1400
+references, every other shared asset) are untouched and remain a separate pass. Deleting `bo-page-canvas.css` trips
+`scripts/git-hooks/pre-commit`’s deletion guard, which is written for accidental deletions; the intended-deletion path is
+`git commit --no-verify`.

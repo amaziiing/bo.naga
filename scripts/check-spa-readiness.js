@@ -15,8 +15,11 @@
                     it first and only then fall back to a full load - slower than never
                     intercepting the link at all. It is the one marker with no exemption:
                     such a page is simply left out of the generated manifest below.
-     canvas         the first-paint background, for BO pages only. Main-panel pages cannot
-                    override html{background} and repainted it cream (commit d0eac459).
+     canvas         must NOT be there. The first-paint canvas used to be injected per page; main
+                    unified the page background in one place (bo-charcoal-shell.css, commit
+                    d05bd7c5) and removed it from every page, because two sources for one canvas
+                    made the same shell paint two different backgrounds on a page switch. A page
+                    still carrying the old inline canvas is a regression of that decision.
      boot           the theme bootstrap + DOMContentLoaded registry in <head>. Without the
                     registry a swapped-in page's boot listeners cannot be replayed.
      quicknav       the rail stylesheet as a real <link>, not injected from a body-end
@@ -90,7 +93,8 @@ for (const file of pages) {
   const head = (html.split(/<\/head>/i)[0] || '');
   const shell = classify(file, html);
   const spa = /<html[^>]*\sdata-bo-spa="1"/i.test(html);
-  const canvas = /First-paint canvas/.test(head);
+  // Inverted marker: the old per-page canvas must not be present (see the header).
+  const staleCanvas = /First-paint canvas/.test(head);
   const boot = /window\.__boDCL/.test(head);
   /* The sheet has to be a real <link> in <head>, which is what keeps the rail's styling out
      of a body-end script that restyled it after first paint (the font jump). The
@@ -116,8 +120,8 @@ for (const file of pages) {
     /* Not a swap target, so it is excused - and left out of the manifest below, which is
        the mechanism that makes it harmless rather than the audit having to fail forever. */
     if (!frame) missing.push('frame');
+    if (staleCanvas) missing.push('stale-canvas');
     if (shell === 'bo') {
-      if (!canvas) missing.push('canvas');
       if (!topbar) missing.push('topbar');
       if (!shellCss) missing.push('bo-shell.css');
     }
@@ -125,7 +129,7 @@ for (const file of pages) {
   // An exemption only ever excuses a marker; the page's reason has to be in the baseline.
   const excused = (shell === 'bo' || shell === 'main') && exempt[file] ? missing.slice() : [];
   const real = missing.filter((m) => excused.indexOf(m) < 0);
-  rows.push({ file, shell, spa, canvas, boot, quicknav, router, frame, missing, excused, real, why: exempt[file] });
+  rows.push({ file, shell, spa, canvas: staleCanvas, boot, quicknav, router, frame, missing, excused, real, why: exempt[file] });
 }
 
 const adopted = rows.filter((r) => r.shell === 'bo' || r.shell === 'main');

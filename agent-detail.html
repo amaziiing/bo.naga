@@ -2,8 +2,6 @@
 
 <html lang="en" data-bo-spa="1" data-bo-shell="bo">
 <head><script>!function(){try{var t=localStorage.getItem('bo_theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-bo-theme',t);}catch(e){}try{var R=window.__boDCL=window.__boDCL||[],O=EventTarget.prototype.addEventListener;EventTarget.prototype.addEventListener=function(t,f,o){if(t==='DOMContentLoaded'&&typeof f==='function'){try{var s=document.currentScript,x=null;if(s&&s.tagName==='SCRIPT')x=String(s.getAttribute('src')||'').split('?')[0].split('/').pop()||null;var d=false;for(var i=0;i<R.length;i++){if(R[i].t===this&&R[i].f===f){d=true;break;}}if(!d)R.push({t:this,f:f,s:x,o:(o&&typeof o==='object'&&o.once===true)?1:0,e:window.__boDclEpoch||0});}catch(e){}}return O.call(this,t,f,o);};}catch(e){}}();</script>
-<style>/* First-paint canvas. The real background (gradient, theme colours) comes from the external sheets, but until they arrive the browser paints its default white - visible as a white flash on every tab switch. This gives the canvas its colour before any request lands, and the sheets override it later (same specificity, later in the cascade). */html{background:#FFF8EB}html[data-bo-theme="dark"]{background:#2C2E38}</style>
-window.boShellBoot_disabled=function(){try{var pg=(location.pathname.split('/').pop()||'').toLowerCase();var h=localStorage.getItem('bo_shell_nav_v1_'+pg)||localStorage.getItem('bo_shell_nav_v1');if(!h)return;var u={};try{u=JSON.parse(localStorage.getItem('bo_admin_user')||'{}')||{};}catch(e){}var stamp=String(u.id||u.username||u.email||'');if(stamp&&localStorage.getItem('bo_shell_nav_user_v1')!==stamp)return;var nav=document.querySelector('.report-nav');if(nav)nav.innerHTML=h;}catch(e){};</script>
 <link crossorigin="" href="https://cdn.jsdelivr.net" rel="preconnect"/>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
@@ -69,8 +67,8 @@ body[data-agent-detail="1"] .agent-detail-toolbar{position:sticky;top:72px;z-ind
 @media(max-width:900px){body[data-agent-detail="1"] .agent-detail-toolbar{position:static;}body[data-agent-detail="1"] .agent-detail-tabs{justify-content:flex-start;}}
 </style><link href="assets/css/brand-agent-standard.css?v=1add7858" rel="stylesheet"/>
 <link href="assets/css/bo-account-chip.css?v=e6d15d38" rel="stylesheet" />
-<link href="assets/css/bo-charcoal-shell.css?v=411127d0" rel="stylesheet" />
-<link href="assets/css/bo-charcoal-legacy.css?v=461c8bb1" rel="stylesheet" />
+<link href="assets/css/bo-charcoal-shell.css?v=30d0b554" rel="stylesheet" />
+<link href="assets/css/bo-charcoal-legacy.css?v=38827733" rel="stylesheet" />
 <link href="assets/css/bo-charcoal-primitives.css?v=335690e2" rel="stylesheet" />
 <link href="assets/css/bo-charcoal-agent.css?v=c04a069f" rel="stylesheet" />
 <link href="assets/css/bo-input-fill.css?v=1969f85a" rel="stylesheet" />
@@ -139,7 +137,7 @@ body[data-agent-detail="1"] #assignPlayersModal .agent-assign-search input{borde
 body[data-agent-detail="1"] #assignPlayersModal .agent-assign-search i{color:#64748b}
 @media(max-width:1500px){body[data-agent-detail="1"] #agentDetailSummaryTop.agent-detail-summary{grid-template-columns:minmax(290px,1.5fr) repeat(5,minmax(145px,1fr))!important}}
 </style>
-<link href="assets/css/bo-shell.css?v=c58ff0e3" rel="stylesheet" />
+<link href="assets/css/bo-shell.css?v=1aa0789c" rel="stylesheet" />
 <style>
 /* ============================================================================
    Agent Details — BO Charcoal + Amber pass (see .interface-design/system.md).
@@ -322,11 +320,13 @@ html body:not(#bo-charcoal-off).report-body.bo-charcoal.agent-detail-page[data-a
 html body:not(#bo-charcoal-off).report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-detail-tabs .clean-btn[aria-selected="true"]{
   background:transparent!important; border-bottom:2px solid var(--ad-amber)!important;
   color:var(--ad-ink)!important; font-weight:800!important;
-}/* The Back control is the shared .clean-btn ghost — the same component the
-   other Agent pages use for "Back to X". This page may only place it
-   (alignment); restyling its chrome here is what made it look different. */
-html body:not(#bo-charcoal-off).report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-detail-toolbar #backAgentList{ align-self:center!important; margin:0 0 0 8px!important; }
-
+}
+html body:not(#bo-charcoal-off).report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-detail-toolbar #backAgentList{
+  align-self:center!important; height:36px!important; margin:0 0 0 4px!important;
+  background:transparent!important; border:1px solid var(--ad-border)!important;
+  border-radius:8px!important; color:var(--ad-ink)!important; font-weight:700!important;
+}
+html body:not(#bo-charcoal-off).report-body.bo-charcoal.agent-detail-page[data-agent-detail="1"] .agent-detail-toolbar #backAgentList:hover{ background:var(--ad-well)!important; }
 </style><link href="assets/css/bo-global-quicknav.css?v=0" rel="stylesheet" data-bo-quicknav-css="1"/></head>
 <body class="report-body brand-agent-standard bo-charcoal bo-account-chip agent-detail-page" data-agent-detail="1">
 <div class="report-shell">
@@ -570,11 +570,11 @@ html body:not(#bo-charcoal-off).report-body.bo-charcoal.agent-detail-page[data-a
 </div></div></div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="assets/js/config.js?v=8732ba44"></script>
-<script src="assets/js/auth.js?v=dfa81f0a"></script>
+<script src="assets/js/auth.js?v=e2d80ce7"></script>
 <script src="assets/js/brand-context.js?v=3bb07655"></script>
 <script src="assets/js/main-currency-runtime.js?v=bc97a89c"></script>
-<script src="assets/js/currency-runtime.js?v=b59f91f7"></script>
-<script src="assets/js/reports.js?v=797511bc"></script>
+<script src="assets/js/currency-runtime.js?v=71496e4c"></script>
+<script src="assets/js/reports.js?v=063b42e4"></script>
 <script src="assets/js/bo-date-range.js?v=1.0.30"></script>
 <script src="assets/js/agent-management.js?v=b3a13035"></script>
 <script src="assets/js/agent-detail-ui.js?v=6cca5410"></script><script defer="" src="assets/js/bo-ui-standard.js?v=4d884f23"></script>

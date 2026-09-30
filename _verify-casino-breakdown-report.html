@@ -2,8 +2,6 @@
 
 <html lang="en">
 <head>
-<style>/* First-paint canvas. The real background (gradient, theme colours) comes from the external sheets, but until they arrive the browser paints its default white - visible as a white flash on every tab switch. This gives the canvas its colour before any request lands, and the sheets override it later (same specificity, later in the cascade). */html{background:#FFF8EB}html[data-bo-theme="dark"]{background:#2C2E38}</style>
-<script>!function(){try{var t=localStorage.getItem('bo_theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-bo-theme',t);}catch(e){}}();window.boShellBoot_disabled=function(){try{var pg=(location.pathname.split('/').pop()||'').toLowerCase();var h=localStorage.getItem('bo_shell_nav_v1_'+pg)||localStorage.getItem('bo_shell_nav_v1');if(!h)return;var u={};try{u=JSON.parse(localStorage.getItem('bo_admin_user')||'{}')||{};}catch(e){}var stamp=String(u.id||u.username||u.email||'');if(stamp&&localStorage.getItem('bo_shell_nav_user_v1')!==stamp)return;var nav=document.querySelector('.report-nav');if(nav)nav.innerHTML=h;}catch(e){}};</script>
 <script>
 window.BO_AUTH = {
   token: function () { return "h"; },
@@ -46,8 +44,8 @@ window.BO_AUTH = {
 <link href="assets/css/bo-ui-standard.css?v=13427ee9" rel="stylesheet">
 <link href="assets/css/bo-targeted-fixes.css?v=7a2ebdcc" rel="stylesheet"/>
 <link href="assets/css/bo-account-chip.css?v=e6d15d38" rel="stylesheet" />
-<link href="assets/css/bo-charcoal-shell.css?v=411127d0" rel="stylesheet" />
-<link href="assets/css/bo-charcoal-legacy.css?v=461c8bb1" rel="stylesheet" />
+<link href="assets/css/bo-charcoal-shell.css?v=30d0b554" rel="stylesheet" />
+<link href="assets/css/bo-charcoal-legacy.css?v=38827733" rel="stylesheet" />
 <link href="assets/css/bo-charcoal-primitives.css?v=335690e2" rel="stylesheet" />
 <link href="assets/css/bo-charcoal-agent.css?v=65de7ab1" rel="stylesheet" />
 <link href="assets/css/bo-input-fill.css?v=1969f85a" rel="stylesheet" />
@@ -119,7 +117,6 @@ window.BO_AUTH = {
 <script src="assets/js/report-table-split.js?v=ebd1c0e5"></script><script src="assets/js/report-table-sort.js?v=1.0.28-stable-equal"></script><script src="assets/js/bo-ui-standard.js?v=e18e682d"></script>
 <script src="assets/js/bo-theme.js?v=b1e789f3"></script>
 <script src="assets/js/bo-account-chip.js?v=1.0.20"></script>
-<script src="assets/js/bo-spa.js?v=43645778"></script>
 </body>
 </link><link href="assets/css/bo-report-family.css?v=76102bcb" rel="stylesheet" />
 <link href="assets/css/bo-field-standard.css?v=06f5ae19" rel="stylesheet">

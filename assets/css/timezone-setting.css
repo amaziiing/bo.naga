@@ -1,15 +1,22 @@
 /* Timezone Setting — Charcoal + Amber (.interface-design/system.md)
    Signature: live BO clock preview as the focal surface */
 
+/* The 880px limit belongs to the page's own card, not to the content frame.
+   It used to sit on `.report-content` (width: min(880px,100%)), which made the whole frame 880 wide
+   while every other BO page measures 1268 - so the module row's 1px bottom rule and the card stopped
+   halfway across the page (`bo-shell.css` 0c/0c-1 own the frame width; `image-to-url` shows the house
+   pattern for a narrow card inside a full-width frame). Owner: "Time zone 页面的线条也要统一 不要只弄到一半".
+   Removing it needs `padding`/`gap`/`flex` left in place here; the frame itself is the shell's. */
 body.timezone-setting-page .report-content.tz-page {
   padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  width: min(880px, 100%);
 }
 
 .tz-panel {
+  width: min(880px, 100%);
+  margin: 0 auto;
   background: #FFF8EB;
   border: 1px solid #EADCC8;
   border-radius: 16px;
@@ -283,7 +290,6 @@ html[data-bo-theme="dark"] body.timezone-setting-page .tz-status.is-success {
 @media (max-width: 768px) {
   body.timezone-setting-page .report-content.tz-page {
     padding: 14px 10px 24px;
-    width: 100%;
   }
 
   .tz-panel-foot {

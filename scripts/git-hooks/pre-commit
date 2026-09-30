@@ -46,6 +46,20 @@ fi
 # keeps running it for the whole session, which is the "I fixed that already" that cannot be
 # debugged from the outside.
 if command -v node >/dev/null 2>&1; then
+  # Asset pin guard: a ?v= that no longer matches its file means a browser holding the old
+  # URL keeps serving the old asset - the reason a stylesheet change appears not to work
+  # until a hard refresh. DESIGN.md recorded ~1400 stale references; the tree is at 0 now.
+  if ! node scripts/check-asset-pins.js >/dev/null; then
+    printf '
+  ⛔ commit blocked — an asset changed without its cache key (details above).
+'
+    printf '     Fix: node scripts/check-asset-pins.js --fix
+'
+    printf '     Bypass with: git commit --no-verify
+
+'
+    exit 1
+  fi
   # Global collision guard: a page script must not declare a global another page script
   # declares. A full page load only runs one page's scripts, so nothing notices; a swap runs
   # the target's scripts in the same global scope, the second `const X` is a SyntaxError, and

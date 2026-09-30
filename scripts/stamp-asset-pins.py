@@ -27,8 +27,16 @@ SKIP_DIRS = {".git", "node_modules", "_preview", "_verify", ".interface-design",
 
 
 def stamp(path):
+    """A pin has to mean the same thing on every machine.
+
+    Hashing the file's bytes made it depend on the checkout: this repository is used from Windows
+    (CRLF) and from Linux (LF), so the same unchanged file produced two different pins and every
+    run on the other platform rewrote the whole tree's pins again. Normalising the line endings
+    first makes the value change exactly when the file changes, which is what the module docstring
+    promises.
+    """
     with open(path, "rb") as fh:
-        return hashlib.sha1(fh.read()).hexdigest()[:8]
+        return hashlib.sha1(fh.read().replace(b"\r\n", b"\n")).hexdigest()[:8]
 
 
 def main():

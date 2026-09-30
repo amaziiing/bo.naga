@@ -110,10 +110,20 @@ html:has(.report-topbar[data-bo-topbar]){
    and Duplicate IP / Compliance Policy 12px.
 
    Desktop only, like the insets above; bo-module-tabs.css already carries 12px of its own
+   Promotion Bonus (`promotion-workspace-page promotion-bonus-page`) joined the list after the
+   owner reported its row welded to the card below - "图一tab的间距设计与图二不相符" against
+   Promotion Debug, which already sat at 16px. It had never been measured: it appears in none of
+   the lists above, and its column is `display:flex; flex-direction:column` with `row-gap:0px`. The
+   other ten module pages DESIGN.md never recorded were measured at the same time and all already
+   compute 16px of their own (the six Report-family pages, promotion-report, transaction-report,
+   win-lose-report, agent-performance-report), so this is the only class the whitelist was missing.
+   Measured with the row painted: gap = row bottom -> first block top.
+
+   Desktop only, like the insets above; bo-module-tabs.css already carries 12px of its own
    for the narrow layout. */
 
 @media (min-width:1024px){
-  html:not(#bo-charcoal-off) body.report-body:is(.banner-management-page,.site-customize-page,.advertisement-popup-page,.frontend-display-page,.social-page,.layout-section-page,.livechat-template-page,.page-game-provider,.provider-session-page,.page-game-category,.page-game-sub-category,.page-game) .report-shell .report-main .report-content:has(> .bo-module-tabs) > .bo-module-tabs{
+  html:not(#bo-charcoal-off) body.report-body:is(.banner-management-page,.site-customize-page,.advertisement-popup-page,.frontend-display-page,.social-page,.layout-section-page,.livechat-template-page,.page-game-provider,.provider-session-page,.page-game-category,.page-game-sub-category,.page-game,.promotion-bonus-page) .report-shell .report-main .report-content:has(> .bo-module-tabs) > .bo-module-tabs{
     margin-bottom:16px!important;
   }
 }

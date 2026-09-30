@@ -460,7 +460,14 @@
   }
 
   /* Nothing is ever taken back out of the document - see the comment on SHEETS. Kept as a named
-     place so the intent ("converge") and the reason it is not done are both visible. */
+     place so the intent ("converge") and the reason it is not done are both visible.
+
+     A synthetic window resize is deliberately NOT dispatched here either, though components that
+     size themselves from their container would re-measure on one. A swap wakes every handler the
+     page you just left registered on window, including its resize handler, and those handlers
+     belong to a page whose markup and globals are gone: measured, win-lose-report.js's resize
+     handler fired on game.html and threw "wlPageSize is not defined". The dashboard workspace -
+     the case that motivated it - is handled explicitly below instead. */
   function convergeSheets() {
     return;
   }
@@ -940,16 +947,6 @@
         });
       }
       paintShell(doc, u, prevRail);
-      /* A swap replaces the box that everything is measured against, and components that size
-         themselves from their container keep their old measurement. dashboard.html is the clear
-         case: its workspace is an iframe that fills the frame, and after a swap it came back 0px
-         tall - "the page does not display". These components already re-measure on window resize,
-         so tell them to, in the next frame so the new layout has settled. */
-      try {
-        (window.requestAnimationFrame || function (fn) { setTimeout(fn, 16); })(function () {
-          try { window.dispatchEvent(new Event('resize')); } catch (e) {}
-        });
-      } catch (e) {}
       DOC.dispatchEvent(new CustomEvent('bo:spa:content', { detail: { url: u.href } }));
       return ok;
     });

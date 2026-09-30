@@ -89,10 +89,31 @@ const CANVAS =
   'cascade). */' +
   'html{background:#FFF8EB}html[data-bo-theme="dark"]{background:#2C2E38}';
 
+/* The head inline: the theme bootstrap plus bo-spa's DOMContentLoaded registry. The
+   registry has to be installed BEFORE any other script runs - every page's own script and
+   every shared helper registers its DOMContentLoaded listener at parse or at execution,
+   and bo-spa.js loads last, at the end of the body. So the wrapper lives here, in the
+   first inline script, and bo-spa.js's replayLifecycle reads what it captured.
+
+   Captured per listener: which script registered it (document.currentScript src, so the
+   router can tell a page's own script from a shared one), in which navigation epoch, and
+   whether it asked for {once:true} (a once listener must never be re-run by the router -
+   its native copy already fired on the document's real DOMContentLoaded). */
 const THEME_BOOT =
-  '<script>!function(){try{var t=localStorage.getItem(\'bo_theme\');' +
-  'if(t===\'dark\'||t===\'light\')document.documentElement.setAttribute(\'data-bo-theme\',t);}' +
-  'catch(e){}}();</script>';
+  '<script>!function(){' +
+    'try{var t=localStorage.getItem(\'bo_theme\');' +
+    'if(t===\'dark\'||t===\'light\')document.documentElement.setAttribute(\'data-bo-theme\',t);}catch(e){}' +
+    'try{var R=window.__boDCL=window.__boDCL||[],O=EventTarget.prototype.addEventListener;' +
+      'EventTarget.prototype.addEventListener=function(t,f,o){' +
+      'if(t===\'DOMContentLoaded\'&&typeof f===\'function\'){try{' +
+      'var s=document.currentScript,x=null;' +
+      'if(s&&s.tagName===\'SCRIPT\')x=String(s.getAttribute(\'src\')||\'\').split(\'?\')[0].split(\'/\').pop()||null;' +
+      'var d=false;for(var i=0;i<R.length;i++){if(R[i].t===this&&R[i].f===f){d=true;break;}}' +
+      'if(!d)R.push({t:this,f:f,s:x,o:(o&&typeof o===\'object\'&&o.once===true)?1:0,e:window.__boDclEpoch||0});' +
+      '}catch(e){}}' +
+      'return O.call(this,t,f,o);};' +
+    '}catch(e){}' +
+  '}();</script>';
 
 const QUICKNAV_LINK =
   '<link href="assets/css/bo-global-quicknav.css?v=0" rel="stylesheet" data-bo-quicknav-css="1"/>';
@@ -124,16 +145,27 @@ function transform(html, shell) {
 
   const head = headTag(html);
 
-  // 2. + 3. canvas and theme bootstrap, at the very top of <head> so both run before any
-  // stylesheet is matched.
+  // 2. + 3. canvas and theme bootstrap (+ the DCL registry), at the very top of <head> so
+  // all three run before any stylesheet is matched and before any other script registers.
+  // The registry version REPLACES an older bare bootstrap on a rolled-out page: a page can
+  // already carry the theme snippet without the wrapper (every page in the first rollout
+  // did), so `wantsTheme` alone is not enough - the wrapper is a hard requirement for a
+  // rollable page, and the old snippet is removed when it lacks it.
   const wantsCanvas = shell === 'bo' && !/First-paint canvas/.test(html);
-  const wantsTheme = !/localStorage\.getItem\('bo_theme'\)/.test(html);
-  if (head && (wantsCanvas || wantsTheme)) {
+  const needsBoot = !/window\.__boDCL/.test(html);
+  if (head && (wantsCanvas || needsBoot)) {
+    let tail = html.slice(head.at);
+    if (needsBoot) {
+      // Drop an older inline script that sets bo_theme but carries no registry. Both
+      // spellings seen in the wild: the standard bootstrap and main pages' early
+      // dark-only guard. The lookahead keeps the match inside ONE <script> element.
+      tail = tail.replace(/<script>(?:(?!<\/script>)[\s\S])*?bo_theme(?:(?!<\/script>)[\s\S])*?<\/script>/, '');
+    }
     const inject = (wantsCanvas ? CANVAS_BLOCK : '') +
-                   (wantsTheme ? THEME_BOOT : '');
-    html = html.slice(0, head.at) + inject + html.slice(head.at);
+                   (needsBoot ? THEME_BOOT : '');
+    html = html.slice(0, head.at) + inject + tail;
     if (wantsCanvas) notes.push('first-paint canvas');
-    if (wantsTheme) notes.push('theme bootstrap');
+    if (needsBoot) notes.push('theme bootstrap + DCL registry');
   }
 
   if (!head) return { html, notes };

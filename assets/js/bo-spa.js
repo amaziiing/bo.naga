@@ -290,20 +290,68 @@
     })();
   }
 
-  /* The event every page script waits for. It fired once, for the document this swap is
-     reusing, so a script executed a moment ago would otherwise sit behind a listener
-     that will never be called. Known cost: the shared handlers hear it too. They are
-     required to be idempotent for exactly this reason - see reports.js, auth.js,
-     main-sidebar-account.js and pagination-standardizer.js, each carrying a guard with
-     a comment pointing back here. */
-  function replayLifecycle() {
-    var ev;
-    try { ev = new Event('DOMContentLoaded', { bubbles: false, cancelable: false }); }
-    catch (e) {
-      ev = DOC.createEvent('Event');
-      ev.initEvent('DOMContentLoaded', false, false);
+  /* Which shared scripts see their DOMContentLoaded listener re-run on EVERY navigation.
+     These are the content-wiring helpers: they are element-guarded and idempotent (the
+     same audit that guarded the accumulators tested them), and each new page's wiring
+     depends on them - bo-date-range builds the date pickers, pagination-standardizer
+     standardizes the pagination chrome, report-table-split/sort lift the fixed head.
+     Everything else either runs once per document (observers) or is a page's own script,
+     which is handled by the ownership rules below. */
+  var SHARED_REPLAY = {
+    'bo-date-range.js': 1,
+    'pagination-standardizer.js': 1,
+    'report-table-split.js': 1,
+    'report-table-sort.js': 1
+  };
+
+  /* Basenames of every script the target page carries; a page's own listener must still
+     fire when we RE-ENTER that page, even though its script is not executed again. */
+  function pageOwnScripts(doc) {
+    var set = {};
+    each(doc.querySelectorAll('script'), function (s) {
+      var src = s.getAttribute('src');
+      if (src) set[assetKey(src)] = 1;
+    });
+    return set;
+  }
+
+  /* Boot the target page without waking everyone else. Dispatching a blanket
+     DOMContentLoaded here fires EVERY listener ever registered - including the page we
+     left, whose elements no longer exist, so it throws (win-lose-report.js:59: wlFrom is
+     not defined on the casino page) and, where its guard lets it get further, runs its
+     load() against the wrong page (an API request storm in production).
+
+     Every rolled-out page installs a tiny registry in its head inline (see
+     scripts/adopt-bo-spa.js, THEME_BOOT) that records, at registration time, which script
+     the listener belongs to and in which navigation epoch it was registered. This fires a
+     listener only when:
+       - it was registered during THIS navigation (the target page's freshly executed
+         scripts), or
+       - it belongs to one of the target page's own scripts (re-entering a visited page), or
+       - it is one of the shared content helpers above.
+     Listeners from other pages stay silent - their elements are gone, nothing to do. */
+  function replayLifecycle(doc) {
+    var reg = window.__boDCL;
+    if (!reg || !reg.length) {
+      /* Page without the wrapper (not rolled out, or an agent/legacy page): fall back to
+         the blanket event, which is at least no worse than no boot at all. */
+      var ev;
+      try { ev = new Event('DOMContentLoaded', { bubbles: false, cancelable: false }); }
+      catch (e) { ev = DOC.createEvent('Event'); ev.initEvent('DOMContentLoaded', false, false); }
+      try { DOC.dispatchEvent(ev); } catch (e) {}
+      return;
     }
-    try { DOC.dispatchEvent(ev); } catch (e) {}
+    var own = pageOwnScripts(doc);
+    var epoch = window.__boDclEpoch || 0;
+    for (var i = 0; i < reg.length; i++) {
+      var rec = reg[i];
+      var fire = rec.e === epoch || SHARED_REPLAY[rec.s] || (rec.s && own[rec.s]);
+      if (!fire) continue;
+      try { rec.f.call(rec.t); }
+      catch (err) {
+        if (window.console && console.error) console.error('[bo-spa] replay listener failed:', err && err.message);
+      }
+    }
   }
 
   /* ---- shell: title, icon, active states ----------------------------------------- */
@@ -401,6 +449,18 @@
     try { window.scrollTo(0, y); } catch (e) {}
   }
 
+  /* Deep-cloned copy of a node list. The fetched documents are cached and REUSED, so the
+     swap must not MOVE their nodes into the live DOM: moving strips the cached copy (the
+     next visit to the same URL would find an empty content frame - measured on
+     win-lose-report.html re-entry via the rail: URL changed, epoch advanced, and the frame
+     had no wlFrom). Cloning leaves the cache pristine. Cloned `<script>` nodes keep
+     their text but do not execute, which is what a content frame wants anyway. */
+  function clone(frag) {
+    var out = [];
+    for (var i = 0; i < frag.length; i++) out.push(frag[i].cloneNode(true));
+    return out;
+  }
+
   function apply(doc, u, push) {
     var from = DOC.querySelector(CONTENT);
     var to = doc.querySelector(CONTENT);
@@ -413,7 +473,7 @@
          it. Rebuilding it afterwards is both the fix for that and the reason the row is
          correct when the target page belongs to a different module: it is derived from
          location.pathname, which pushState has just updated. */
-      from.replaceChildren.apply(from, Array.prototype.slice.call(to.childNodes));
+      from.replaceChildren.apply(from, clone(to.childNodes));
       if (doc.body && doc.body.className) DOC.body.className = doc.body.className;
 
       // URL first: page scripts re-read location.search/pathname, and a drill-down page
@@ -425,9 +485,13 @@
         try { BO_AUTH.renderModuleTabs(BO_AUTH.user()); } catch (e) {}
       }
 
+      // A fresh epoch: listeners registered by the scripts about to run belong to THIS
+      // navigation, so the replay below can tell them apart from everything earlier.
+      window.__boDclEpoch = (window.__boDclEpoch || 0) + 1;
+
       return new Promise(function (resolve) {
         runScripts(collectScripts(doc), function () {
-          replayLifecycle();
+          replayLifecycle(doc);
           resolve(true);
         });
       });
@@ -470,13 +534,13 @@
     getDoc(href).then(function (doc) {
       var why = swapBlocker(doc);
       if (why) { busy = false; fallback(href, why); return; }
-      busy = false;
-      // Never rejects: a failed swap has to leave the user on a working page, so it
-      // re-enters the real navigation instead of unwinding into an unhandled rejection.
-      var commit = function () { return commitOf(doc, u, push, href); };
-      // Plain cut, matching the decision above. The promise is still consumed so a failure
-      // cannot become an unhandled rejection.
-      commit();
+      // busy stays set until the swap has fully landed, INCLUDING the async script
+      // execution and the boot replay. A real navigation drops clicks that arrive during
+      // the document swap; dropping them here too is the only way two applies cannot
+      // interleave - measured on the harness: two quick clicks to one page interleaved two
+      // replaceChildren calls and a boot replay ran against the other swap's in-flight
+      // content (wlFrom was not defined).
+      commitOf(doc, u, push, href).then(function () { busy = false; }, function () { busy = false; });
     })['catch'](function (e) { busy = false; fallback(href, e && e.message); });
   }
 
@@ -494,17 +558,16 @@
     if (!/\.html$/.test(u.pathname)) { location.reload(); return; }
     busy = true;
     getDoc(u.href).then(function (doc) {
-      busy = false;
       var why = swapBlocker(doc);
-      if (why) { fallback(u.href, why); return; }
+      if (why) { busy = false; fallback(u.href, why); return; }
       var target = u.pathname + u.search;
       var restore = scrollMemo[target];
-      var commit = function () {
-        return commitOf(doc, u, false, u.href).then(function (ok) {
-          if (ok && typeof restore === 'number') scrollTo(restore);
-        });
-      };
-      commit();
+      // Same hold-busy rule as go(): the swap, the script run and the boot replay must all
+      // finish before the router accepts the next navigation.
+      commitOf(doc, u, false, u.href).then(function (ok) {
+        if (ok && typeof restore === 'number') scrollTo(restore);
+        busy = false;
+      }, function () { busy = false; location.reload(); });
     })['catch'](function () { busy = false; location.reload(); });
   });
 
@@ -525,6 +588,11 @@
   window.BO_SPA = {
     on: true,
     go: function (href) { var u = new URL(href, location.href); go(u.href, u, true); },
-    current: function () { return current; }
+    current: function () { return current; },
+    /* Read-only diagnostics for the console and for integration tests. */
+    debug: {
+      isBusy: function () { return busy; },
+      epoch: function () { return window.__boDclEpoch || 0; }
+    }
   };
 })();

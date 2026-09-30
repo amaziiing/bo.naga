@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 
 <html lang="en" data-bo-spa="1" data-bo-shell="bo">
-<head>
+<head><script>!function(){try{var t=localStorage.getItem('bo_theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-bo-theme',t);}catch(e){}try{var R=window.__boDCL=window.__boDCL||[],O=EventTarget.prototype.addEventListener;EventTarget.prototype.addEventListener=function(t,f,o){if(t==='DOMContentLoaded'&&typeof f==='function'){try{var s=document.currentScript,x=null;if(s&&s.tagName==='SCRIPT')x=String(s.getAttribute('src')||'').split('?')[0].split('/').pop()||null;var d=false;for(var i=0;i<R.length;i++){if(R[i].t===this&&R[i].f===f){d=true;break;}}if(!d)R.push({t:this,f:f,s:x,o:(o&&typeof o==='object'&&o.once===true)?1:0,e:window.__boDclEpoch||0});}catch(e){}}return O.call(this,t,f,o);};}catch(e){}}();</script>
 <style>/* First-paint canvas. The real background (gradient, theme colours) comes from the external sheets, but until they arrive the browser paints its default white - visible as a white flash on every tab switch. This gives the canvas its colour before any request lands, and the sheets override it later (same specificity, later in the cascade). */html{background:#FFF8EB}html[data-bo-theme="dark"]{background:#2C2E38}</style>
-<script>!function(){try{var t=localStorage.getItem('bo_theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-bo-theme',t);}catch(e){}}();</script>window.boShellBoot_disabled=function(){try{var pg=(location.pathname.split('/').pop()||'').toLowerCase();var h=localStorage.getItem('bo_shell_nav_v1_'+pg)||localStorage.getItem('bo_shell_nav_v1');if(!h)return;var u={};try{u=JSON.parse(localStorage.getItem('bo_admin_user')||'{}')||{};}catch(e){}var stamp=String(u.id||u.username||u.email||'');if(stamp&&localStorage.getItem('bo_shell_nav_user_v1')!==stamp)return;var nav=document.querySelector('.report-nav');if(nav)nav.innerHTML=h;}catch(e){};</script>
+window.boShellBoot_disabled=function(){try{var pg=(location.pathname.split('/').pop()||'').toLowerCase();var h=localStorage.getItem('bo_shell_nav_v1_'+pg)||localStorage.getItem('bo_shell_nav_v1');if(!h)return;var u={};try{u=JSON.parse(localStorage.getItem('bo_admin_user')||'{}')||{};}catch(e){}var stamp=String(u.id||u.username||u.email||'');if(stamp&&localStorage.getItem('bo_shell_nav_user_v1')!==stamp)return;var nav=document.querySelector('.report-nav');if(nav)nav.innerHTML=h;}catch(e){};</script>
 
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
@@ -84,11 +84,11 @@
 <script src="assets/js/brand-context.js?v=3bb07655"></script>
 <script src="assets/js/main-currency-runtime.js?v=bc97a89c"></script>
 <script src="assets/js/currency-runtime.js?v=b59f91f7"></script>
-<script src="assets/js/reports.js?v=9055601c"></script>
+<script src="assets/js/reports.js?v=797511bc"></script>
 <script src="assets/js/auth.js?v=3868fada"></script>
 <script src="assets/js/access-management.js?v=5d528d61"></script>
 <script src="assets/js/firebase-config.js?v=01bf393d"></script>
 <script src="assets/js/role-create-page.js?v=4db11091"></script>
-<script src="assets/js/bo-spa.js?v=84ea1e1d"></script>
+<script src="assets/js/bo-spa.js?v=485857f6"></script>
 </body>
 </html>

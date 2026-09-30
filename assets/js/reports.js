@@ -1,4 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => {
+  /* bo-spa.js replays DOMContentLoaded, scoped, after every content swap. This handler binds
+     straight onto SHELL rows when they exist at fire time: .nav-group-btn rows get a
+     preventDefault+stopPropagation click, and .report-nav a / .nav-group rows get their own
+     listeners. On a real page load the rail is still empty when this runs (the /me round
+     trip has not returned), so these bindings never apply there - the rail's real behaviour
+     comes from auth.js's delegated bindDynamicSidebarEvents. Replayed with the rail already
+     populated, the double-bound click listener ate every later navigation: it stopped the
+     event before it could reach the router's document-level handler, leaving a nav-group-
+     direct rail link that did nothing when clicked. Bind once, like auth.js's own banner. */
+  if (window.__boReportsShellBound) return;
+  window.__boReportsShellBound = true;
   const sidebar = document.getElementById('reportSidebar');
   let overlay = document.getElementById('reportOverlay') || document.querySelector('.sidebar-overlay,.sidebar-backdrop');
 

@@ -5530,3 +5530,101 @@ rule, 2px amber active underline, row-to-content 16px, and each module's sidebar
 `node scripts/check-shell-drift.js` OK · `node scripts/check-global-collisions.js` 0 collisions ·
 `node scripts/check-spa-readiness.js` byte-identical before and after this work (it reports 130 pages missing
 `router-pin`, a pre-existing finding of the SPA audit that this change does not touch).
+
+### The KPI strip carried its own bottom margin on top of the content column's gap (2026-09-30, owner “user management，member wallet，wallet ledger … 卡片的上下间距设计 都有问题”)
+
+**Referral Network was named as the page that is right, and it was.** The strip sat **16px** above the block
+below it there, where the Member module's pages showed **32px**. Both halves were correct on their own:
+`.report-content` is a flex column whose **16px gap** is the locked listing rhythm (DESIGN.md → KPI summary
+card → “Listing vertical rhythm”: the strip's `margin-bottom` is 0, the gap owns the spacing), and the
+strip *also* declares its own `margin-bottom:16px` — so the two stacked. Measured with the card painted,
+1568×900, `row bottom → next block top`:
+
+| page | gap: module row → strip | gap: strip → block below | strip `margin-bottom` |
+|---|---|---|---|
+| `referral.html` (reference) | 16 | **16** | 0 |
+| `index.html` (User Management) | 16 | **32** | 16 |
+| `online-users.html` | — (no module row) | **32** | 16 |
+| `member-wallet.html` | 16 | **32** | 16 |
+| `wallet-ledger.html` | 16 | **32** | 16 |
+
+**Two owners, two edits — the value corrected where it was pinned, no new layer.**
+
+- `bo-charcoal-legacy.css`: `.user-management-page … .quick-stats.user-stats{margin-bottom:16px!important}`
+  (light **and** dark). It carries `.user-stats` on top of the page classes, so the later
+  `… .report-content > .quick-stats{margin-bottom:0!important}` in the same sheet lost by exactly one
+  class-level — the specificity trap this file records a dozen times. Both blocks now state `0`.
+  **`online-users.html` carries `user-management-page` too**, so it is fixed by the same two declarations
+  rather than a third.
+- `bo-wallet-transaction-amber.css`: `body.bo-wallet-tx .quick-stats{margin-bottom:16px!important}` against the
+  `… .report-content > .quick-stats` rule in the same sheet, which stated only `flex:0 0 auto`. That rule is
+  now `(0,3,1)` and says `margin-bottom:0` as well — exactly what the `> .table-card` rule beside it already
+  does, and for the same reason.
+
+**Why not one shared rule.** The pages whose content column has **no** gap of its own are handed that 16px on
+the module row instead (`bo-shell.css` block `0c-2`, a page-class whitelist), so zeroing the strip at shell
+level would have welded it to the card below on those. Two family-scoped edits keep the blast radius at the
+pages that measurably had the doubling — verified by re-measuring all nineteen `.quick-stats`-bearing pages
+and all eleven `bo-wallet-tx` pages: nothing else moved. `promotion-debug`, `admin-user`, `admin-login-log`,
+`agent-management`, `ip-whitelist-security`, `win-lose-report`, `agent-performance-report` and
+`casino-overview-report` already read 16 (their strips were already on `margin-bottom:0`, or the strip sits
+below the filter card), and `member-deposit`'s bank dock (14 / 18px) is its own documented rhythm.
+
+**Measured after, both themes:** index / online-users / member-wallet / wallet-ledger all read
+**16 / 16** with `margin-bottom:0`, identical to Referral Network, and the card's own
+label → number → note rhythm (24 / 41..65 / 67..80 on a 104px card, the pass recorded in `988365ad`) is
+untouched. Pins re-stamped — `bo-charcoal-legacy.css` `80879e44` → **`46e2928f`** and
+`bo-wallet-transaction-amber.css` `75ef419b` → **`6b167772`** — on the 125 referencing pages
+(`node scripts/check-asset-pins.js` → 0 stale). Guards all green: `check-shell-drift.js` OK ·
+`check-global-collisions.js` 0 collisions · `check-spa-readiness.js` exit 0 · `pin-spa.js --check` 0 pages.
+
+### The Main panel's content rhythm is one gap now — and the drift guard learned the two shells apart (2026-09-30)
+
+Owner: “main所有页面 也需要 spa … 我切换页面时 我的夜间模式点不了”, and on the spacing, “都需要”.
+
+**The Main panel had a different block rhythm on almost every page**, because each page sheet declared its own
+spacing instead of letting one container own it. Measured on the rendered pages (light, 1568x900, `previous block
+bottom -> next block top`), before this change:
+
+| page | head -> first block | block -> block |
+| --- | --- | --- |
+| `main-report` | 14 | 14 |
+| `main-accounting-settlement` | 24 | 28 / 22 |
+| `main-accounting-due` | 24 | 20 |
+| `main-accounting-report` | 34 | — |
+| `main-settlement-report` | 24 | 20 / 16 / 18 |
+| `main-transaction-history`, `main-balance-overview` | 24 | 18 |
+| `main-stat-detail` | 16 | 16, but carried by Bootstrap `mt-3` |
+| `main-merchant-profit` | 18 | 18 |
+| ~25 other Main pages | already a 16px flex gap | 16 |
+
+**One sheet, `assets/css/main-content-rhythm.css`, linked last on all 39 Main-shell pages.** It applies the same
+answer BO locked long ago (DESIGN.md -> KPI summary card -> “Listing vertical rhythm”): the content column is a flex
+column, its gap is **16px**, and a child's own margin is **0** because a margin stacks on the gap. Scoped by
+`html[data-bo-shell="main"]` — the attribute `scripts/adopt-bo-spa.js` stamps per page and the same key `bo-spa.js`
+uses to decide the shell — so there is no per-page class list and the block is inert on BO pages by construction.
+Desktop-only (`min-width:1024px`): below that `main-mobile-responsive.css` owns the layout. Re-measured after: **all
+39 Main pages compute `flex / gap 16px` and 16px gaps** (before: the table above).
+
+**This is the content frame, not the shell.** AGENTS.md forbids unifying the BO shell and the Main panel — the
+topbar, the rail and the canvas stay two separate implementations, and a cross-shell link still navigates for real.
+What was unified is the spacing *inside* the content frame, which is the same question and therefore the same
+answer.
+
+**And the guard had to learn the difference.** `scripts/check-shell-drift.js` refuses a layout metric on a shell
+selector in any sheet but `bo-shell.css`, and `.report-content` is in that selector list — so the new sheet was
+refused, even though its rule can never match a BO page. The fix is a documented carve-out: a rule scoped by
+`data-bo-shell="main"` is the Main panel's own frame, not the BO shell drifting. Deliberately narrow — the guard was
+re-tested with a plain `.report-content{gap:9px}` appended to the same sheet and it still fails it, so the escape
+hatch is not a hole.
+
+**The theme toggle died on every navigation, and a cloned header is why.** `bo-spa.js` replaces
+`.report-main > .report-topbar` with a clone of the target page's header on every swap, so the `#boThemeToggle` the
+click was bound to no longer exists — and `bo-theme.js` bound it directly. Measured in a real browser,
+`index.html -> menu-management.html`: before the swap two clicks flipped `data-bo-theme` normally; after it the
+button read `bound=-` and two clicks left the theme at `light`. Fixed by delegating at the document level in
+`bo-theme.js` (the same answer `reports.js` already uses for `[data-open-sidebar]`, registered once per realm so a
+re-run cannot double-bind), the same fix in `main-dashboard.js`'s duplicate copy of that code (that page does not
+load `bo-theme.js`), and a `BO_THEME.initThemeToggle()` call in `bo-spa.js` after the header is mounted — the button
+is rebuilt from markup, so its *state* has to be re-applied even though the handler no longer needs rebinding.
+Recorded for page authors in `SPA.md` section 10.4: **any listener bound to a topbar element dies on a swap**.

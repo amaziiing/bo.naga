@@ -855,7 +855,7 @@ function setupDatePicker(){
   pickerState.view=new Date(a+'T00:00:00');
   setRange(a,b,'today');
   $('reportDateTrigger').addEventListener('click',e=>{e.stopPropagation();$('reportRangePicker').classList.toggle('show');pickerState.mode='days';renderCalendar();});
-  document.addEventListener('click',e=>{if(!e.target.closest('.ref-range-wrap')) $('reportRangePicker').classList.remove('show');});
+  document.addEventListener('click',e=>{const rp=$('reportRangePicker');if(rp&&e.target&&e.target.closest&&!e.target.closest('.ref-range-wrap')) rp.classList.remove('show');});
   document.querySelectorAll('[data-report-preset]').forEach(btn=>btn.addEventListener('click',e=>{
     e.stopPropagation();
     const key=btn.dataset.reportPreset,[aa,bb]=presetRange(key);

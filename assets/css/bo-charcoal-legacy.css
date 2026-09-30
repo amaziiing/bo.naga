@@ -1666,9 +1666,16 @@ html[data-bo-theme="dark"] body:not(#bo-charcoal-off).report-body.bo-charcoal #m
 }
 
 /* trimmed: mojibake bloat removed */
+/* The content column's own 16px gap is the rhythm between this strip and the card below
+   (DESIGN.md → KPI summary card → "Listing vertical rhythm": the strip's `margin-bottom` is 0 and
+   the flex gap owns the spacing). The `margin-bottom:16px` that used to sit here stacked on that
+   gap and measured 32px against Referral Network's 16px — owner: "user management, member wallet,
+   wallet ledger 卡片的上下间距设计 都有问题". The later `.report-content > .quick-stats`
+   rule cannot win this one on specificity (this selector carries `.user-stats` as well), so the
+   value is corrected here. Online Users carries `user-management-page` too and is fixed with it. */
 html:not([data-bo-theme="dark"]) body:not(#bo-charcoal-off):not(#bo-charcoal-legacy).user-management-page.report-body.bo-charcoal .quick-stats.user-stats{
   display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
-  gap:14px!important;margin-bottom:16px!important;
+  gap:14px!important;margin-bottom:0!important;
 }
 /* trimmed: mojibake bloat removed */
 html:not([data-bo-theme="dark"]) body:not(#bo-charcoal-off):not(#bo-charcoal-legacy).user-management-page.report-body.bo-charcoal .quick-stats.user-stats .user-metric,
@@ -1703,8 +1710,10 @@ html:not([data-bo-theme="dark"]) body:not(#bo-charcoal-off):not(#bo-charcoal-leg
 html:not([data-bo-theme="dark"]) body:not(#bo-charcoal-off):not(#bo-charcoal-legacy).user-management-page.report-body.bo-charcoal .user-metric[role="link"]:hover{
   border-color:#D97706!important;box-shadow:0 0 0 3px rgba(217,119,6,.14)!important;
 }
+/* Same correction as the light block above: the flex gap owns the 16px rhythm, so the strip's own
+   bottom margin is 0 (it read 32px before). */
 html[data-bo-theme="dark"] body:not(#bo-charcoal-off):not(#bo-charcoal-legacy).user-management-page.report-body.bo-charcoal .quick-stats.user-stats{
-  display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:14px!important;margin-bottom:16px!important;
+  display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:14px!important;margin-bottom:0!important;
 }
 html[data-bo-theme="dark"] body:not(#bo-charcoal-off):not(#bo-charcoal-legacy).user-management-page.report-body.bo-charcoal .quick-stats.user-stats .user-metric,
 html[data-bo-theme="dark"] body:not(#bo-charcoal-off):not(#bo-charcoal-legacy).user-management-page.report-body.bo-charcoal .user-metric{

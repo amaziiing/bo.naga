@@ -128,6 +128,15 @@ body.bo-wallet-tx .report-content > .user-title-row,
 body.bo-wallet-tx .report-content > .bo-page-head{
   flex:0 0 auto!important;
 }
+/* The content column's own 16px gap is the rhythm between the KPI strip and the panel below
+   (DESIGN.md -> KPI summary card -> "Listing vertical rhythm": the strip's `margin-bottom` must be
+   0 and the flex gap owns the spacing). The strip also carries `margin-bottom:16px` from the
+   `body.bo-wallet-tx .quick-stats` rule above, which stacked on that gap and measured 32px on
+   Member Wallet / Wallet Ledger where Referral Network shows 16px. `.table-card` below zeroes its
+   margin for the same reason. */
+body.bo-wallet-tx .report-content > .quick-stats{
+  margin-bottom:0!important;
+}
 body.bo-wallet-tx .report-content > .table-card,
 body.bo-wallet-tx .report-content .table-card{
   flex:1 1 auto!important;
@@ -2616,6 +2625,21 @@ body.bo-wallet-tx.member-wallet-page .quick-stats{
 body.bo-wallet-tx.member-wallet-page .report-content .quick-stats:not(.user-stats) .metric{
   column-gap:24px!important;
   grid-template-columns:52px minmax(0,1fr)!important;
+}
+
+/* The KPI card's label / number / note are three separate grid rows (the icon spans all three),
+   and a grid distributes its leftover height between those rows by default. On a 104px card that
+   is ~16px spread over the stack, which pushed the label up to 19px from the card's top and the
+   note down to 71px, while the pages whose card wraps the three lines in one block (User
+   Management, Referral Network) keep a symmetric 24px / 24px. Measured with the card painted:
+   referral.html label band 24..35, note 67..76; member-wallet.html and wallet-ledger.html
+   19..30 and 71..81. Centring the tracks leaves that space at the top and bottom instead, which
+   is exactly the wrapper's behaviour, so both variants compute the same rhythm.
+   (The font is not the cause: every line-height here is an explicit px value.) */
+body.bo-wallet-tx.member-wallet-page .report-content .quick-stats:not(.user-stats) .metric,
+body.bo-wallet-tx.wallet-ledger-page .report-content .quick-stats:not(.user-stats) .metric,
+body.bo-wallet-tx .approval-pending-stats .metric{
+  align-content:center!important;
 }
 @media(max-width:1024px){
   body.bo-wallet-tx.wallet-ledger-page .report-content > .quick-stats,

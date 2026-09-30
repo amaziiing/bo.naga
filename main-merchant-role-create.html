@@ -22,7 +22,8 @@
 <link href="assets/css/bo-field-standard.css?v=5aa47e67" rel="stylesheet">
 <link href="assets/css/main-sidebar-account.css?v=07521ba9" rel="stylesheet"/>
 <link href="assets/css/main-i18n.css?v=a6170482" rel="stylesheet"/>
-<link href="assets/css/bo-global-quicknav.css?v=7bad56b7" rel="stylesheet" data-bo-quicknav-css="1"/></head>
+<link href="assets/css/bo-global-quicknav.css?v=7bad56b7" rel="stylesheet" data-bo-quicknav-css="1"/><link href="assets/css/main-content-rhythm.css?v=e8fbf609" rel="stylesheet"/>
+</head>
 <body class="report-body standardized-listing-page menu-permission-page main-admin-role-create-page main-merchant-role-create-page bo-account-chip" data-access-page="main_merchant_detail">
 <div class="report-shell">
 <aside class="report-sidebar" id="reportSidebar">
@@ -51,11 +52,11 @@
 <section class="report-content mrc-workspace">
   <div class="mad-chrome mp-chrome">
     <div class="mad-tabs" role="tablist" aria-label="Merchant sections">
-      <a class="mad-tab" role="tab" aria-selected="false" href="main-merchant-detail.html">Merchants</a>
-      <a class="mad-tab" role="tab" aria-selected="false" href="main-merchant-settlement.html">Settlement</a>
-      <a class="mad-tab" role="tab" aria-selected="false" href="main-merchant-profit.html">Profit Report</a>
-      <a class="mad-tab is-active" role="tab" aria-selected="true" href="main-merchant-roles.html">Roles &amp; Permissions</a>
-      <a class="mad-tab" role="tab" aria-selected="false" href="main-merchant-security.html">Security &amp; Audit</a>
+      <a data-bo-spa-link class="mad-tab" role="tab" aria-selected="false" href="main-merchant-detail.html">Merchants</a>
+      <a data-bo-spa-link class="mad-tab" role="tab" aria-selected="false" href="main-merchant-settlement.html">Settlement</a>
+      <a data-bo-spa-link class="mad-tab" role="tab" aria-selected="false" href="main-merchant-profit.html">Profit Report</a>
+      <a data-bo-spa-link class="mad-tab is-active" role="tab" aria-selected="true" href="main-merchant-roles.html">Roles &amp; Permissions</a>
+      <a data-bo-spa-link class="mad-tab" role="tab" aria-selected="false" href="main-merchant-security.html">Security &amp; Audit</a>
     </div>
     <div class="mad-chrome-actions" aria-hidden="true"></div>
   </div>
@@ -67,7 +68,7 @@
           <span class="mrc-card-icon" aria-hidden="true"><i class="bi bi-person-gear"></i></span>
           <h3>Role Information</h3>
         </div>
-        <a class="mrc-btn mrc-btn-ghost mrc-back-list" href="main-merchant-roles.html">
+        <a data-bo-spa-link class="mrc-btn mrc-btn-ghost mrc-back-list" href="main-merchant-roles.html">
           <i class="bi bi-arrow-left" aria-hidden="true"></i> Back to list
         </a>
       </header>
@@ -127,7 +128,7 @@
       </div>
     </div>
     <div class="mrc-footer-actions">
-      <a class="mrc-btn mrc-btn-ghost" href="main-merchant-roles.html">Cancel</a>
+      <a data-bo-spa-link class="mrc-btn mrc-btn-ghost" href="main-merchant-roles.html">Cancel</a>
       <button class="mrc-btn mrc-btn-primary" type="submit" form="mrcForm" id="mrcSaveBottom"><i class="bi bi-floppy"></i> Save Role</button>
     </div>
   </footer>
@@ -148,12 +149,12 @@
 <script src="assets/js/firebase-config.js?v=c41fc3b0"></script>
 <script src="assets/js/livechat-global-notification.js?v=d7f4667a"></script>
 <script src="assets/js/bo-ui-standard.js?v=6c33cd67"></script>
-<script src="assets/js/bo-theme.js?v=0640c24a"></script>
+<script src="assets/js/bo-theme.js?v=d78603d9"></script>
 <script src="assets/js/operation-global-notification.js?v=efe72819"></script>
 <script src="assets/js/bo-account-chip.js?v=94cb2c63"></script>
 <script src="assets/js/main-sidebar-account.js?v=f4aebe03"></script>
 <script src="assets/js/main-i18n-translations.js?v=2361dba5"></script>
 <script src="assets/js/main-i18n.js?v=f9fae486"></script>
-<script src="assets/js/bo-spa-manifest.js?v=afa9dfeb"></script><script src="assets/js/bo-spa.js?v=3e3f1dfe"></script>
+<script src="assets/js/bo-spa-manifest.js?v=afa9dfeb"></script><script src="assets/js/bo-spa.js?v=923a9d4a"></script>
 </body>
 </html>

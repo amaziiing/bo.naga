@@ -689,7 +689,21 @@
   }
   function initThemeToggle(){
     applyTheme(currentTheme());
-    document.getElementById('boThemeToggle')?.addEventListener('click', () => {
+    bindDelegate();
+  }
+
+  /* Delegated, and registered once per realm - the same reason bo-theme.js gives: bo-spa.js
+     replaces the whole topbar with a clone on every swap (so a per-element binding is
+     orphaned and the toggle goes dead), and this file re-runs every time the page is entered
+     again through the router (so a second listener would toggle twice on one click, which
+     also reads as a dead button). */
+  function bindDelegate(){
+    if(window.__boThemeDelegateBound) return;
+    window.__boThemeDelegateBound = 1;
+    document.addEventListener('click', e => {
+      const t = e.target;
+      const btn = t && t.closest ? t.closest('#boThemeToggle,.bo-theme-btn') : null;
+      if(!btn) return;
       applyTheme(currentTheme() === 'dark' ? 'light' : 'dark');
     });
   }

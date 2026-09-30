@@ -195,7 +195,10 @@
       function done() { if (settled) return; settled = true; resolve(); }
       el.addEventListener('load', done);
       el.addEventListener('error', done);
-      setTimeout(done, 4000);   // a sheet that never settles must not block the swap
+      // Cap the wait hard: a sheet that is slow or blocked (dead CDN path, no response)
+      // must not hold up interaction for seconds. The swap proceeds and the sheet lands
+      // whenever it does - the same behaviour as a late stylesheet on a real page load.
+      setTimeout(done, 1200);
     });
   }
 
@@ -286,7 +289,9 @@
       el.onload = finish;
       el.onerror = finish;
       DOC.body.appendChild(el);
-      setTimeout(finish, 8000);
+      // Cap the wait hard (see waitForLink): a script that 404s or stalls must not hold the
+      // swap, and with it every subsequent click, for seconds.
+      setTimeout(finish, 3000);
     })();
   }
 
@@ -468,6 +473,8 @@
     var prevRail = captureRail();
 
     return syncHead(doc).then(function () {
+      var timings = window.__boLastTimings || {};
+      timings.css = Date.now() - navStart;
       /* The section tab row lives inside the content frame (auth.js renderModuleTabs
          inserts it at .report-content:first-child), so replacing the children deletes
          it. Rebuilding it afterwards is both the fix for that and the reason the row is
@@ -491,11 +498,15 @@
 
       return new Promise(function (resolve) {
         runScripts(collectScripts(doc), function () {
+          var t = window.__boLastTimings || {};
+          t.scripts = Date.now() - navStart;
           replayLifecycle(doc);
           resolve(true);
         });
       });
     }).then(function (ok) {
+      var t = window.__boLastTimings || {};
+      t.total = Date.now() - navStart;
       syncShell(doc);
       activateTab(u);
       activateRail(u, prevRail);
@@ -527,21 +538,60 @@
     });
   }
 
+  var pendingNav = null;
+  var navStart = 0;
+
+  /* Queue, don't drop. A click that lands while a swap is in flight used to be discarded,
+     and with a handful of slow first-time stylesheets that wait could last seconds - every
+     click in between did nothing, which reads exactly like "the sidebar stopped working".
+     The pending navigation starts the moment the current one settles. Two applies can no
+     longer interleave (the interleaving is what the hold-busy rule prevents), and the queue
+     means the click is honoured, just delayed by however long the current swap takes. */
+  function drainNav() {
+    if (!pendingNav) return;
+    var n = pendingNav;
+    pendingNav = null;
+    go(n.href, n.u, n.push);
+  }
+
   function go(href, u, push) {
-    if (busy) return;
+    if (busy) {
+      // Same URL already on its way (the rail and the module-tab row can both point at it)
+      // is the only thing dropped; everything else is queued, newest wins.
+      if (pendingNav && pendingNav.u.href === href) return;
+      pendingNav = { href: href, u: u, push: push };
+      return;
+    }
     busy = true;
+    navStart = Date.now();
+    var timings = {};
+    window.__boLastTimings = timings;
     scrollMemo[here()] = window.pageYOffset || 0;
     getDoc(href).then(function (doc) {
+      timings.fetch = Date.now() - navStart;
       var why = swapBlocker(doc);
-      if (why) { busy = false; fallback(href, why); return; }
+      if (why) {
+        busy = false;
+        drainNav();
+        fallback(href, why);
+        return;
+      }
       // busy stays set until the swap has fully landed, INCLUDING the async script
-      // execution and the boot replay. A real navigation drops clicks that arrive during
-      // the document swap; dropping them here too is the only way two applies cannot
-      // interleave - measured on the harness: two quick clicks to one page interleaved two
-      // replaceChildren calls and a boot replay ran against the other swap's in-flight
-      // content (wlFrom was not defined).
-      commitOf(doc, u, push, href).then(function () { busy = false; }, function () { busy = false; });
-    })['catch'](function (e) { busy = false; fallback(href, e && e.message); });
+      // execution and the boot replay. Interleaved applies are what broke the original
+      // harness (two replaceChildren calls, one boot replay against the other swap's
+      // in-flight content); clicks that arrive meanwhile are queued by drainNav.
+      commitOf(doc, u, push, href).then(function () {
+        busy = false;
+        drainNav();
+        if (window.console && console.info && timings.total) {
+          console.info('[bo-spa] swap ' + href, timings);
+        }
+      }, function () { busy = false; drainNav(); });
+    })['catch'](function (e) {
+      busy = false;
+      drainNav();
+      fallback(href, e && e.message);
+    });
   }
 
   DOC.addEventListener('click', function (e) {

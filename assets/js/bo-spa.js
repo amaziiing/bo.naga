@@ -517,8 +517,22 @@
 
   /* ---- the swap ------------------------------------------------------------------ */
 
+  /* The BO shell does not scroll the window. .report-main is overflow:hidden and it is the
+     content frame that scrolls (overflow-y:auto), so reading window.pageYOffset alone always
+     returned 0 and restoring it always went to the top: coming back to a long list you had
+     scrolled dropped you at its start, which is the one thing a browser's back button does
+     get right. Both are written here, and the frame wins when it is the one that moved. */
+  function scrollPos() {
+    var c = DOC.querySelector(CONTENT);
+    var y = window.pageYOffset || DOC.documentElement.scrollTop || 0;
+    if (c && c.scrollTop > y) y = c.scrollTop;
+    return y;
+  }
+
   function scrollTo(y) {
+    var c = DOC.querySelector(CONTENT);
     try { window.scrollTo(0, y); } catch (e) {}
+    if (c) { try { c.scrollTop = y; } catch (e) {} }
   }
 
   /* Deep-cloned copy of a node list. The fetched documents are cached and REUSED, so the
@@ -687,7 +701,7 @@
     nav(href, 'link');
     var timings = {};
     window.__boLastTimings = timings;
-    scrollMemo[here()] = window.pageYOffset || 0;
+    scrollMemo[here()] = scrollPos();
     beginNav(href);
     getDoc(href).then(function (doc) {
       timings.fetch = Date.now() - navStart;
@@ -787,6 +801,11 @@
     /* Read-only diagnostics for the console and for integration tests. */
     debug: {
       isBusy: function () { return busy; },
+      /* Where the page is actually scrolled. The window is not the scroller on this shell. */
+      scroll: function () {
+        var c = DOC.querySelector(CONTENT);
+        return { pos: scrollPos(), frame: c ? Math.round(c.scrollTop) : null, win: Math.round(window.pageYOffset || 0) };
+      },
       /* "Why did that link reload instead of swapping?" - answers without navigating and
          without fetching, because it is the same decision the click handler makes. */
       canSwap: function (href) {

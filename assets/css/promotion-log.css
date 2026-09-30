@@ -16,6 +16,14 @@ body.bo-wallet-tx.promotion-log-page .pl-kpis .metric{
   border:1px solid #EADCC8!important;
   box-shadow:var(--bo-shadow,0 1px 2px rgba(92,74,48,.05))!important;
 }
+/* Same flat-card rhythm as the wallet pages (see bo-wallet-transaction-amber.css): the label,
+   number and note are three grid rows, and a grid hands its leftover height to those rows by
+   default - ~16px spread through the stack. Measured here: label band 19..30 and note 71..81,
+   against the 24..35 / 67..76 of the cards that wrap the three lines in one block (User
+   Management, Referral Network). Centring the tracks leaves the space at the top and bottom. */
+body.bo-wallet-tx.promotion-log-page .pl-kpis .metric{
+  align-content:center!important;
+}
 body.bo-wallet-tx.promotion-log-page .pl-kpis .bo-summary-icon{
   background:rgba(217,119,6,.12)!important;
   border:1px solid rgba(217,119,6,.18)!important;

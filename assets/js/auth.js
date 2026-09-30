@@ -906,6 +906,21 @@
       // merely shares files with a module — a Wallet group holding Member Wallet + Wallet
       // Ledger — as a normal group with its own submenu. The name fallback covers a group that
       // holds one of a module's pages and is titled for that module.
+      // Would claiming this group for `key` leave any row it exposes with nowhere to live? Once a
+      // group is claimed, renderSidebar replaces its whole submenu with the one module row, so a
+      // visible page that has no tab of its own is reachable from neither the sidebar nor the row.
+      // A page is carried when it is registered itself, or when it is the second half of a section
+      // whose parent page is registered (MODULE_SECTION_PAGES - Bulk Adjustment's bonus page).
+      function groupRowsAllCarryTabs(root, key){
+        return (root.items||[]).every(function(m){
+          const file=pageFile(m.url||'');
+          const tab=MODULE_TABS[file];
+          if(tab && tab.module===key) return true;
+          const slot=MODULE_SECTION_PAGES[file];
+          const slotTab=slot ? MODULE_TABS[slot] : null;
+          return !!(slotTab && slotTab.module===key);
+        });
+      }
       function groupModuleKey(root){
         const files=groupPageFiles(root);
         let best=null,bestHits=0;
@@ -916,7 +931,13 @@
         });
         if(!best) return null;
         if(bestHits>=2 && files.has(MODULE_ANCHORS[best])) return best;
-        if(bestHits===1 && new RegExp(best,'i').test(String(root.key||'')+' '+String(root.title||''))) return best;
+        // The name fallback is the loose path: a group holding exactly ONE of a module's pages and
+        // named after that module was claimed outright, and the key is only tested with a
+        // substring regex - so 'game' also matched a group called "Game Report", which would then
+        // have lost its other rows to a one-tab row. It now also has to be a claim that hides
+        // nothing. The primary test above is deliberately left alone: a group that satisfies it
+        // (two or more of the module's pages plus the anchor) cannot hide anything by construction.
+        if(bestHits===1 && groupRowsAllCarryTabs(root, best) && new RegExp(best,'i').test(String(root.key||'')+' '+String(root.title||''))) return best;
         return null;
       }
 

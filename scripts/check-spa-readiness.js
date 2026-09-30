@@ -87,7 +87,11 @@ for (const file of pages) {
   const routerAny = /bo-spa\.js/.test(html);
   const topbar = /data-bo-topbar/.test(html);
   const shellCss = /bo-shell\.css/.test(html);
-  const frame = /class="report-content/.test(html);
+  /* The frame the router swaps. A standard page has .report-content; a page that predates the
+     standard shell declares its own with data-bo-frame (see the comment in bo-spa.js). Both
+     count as "has a frame"; what does not count is having neither, because the router would
+     then fetch the page, find nothing to swap and fall back to a real navigation. */
+  const frame = /class="report-content/.test(html) || /data-bo-frame/.test(html);
 
   const missing = [];
   if (shell === 'bo' || shell === 'main') {

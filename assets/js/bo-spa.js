@@ -62,7 +62,20 @@
   try { if (localStorage.getItem('bo_spa') === '0') return; } catch (e) {}
   if (!window.fetch || !window.history || !history.pushState || !window.DOMParser || !window.Promise) return;
 
+  /* The element a swap replaces the children of.
+
+     The standard pages use .report-content. A page that predates the standard shell has no
+     such element (currency-management.html and main-dashboard.html keep their content in a
+     .cur-page / .main-exec section beside the topbar), so it declares its own frame with
+     data-bo-frame. Without that the router could not swap into it at all: it would fetch the
+     page, find no frame, and fall back to a real navigation - a wasted request in front of
+     every visit. Declared per page, resolved per document, so a swap between a standard page
+     and a legacy one still finds the right element on each side. */
   var CONTENT = '.report-content';
+
+  function frameOf(doc) {
+    return doc.querySelector('[data-bo-frame]') || doc.querySelector(CONTENT);
+  }
   var LINKS = '.bo-module-tabs a[href], .report-nav a[href], .bo-global-quicknav a[href], [data-bo-spa-link]';
   var DOC = document;
   var CACHE = {};                        // href -> Promise<Document>
@@ -160,13 +173,39 @@
       if (text.trim()) EXECUTED['inline:' + fp(text)] = 1;
     });
     each(DOC.querySelectorAll('link[rel="stylesheet"]'), function (l) {
-      CSS_SEEN[assetKey(l.getAttribute('href'))] = 1;
+      var key = assetKey(l.getAttribute('href'));
+      CSS_SEEN[key] = 1;
+      own(l, key);
     });
     each(DOC.querySelectorAll('head style'), function (s) {
       var t = s.textContent || '';
-      if (t.trim()) STYLE_SEEN[fp(t)] = 1;
+      if (!t.trim()) return;
+      var key = fp(t);
+      STYLE_SEEN[key] = 1;
+      s.setAttribute('data-bo-spa-style', key);
     });
   }
+  /* The stylesheets and inline styles this document is currently running, so a swap can take
+     the ones the next page does not have back out again. Only what is marked here is ever
+     removed - a sheet a shared script injected at runtime (auth.js's quicknav link) is not
+     ours and is left alone.
+
+     Without this the sheet set only ever grew. Measured: arriving at promotion.html by swap
+     carried 25 sheets against 22 for a direct load of the same page, and the extra ones were
+     whatever every previously visited page had brought with it - unbounded in a long session,
+     and the reason a page could look different depending on which page you came from (a
+     legacy layout that ships no bo-shell.css picked up the previous page's metrics: content
+     padding 18px after a swap, 0px on a direct load). */
+  var SHEETS = [];
+
+  function own(l, key) {
+    if (!key || l.getAttribute('data-bo-spa-sheet') === key) return;
+    var i;
+    for (i = 0; i < SHEETS.length; i++) if (SHEETS[i].el === l) return;
+    l.setAttribute('data-bo-spa-sheet', key);
+    SHEETS.push({ el: l, key: key });
+  }
+
   seed();
 
   function eligible(a) {
@@ -197,6 +236,13 @@
     return true;
   }
 
+  /* Parsed documents, keyed by href. Bounded on purpose: every entry is a whole Document,
+     and an unbounded map of them is a leak in exactly the sessions this router is for - the
+     ones where the user clicks through the whole back office without ever reloading. The
+     oldest is dropped when the map grows past the cap; re-entering an evicted page costs one
+     fetch, which is what the pointer prefetch below exists to hide. */
+  var CACHE_MAX = 16;
+
   function getDoc(href) {
     if (!CACHE[href]) {
       CACHE[href] = fetch(href, { credentials: 'same-origin' }).then(function (r) {
@@ -204,6 +250,11 @@
         return r.text();
       }).then(function (html) { return new DOMParser().parseFromString(html, 'text/html'); })
         ['catch'](function (e) { delete CACHE[href]; throw e; });
+      var keys = Object.keys(CACHE);
+      if (keys.length > CACHE_MAX) {
+        // From the front: the newest entries are the ones being navigated to right now.
+        for (var i = 0; i < keys.length - CACHE_MAX; i++) delete CACHE[keys[i]];
+      }
     }
     return CACHE[href];
   }
@@ -234,8 +285,8 @@
     if (!mine) return 'this page declares no data-bo-shell';
     if (!theirs) return 'target declares no data-bo-shell';
     if (mine !== theirs) return 'different shell (' + mine + ' -> ' + theirs + ')';
-    if (!DOC.querySelector(CONTENT)) return 'this page has no ' + CONTENT;
-    if (!doc.querySelector(CONTENT)) return 'target has no ' + CONTENT;
+    if (!frameOf(DOC)) return 'this page has no ' + CONTENT;
+    if (!frameOf(doc)) return 'target has no ' + CONTENT;
     return null;
   }
 
@@ -261,22 +312,27 @@
      new page against the old page's cascade for as long as the request takes. */
   function syncHead(doc) {
     var pending = [];
+    var want = { css: {}, style: {} };
     each(doc.querySelectorAll('link[rel="stylesheet"]'), function (l) {
       var raw = l.getAttribute('href') || '';
       var key = assetKey(raw);
-      if (!raw || !key || CSS_SEEN[key]) return;
+      if (!raw || !key) return;
+      want.css[key] = 1;
+      if (CSS_SEEN[key]) return;
       CSS_SEEN[key] = 1;
       var el = DOC.createElement('link');
       el.rel = 'stylesheet';
       el.href = raw;
-      el.setAttribute('data-bo-spa-css', key);
+      el.setAttribute('data-bo-spa-sheet', key);
       DOC.head.appendChild(el);
+      SHEETS.push({ el: el, key: key });
       pending.push(waitForLink(el));
     });
     each(doc.querySelectorAll('head style'), function (s) {
       var text = s.textContent || '';
       if (!text.trim()) return;
       var key = fp(text);
+      want.style[key] = 1;
       if (STYLE_SEEN[key]) return;
       STYLE_SEEN[key] = 1;
       var el = DOC.createElement('style');
@@ -286,7 +342,26 @@
     });
     // The fetched document never ran its own inline theme bootstrap, so it carries no
     // data-bo-theme. This document's value is the user's, and must be left alone.
-    return Promise.all(pending);
+    return { wait: Promise.all(pending), want: want };
+  }
+
+  /* Bring the sheet set down to the target page's, in the same task as the content swap: the
+     browser has no chance to paint in between, so the intermediate state is never seen. */
+  function convergeSheets(want) {
+    for (var i = SHEETS.length - 1; i >= 0; i--) {
+      var rec = SHEETS[i];
+      if (!DOC.contains(rec.el)) { SHEETS.splice(i, 1); continue; }
+      if (want.css[rec.key]) continue;
+      rec.el.parentNode.removeChild(rec.el);
+      SHEETS.splice(i, 1);
+      CSS_SEEN[rec.key] = 0;
+    }
+    each(DOC.querySelectorAll('head style[data-bo-spa-style]'), function (s) {
+      var key = s.getAttribute('data-bo-spa-style');
+      if (want.style[key]) return;
+      s.parentNode.removeChild(s);
+      STYLE_SEEN[key] = 0;
+    });
   }
 
   /* ---- body: scripts ------------------------------------------------------------- */
@@ -523,14 +598,14 @@
      scrolled dropped you at its start, which is the one thing a browser's back button does
      get right. Both are written here, and the frame wins when it is the one that moved. */
   function scrollPos() {
-    var c = DOC.querySelector(CONTENT);
+    var c = frameOf(DOC);
     var y = window.pageYOffset || DOC.documentElement.scrollTop || 0;
     if (c && c.scrollTop > y) y = c.scrollTop;
     return y;
   }
 
   function scrollTo(y) {
-    var c = DOC.querySelector(CONTENT);
+    var c = frameOf(DOC);
     try { window.scrollTo(0, y); } catch (e) {}
     if (c) { try { c.scrollTop = y; } catch (e) {} }
   }
@@ -565,8 +640,8 @@
   }
 
   function apply(doc, u, push) {
-    var from = DOC.querySelector(CONTENT);
-    var to = doc.querySelector(CONTENT);
+    var from = frameOf(DOC);
+    var to = frameOf(doc);
     if (!from || !to) return Promise.resolve(false);
     /* A frame with no ELEMENT children cannot be swapped in usefully - it would leave the
        user looking at an empty page. Some pages build their content from script, and a
@@ -575,7 +650,8 @@
     if (!to.children.length) return Promise.resolve(false);
     var prevRail = captureRail();
 
-    return syncHead(doc).then(function () {
+    var head = syncHead(doc);
+    return head.wait.then(function () {
       var timings = window.__boLastTimings || {};
       timings.css = Date.now() - navStart;
       /* The section tab row lives inside the content frame (auth.js renderModuleTabs
@@ -583,8 +659,26 @@
          it. Rebuilding it afterwards is both the fix for that and the reason the row is
          correct when the target page belongs to a different module: it is derived from
          location.pathname, which pushState has just updated. */
-      from.replaceChildren.apply(from, clone(to.childNodes));
+      /* When both pages agree on what the frame is (the usual case - both are .report-content
+         sections), only the children move: that keeps the element the live page's scripts may
+         already hold a reference to. When they disagree - a legacy page keeps its content in
+         its own section (currency-management's .cur-page, main-dashboard's #mainExec) - the
+         children alone are not enough: pouring the legacy markup into the standard frame keeps
+         the standard frame's class-driven padding, so the page ends up looking different from
+         a direct load (measured: 18px against 24px). The element itself is replaced then, and
+         the two paths become identical. */
+      if (from.tagName === to.tagName && from.className === to.className) {
+        from.replaceChildren.apply(from, clone(to.childNodes));
+      } else {
+        var fresh = to.cloneNode(true);
+        from.parentNode.replaceChild(fresh, from);
+        from = fresh;
+      }
       syncBodyClass(doc);
+      /* Same task as the swap, so the removal is never painted: the document's stylesheets
+         become the target's, and a page therefore looks the same whether it was swapped into
+         or opened directly. */
+      convergeSheets(head.want);
       note('content');
 
       // URL first: page scripts re-read location.search/pathname, and a drill-down page
@@ -595,6 +689,24 @@
       if (window.BO_AUTH && BO_AUTH.renderModuleTabs) {
         try { BO_AUTH.renderModuleTabs(BO_AUTH.user()); } catch (e) {}
       }
+
+      /* The page-level permission check lives inside auth.js's own boot, which a swap never
+         re-runs - auth.js is already in the executed map. Without this, a swappable link was
+         a way to open a page the account's menu permissions do not include: the shell
+         rendered, the page's API calls failed, but the user was on it. Found while measuring
+         the swapped-into state of a page that is not in the test account's menus. Calling it
+         here keeps the rule in force for every navigation, exactly as a full load would. */
+      if (window.BO_AUTH && BO_AUTH.enforcePageAccess) {
+        try { BO_AUTH.enforcePageAccess(BO_AUTH.user()); } catch (e) {}
+      }
+
+      /* Everything that is visible right now - the shell title and icon, which tab is lit,
+         which rail row is active, where the page is scrolled - is settled BEFORE the target
+         page's scripts are run. Those scripts take 2-300ms and used to delay the highlight
+         moving with them, so a click felt unacknowledged for as long as they took. The same
+         calls are repeated after the replay below, because a script is allowed to rebuild the
+         tab row. */
+      paintShell(doc, u, prevRail);
 
       // A fresh epoch: listeners registered by the scripts about to run belong to THIS
       // navigation, so the replay below can tell them apart from everything earlier.
@@ -613,13 +725,21 @@
       var t = window.__boLastTimings || {};
       t.total = Date.now() - navStart;
       note('ok', { timings: { total: t.total, fetch: t.fetch, css: t.css, scripts: t.scripts } });
-      syncShell(doc);
-      activateTab(u);
-      activateRail(u, prevRail);
-      scrollTo(0);
+      /* Re-asserted: a target page's script may have rebuilt the tab row or moved the active
+         state while the boot replay ran. */
+      paintShell(doc, u, prevRail);
       DOC.dispatchEvent(new CustomEvent('bo:spa:content', { detail: { url: u.href } }));
       return ok;
     });
+  }
+
+  /* The visible consequences of a navigation, in one place so apply() can run them both
+     immediately and once more after the boot replay. */
+  function paintShell(doc, u, prevRail) {
+    syncShell(doc);
+    activateTab(u);
+    activateRail(u, prevRail);
+    scrollTo(0);
   }
 
   function fallback(href, reason) {
@@ -725,6 +845,27 @@
     });
   }
 
+  /* Warm the destination while the pointer is merely ON the link. Fetching the target
+     document is the one part of a swap that cannot be made faster once the click has landed,
+     and the intent is visible a few hundred milliseconds early. focusin covers keyboard
+     tabbing, touchstart the case where there is no hover at all.
+
+     Only pages the router may swap into are fetched, only into a free cache slot (so a
+     pointer swept down the rail can never evict a page the user actually visited), and only
+     once per href. On localhost this buys nothing; on a real connection it is the difference
+     between a swap that waits for a request and one that does not. */
+  function prefetchFrom(e) {
+    var a = e.target && e.target.closest ? e.target.closest(LINKS) : null;
+    if (!eligible(a)) return;
+    var u = href_of(a);
+    if (!u || CACHE[u.href]) return;
+    if (Object.keys(CACHE).length >= CACHE_MAX) return;
+    getDoc(u.href)['catch'](function () {});
+  }
+  DOC.addEventListener('pointerenter', prefetchFrom, true);
+  DOC.addEventListener('focusin', prefetchFrom, true);
+  DOC.addEventListener('touchstart', prefetchFrom, true);
+
   DOC.addEventListener('click', function (e) {
     if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     var a = e.target && e.target.closest ? e.target.closest(LINKS) : null;
@@ -803,7 +944,7 @@
       isBusy: function () { return busy; },
       /* Where the page is actually scrolled. The window is not the scroller on this shell. */
       scroll: function () {
-        var c = DOC.querySelector(CONTENT);
+        var c = frameOf(DOC);
         return { pos: scrollPos(), frame: c ? Math.round(c.scrollTop) : null, win: Math.round(window.pageYOffset || 0) };
       },
       /* "Why did that link reload instead of swapping?" - answers without navigating and

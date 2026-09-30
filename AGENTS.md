@@ -171,15 +171,38 @@ Adding a BO page means running the rollout and regenerating the manifest:
     node scripts/check-spa-readiness.js --write-manifest
     node scripts/pin-spa.js
 
+### What the router guarantees
+
+A swap is meant to be indistinguishable from a full load, and these are the parts that make
+it so - each one was a measured difference first:
+
+- **The stylesheet set converges.** Sheets the next page does not have are removed in the same
+task as the content swap, so nothing is painted in between. Before this the set only grew:
+arriving at `promotion.html` by swap carried 25 sheets against 22 for a direct load, and a
+page could look different depending on which page you came from.
+- **A page can declare its own content frame** with `data-bo-frame` on the element to swap
+(`currency-management.html` uses `.cur-page`, `main-dashboard.html` uses `#mainExec`). When
+the two pages disagree about the frame, the element itself is replaced rather than only its
+children - otherwise the legacy markup lands inside the standard frame and keeps the standard
+frame's padding.
+- **The page-level permission check re-runs** (`BO_AUTH.enforcePageAccess`). It lives in
+auth.js's boot, which a swap does not repeat, so without this a swappable link was a way onto
+a page the account's menus do not include.
+- **Destinations are prefetched on hover/focus/touch**, into a bounded document cache
+(16 entries). A pointer swept down the rail cannot evict a page the user actually visited.
+- **The visible state is settled before the target's scripts run**, so the title, the lit tab,
+the active rail row and the scroll position move with the click instead of waiting 2-300ms
+for the scripts. They are re-asserted afterwards, because a script may rebuild the tab row.
+
 ### The readiness and pin guards
 
 `scripts/check-spa-readiness.js` tests every page for the markers a smooth swap needs
-(`data-bo-spa`, the `.report-content` frame, the first-paint canvas, the head bootstrap and
-DCL registry, the static quicknav `<link>`, the router tag at the current pin) and refuses a
-built manifest that no longer matches the tree. `scripts/pin-spa.js` refuses a commit whose
-pages still request the previous revision of the router or the manifest - a browser that
-cached it keeps running it for the whole session, which is indistinguishable from a fix that
-did not work.
+(`data-bo-spa`, a content frame - `.report-content` or `data-bo-frame` - the first-paint
+canvas, the head bootstrap and DCL registry, the static quicknav `<link>`, the router tag at
+the current pin) and refuses a built manifest that no longer matches the tree.
+`scripts/pin-spa.js` refuses a commit whose pages still request the previous revision of the
+router or the manifest - a browser that cached it keeps running it for the whole session,
+which is indistinguishable from a fix that did not work.
 
 Both run in `scripts/git-hooks/pre-commit`, unconditionally, before the deletion check's
 `exit 0`. A page that is in the shell but genuinely not a swap target belongs in

@@ -243,43 +243,11 @@ body.frontend-display-page .fd-panel .rounded-select-menu{
   padding:0;
 }
 
-/* Live Feed — mode full width, demo metrics in 3 columns */
-#fd-sec-live .fd-panel-body{
-  display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
-  align-content:start;
-}
-#fd-sec-live #liveTransactionModeRow,
-#fd-sec-live #liveTransactionRefreshRow{
-  grid-column:1 / -1;
-  grid-template-columns:minmax(0,1fr) minmax(180px,280px);
-  border-right:0;
-}
-#fd-sec-live .fd-metric-tile{
-  grid-template-columns:1fr;
-  align-items:start;
-  gap:8px;
-  padding:14px;
-  border-right:1px solid #EADCC8;
-  border-bottom:0;
-}
-#fd-sec-live .fd-metric-tile:last-child{ border-right:0; }
-#fd-sec-live .fd-metric-tile .fd-control{ justify-content:stretch; }
-/* A third of the panel is too narrow for "10.00 to 5000.00 amt" on one line: the fields came out
-   61px wide against a 99px need, so the value rendered as "50(". The unit moves to its own line
-   and the fields give up their side padding instead of their digits. */
-#fd-sec-live .fd-metric-tile .display-range-control{ grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); gap:8px 6px; }
-#fd-sec-live .fd-metric-tile .display-range-unit{ grid-column:1 / -1; }
-#fd-sec-live .fd-metric-tile input.display-setting-select{ padding:0 8px!important; }
-/* Same reason as the padding: an 18px spinner in a 79px field is the difference between
-   "5000.00" and "50(". The value is typed here, not stepped. */
-#fd-sec-live .fd-metric-tile input[type="number"]::-webkit-outer-spin-button,
-#fd-sec-live .fd-metric-tile input[type="number"]::-webkit-inner-spin-button{
-  -webkit-appearance:none;
-  margin:0;
-}
-#fd-sec-live .fd-metric-tile input[type="number"]{ -moz-appearance:textfield; appearance:textfield; }
-#fd-sec-live .fd-metric-tile.is-hidden{ display:none!important; }
+/* Live Feed — one full-width row per setting: source, refresh, then the demo bounds.
+   These three were tiles a third of the panel wide, and a third of 632px cannot hold
+   "10.00 to 5000.00 amt" on one line: the fields came out 61px wide against a 99px need, so the
+   max price rendered as "50(". The rows now read like the two above them, which also means the
+   unit sits beside its field instead of hanging on a line of its own. */
 
 /* Wallet limits — 3 fields across */
 #fd-sec-limits .fd-panel-body{
@@ -788,9 +756,7 @@ html[data-bo-theme="dark"] .fd-panel-head h3,
 html[data-bo-theme="dark"] .display-setting-copy h2{ color:var(--fd-dark-ink); }
 html[data-bo-theme="dark"] .display-setting-row,
 html[data-bo-theme="dark"] #fd-sec-visibility #frontendDisplayBrandRow,
-html[data-bo-theme="dark"] #fd-sec-live .fd-metric-tile,
 html[data-bo-theme="dark"] #fd-sec-limits .display-setting-row{ border-color:var(--fd-dark-line-soft); }
-html[data-bo-theme="dark"] #fd-sec-live .fd-metric-tile,
 html[data-bo-theme="dark"] #fd-sec-limits .display-setting-row{ border-right-color:var(--fd-dark-line-soft); }
 html[data-bo-theme="dark"] .fd-switch-track{ background:var(--fd-dark-field); border-color:rgba(255,255,255,.14); }
 html[data-bo-theme="dark"] .fd-switch-thumb{ background:var(--fd-dark-ink); }
@@ -859,26 +825,24 @@ html[data-bo-theme="dark"] .install-app-logo-actions .clean-btn{
 html[data-bo-theme="dark"] .install-app-logo-actions .clean-btn:hover{
   border-color:var(--fd-dark-amber)!important; color:var(--fd-dark-amber-soft)!important;
 }
-html[data-bo-theme="dark"] #fd-sec-live .fd-metric-tile:last-child,
 html[data-bo-theme="dark"] #fd-sec-limits .display-setting-row:last-child{ border-bottom-color:transparent; }
 
 @media (max-width:1100px){
   body.frontend-display-page{ --fd-pad-x:12px; }
   #fd-sec-visibility .fd-panel-body,
-  #fd-sec-live .fd-panel-body,
   #fd-sec-limits .fd-panel-body{ grid-template-columns:1fr; }
-  #fd-sec-live .fd-metric-tile,
   #fd-sec-limits .display-setting-row{
     border-right:0;
     border-bottom:1px solid #EADCC8;
     min-height:0;
   }
-  html[data-bo-theme="dark"] #fd-sec-live .fd-metric-tile,
   html[data-bo-theme="dark"] #fd-sec-limits .display-setting-row{
     border-bottom-color:rgba(255,255,255,.10);
   }
-  #fd-sec-live .fd-metric-tile:last-child,
   #fd-sec-limits .display-setting-row:last-child{ border-bottom:0; }
+  /* A 140-220px control would clip "5000.00" again, so the demo bounds stack here and give the
+     range the whole row width. */
+  #fd-sec-live .random-demo-only{ grid-template-columns:1fr; }
   #fd-sec-limits .display-setting-row,
   #fd-sec-live #liveTransactionModeRow,
   #fd-sec-live #liveTransactionRefreshRow,
@@ -916,8 +880,6 @@ html[data-bo-theme="dark"] #fd-sec-limits .display-setting-row:last-child{ borde
   }
   .display-setting-row,
   #fd-sec-limits .display-setting-row,
-  #fd-sec-live #liveTransactionModeRow,
-  #fd-sec-live #liveTransactionRefreshRow,
   #fd-sec-visibility #frontendDisplayBrandRow,
   #fd-sec-visibility #boSidebarInteractionRow{ grid-template-columns:1fr; gap:10px; }
   .fd-control{ justify-content:flex-start; }
@@ -1057,7 +1019,7 @@ html[data-bo-theme="dark"] #fd-sec-limits .display-setting-row:last-child{ borde
               <input id="liveTransactionIntervalSeconds" class="display-setting-select" type="number" min="2" max="60" step="1" value="5" aria-label="Live transaction refresh seconds">
             </div>
           </div>
-          <div class="display-setting-row random-demo-only is-hidden fd-metric-tile" id="liveTransactionRandomSecondsRow">
+          <div class="display-setting-row random-demo-only is-hidden" id="liveTransactionRandomSecondsRow">
             <div class="display-setting-copy">
               <h2>Demo Interval</h2>
               <p>Random next update between these values.</p>
@@ -1071,7 +1033,7 @@ html[data-bo-theme="dark"] #fd-sec-limits .display-setting-row:last-child{ borde
               </div>
             </div>
           </div>
-          <div class="display-setting-row random-demo-only is-hidden fd-metric-tile" id="liveTransactionRandomRowsRow">
+          <div class="display-setting-row random-demo-only is-hidden" id="liveTransactionRandomRowsRow">
             <div class="display-setting-copy">
               <h2>Demo Count</h2>
               <p>How many demo rows per update.</p>
@@ -1085,7 +1047,7 @@ html[data-bo-theme="dark"] #fd-sec-limits .display-setting-row:last-child{ borde
               </div>
             </div>
           </div>
-          <div class="display-setting-row random-demo-only is-hidden fd-metric-tile" id="liveTransactionRandomPriceRow">
+          <div class="display-setting-row random-demo-only is-hidden" id="liveTransactionRandomPriceRow">
             <div class="display-setting-copy">
               <h2>Demo Price</h2>
               <p>Amount range for each demo transaction.</p>

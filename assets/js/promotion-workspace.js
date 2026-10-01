@@ -38,7 +38,8 @@
   var byCategory = {};          // categoryId (string) -> [promotion]
   var expanded   = {};          // categoryId (string) -> true
   var page       = 0;
-  var lockedAutoSize = null;
+  var lockedAutoSize = null;      // fitted row count ...
+  var lockedBoxHeight = null;     // ... for THIS list height
   var autofitReloading = false;
 
   /* ------------------------------------------------------------------ utils */
@@ -168,6 +169,7 @@
       promotions = rawPromotions.map(normalizePromotion);
       groupPromotions();
       lockedAutoSize = null;
+      lockedBoxHeight = null;
       render(true);
     }catch(err){
       listEl.innerHTML = '<div class="promo-group-empty"><i class="bi bi-exclamation-triangle"></i>' +
@@ -225,22 +227,43 @@
   }
 
   /* Show N: `-` = as many rows as the list viewport holds (the same contract the
-     old pages used). The list is the scroll container, so its clientHeight is
-     the budget and 76px is the row floor from the shared row style. */
+     old pages used). The list is the scroll container, so its clientHeight is the
+     budget — MINUS the head row, which headHtml() renders INSIDE that container (see
+     its comment) and which therefore occupies part of the budget: ignoring it
+     overcounted by one row's share and is why the fit had to be corrected afterwards
+     one row at a time, by a loop that only ever ran on the paint tick it happened to
+     get. The row height is measured from a painted row whenever one exists; the 76px
+     floor is only the first-paint guess. */
+  var ROW_FLOOR = 76;
+
   function isAutoPageSize(raw){
     var v = String(raw == null ? '-' : raw).trim();
     return v === '' || v === '-' || /^auto$/i.test(v);
   }
 
   function measureAutoPageSize(){
-    var avail = Math.max(0, Math.floor(listEl.clientHeight));
+    var head = listEl.querySelector('.bonus-title-table-head');
+    var headH = head ? Math.ceil(head.getBoundingClientRect().height) : 0;
+    var avail = Math.max(0, Math.floor(listEl.clientHeight) - headH);
     var sample = listEl.querySelector('.bonus-title-table-row');
-    var rowH = sample ? Math.max(60, Math.round(sample.getBoundingClientRect().height)) : 76;
+    var rowH = sample ? Math.max(60, Math.ceil(sample.getBoundingClientRect().height)) : ROW_FLOOR;
     return Math.max(3, Math.min(200, Math.floor(avail / rowH) || 10));
   }
 
+  /* The fit describes the box the list HAS. It is re-measured when that box changes
+     instead of being locked on the first call, because on a fresh load the module tab
+     row is injected ~450ms in — auth.js draws it once the menu request answers — and takes
+     its 48px off the frame after the first fit. Locked to that first measurement the page
+     kept one row too many (5 rows in a box that holds 4, so the pager's single page was
+     the whole list and no pager was drawn at all), while a SPA swap — where the router
+     mounts the tab row BEFORE the target's scripts run — measured the settled box and
+     paginated. Two page sizes for the same page and data, decided by arrival path. */
   function autoFitPageSize(){
-    if(lockedAutoSize == null) lockedAutoSize = measureAutoPageSize();
+    var box = listEl.clientHeight;
+    if(lockedAutoSize == null || lockedBoxHeight !== box){
+      lockedBoxHeight = box;
+      lockedAutoSize = measureAutoPageSize();
+    }
     return lockedAutoSize;
   }
 
@@ -271,18 +294,25 @@
     try{ render(false); } finally { autofitReloading = false; }
   }
 
+  /* A single page still gets a pager. Every sibling listing draws one
+     (game-category.js, game-sub-category.js, bonus-category-title.js — this page's own
+     predecessor — and promotion.js), so an empty right-hand side of the footer read as
+     broken pagination rather than as "there is only one page" (owner: "pagination 设计
+     与功能失效"). The shape is the same as everywhere else: prev/next disabled, the one
+     page active; a list with no rows shows the same disabled 1. */
   function renderPager(current, pages){
     if(!pager) return;
-    if(pages <= 1){ pager.innerHTML = ''; return; }
+    var total = Math.max(1, Number(pages) || 0);
+    current = Math.max(0, Math.min(Number(current) || 0, total - 1));
     var html = '<button class="page-btn" type="button" data-page="' + (current - 1) + '"' +
       (current <= 0 ? ' disabled' : '') + ' aria-label="Previous page"><i class="bi bi-chevron-left"></i></button>';
-    var from = Math.max(0, current - 2), to = Math.min(pages - 1, current + 2);
+    var from = Math.max(0, current - 2), to = Math.min(total - 1, current + 2);
     for(var i = from; i <= to; i++){
       html += '<button class="page-btn' + (i === current ? ' active' : '') + '" type="button" data-page="' + i +
         '"' + (i === current ? ' aria-current="page"' : '') + '>' + (i + 1) + '</button>';
     }
     html += '<button class="page-btn" type="button" data-page="' + (current + 1) + '"' +
-      (current >= pages - 1 ? ' disabled' : '') + ' aria-label="Next page"><i class="bi bi-chevron-right"></i></button>';
+      (current >= total - 1 ? ' disabled' : '') + ' aria-label="Next page"><i class="bi bi-chevron-right"></i></button>';
     pager.innerHTML = html;
   }
 
@@ -702,6 +732,7 @@
   sortFilter && sortFilter.addEventListener('change', function(){ render(true); });
   pageSizeSelect && pageSizeSelect.addEventListener('change', function(){
     lockedAutoSize = null;
+    lockedBoxHeight = null;
     render(true);
   });
   pager && pager.addEventListener('click', function(e){
@@ -711,15 +742,36 @@
     render(false);
   });
 
-  var resizeTimer = null;
-  window.addEventListener('resize', function(){
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(function(){
-      if(!isAutoPageSize(pageSizeSelect && pageSizeSelect.value)) return;
-      lockedAutoSize = null;
-      render(false);
-    }, 150);
-  });
+  /* Re-fit when the list's box changes under it: the module tab row on a fresh load, the
+     sidebar collapsing, a window resize, the KPI strip arriving. One code path for all of
+     them — the window-resize listener this replaces covered only one, and only by guessing
+     at a 150ms delay. The list is a fixed-height scroll container (flex:1 1 0 with
+     overflow-y:auto), so re-rendering rows cannot change its clientHeight and the observer
+     cannot loop on its own output; the equality guard below is the belt to that braces.
+     Kept on the element, like every other observer in the BO scripts (`_boEvenFillObs`), so
+     re-running the script on the page it already owns is a no-op. */
+  function refitToBox(){
+    if(!isAutoPageSize(pageSizeSelect && pageSizeSelect.value)) return;
+    lockedAutoSize = null;
+    lockedBoxHeight = null;
+    render(false);
+  }
+
+  if(window.ResizeObserver && !listEl._boAutofitObs){
+    var lastBoxHeight = listEl.clientHeight;
+    listEl._boAutofitObs = new ResizeObserver(function(){
+      if(listEl.clientHeight === lastBoxHeight) return;
+      lastBoxHeight = listEl.clientHeight;
+      requestAnimationFrame(refitToBox);
+    });
+    listEl._boAutofitObs.observe(listEl);
+  }else if(!window.ResizeObserver){
+    var resizeTimer = null;
+    window.addEventListener('resize', function(){
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(refitToBox, 150);
+    });
+  }
 
   load();
 })();

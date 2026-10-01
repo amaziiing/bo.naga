@@ -165,6 +165,14 @@ body.frontend-display-page .fd-panel .rounded-select-menu{
 #fd-sec-install{ grid-area:install; }
 #fd-sec-limits{ grid-area:limits; }
 #fd-sec-marquee{ grid-area:marquee; border-right:0; border-bottom:0; }
+/* The surface at each corner follows the frame's radius. The frame is 12px with a 1px border, so
+   the panel that owns the corner - and the head band painting it - needs 11px: concentric curves
+   nest exactly, while a square corner cuts across the arc and reads as a notch. */
+#fd-sec-visibility,
+#fd-sec-visibility > .fd-panel-head{ border-top-left-radius:11px; }
+#fd-sec-install,
+#fd-sec-install > .fd-panel-head{ border-top-right-radius:11px; }
+#fd-sec-marquee{ border-bottom-left-radius:11px; border-bottom-right-radius:11px; }
 .fd-panel::before{ display:none; }
 .fd-panel-wide{
   grid-column:1 / -1;
@@ -896,6 +904,11 @@ html[data-bo-theme="dark"] #fd-sec-limits .display-setting-row:last-child{ borde
   }
   #fd-sec-visibility,
   #fd-sec-live{ border-right:0; }
+  /* One column: the first panel owns both top corners, and the second no longer owns one. */
+  #fd-sec-visibility,
+  #fd-sec-visibility > .fd-panel-head{ border-top-right-radius:11px; }
+  #fd-sec-install,
+  #fd-sec-install > .fd-panel-head{ border-top-right-radius:0; }
   .fd-panel-wide{ grid-column:auto; }
 }
 @media (max-width:700px){

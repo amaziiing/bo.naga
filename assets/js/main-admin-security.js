@@ -49,7 +49,11 @@
 
   let allEvents = [];
   let filtered = [];
-  let category = 'all';
+  /* The FIRST pill is the resting default, so the category capsule (`.bo-seg-thumb`,
+     mounted by bo-seg-bounce.js on `.mad-pills`) has somewhere to sit the moment the page
+     paints - the page and the JS have to agree, because the capsule reads `is-active` off
+     the markup, not this variable. All Logs stays one click away and still counts everything. */
+  let category = 'account';
   let page = 1;
   let resizeTimer = null;
 
@@ -1327,9 +1331,9 @@
     pickerState.view = new Date(a + 'T00:00:00');
     pickerState.selectingStart = true;
     setRange(a, b, 'today', false);
-    category = 'all';
+    category = 'account';
     document.querySelectorAll('[data-mas-cat]').forEach(b => {
-      b.classList.toggle('is-active', b.getAttribute('data-mas-cat') === 'all');
+      b.classList.toggle('is-active', b.getAttribute('data-mas-cat') === 'account');
     });
     applyFilters();
   });

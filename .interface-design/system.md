@@ -322,11 +322,11 @@ Theme: FOUC + `#boThemeToggle` sibling of `[data-bo-profile]` + `bo-theme.js`.
 
 ### Listing filter controls (locked — Wallet Ledger specimen)
 
-**Canonical size for Transaction listing filters** (`.bo-filter-row` / `.wallet-inline-filter` / Deposit–Withdraw inline toolbar). Reference: `wallet-ledger.html` filter strip. **Do not** ship `42px` / `11px` radius on these rows going forward — beat `bo-ui-standard` `--bo-filter-height:42px` with the amber layer.
+**Canonical size for every listing filter row on the panel** (`.bo-filter-row` / `.mad-filters` / `.wallet-inline-filter` / `.banner-filterbar` / `.main-mod-filters` / Deposit–Withdraw inline toolbar). Reference: `wallet-ledger.html` filter strip. **`42px` / `11px` radius is retired**: since 2026-10-03 the tokens (`bo-ui-standard` `--bo-filter-height`, `reports.css` `--bo-control-height`) are `36px` and `assets/css/bo-control-height.css` states the height last-in-cascade for filter rows, search wells, date-range triggers and the table-footer page size on **every** page, both themes. The same pass brought the footer `Show N` (40px on 25 pages, 34px on 5, 42px on 3) and 18 pages of 42px date triggers to `36px`; dialogs (`40/42px`) and create/edit form fields (`44px`) were left alone by owner decision. Guard: `scripts/check-control-height.py`.
 
 | Spec | Value |
 |------|-------|
-| Height | **`36px`** · `min/max-height:36px` · `box-sizing:border-box` |
+| Height | **`36px`** on every page · `min/max-height:36px` · `box-sizing:border-box` |
 | Radius | **`8px`** (not `11px`) |
 | Row gap | **`10px`** |
 | Strip padding | `10px 14px` (inline-in-table-card) |
@@ -490,7 +490,7 @@ Links: Members → `index.html` · Deposit → `member-deposit.html` · Withdraw
 
 | Spec | Value |
 |------|-------|
-| Base height | **`36px`** (listing filters / page chrome). Modal actions `40px`. Danger Delete Role may stay `42px` until that toolbar is migrated |
+| Base height | **`36px`** (panel controls — filters, search wells, date triggers, footer page size — on every page since 2026-10-03). Modal actions `40px`. Danger Delete Role may stay `42px` until that toolbar is migrated |
 | Modal action height | `40px` |
 | Padding | `0 12–14px` (listing filter buttons `0 12px` · modal `0 16px`) |
 | Radius | `8px` |
@@ -676,7 +676,7 @@ Two-pane popover: left presets · right calendar. Reference: Transaction / Merch
 
 | Element | Spec |
 |---------|------|
-| Filter `.mp-search` | height `42px` · surface `#FFF8EB` · icon `#57534E` · placeholder `#78716C` |
+| Filter `.mp-search` | height `36px` (was `42px` until the 2026-10-03 panel-control pass) · surface `#FFF8EB` · icon `#57534E` · placeholder `#78716C` |
 | Tool chips `.mp-tool-btn` | `12px/700` · height `32px` · surface; `.is-accent` = amber wash |
 | Add Role | Primary CTA 3D (Buttons spec) · `12.5px/700` |
 | Delete Role | danger wash · border `rgba(239,51,64,.28)` · text `#B42318` · height `42px` |
@@ -923,7 +923,7 @@ Never paint dark matrix groups with cream gradients or muddy amber fills; that r
 | Tool chips `.mp-tool-btn` | surface · h `32px` · `12px/700` | charcoal · muted |
 | Tool `.is-accent` | amber wash | amber wash |
 | Add Role | Primary CTA 3D · `12.5px/700` | Primary dark (text `#2A2C36`) |
-| Filter `.mp-search` | surface `#FFF8EB` · h `42px` · icon `#57534E` · placeholder `#78716C` | `#2A2C36` · `#A1A1AA` |
+| Filter `.mp-search` | surface `#FFF8EB` · h `36px` · icon `#57534E` · placeholder `#78716C` | `#2A2C36` · `#A1A1AA` |
 
 #### Open group — `.mp-group.is-open`
 

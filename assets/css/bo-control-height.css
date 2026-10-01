@@ -1,0 +1,131 @@
+/* ==========================================================================
+   Control height — one number for the panel's box controls: 36px
+   ==========================================================================
+
+   Owner-directed (2026-10-03): 检查所有页面的输入框 没有统一高度 36px — every box-shaped control
+   that is page chrome reads one height, 36px, on every page.
+
+   WHAT THIS SHEET OWNS — the panel controls, and only these:
+     · filter rows and filter strips  — `.bo-filter-row`, `.mad-filters`, `.banner-filterbar`,
+       `.main-mod-filters`. The per-page names (`.standard-filter-grid`, `.user-search-grid`,
+       `.game-filter-card`, `.referral-filter-grid`, `.subcategory-filter-card`, `.bo-tx-toolbar`
+       and friends) are the same row under a different class; the row class is what is matched.
+     · date-range triggers            — `.bo-range-trigger`, `.ref-range-trigger`, wherever they sit
+       (dashboard controls, report heads, ledger toolbars, detail strips — each had grown its own
+       40 or 42)
+     · the table footer's page size   — the `Show N` control and its neighbours, whose container
+       name differs per family (`.entries-control`, `.table-footer`, `.mad-footer`,
+       `.main-mod-footer`, `.provider-footer`, `.mre-page-size-label`, `.pagination-clean`,
+       `.bo-pagination-standard`, `.standard-pagination`, `.mad-page-size-control`)
+
+   WHAT IT DELIBERATELY LEAVES ALONE (the owner's scope decision, 2026-10-03):
+     · dialogs — they keep their own tier. They are excluded structurally, not by a `:not()`:
+       every dialog factory appends to `document.body` (crud-modal-pattern.js:25, reports.js:929,
+       bo-ui-standard.js:253/284), i.e. OUTSIDE `.report-main`, and the only dialogs that live
+       inside it (main-report.html's two Bootstrap modals) contain none of these controls —
+       measured, 0 matches.
+     · create/edit form fields — the 44px tier of the house create pages and the settings forms
+       (`main-*-create`, `game-provider-create`'s `.gpc-fields`, `payment-method-create`'s
+       `.pm-form-section`, `language.html`, `frontend-display.html`'s `.display-setting-select`, …).
+       Those live in `.mac-fields` / `.gpc-fields` / `.pm-form-section` / `.ad-form-grid` /
+       `.effect-grid` and carry none of the container classes above, so the row scope leaves them
+       exactly as they were.
+     · search wells — already one control at 36px; bo-input-fill.css §5 owns them.
+     · checkboxes, switches, radios, file/range/color/hidden inputs and the native `<select>` the
+       `.rounded-select-wrap` driver hides. That select is identified by `[data-rounded-ready]`,
+       an attribute reports.js sets on every select it enhances (reports.js:750/757) — pinning it
+       would draw a second box under the driver. If a select has not been enhanced it is the
+       visible control and is pinned like any other.
+     · every button in these strips — the Buttons standard is 36 too, so they already agree.
+
+   WHY A SHEET AND NOT A VALUE SWEEP. The 42px was stated in three places that all out-rank a page
+   rule, so a per-page fix could not hold: `bo-ui-standard.css`'s `--bo-filter-height` token and its
+   hard-coded "final authority layer", `reports.css`'s `--bo-control-height`, and
+   `bo-charcoal-primitives.css`'s `…body.report-body.bo-charcoal .rounded-select-btn{height:40px}`
+   — which is what the table footer's `Show N` showed on 25 pages while 49 others showed 36.
+   Both tokens were flipped to 36px in the same pass (they are named for exactly this control), so
+   a new page inherits the right number without this sheet; this sheet is the guarantee for the
+   rules a token cannot reach. Measured before (light, 1904×900, 152 pages):
+      filter-row controls   non-36: 57 over 16 pages (42px; wbet-bet-limit 38px)
+      date-range triggers   non-36: 18 pages at 42px (bank-deposit-usage 40px)
+      footer `Show N`       non-36: 25 pages at 40px, 5 at 34px, 3 at 42px
+   Measured after: 0 / 0 / 0, with the tiers above byte-identical.
+
+   WHY THE `:not(#…)` CHAINS. Nothing in the markup carries these ids (nor `#bo-control-height-off`,
+   the kill switch). They are the escalation this repository already uses (`bo-field-standard.css`
+   → `:not(#field-standard-off)`, `bo-input-fill.css` → `:not(#bo-input-fill-legacy)`), and the step
+   count is measured: the deepest rules this sheet competes with are `bo-charcoal-primitives.css`'s
+   light/dark `.rounded-select-btn` pair at (4 classes, 2 elements) + `!important` and
+   `main-*-executive.css` / `vip-pages-targeted.css`'s four-`:not(#…)` tiers; five steps wins both.
+
+   NO COMPLEX `:not()` IN THIS SHEET, ON PURPOSE. `:not(.mad-modal *)` (a `:not()` holding a
+   descendant combinator) is unsafe here: measured in a controlled page, the engine matched the
+   guarded rule against an element that `Element.matches()` says does not match it — the hidden
+   `<select>` inside `.rounded-select-wrap` picked up 36px, and on a real page the rule applied to
+   a 1px hidden select while its own wrapper reported no match. The dialog exclusion is therefore
+   structural (above) and the wrapped-select exclusion is an attribute, never a `:not()`.
+
+   HEIGHT ONLY, and the radius is deliberately not here. The owner asked for the row's radius to
+   follow the locked 8px too (2026-10-03), and it was attempted three ways — a rule in this sheet, a
+   scoped block appended to reports.css with `!important`, and the same shape without the inner
+   `:not()` — plus an inline style on the element itself. None of them moved the painted corner:
+   measured, `#ledgerMemberId` computed and painted 10px with every one of them in place (a
+   fresh-load clone of the same input inside the same row reports 10px as well, while a *detached*
+   input resolves 2px/20px normally). Until that is understood in a real browser, the rows' radius
+   stays with the sheets that own it — `.field input,.field select{border-radius:10px}` in
+   reports.css is the declaration that actually wins for these inputs. Reported to the owner; the
+   height is the part this sheet can and does state.
+
+   Kill switches (nothing sets them): `#bo-control-height-off` / `#bo-control-height-legacy`.
+   -------------------------------------------------------------------------- */
+
+/* 1. Filter rows and strips — the input, the custom-select driver, its wrapper and the date
+      trigger inside the row. */
+html:not(#bo-control-height-off):not(#bo-control-height-legacy):not(#bo-charcoal-off):not(#bo-filter-standard-off):not(#bo-input-fill-legacy)
+body:not(#bo-input-fill-legacy-2) .report-main
+:is(.bo-filter-row, .mad-filters, .banner-filterbar, .main-mod-filters)
+:is(input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]):not([type="color"]):not([type="submit"]):not([type="button"]):not([type="reset"]),
+    select:not([data-rounded-ready]),
+    textarea,
+    .rounded-select-wrap,
+    .rounded-select-btn,
+    .bo-range-trigger,
+    .ref-range-trigger,
+    .ref-range-wrap) {
+  height:36px!important;
+  min-height:36px!important;
+  max-height:36px!important;
+  box-sizing:border-box!important;
+}
+
+/* 2. The date-range trigger, wherever it sits — the dashboard's `.np-controls`, the report pages'
+      `.mre-scope-bar` / `.brand-exec-filter-card`, the ledger and detail toolbars
+      (`.settlement-ledger-head`, `.settlement-ledger-tools`, `.mra-detail-toolbar`). It is page
+      chrome in every one of those places, so it is matched by its own class rather than by its
+      container — which is also why rule 1 carries it a second time: a row can hold it, and a page
+      can hold it outside any row. */
+html:not(#bo-control-height-off):not(#bo-control-height-legacy):not(#bo-charcoal-off):not(#bo-filter-standard-off):not(#bo-input-fill-legacy)
+body:not(#bo-input-fill-legacy-2) .report-main
+:is(.bo-range-trigger, .ref-range-trigger) {
+  height:36px!important;
+  min-height:36px!important;
+  max-height:36px!important;
+  box-sizing:border-box!important;
+}
+
+/* 3. The table footer's page-size control. The container name differs per family — the classic
+      listings use `.entries-control`, the executive ones `.mad-page-size-control`, the merchant /
+      provider reports `.mre-page-size-label`, and accounting a plain `.main-mod-footer` /
+      `.provider-footer`. The wrapper is the box the row measures, and the driver is what the user
+      clicks: both are pinned, while the select they hide (`[data-rounded-ready]`) is not. */
+html:not(#bo-control-height-off):not(#bo-control-height-legacy):not(#bo-charcoal-off):not(#bo-filter-standard-off):not(#bo-input-fill-legacy)
+body:not(#bo-input-fill-legacy-2) .report-main
+:is(.entries-control, .table-footer, .mad-footer, .main-mod-footer, .provider-footer,
+    .mre-page-size-label, .pagination-clean, .bo-pagination-standard, .standard-pagination,
+    .mad-page-size-control)
+:is(select:not([data-rounded-ready]), .rounded-select-wrap, .rounded-select-btn, .mad-page-size-select) {
+  height:36px!important;
+  min-height:36px!important;
+  max-height:36px!important;
+  box-sizing:border-box!important;
+}

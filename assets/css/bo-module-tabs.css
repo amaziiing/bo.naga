@@ -304,3 +304,86 @@ html[data-bo-theme="dark"] body.bo-wallet-tx .report-sidebar .report-nav .nav-gr
   color:#FBBF24!important;
   filter:drop-shadow(0 0 8px rgba(245,158,11,.65));
 }
+
+/* ------------------------------------------------------------------
+   11.1 Roles & Permissions (menu-permission.html) — the same row, on the one page of the
+   Access Control family that cannot get it from bo-charcoal-shell.css.
+
+   The module's collapsed row is painted by `body.report-body.bo-charcoal ... .nav-group-btn.active`
+   in the BO shell sheet. That page IS in the BO's Access Control group and now carries the
+   module row like its five siblings, but it is a Main panel page (data-bo-shell="main") and
+   therefore carries no `bo-charcoal` — so the rail sat unmarked on the one page whose whole
+   point is that you are inside Access Control. Measured there with the group collapsed
+   (1600x900, both themes): `background-image none`, `box-shadow none` against the family's
+   cream wash + amber pill on admin-user.html.
+
+   Restated here, next to the row it belongs to, rather than by linking the BO shell sheet
+   onto that page: AGENTS.md keeps the two shells apart. Colours only — the row's metrics
+   stay the page's own (its rail row is 2px shorter than the BO's and keeps its own inset).
+   ------------------------------------------------------------------ */
+html:not([data-bo-theme="dark"]) body.menu-permission-page .report-sidebar .report-nav .nav-group > .nav-group-btn.active{
+  position:relative;
+  background:linear-gradient(135deg,#FFF8EF 0%,#FFE8CC 48%,#FFF3E0 100%)!important;
+  color:#6b360c!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.85),
+    0 0 0 1px rgba(217,119,6,.18),
+    0 6px 16px rgba(217,119,6,.12)!important;
+  border:0!important;
+  border-radius:10px!important;
+  overflow:hidden;
+  text-shadow:none;
+}
+
+html:not([data-bo-theme="dark"]) body.menu-permission-page .report-sidebar .report-nav .nav-group > .nav-group-btn.active::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:7px;
+  bottom:7px;
+  width:3px;
+  border-radius:999px;
+  background:linear-gradient(180deg,#FBBF24 0%,#D97706 100%);
+  box-shadow:0 0 10px rgba(217,119,6,.35);
+  pointer-events:none;
+  z-index:1;
+}
+
+html:not([data-bo-theme="dark"]) body.menu-permission-page .report-sidebar .report-nav .nav-group > .nav-group-btn.active i{
+  color:#6b360c!important;
+  opacity:1;
+  filter:none;
+}
+
+html[data-bo-theme="dark"] body.menu-permission-page .report-sidebar .report-nav .nav-group > .nav-group-btn.active{
+  position:relative;
+  background:linear-gradient(90deg,rgba(245,158,11,.16) 0%,rgba(245,158,11,.05) 45%,transparent 100%)!important;
+  color:#FBBF24!important;
+  box-shadow:
+    inset 0 1px 0 rgba(245,158,11,.18),
+    inset 0 -1px 0 rgba(245,158,11,.10),
+    0 0 28px rgba(245,158,11,.12)!important;
+  border:0!important;
+  border-radius:8px!important;
+  overflow:hidden;
+  text-shadow:0 0 18px rgba(245,158,11,.45);
+}
+
+html[data-bo-theme="dark"] body.menu-permission-page .report-sidebar .report-nav .nav-group > .nav-group-btn.active::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:8px;
+  bottom:8px;
+  width:2px;
+  border-radius:999px;
+  background:linear-gradient(180deg,#FDE68A 0%,#F59E0B 55%,#D97706 100%);
+  box-shadow:0 0 10px rgba(245,158,11,.9),0 0 18px rgba(245,158,11,.5);
+  pointer-events:none;
+  z-index:1;
+}
+
+html[data-bo-theme="dark"] body.menu-permission-page .report-sidebar .report-nav .nav-group > .nav-group-btn.active i{
+  color:#FBBF24!important;
+  filter:drop-shadow(0 0 8px rgba(245,158,11,.65));
+}

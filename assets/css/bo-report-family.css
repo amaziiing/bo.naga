@@ -127,18 +127,22 @@ html[data-bo-theme="dark"] body.bo-report-family .mad-pager .smart-page.active{
 
 /* --------------------------------------------------------------------------
    3. Listing filter controls — 36px / 8px / surface (Wallet Ledger specimen).
-   The global tokens in bo-ui-standard.css are 42px / 11px and the locked
-   36px recipe only exists under body.bo-wallet-tx / .user-management-page.
+   HISTORICAL, kept for the record: when this block was written the global tokens in
+   bo-ui-standard.css were 42px / 11px and the locked 36px recipe only existed under
+   body.bo-wallet-tx / .user-management-page. Since 2026-10-03 the tokens themselves are
+   `36px` and `bo-control-height.css` states the height site-wide, so this body-scoped
+   redeclaration is a belt on a correct source rather than the only fix.
    -------------------------------------------------------------------------- */
 /* Two levers, because the layer being beaten does two different things:
    1. `bo-ui-standard.css` consumes `--bo-filter-height` / `--bo-filter-radius` /
       `--bo-control-height`. Redeclaring those on <body> resolves them to the locked
       values for every consumer by inheritance — no specificity contest at all.
-   2. Its "final authority layer" also hard-codes `42px` in a rule at (2,6,2)
-      (`…not(#…).report-main .bo-filter-row > .bo-filter-input-item input…`).
-      A token cannot win that, so the selector below carries three extra body
-      classes every one of these pages has (`bo-charcoal`, `bo-account-chip`) to
-      reach (2,8,2) and win on specificity rather than load order. */
+   2. Its "final authority layer" used to hard-code `42px` in a rule at (2,6,2)
+      (`…not(#…).report-main .bo-filter-row > .bo-filter-input-item input…`); those rules
+      are token-driven as of 2026-10-03, so the extra classes below are a guard against
+      future literals rather than a deliberate escalation. Its three extra body classes
+      every one of these pages has (`bo-charcoal`, `bo-account-chip`) reach (2,8,2) and win
+      on specificity rather than load order. */
 body.bo-report-family{
   --bo-filter-height:36px;
   --bo-filter-radius:8px;

@@ -1,29 +1,40 @@
-/* Main panel - the signed-in account block, docked in the sidebar above the Logout line.
+/* Main panel - the signed-in account block, in the rail's header row.
 
-   The block, its markup and its sync with auth.js are explained in
-   assets/js/main-sidebar-account.js. This sheet is the presentation half and is loaded
-   by the Main panel pages only (main-*.html, main_*.html, menu-permission.html).
+   The block, its markup, its sync with auth.js and which of its two homes it takes are
+   explained in assets/js/main-sidebar-account.js. This sheet is the presentation half and is
+   loaded by the Main panel pages only (main-*.html, main_*.html, menu-permission.html).
 
-   NAMING - WHY THESE CLASSES ARE NOT SHELL CLASSES
+   Two placements, one block:
+     expanded rail  - inside `.report-brand`'s first slot, where the "Backoffice" title was
+                      (the title is hidden here from the first paint and removed by the script);
+     collapsed rail - its own row above the Logout line, the sibling BEFORE
+                      `.bo-sidebar-account-footer`.
+
+   NAMING AND SCOPE - WHY `.report-brand` RULES ARE EXEMPT
    The BO shell's layout metrics live in assets/css/bo-shell.css, and
-   scripts/check-shell-drift.js refuses a NEW metric declaration on a shell selector in
-   any other sheet. The Main panel keeps its own shell (AGENTS.md, "Scope: BO pages
-   only"), so this block is named inside its own `main-side-account-*` namespace and its
-   selectors carry neither `.report-sidebar` nor `.bo-sidebar-`/`.report-avatar`/
-   `.bo-account-*`. The guard therefore keeps protecting the BO shell untouched, and no
-   baseline entry is needed. Run `node scripts/check-shell-drift.js` after editing.
+   scripts/check-shell-drift.js refuses a NEW metric declaration on a shell selector in any other
+   sheet. The Main panel keeps its own shell (AGENTS.md, "Scope: BO pages only"), so this block
+   lives in its own `main-side-account-*` namespace and its base selectors carry neither
+   `.report-sidebar` nor `.bo-sidebar-`/`.report-avatar`/`.bo-account-*`.
+   The brand-row rules DO have to name `.report-brand` - that row is the title's place - and they
+   are scoped with `html[data-bo-shell="main"]`, the marker the guard reads to tell the Main
+   panel's own frame from the BO shell drifting (its MAIN_SHELL_SCOPE exemption). The scope,
+   and not a baseline entry, is what keeps the guard protecting the BO shell.
+   Run `node scripts/check-shell-drift.js` after editing.
 
    GEOMETRY - DO NOT MOVE THE HAIRLINE
-   The block is a sibling ABOVE `.bo-sidebar-account-footer`. The footer's border-top
-   stays the single line between the account block and Logout, and the footer keeps the
-   height bo-ui-standard.css pins per page (73/71/69/68/65/60px) to meet the page's
-   sticky action bar. Nothing here may change the footer's box - that alignment is the
-   reason the block lives outside it.
+   In the collapsed rail the block is a sibling ABOVE `.bo-sidebar-account-footer`. The footer's
+   border-top stays the single line between the account block and Logout, and the footer keeps
+   the height bo-ui-standard.css pins per page (73/71/69/68/65/60px) to meet the page's sticky
+   action bar. Nothing here may change the footer's box - that alignment is the reason the block
+   sits outside it there.
 
    Values: the rail's own rhythm. Name 14px/800 like the Logout row, role 11px muted like
    the topbar chip's role line, avatar 34px/radius 10 like `.report-brand .logo` and the
-   nav icon tiles, row padding 8px/10px and radius 10px exactly like a `.report-nav` row,
-   so the block reads as part of the rail rather than a chip dropped into it. */
+   nav icon tiles, radius 10px exactly like a `.report-nav` row, so the block reads as part
+   of the rail rather than a chip dropped into it. The row's own padding differs per home -
+   the Logout pill's 10px/12px when it is the footer's sibling, 7px top/bottom and 6px left
+   inside the 64px brand row - and each is stated with its measurement where it is declared. */
 
 .main-side-account{
   flex:0 0 auto;
@@ -45,6 +56,39 @@
   box-shadow:inset 0 1px 0 rgba(255,255,255,0), 0 1px 2px rgba(60,48,32,0),
              0 0 0 1px rgba(217,119,6,0), 0 6px 16px rgba(217,119,6,0);
   transition:background .16s ease, box-shadow .16s ease, color .16s ease;
+}
+
+/* ============================ THE BRAND ROW (expanded rail)
+   The card is the brand's first child and the 42px rail toggle keeps the right-hand slot, so
+   the row is [ account card .......... ][ toggle ]. Every rule that names `.report-brand` is
+   scoped with `data-bo-shell="main"` - see NAMING AND SCOPE above for why that is what keeps
+   check-shell-drift.js meaningful on the BO shell.
+
+   The title itself is hidden from the FIRST PAINT here (the script removes the node a moment
+   later, at DOMContentLoaded): without this rule a frame of "Backoffice" is painted before the
+   card lands in its place. `display:none` is not one of the guard's layout metrics, and the
+   scope exempts it from the guard's BO-shell half anyway. */
+html[data-bo-shell="main"] .report-sidebar .report-brand > div:not(.logo):not(.main-side-account){
+  display:none;
+}
+
+/* The card takes the free width - the toggle's 42px and the row's 10px gap are fixed - and
+   min-width:0 is what lets a long name ellipsize instead of pushing the toggle out of the row. */
+html[data-bo-shell="main"] .report-sidebar .report-brand > .main-side-account{
+  flex:1 1 auto;
+  min-width:0;
+  padding:0;
+}
+
+/* The brand row is 64px tall and centres its children (reports.css `.report-brand`), so the
+   card's own box is 48px: 34px avatar + 7px above and below, the Logout row's own height.
+   6px of left padding puts the avatar's left edge 6px inside the brand's inset - measured x=22
+   on the dashboard's `padding:0 16px` brand, which is exactly where a `.report-nav` row's icon
+   sits; on a `padding:0 14px` brand it lands at 20 (the 2px is the shell's own page-to-page
+   difference, not this block's). Right padding stays 10px so the pill ends inside the row
+   rather than against the toggle. */
+html[data-bo-shell="main"] .report-sidebar .report-brand .main-side-account-link{
+  padding:7px 10px 7px 6px;
 }
 
 /* ============================ STATES

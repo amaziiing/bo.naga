@@ -31,6 +31,18 @@
  *   scripts/adopt-bo-spa.js, and the same key bo-spa.js uses to decide the shell. No
  *   per-page class list, and the block is inert on BO pages by construction.
  *
+ * WHY THE FIRST RULE EXCLUDES `[hidden]` (2026-10-01, user-reported)
+ *   A Main page may hold more than one `.report-content`: Merchant Detail keeps its
+ *   edit workspace (`#madEditWorkspace`) as a second one and hides it with the `hidden`
+ *   attribute until the pencil is clicked. `display:flex!important` matched it anyway -
+ *   important beats the UA sheet's `[hidden]{display:none}` and the page's own
+ *   `body.main-merchant-detail-page #madEditWorkspace{display:none}` (not important) -
+ *   so the whole edit form was painted under the list, and the leaked form took the
+ *   height the list's auto page-size measures against (5 rows fitted, none visible).
+ *   Measured on the live page: `hidden=true`, computed `display:flex`, box 1290x381.
+ *   `:not([hidden])` keeps the rhythm on the visible frame and lets a hidden one stay
+ *   hidden. Anything declaring `display` here must carry it.
+ *
  * WHY `!important` ON EVERY DECLARATION
  *   It is not decoration: the rules this competes with (page sheets, Bootstrap's
  *   `.mt-3`, `reports.css`) declare `!important` too, and an important declaration beats
@@ -42,7 +54,7 @@
  *   stacking and spacing; the margins it relies on are left alone there.
  * ------------------------------------------------------------------------- */
 @media (min-width:1024px){
-  html[data-bo-shell="main"] .report-content{
+  html[data-bo-shell="main"] .report-content:not([hidden]){
     display:flex!important;
     flex-direction:column!important;
     gap:16px!important;

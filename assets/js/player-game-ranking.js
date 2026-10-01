@@ -150,15 +150,34 @@
   /* Any explicit action re-opens the fit: only the settled value is discarded with it, never the
      user's own page-size choice. */
   const userLoad=reset=>{fitLock=0;settleSteps=0;load(reset)};
+  /* Every binding below is once per ELEMENT: this file serves two pages
+     (frequently-played-games.html and highest-turnover-games.html) and the router re-runs it on
+     each entry - which is what re-renders the ladder - so an unguarded addEventListener would
+     fire every debounce, key and pager click twice. The elements are fresh clones per entry, so
+     the mark goes on them, not on the body. */
   ['gameRankSearch','gameRankProvider'].forEach(id=>{
-    const el=$(id); if(!el) return;
+    const el=$(id); if(!el||el.dataset.rankInputBound==='1') return;
+    el.dataset.rankInputBound='1';
     el.addEventListener('input',()=>{clearTimeout(rankInputT);rankInputT=setTimeout(()=>userLoad(true),400)});
   });
   $('gameRankSize').onchange=()=>userLoad(true);
   /* One delegated handler for the whole ladder (page rungs carry data-page); #gameRankPrev and
      #gameRankNext keep their ids so anything clicking them still lands here through the nav. */
-  $('gameRankPager').addEventListener('click',e=>{const b=e.target.closest('[data-page]');if(!b||b.disabled)return;const n=Number(b.getAttribute('data-page'));if(!(n>=1)||n>totalPages||n===page+1)return;page=n-1;load(false);});
-  ['gameRankSearch','gameRankProvider'].forEach(id=>$(id).addEventListener('keydown',e=>{if(e.key==='Enter')userLoad(true)}));
-  window.addEventListener('resize',()=>{const sel=$('gameRankSize');if(!sel||sel.value!=='-')return;clearTimeout(resizeT);resizeT=setTimeout(()=>{const p=fitPlan();if(p&&p.size!==lastFit)userLoad(false)},250)});
+  const rankPager=$('gameRankPager');
+  if(rankPager&&rankPager.dataset.rankPagerBound!=='1'){
+    rankPager.dataset.rankPagerBound='1';
+    rankPager.addEventListener('click',e=>{const b=e.target.closest('[data-page]');if(!b||b.disabled)return;const n=Number(b.getAttribute('data-page'));if(!(n>=1)||n>totalPages||n===page+1)return;page=n-1;load(false);});
+  }
+  ['gameRankSearch','gameRankProvider'].forEach(id=>{
+    const el=$(id); if(!el||el.dataset.rankKeysBound==='1') return;
+    el.dataset.rankKeysBound='1';
+    el.addEventListener('keydown',e=>{if(e.key==='Enter')userLoad(true)});
+  });
+  /* `window` outlives a swap, so this one is a single slot rather than a guard: the previous
+     page's closure must be dropped, not kept (it would drive the previous ladder's state). */
+  const onRankResize=()=>{const sel=$('gameRankSize');if(!sel||sel.value!=='-')return;clearTimeout(resizeT);resizeT=setTimeout(()=>{const p=fitPlan();if(p&&p.size!==lastFit)userLoad(false)},250)};
+  if(window.__boRankResize) window.removeEventListener('resize',window.__boRankResize);
+  window.__boRankResize=onRankResize;
+  window.addEventListener('resize',onRankResize);
   userLoad(true);
 })();

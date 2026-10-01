@@ -1,32 +1,43 @@
-﻿/* Deep Navy Cyan — Main Admin Detail
-   Tokens from .interface-design/system.md */
+﻿/* Main Admin Detail shell — the family's shared token layer.
+   Was "Deep Navy Cyan" (navy #072647 sidebar, #11203A ink, #E2E7F0 borders, #98A2B3 placeholder).
+   Re-pointed to the locked Charcoal + Amber palette on 2026-10-01 (owner: “旧风格应该不要再出现了”)
+   after the old values turned out to be only ONE missing stylesheet away from painting again: they
+   were already dead by load order (the migrated block further down re-points every one of them, and
+   the merchant family re-points them again in main-merchant-detail-executive.css), so nothing read
+   them - but with main-merchant-detail-executive.css removed from main-merchant-detail.html the
+   sidebar measured rgb(7,38,71) and the whole navy set went live: #11203A ink, #E2E7F0 borders,
+   #E4E9F2 well hover, #98A2B3 placeholder, navy-tinted shadow. Measured, not inferred. The values
+   are gone from the source now, so the fallback for any page that loses its family sheet is the
+   locked look rather than the retired one. Tokens from .interface-design/system.md. */
 
 body.main-admin-detail-page{
-  /* Deep Navy Cyan — lock page + neutralize global BO blues/indigos */
+  /* Locked palette — no navy, no cool ink, no pure-white chrome (see the header note) */
   --bo-navy:#18191C;
   --bo-cyan:#D97706;
   --bo-cyan-deep:#B45309;
   --bo-success:#12B76A;
-  --bo-danger:#EF3340;
+  --bo-danger:#991B1B;
   --bo-bg:#FFF1DC;
-  --bo-surface:#FFFFFF;
-  --bo-border:#E2E7F0;
-  --bo-text:#11203A;
-  --bo-text-secondary:#1C2942;
-  --bo-muted:#657187;
-  --bo-sidebar-bg:#072647;
-  --bo-sidebar-text:#FFFFFF;
+  --bo-surface:#FFF8EB;
+  --bo-border:#EADCC8;
+  --bo-text:#18191C;
+  --bo-text-secondary:#27272A;
+  --bo-muted:#71717A;
+  --bo-sidebar-bg:#FFE8CC;
+  --bo-sidebar-text:#6b360c;
   --bo-sidebar-active:#D97706;
-  --bo-cyan-tint:rgba(217,119,6,.10);
-  --bo-cyan-tint-strong:rgba(217,119,6,.16);
+  --bo-sidebar-active-bg:#FFE8CC;
+  --bo-sidebar-active-bg-strong:rgba(217,119,6,.16);
+  --bo-cyan-tint:rgba(217,119,6,.12);
+  --bo-cyan-tint-strong:rgba(217,119,6,.20);
   --bo-control-well:#F5EBDC;
-  --bo-control-well-hover:#E4E9F2;
+  --bo-control-well-hover:#F0E4D0;
   --bo-control-border:#EADCC8;
-  --bo-placeholder:#98A2B3;
-  --bo-navy-hover:#E8901A;
+  --bo-placeholder:#78716C;
+  --bo-navy-hover:#27272A;
   --bo-ui-blue:#D97706;
-  --bo-ui-blue-hover:#D97706;
-  --bo-shadow:0 0 0 1px rgba(120,80,20,.04),0 1px 2px -1px rgba(120,80,20,.06),0 2px 8px rgba(26,45,80,.018);
+  --bo-ui-blue-hover:#B45309;
+  --bo-shadow:0 0 0 1px rgba(24,25,28,.04),0 1px 2px -1px rgba(24,25,28,.06),0 2px 8px rgba(24,25,28,.04);
   --bo-ease:cubic-bezier(0.23,1,0.32,1);
   color:var(--bo-text);
   background:var(--bo-bg)!important;
@@ -7047,7 +7058,9 @@ body.main-merchant-detail-page .mac-provider-markup-field input[type="number"]::
 
 /* ==========================================================================
    Charcoal + Amber — Admin Detail + Security & Audit
-   (data-access-page=main_admin_detail | main_admin_security). Other mad pages keep Deep Navy Cyan until migrated.
+   (data-access-page=main_admin_detail | main_admin_security). The other mad pages no longer keep
+   Deep Navy Cyan: the retired values were re-pointed at the top of this file on 2026-10-01, so a page
+   with no migrated layer of its own falls back to the locked palette instead of the navy shell.
    ========================================================================== */
 body.main-admin-detail-page[data-access-page="main_admin_detail"],
 body.main-admin-detail-page[data-access-page="main_admin_security"]{

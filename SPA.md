@@ -117,7 +117,7 @@ node scripts/audit-spa-swaps.js 你的页面.html   # 只测你改的页
 |---|---|---|
 | 1 | **拦截判定**：链接目的地是否在 `bo-spa-manifest.js` 清单里 | 不在清单（agent 门户、存根、无内容帧的页面）**一律交给浏览器原生跳转**；否则会"先 fetch 一次再整页跳"，比不拦截更慢 |
 | 2 | `fetch` + `DOMParser` 解析目标页 | 只解析、不执行；解析结果缓存（上限 16 份，避免长会话内存膨胀） |
-| 3 | **样式表收敛**：补上目标页有新表、**移除目标页没有的旧表** | 与内容替换在**同一个任务**里完成，中间不给浏览器绘制机会 → 不会闪；同时避免"从 A 页进 B 页，B 页带着 A 页的样式表"（旧版本会累积到 25 张，直接打开只有 22 张） |
+| 3 | **样式表收敛**：补上目标页声明而当前文档还没有的表（**只会增加，不会移除**，同 `<head>` 里的 import map） | 与内容替换在**同一个任务**里完成，中间不给浏览器绘制机会 → 不会闪。曾经“移除目标页没有的旧表”：外壳自己的 CSS 是各页各自 link 的，目标页往往不声明，移除后侧栏/tab 行直接塌掉（实测 `casino-overview-report.html` 的模块行 padding-left 归 0、`bo-charcoal-shell.css` 消失）——长会话里多几张表是更小的代价。`data-bo-spa-importmap` 同样只增不减 |
 | 4 | **内容帧替换** | 帧元素相同 → 只换子节点（保留脚本可能持有的引用）；帧元素不同 → 整体替换 |
 | 5 | **body 级页面自有标记收敛**：`body > 非 shell、非 script` 的元素 | 页面自己的模态框（`#approveModal`、`#ruleModal`）在 body 级，既不进帧也不属外壳。不做这一步：换页后它们不存在 → 脚本 `$('x').onclick` 抛 null → **后面所有绑定都不执行，页面"在但用不了"** |
 | 6 | **帧的后续兄弟节点收敛** | `slider-edit.html` 的 Save/Reset 在 `<footer id="bannerEditFooter">`——帧的兄弟。不做这一步 `#resetSliderBtn` 不存在，`slider-edit.js` 第一句绑定就抛错 |
@@ -128,10 +128,13 @@ node scripts/audit-spa-swaps.js 你的页面.html   # 只测你改的页
 | 11 | **重放 `DOMContentLoaded`**：只重放本次注册的 / 目标页自己的 / 白名单共享脚本的 | 不能无差别派发（会把上一页的监听在新 DOM 上再跑一遍 → 报错 + 请求风暴） |
 | 12 | 再绘制一次外壳，派发 `bo:spa:content` | 目标页脚本可能重建了 tab 行 |
 
-**关于"脚本跑不跑"的两条规则**（第 10 步的细节）：
+**关于“脚本跑不跑”的两条规则**（第 10 步的细节）：
 
-- **页面私有脚本（只有这一页加载）→ 每次进入都重跑**。因为整页加载就是这样：`promotion-workspace.js` 结尾直接调用 `load()`、**没有 `DOMContentLoaded`**，若按"本会话执行过就不再跑"，切回来的页面就不会再渲染数据（曾报"从 Promotion Log 切回 Promotion Bonus 数据不完整"）。
+- **页面私有脚本（只有这一页加载）→ 每次进入都重跑**。因为整页加载就是这样：`promotion-workspace.js` 结尾直接调用 `load()`、**没有 `DOMContentLoaded`**，若按“本会话执行过就不再跑”，切回来的页面就不会再渲染数据（曾报“从 Promotion Log 切回 Promotion Bonus 数据不完整”）。
 - **共享脚本（当前页也加载，如 `auth.js` / `reports.js` / `bo-topbar.js`）→ 不重跑**。它们的作用是全局的（定时器、document 监听、注入容器），重跑就是重复副作用。
+- **一个文件服务两页时（被 2–3 页加载的“页面私有脚本”）→ 在 `<script>` 上加 `data-bo-spa-rerun`**。否则它在“另一页也加载”这条规则下被判成共享而跳过，目标页的启动代码 **一行都不跑**（实例：`site-customize.js` 同时被 `site-customize.html` / `layout-section.html` 加载，从 Site Customize 切到 Layout Section 后布局编辑器整块失效——菜单、保存/重载、查找、CodeMirror 全部没了，刷新才恢复；反方向则是 Site Customize 的卡片不渲染）。
+
+**导入映射（import map）**：`<head>` 里的 `<script type="importmap">` 属于“页面环境”，换页时和第 3 步的样式表一样会被带进当前文档（在跑目标页脚本之前）。声明它的页面（目前只有 `layout-section.html`）用 `import()` 加载 ES 模块，裸模块名只能靠这张表解析，而表里每个包只映射到一个 esm.sh URL——这正是 CodeMirror 只存在**一个** `@codemirror/state` 实例的原因（两个实例会让所有扩展失效）。不带过去就是 `Failed to resolve module specifier '@codemirror/view'`，编辑器静默退回纯 textarea。
 
 ---
 
@@ -177,6 +180,13 @@ setInterval(poll, 5000);
 // ✅ 用守卫，或先清理旧句柄
 if (!window.__xResizeBound) { window.__xResizeBound = 1; window.addEventListener('resize', onResize); }
 ```
+
+监听器、定时器要用**元素上的标记**或 **window 上的单槽**（先 `removeEventListener` 旧的再绑新的）。两种写法的区别很重要：
+
+- **元素标记**（`el.dataset.xBound='1'`）适合绑在**本页元素**上的监听——每次进入都是新克隆的元素，所以“每个元素一次”就是“每次进入一次”。
+- **window 单槽**（`if(window.__x) removeEventListener(...); window.__x=handler; addEventListener(...)`）适合必须绑在 `document` / `window` 上的监听：`document` 不参与换页，只加一个“已绑过”的标记会把**上一页的闭包**留下来，它读到的是上一页的状态。
+
+两个真实测量（`DOMDebugger.getEventListeners`，换两次页后数监听器）：`bo-seg-bounce.js` 每组胶囊各一个 `window.resize` 监听（detached 元素一直没释放）→ 5 → 7 → 11；`main-i18n.js` 的 `document` click 监听 → 26 → 27 → 29。两者都改成“清理 / 单槽”后，二次进入与直接刷新完全一致。
 
 ### ③ 不要在 `body` 上放"只做一次"的标记
 
@@ -234,6 +244,7 @@ if (reset) reset.onclick = resetForm;
 | `data-bo-topbar-extra` | 右侧按钮组里的页面专属按钮 |
 | `data-bo-frame` | 声明本页的内容帧（非标准外壳页用） |
 | `data-bo-spa-link` | 强制让这个链接参与换页 |
+| `data-bo-spa-rerun` | 这个脚本是页面私有构建代码：即使另一页也加载同一文件，进入本页时仍要重跑（见第 3 节的第三条规则） |
 | `data-bo-no-spa` | 强制让这个链接走整页跳转 |
 
 ---

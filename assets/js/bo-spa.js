@@ -82,6 +82,7 @@
   var EXECUTED = {};                     // script key -> already run in this document
   var CSS_SEEN = {};                     // stylesheet key -> already in this document
   var STYLE_SEEN = {};                   // inline <style> fingerprint -> already applied
+  var IMPORTMAP_SEEN = {};               // import map fingerprint -> already in this document
   var busy = false;
   var scrollMemo = {};                   // href (pathname+search) -> scrollY
   var current = null;                    // href we are on / heading to
@@ -454,6 +455,29 @@
       el.textContent = text;
       DOC.head.appendChild(el);
     });
+    /* The import map is part of a page's environment, like its stylesheets - and the one page
+       that declares it (layout-section.html) is an ES-module page: site-customize.js reaches
+       assets/js/layout-section.js with import(), whose bare @codemirror/* specifiers can only
+       resolve through that map (it is what pins ONE esm.sh URL per package, and therefore a
+       single @codemirror/state instance - a second one makes every extension invalid). A swap
+       re-runs the page's scripts, so without the map the mount threw "Failed to resolve module
+       specifier '@codemirror/view'" and the editor silently fell back to the plain textareas -
+       measured on site-customize.html -> layout-section.html and reported as "the page's
+       functionality is all gone". Carried BEFORE the scripts run, so it is in place even for
+       engines that only accept a map before the first module load; Chrome >=133 (multiple
+       import maps) accepts it later as well. */
+    each(doc.querySelectorAll('head script[type="importmap"]'), function (s) {
+      var text = s.textContent || '';
+      if (!text.trim()) return;
+      var key = fp(text);
+      if (IMPORTMAP_SEEN[key]) return;
+      IMPORTMAP_SEEN[key] = 1;
+      var el = DOC.createElement('script');
+      el.type = 'importmap';
+      el.setAttribute('data-bo-spa-importmap', key);
+      el.textContent = text;
+      DOC.head.appendChild(el);
+    });
     // The fetched document never ran its own inline theme bootstrap, so it carries no
     // data-bo-theme. This document's value is the user's, and must be left alone.
     return { wait: Promise.all(pending), want: want };
@@ -488,6 +512,20 @@
       if (src) {
         var key = assetKey(src);
         if (!key) return;
+        /* A page may declare that this file builds ITS markup, even though another page also
+           loads the same file: `data-bo-spa-rerun`. The ownership test below is by file name,
+           so without this a hop between two pages that share one dispatcher script skipped the
+           target's boot completely - measured on site-customize.html -> layout-section.html,
+           both of which load site-customize.js: the section menu, the save/reload handlers,
+           the find bar and the CodeMirror mount were all dead until a manual reload, and the
+           same in the other direction (the Site Customize card never rendered from the layout
+           page). It is a script that runs at top level and registers no DOMContentLoaded
+           listener, so the boot replay could not cover it either. */
+        if (s.hasAttribute('data-bo-spa-rerun')) {
+          EXECUTED[key] = 1;
+          out.push({ src: src, key: key });
+          return;
+        }
         /* Run it unless THIS page already ran it.
 
            The old rule was "never run the same file twice in a session", which is wrong for a
@@ -510,6 +548,11 @@
       var text = s.textContent || '';
       if (!text.trim()) return;
       var tkey = 'inline:' + fp(text);
+      if (s.hasAttribute('data-bo-spa-rerun')) {
+        EXECUTED[tkey] = 1;
+        out.push({ text: text, key: tkey });
+        return;
+      }
       if (EXECUTED[tkey] && PAGE_KEYS[tkey]) return;
       EXECUTED[tkey] = 1;
       out.push({ text: text, key: tkey });
@@ -830,6 +873,43 @@
     pageBodyClass = want;
   }
 
+  /* Page-scope ATTRIBUTES, not only classes (2026-10-01, user-reported: "一登入页面 点sidebar的
+     admin 和其他的页面 就会像图里那样 但是刷新后就恢复现在的风格").
+
+     The Main panel's locked layers are keyed on a body attribute - the Admin and Merchant light
+     locks are `body.main-admin-detail-page[data-access-page="..."]`, the report families carry
+     `data-report-view` / `data-report-page`, the agent portal `data-agent-page` - and this router
+     converged only `class`. A swap from a page whose value differs (or which carries none) left
+     the PREVIOUS page's scope on the body, so the target's own lock stopped matching and the
+     earlier generic rules in the same sheet painted through. Measured, dashboard -> Admin
+     Management by a rail click: the light lock dropped, and the rail row came out
+     `rgba(255,255,255,.82)` (the dark-era value) on a cream sidebar, while a full load of the same
+     page measured `#6b360c`. A refresh "restored" it because a real navigation sets the attribute.
+
+     Runtime marks the page's scripts set (`data-crud-modal-ready`, `data-bo-autofit-settled`,
+     `data-mas-folded`, `data-crud-no-add`) are dropped too when the target does not declare them,
+     which is what a fresh load looks like - the marks are "this one-time work is done" flags, and
+     a swap that keeps them suppresses that work on the page being entered. */
+  function syncBodyAttrs(doc) {
+    if (!doc || !doc.body || !DOC.body) return;
+    var want = {}, i, name, attrs = doc.body.attributes;
+    for (i = 0; i < attrs.length; i++) {
+      name = attrs[i].name;
+      if (name.indexOf('data-') === 0) want[name] = attrs[i].value;
+    }
+    var live = DOC.body.attributes, drop = [];
+    for (i = 0; i < live.length; i++) {
+      name = live[i].name;
+      if (name.indexOf('data-') === 0 && !(name in want)) drop.push(name);
+    }
+    for (i = 0; i < drop.length; i++) DOC.body.removeAttribute(drop[i]);
+    for (name in want) {
+      if (Object.prototype.hasOwnProperty.call(want, name) && DOC.body.getAttribute(name) !== want[name]) {
+        DOC.body.setAttribute(name, want[name]);
+      }
+    }
+  }
+
   function apply(doc, u, push) {
     var from = frameOf(DOC);
     var to = frameOf(doc);
@@ -866,6 +946,7 @@
         from = fresh;
       }
       syncBodyClass(doc);
+      syncBodyAttrs(doc);
       /* Same task as the swap, so the removal is never painted: the document's stylesheets
          become the target's, and a page therefore looks the same whether it was swapped into
          or opened directly. */

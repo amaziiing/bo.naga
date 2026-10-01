@@ -1863,6 +1863,22 @@ html body.page-game-provider-create #providerStatusBox{
   margin:4px 0 0;
 }
 
+/* Keep the final Status dropdown clear of the fixed Save footer.
+   Scope is intentionally limited to Game Provider create/edit > callback Status only. */
+html body.page-game-provider-create .gpc-provider-status-field{
+  position:relative;
+  z-index:10;
+}
+html body.page-game-provider-create .gpc-provider-status-field .rounded-select-wrap{
+  position:relative;
+  z-index:10;
+}
+html body.page-game-provider-create .gpc-provider-status-field .rounded-select-menu{
+  top:auto !important;
+  bottom:calc(100% + 6px) !important;
+  z-index:5100 !important;
+}
+
 html[data-bo-theme="dark"] body.page-game-provider-create .mac-section{
   background:#383A46 !important;
   border-color:rgba(255,255,255,.10) !important;

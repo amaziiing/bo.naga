@@ -2929,7 +2929,11 @@ body:has(#gameSearchInput) .game-filter-actions .clean-btn{
 
 
 /* v33 - filter order, unified controls, single-border search and full category artwork */
-:root{--bo-control-height:42px}
+/* 36px - the locked listing/filter control height (system.md -> Listing filter controls).
+   Was 42px: the retired pair this token was introduced with. Flipped 2026-10-03 so the
+   filter rows, the single-border search frames and the filter buttons it sizes agree with
+   the locked recipe instead of needing a per-page override. */
+:root{--bo-control-height:36px}
 
 /* Keep every filter input/select/search/button on the same visual height. */
 .filter-card .field input,

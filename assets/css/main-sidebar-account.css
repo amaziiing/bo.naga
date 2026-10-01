@@ -5,21 +5,31 @@
    loaded by the Main panel pages only (main-*.html, main_*.html, menu-permission.html).
 
    Two placements, one block:
-     expanded rail  - inside `.report-brand`'s first slot, where the "Backoffice" title was
-                      (the title is hidden here from the first paint and removed by the script);
+     expanded rail  - inside the brand row's first slot, where the "Backoffice" title was (the
+                      title is hidden from the first paint on the main-* family and removed by
+                      the script everywhere);
      collapsed rail - its own row above the Logout line, the sibling BEFORE
                       `.bo-sidebar-account-footer`.
 
-   NAMING AND SCOPE - WHY `.report-brand` RULES ARE EXEMPT
-   The BO shell's layout metrics live in assets/css/bo-shell.css, and
-   scripts/check-shell-drift.js refuses a NEW metric declaration on a shell selector in any other
-   sheet. The Main panel keeps its own shell (AGENTS.md, "Scope: BO pages only"), so this block
-   lives in its own `main-side-account-*` namespace and its base selectors carry neither
-   `.report-sidebar` nor `.bo-sidebar-`/`.report-avatar`/`.bo-account-*`.
-   The brand-row rules DO have to name `.report-brand` - that row is the title's place - and they
-   are scoped with `html[data-bo-shell="main"]`, the marker the guard reads to tell the Main
-   panel's own frame from the BO shell drifting (its MAIN_SHELL_SCOPE exemption). The scope,
-   and not a baseline entry, is what keeps the guard protecting the BO shell.
+   The mount is asked for by auth.js (mountMainRailCard) on any page of the Main portal, so a BO
+   file the portal's menus point at is covered without being listed. Whatever that loader's
+   hand-written ?v= says has to be re-stamped when this sheet changes - see the note in
+   assets/js/main-sidebar-account.js.
+
+   NAMING AND SCOPE - WHY THE BRAND ROW IS MARKED, NOT NAMED
+   The BO shell's layout metrics live in assets/css/bo-shell.css, and scripts/check-shell-drift.js
+   refuses a NEW metric declaration on a shell selector in any other sheet. The Main panel keeps
+   its own shell (AGENTS.md, "Scope: BO pages only"), so this block lives in its own
+   `main-side-account-*` namespace. The brand row it sits in is marked with
+   `.main-rail-brand` (added by main-sidebar-account.js) rather than written as
+   `html[data-bo-shell="main"] … .report-brand …`, which is what the first cut did. The marker is
+   needed because the Main portal's menus point at BO files too (menu-management.html declares
+   `data-bo-shell="bo"`): on those, an attribute scope would never match, and a plain
+   `.report-brand` selector would land in the drift guard's scope. A class of the block's own is
+   neither - the guard sees no shell selector, and the row is styled wherever the block mounts.
+   The one exception is the first-paint rule below, which has to name the shell selector because
+   it runs before any script can mark anything; it is kept out of the guard by the very
+   `data-bo-shell="main"` scope that rule carries.
    Run `node scripts/check-shell-drift.js` after editing.
 
    GEOMETRY - DO NOT MOVE THE HAIRLINE
@@ -60,21 +70,28 @@
 
 /* ============================ THE BRAND ROW (expanded rail)
    The card is the brand's first child and the 42px rail toggle keeps the right-hand slot, so
-   the row is [ account card .......... ][ toggle ]. Every rule that names `.report-brand` is
-   scoped with `data-bo-shell="main"` - see NAMING AND SCOPE above for why that is what keeps
-   check-shell-drift.js meaningful on the BO shell.
+   the row is [ account card .......... ][ toggle ]. `.main-rail-brand` is the marker
+   main-sidebar-account.js puts on the row; see NAMING AND SCOPE above. */
 
-   The title itself is hidden from the FIRST PAINT here (the script removes the node a moment
-   later, at DOMContentLoaded): without this rule a frame of "Backoffice" is painted before the
-   card lands in its place. `display:none` is not one of the guard's layout metrics, and the
-   scope exempts it from the guard's BO-shell half anyway. */
+/* The title the card replaces leaves the DOM in the script and is hidden here as well, so the
+   two can never both be on screen: on a page that was injected (a BO file the Main portal's
+   menus point at) the marker and the sheet arrive a moment after the first paint, and this rule
+   is what removes "Backoffice" the instant they do. */
+.main-rail-brand > div:not(.logo):not(.main-side-account){
+  display:none;
+}
+
+/* First paint on the main-* family: there the row is not marked yet (the marker is a script's
+   job), so this rule - the one shell selector in this sheet, exempt through its
+   `data-bo-shell="main"` scope - hides the title from the browser's first paint instead of from
+   the marker's arrival. */
 html[data-bo-shell="main"] .report-sidebar .report-brand > div:not(.logo):not(.main-side-account){
   display:none;
 }
 
 /* The card takes the free width - the toggle's 42px and the row's 10px gap are fixed - and
    min-width:0 is what lets a long name ellipsize instead of pushing the toggle out of the row. */
-html[data-bo-shell="main"] .report-sidebar .report-brand > .main-side-account{
+.main-rail-brand > .main-side-account{
   flex:1 1 auto;
   min-width:0;
   padding:0;
@@ -87,7 +104,7 @@ html[data-bo-shell="main"] .report-sidebar .report-brand > .main-side-account{
    sits; on a `padding:0 14px` brand it lands at 20 (the 2px is the shell's own page-to-page
    difference, not this block's). Right padding stays 10px so the pill ends inside the row
    rather than against the toggle. */
-html[data-bo-shell="main"] .report-sidebar .report-brand .main-side-account-link{
+.main-rail-brand .main-side-account-link{
   padding:7px 10px 7px 6px;
 }
 

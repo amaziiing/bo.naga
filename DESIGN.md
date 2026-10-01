@@ -5894,3 +5894,45 @@ fields — or re-check the row in a real browser first.
 `36px` with `!important`, that neither token has drifted back to `42px`, and that no other sheet pins a new
 non-36 height on a panel-family selector (baseline file for the deliberate exceptions).
 
+
+### The Main panel's rail card is the PORTAL's, not the filename family's (2026-10-01, owner: "检查到 main的页面 很多页面他的sidebar 的acc没在最上面")
+
+**The owner found the card missing from the rail on `main.titanx7.com/menu-management.html`** - a BO file
+(`data-bo-shell="bo"`) that the Main portal's DB menus point at. That page is not alone: the Main panel's own role
+page (`menu-permission.html`) links through to `role-create.html`, which no page-script list carries either. The
+card's scope had been the filename family (`main-*`, `main_*`, `menu-permission.html`), correct only while the
+request was for that family to move; a portal whose membership is DB data cannot be served by a list that only sees
+the tree.
+
+- **One predicate, three callers.** "Is this page the Main panel's?" is now: the production Main host
+  (`main.titanx7.com` / `www.main.titanx7.com`), or the MAIN account (`roleType === 'MAIN' || mainAdmin`), or the
+  filename family a local checkout has to fall back on because both portals answer on `127.0.0.1`. The account branch
+  is the test auth.js already uses for the rail's pins (`menuLinkHtml`'s `isMainPanel`), so a MAIN account on a BO
+  page moves the chip there too - impossible in production (auth.js's portal isolation sends a MAIN account to the
+  Main host and a BO account away from it), and correct in a local checkout, where it is the same person and the same
+  rail.
+- **auth.js is what asks for the card's two files** (`mountMainRailCard`, beside `mountSidebarToggle`): every page of
+  both portals loads auth.js, which is what makes the card's reach the portal's reach. The check reads the HEAD's
+  stylesheet link, not the script tag further down the body - the parser has not reached that one at this point, so
+  it would look absent on the very pages that carry it. Generous on purpose: it only decides whether to FETCH; the
+  card re-checks the panel itself before mounting.
+- **The brand row is marked, not named.** `main-sidebar-account.css` reached the row through
+  `html[data-bo-shell="main"] ... .report-brand ...`, which can never match a BO file; the row now carries
+  `.main-rail-brand`, added by the mount. A class of the block's own is also what keeps those rules out of
+  `check-shell-drift.js`'s scope - the guard sees no shell selector - and the one shell selector left in the sheet is
+  the `main-*` family's first-paint hide, exempt through the `data-bo-shell="main"` scope it carries.
+- **The title goes in both rail states.** The collapsed rail used to keep the (CSS-hidden) title node; reports.css
+  hides `.report-brand > div:not(.logo)` at 72px anyway, but a hidden title is still a title in the DOM, and the
+  owner asked for it to go.
+
+**Measured** (1440x900, stubbed auth, light and dark): `menu-management.html` with a MAIN account - card in the brand
+row at x=16, 175x48, avatar x=22 on that page's `padding:0 16px` brand (x=20 on a 14px one, as `main-report.html`),
+the 42px toggle still at x=201, the Logout footer 68px and untouched; the same page with a MASTER account - no card,
+no injected sheet, "Backoffice" and the topbar chip exactly as before; `main-dashboard.html` unchanged (one
+stylesheet link, one script tag - a page that links the feature itself is left alone); collapse -> expand ->
+collapse moves the card between its two homes (brand 175x48 <-> the footer row 71x66) with the marker and the title
+removal re-applied each time; the 480px drawer lays the card out beside the close button (244x48).
+
+Pins: `auth.js` and both `main-sidebar-account.*` files re-stamped across the pages that carry them, and the
+hand-written `?v=` inside `mountMainRailCard` re-stamped with them - the asset-pin guard reads HTML only, the same
+caveat the injected `bo-global-quicknav.css` link already carries.

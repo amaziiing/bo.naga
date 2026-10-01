@@ -10,7 +10,14 @@
   --bo-ui-text:#18191C;
   --bo-ui-muted:#78716C;
   --bo-ui-danger:#ef3340;
-  --bo-filter-height:42px;
+  /* 36px — the locked listing/filter control height (system.md → Listing filter controls,
+     Wallet Ledger specimen). This token was 42px, which is the legacy pair (42/11px) the
+     design system retired; every page that "beat" it carried its own 36px override instead,
+     so the same row read 36 or 42 depending on which sheet had been migrated last. Measured
+     before the flip, light, 152 pages: 57 filter-row controls over 16 pages were still on 42px
+     (plus 24 on wbet-bet-limit at 38px) and the table footer's page size sat at 40px on 25
+     pages while 49 others showed 36. Height only — radius stays with the row's own sheet. */
+  --bo-filter-height:36px;
   --bo-filter-input-width:190px;
   --bo-filter-gap:10px;
   --bo-filter-button-width:120px;
@@ -583,8 +590,10 @@ body:not(#bo-filter-standard-off):not(#bo-filter-standard-legacy) .report-main .
 body:not(#bo-filter-standard-off):not(#bo-filter-standard-legacy) .report-main .bo-filter-row>.bo-filter-input-item input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not(.game-search-control input):not(.category-search-control input):not(.banner-search input):not(.input-icon-wrap input):not(.ref-input-icon input):not(.bo-search-control input),
 body:not(#bo-filter-standard-off):not(#bo-filter-standard-legacy) .report-main .bo-filter-row>input.bo-filter-input-item:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]){
   box-sizing:border-box!important;
-  height:42px!important;
-  min-height:42px!important;
+  /* The token, not a literal: this block is the row's "final authority layer" and hard-coding
+     42px here is what a per-page 36px override could never beat without an id-step war. */
+  height:var(--bo-filter-height)!important;
+  min-height:var(--bo-filter-height)!important;
   margin:0!important;
   border:1px solid #EADCC8!important;
   border-radius:11px!important;
@@ -618,8 +627,10 @@ body:not(#bo-filter-standard-off):not(#bo-filter-standard-legacy) .report-main .
 body:not(#bo-filter-standard-off):not(#bo-filter-standard-legacy) .report-main .bo-filter-row>.bo-filter-select-item select,
 body:not(#bo-filter-standard-off):not(#bo-filter-standard-legacy) .report-main .bo-filter-row>select.bo-filter-select-item,
 body:not(#bo-filter-standard-off):not(#bo-filter-standard-legacy) .report-main .bo-filter-row>.bo-filter-select-item .rounded-select-btn{
-  height:42px!important;
-  min-height:42px!important;
+  /* The token, never a literal: this layer used to hard-code 42px, which no per-page 36px
+     override could beat without an id-step war (see the --bo-filter-height note at the top). */
+  height:var(--bo-filter-height)!important;
+  min-height:var(--bo-filter-height)!important;
   margin:0!important;
   padding:0 32px 0 12px!important;
   border:1px solid #EADCC8!important;
@@ -671,8 +682,8 @@ body:not(#bo-filter-standard-off):not(#bo-filter-standard-legacy) .report-main .
   width:120px!important;
   min-width:120px!important;
   max-width:120px!important;
-  height:42px!important;
-  min-height:42px!important;
+  height:var(--bo-filter-height)!important;
+  min-height:var(--bo-filter-height)!important;
   margin:0!important;
   padding:0 14px!important;
   border-radius:11px!important;
@@ -694,7 +705,7 @@ body:not(#bo-filter-standard-off):not(#bo-filter-standard-legacy) .report-main .
   background:#57534E!important;background-image:none!important;color:#fff!important;border:1px solid #57534E!important;
 }
 body:not(#bo-filter-standard-off):not(#bo-filter-standard-legacy) .report-main .bo-filter-row .bo-filter-other-button{
-  width:auto!important;min-width:0!important;max-width:none!important;height:42px!important;min-height:42px!important;
+  width:auto!important;min-width:0!important;max-width:none!important;height:var(--bo-filter-height)!important;min-height:var(--bo-filter-height)!important;
   margin:0!important;padding:0 10px!important;flex:0 0 auto!important;
 }
 
@@ -910,8 +921,11 @@ body:not(#bo-bottom-band-off):has(.vle-footer) .report-sidebar .bo-sidebar-accou
    ============================================================ */
 .ref-range-trigger,
 .bo-range-trigger{
-  height:42px!important;
-  min-height:42px!important;
+  /* The locked listing height, not the retired 42px pair: the trigger sits in filter rows,
+     dashboard controls and ledger heads, and 18 pages were still measuring it at 42px
+     (bank-deposit-usage at 40px) against 36px everywhere it had already been migrated. */
+  height:36px!important;
+  min-height:36px!important;
   border:1px solid var(--bo-border, #EADCC8)!important;
   border-radius:10px!important;
   background:var(--bo-surface, #FFF8EB)!important;

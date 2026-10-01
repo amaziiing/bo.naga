@@ -353,7 +353,7 @@ Dark: Ghost charcoal gradient; Primary amber with dark text `#2A2C36`. CSS: `mai
 
 ### Roles & Permissions filter (`.mp-search` / `#menuPermissionFilter` — locked)
 
-**List page** (`menu-permission.html`): filter matches Role select — surface `#FFF8EB` · border `#EADCC8` · icon `#57534E` · placeholder `#78716C` (frame + input, incl. disabled). Height target **`36px`** when next touched (legacy CSS may still show `42px`). Input text `13.5px/500`.  
+**List page** (`menu-permission.html`): filter matches Role select — surface `#FFF8EB` · border `#EADCC8` · icon `#57534E` · placeholder `#78716C` (frame + input, incl. disabled). Height **`36px`** — the file moved with the site-wide panel-control pass (2026-10-03); the 42px legacy tier is gone from this row. Input text `13.5px/500`.  
 **Create Role** (`main-admin-role-create.html`): Role Name + filter both surface `#FFF8EB` (same family as list controls). Role Name `14px/600` · label `11.5px/800` uppercase.  
 Always beat `reports.css` `#fff!important`. Dark: charcoal well `#2A2C36`. CSS: `menu-permission-executive.css` + `main-admin-role-create.css`.
 
@@ -380,7 +380,7 @@ Sidebar **3. Transaction** pages use listing chrome: filter/select = surface `#F
 
 **Topbar (locked — Deposit Approval specimen):** height `64px` · surface `#FFF8EB` · left = hamb + page icon + title (+ Approval lead line) · right = theme → Members/Deposit/Withdraw counters (non-`MAIN`) → User Name + amber avatar. See Topbar chrome above.
 
-**Listing filter controls (locked — Wallet Ledger specimen):** height **`36px`** · radius **`8px`** · row gap **`10px`** · pad `0 12px` · date trigger ~`240px` · text inputs `140px` · Type `150px` · Reset/Search `width:auto` · **no** Page Size in the filter row (footer only) · flush strips: no hover `translateY`. Beat `bo-ui-standard` `--bo-filter-height:42px` / `11px` radius. Full table: `.interface-design/system.md` → Patterns → Listing filter controls.
+**Listing filter controls (locked — Wallet Ledger specimen):** height **`36px`** · radius **`8px`** · row gap **`10px`** · pad `0 12px` · date trigger ~`240px` · text inputs `140px` · Type `150px` · Reset/Search `width:auto` · **no** Page Size in the filter row (footer only) · flush strips: no hover `translateY`. **`36px` is now the site-wide value for these panel controls, on every page** (filter rows, search wells, date-range triggers, table-footer page size): `bo-ui-standard`'s `--bo-filter-height` and `reports.css`'s `--bo-control-height` were the last 42px sources and were flipped to `36px` on 2026-10-03, with `assets/css/bo-control-height.css` as the last-in-cascade guarantee — see *One control height for the panel* at the end of this file. Full table: `.interface-design/system.md` → Patterns → Listing filter controls.
 
 **Deposit / Withdraw shell (locked):** bank selector above the panel = **one segmented strip on no rail** (34px skewed segments, house 6px radius, uniform width from the longest name, unselected on `--bo-control-well`, selected on `--bo-surface` with a 1px accent ring and an accent wedge pointing into the panel, pending count inline, `data-bo-ui-skip`, scrolls sideways with 4px side room) with a constant-height three-zone summary bar under it (Start / Deposit / Balance only — no account/period block and no explanation sentence; an impossible figure shows `n/a` with its reason in that slot's tooltip; 1px separators, no second fill, Balance the only accent, 8px radius; selecting a bank also narrows the table to it) · mad-pill tabs Deposit→Withdraw→All **left** + inline filters **right** inside `.table-card` (no Reset/Search/Page Size in the filter row) · filter boxes = listing **`36px`** · date `240` · keyword `140` · status `150` · gap `10` · Bank column = bold `Name (account)` · Member = username only · action chips `.bo-tx-action-btn` 26×26 / icon 15px (Approve/Reject/Ledger) · no Pending metrics strip · no Filtered Total bar · Withdraw Remark without `Admin:` sub-line. Selector styles `bo-bank-selector.css`, markup `bo-bank-selector.js`; balance contract `BANK_BALANCE_API.md` — a figure that is not known prints `-`, never a guess.
 
@@ -655,7 +655,7 @@ Markup: `.ref-date-field > .ref-range-wrap > .ref-range-trigger` + `.ref-range-p
 | Part | Light | Dark |
 |------|-------|------|
 | Field (`.ref-date-field`) | width is **per page** (see below) | — |
-| Trigger `.ref-range-trigger` | bg `--bo-surface` `#FFF8EB` · border 1px `--bo-border` `#EADCC8` · radius `8–10px` · text `--bo-text` `#18191C` · `13px/700` · **listing h `36px`** (Wallet Ledger / `bo-wallet-tx`; MAIN executive may still measure `42px` until migrated) | bg `#2A2C36` · border `rgba(255,255,255,.12)` · text `--bo-text` `#F5F5F4` |
+| Trigger `.ref-range-trigger` | bg `--bo-surface` `#FFF8EB` · border 1px `--bo-border` `#EADCC8` · radius `8–10px` · text `--bo-text` `#18191C` · `13px/700` · **listing h `36px` on every page** (18 pages still measured 42px, `bank-deposit-usage` 40px, until the 2026-10-03 panel-control pass) | bg `#2A2C36` · border `rgba(255,255,255,.12)` · text `--bo-text` `#F5F5F4` |
 | Panel `.ref-range-picker` | bg `--bo-surface` `#FFF8EB` · border `--bo-border` `#EADCC8` · radius `12px` · **`box-shadow: 0 12px 30px rgba(60,48,32,.14)`** | bg `#383A46` · border `rgba(255,255,255,.14)` · radius `12px` · **`box-shadow: 0 16px 38px rgba(0,0,0,.4)`** |
 | Calendar well `.ref-range-calendar` | transparent (the panel shows through) | bg `--bo-surface` `#383A46` (opaque) |
 | Rail `.ref-range-presets` | bg `--bo-surface` · border `--bo-border` · width `112px` · pad `8px 0` · **same `box-shadow` as the panel** | bg `#383A46` · border `rgba(255,255,255,.14)` · same shadow as the panel |
@@ -890,7 +890,7 @@ on them — `data-bo-theme` was never written.
    the outcome cannot depend on which file happens to sit later. **Looking for a ghost is the only
    check that finds this** — measure `background-image`, because a gradient never appears in
    `background-color`.
-11. **Listing filter rows are locked at `36px` / `8px` radius (Wallet Ledger specimen).** Older notes that treated `bo-ui-standard` `--bo-filter-height:42px` / `--bo-filter-radius:11px` as a permanent second family are **superseded** for Transaction listing / `bo-wallet-tx` / `.bo-filter-row` on those pages. Beat the 42px tokens in `bo-wallet-transaction-amber.css`. MAIN executive `.mad-filters` and Roles `.mp-search` may still show legacy heights until those pages are migrated — then bring them to **`36px`**. Full metrics: `.interface-design/system.md` → Patterns → Listing filter controls.
+11. **Listing filter rows are locked at `36px` / `8px` radius (Wallet Ledger specimen).** Older notes that treated `bo-ui-standard` `--bo-filter-height:42px` / `--bo-filter-radius:11px` as a permanent second family are **superseded**. The migration this note used to defer (MAIN executive `.mad-filters`, Roles `.mp-search`, and the rows that only ever existed under a page sheet) **landed on 2026-10-03**: the two 42px tokens were flipped to `36px` and `assets/css/bo-control-height.css` now states the height for every panel control — filter rows, search wells, date triggers, table-footer page size — on every page, in both themes. Measured across 152 pages: filter-row controls 57 over 16 pages on 42px (wbet-bet-limit 38px) → 0; date triggers 18 pages on 42px → 0; footer `Show N` 25 pages on 40px, 5 on 34px, 3 on 42px → 0, with **0 mixed-height rows left in either theme**. Dialogs and create/edit form fields were deliberately out of scope and are byte-identical (the tiers are `36` panel / `40` dialog / `44` form). Guard: `scripts/check-control-height.py`. Full metrics: `.interface-design/system.md` → Patterns → Listing filter controls.
 12. **A regex in injected code is eaten before Chrome sees it.** The probe is delivered through a
    template literal, so `\w`, `\s`, `\d` and `\(` lose their backslash on the way in. A
    specificity scorer built on `/#[\w-]+/g` silently counted nothing and reported `sp=0` for every
@@ -5121,8 +5121,9 @@ regression.
 **Updated:** the owner's scope was explicit — **text inputs, selects and textareas**; the
 date-range trigger, select trigger, checkbox, switch and inline row buttons keep their own
 documented focus recipes (the checkbox is `.22` in dark). And **theme treatment only**: the size
-tiers are untouched (listing filters `36px`, filter rows and dialogs `42px`, form fields `44px`;
-radius `8/10/11px`).
+tiers are untouched (dialogs `40/42px`, form fields `44px`; radius `8/10/11px`). The **panel
+controls** (filter rows, search wells, date triggers, table-footer page size) are `36px` on every
+page — that is `assets/css/bo-control-height.css`'s business, not this sheet's.
 
 **Guarded:** `scripts/check-field-standard.py` asserts the sheet is present and loaded **last** on
 every real page, that the token pair still holds the canonical values, that **every declaration
@@ -5764,3 +5765,132 @@ instead of wrapping.
 Pins: `auth.js`, `bo-ui-standard.js`, `bo-spa.js` and `bo-module-tabs.css` re-stamped across the pages that
 reference them (`check-asset-pins` 0 stale · `pin-spa` 0). Guards: shell-drift OK · global-collisions 0 ·
 spa-readiness exit 0 · pin-spa 0.
+
+### Access Control joins the module row — the sidebar's 11.x group collapses to one row and its pages carry the tabs (2026-10-01, owner: “像其他页面 把二级sidebar 做成一页式 然后是tab”)
+
+The last BO group that still opened a floating submenu was **Access Control** (sidebar group 11). Its six rows are the
+family DESIGN.md already records — 11.1 Roles & Permissions (`menu-permission.html`), 11.2 Admin Management
+(`admin-user.html`), 11.3 Staff Permission (`role.html`), 11.4 Admin Login Log, 11.5 Admin Operation Log, 11.6 IP
+Whitelist Security — and they now work like Transaction, Game, Design and Setting: the rail keeps **one** row titled
+with the group's own name, and the six destinations are the page's tab row.
+
+**All six are registered, including the one that is not a BO page.** Five of them are ordinary BO pages
+(`data-bo-shell="bo"`); 11.1 is a **Main panel page** (`data-bo-shell="main"`, `main-sidebar-account.js`) that the same
+BO group also holds. It is registered anyway, and deliberately: once a group is claimed, `renderSidebar` replaces its
+whole submenu with the single module row, so a visible row the tab strip does not carry is reachable from *neither* the
+rail *nor* the row — the trap this document already records for Game Management. So the row lists all six and that page
+shows **two** rows: the module's above its own **Administrators / Roles & Permissions / Security & Audit** row, which
+belongs to the Main panel's Admin workspace and stays where it is. The owner chose this explicitly over suppressing the
+module row there (option “画（推荐，与其他模块一致）”).
+
+**A collapsed row needs its chip, and this page could not get it.** The module's rail row is painted by
+`bo-charcoal-shell.css` (`body.report-body.bo-charcoal … .nav-group-btn.active`). The family's own five pages carry
+`bo-charcoal`; the Main panel page does not, so with the group collapsed the rail sat **unmarked on the one page whose
+whole point is that you are inside Access Control** — measured there, both themes: `background-image none`,
+`box-shadow none`, against the family's cream wash + amber pill on `admin-user.html`. The chip is restated in
+`bo-module-tabs.css`, next to the row it belongs to and scoped by `body.menu-permission-page` — **colours only**, so the
+row keeps the page's own metrics (measured: 42px tall at `10px 12px`, against the BO's 44px at `9px 38px 9px 10px`) and
+the two shells stay apart, which is why linking the BO shell sheet onto that page was rejected. The `bo-wallet-tx` block
+in the same file is the same recipe for the same reason.
+
+**Measured after** (1600x900, stubbed auth, light and dark, all six pages): rail = **8 top-level rows**, Access Control
+among them as a single `nav-group-direct` row with no `.nav-group-list` at all, active on every one of the six; the chip
+resolves to `linear-gradient(135deg, 255 248 239 → 255 232 204 → 255 243 224)` + `#6b360c` in light and
+`rgba(245,158,11,.16 → .05 → transparent)` + `#FBBF24` in dark, on **all six**; the tab row is `6` tabs in the group's
+own order (Admin Management, Menu Permission, Staff Permission, Admin Login Log, Admin Operation Log, IP Whitelist
+Security), 48px, the current page marked `is-active`, one pin per tab; the row's top edge is **72** (the locked 8px
+inset under the 64px header) and the gap to the first block is **16px** on all six — on `menu-permission.html` that is
+its own frame doing it (`.mp-workspace` `padding 8px 24px 32px`, `gap 16px`), so no BO shell metric was needed there.
+
+**Click behaviour, measured.** In-family: clicking *Staff Permission* on `admin-user.html` swapped the content frame
+(`bo:spa:content`, navlog `phase ok`), the URL became `/role.html`, the rail stayed on Access Control and the row moved
+its active tab — no reload. Cross-shell: clicking *Menu Permission* is **refused by the router** (the two pages declare
+different `data-bo-shell` values) and navigates for real; the row and the rail highlight render on the far side, so the
+family is navigable in both directions.
+
+**Labels follow the group's own rows**, which is the convention every other module uses: the tab reads *Menu Permission*
+(the BO menu row's title) while that page's own `<title>` and the Main panel's row read *Roles & Permissions*. Renaming
+the row in Menu Management is therefore a two-place edit, as it already is for every module.
+
+Pins: `auth.js` and `bo-module-tabs.css` re-stamped across the pages that reference them (`check-asset-pins` 0 stale ·
+`pin-spa` 0 pages). Guards: `check-shell-drift` OK · `check-global-collisions` 0 · `check-spa-readiness` exit 0 (135
+swappable, 130 complete — unchanged). Six pages gained one `<link>`: `bo-module-tabs.css` sits immediately before
+`bo-shell.css` on the five BO pages, in the same slot every other module page uses.
+
+## One control height for the panel (36px)
+
+Owner, 2026-10-03: *检查所有页面的输入框 没有统一高度 36px*. The panel's box controls — filter rows, search
+wells, date-range triggers, the table footer's `Show N` — read **one height, `36px`, on every page**; the
+dialog tier and the create/edit form tier were explicitly out of scope and are unchanged.
+
+**What was wrong, measured** (headless Chrome, 1904x900, all 152 pages, light and dark — the harness compared
+`getComputedStyle` boxes node by node, not CSS text):
+
+| Family | Before | After |
+| --- | --- | --- |
+| Filter-row inputs / selects | 57 controls on **42px** across 16 pages (wbet-bet-limit's table-cell editors 38px) | **36px**, 0 offenders |
+| Date-range triggers (`.bo-range-trigger` / `.ref-range-trigger`) | **42px** on 18 pages (bank-deposit-usage 40px) | **36px**, 0 offenders |
+| Table footer `Show N` | **40px** on 25 pages, 34px on 5, 42px on 3, 36px on 49 | **36px**, 0 offenders |
+| Mixed-height rows (a row whose own controls disagree) | e.g. `member-deposit` search 42 next to its 36px date/status | **0 rows, either theme** |
+
+The owner's screenshot was `member-deposit.html` `#depositKeyword` — 42px inside a 36px row; its own page sheet
+had already migrated the row, and `bo-ui-standard`'s token put the keyword field back to 42.
+
+**Why one sheet plus two token flips, not a sweep.** The 42px was stated in three places that all out-rank a
+page rule, so per-page fixes could not hold: `bo-ui-standard.css`'s `--bo-filter-height` token and its
+hard-coded *final authority layer*, `reports.css`'s `--bo-control-height`, and
+`bo-charcoal-primitives.css`'s `…body.report-body.bo-charcoal .rounded-select-btn{height:40px!important}` —
+the last one is why `Show N` was 40px on 25 pages and 36px on 49 others. Both tokens are named for exactly
+these controls, so they were flipped to `36px` at the source (`bo-ui-standard.css`, `reports.css`,
+`reports-dashboard-original.css`, which the three pages that load no `reports.css` use) and
+**`assets/css/bo-control-height.css`** was added as the last-in-cascade guarantee for everything a token
+cannot reach. It is linked on all 149 real pages, immediately before `bo-field-standard.css` so that sheet
+keeps the head position it claims.
+
+**The scope is structural, not a `:not()`.** Dialogs are excluded because every dialog factory appends to
+`document.body` (`crud-modal-pattern.js:25`, `reports.js:929`, `bo-ui-standard.js:253/284`), i.e. outside
+`.report-main`, and the only dialogs that live inside it (`main-report.html`'s two Bootstrap modals) hold none
+of these controls — measured, 0 matches; a dialog opened for real (`main-merchant-create.html` →
+`#merchantCurrencyAdd`) reports the same field heights with the sheet on and off. Create/edit pages are
+excluded because the sheet names *container* families (`.bo-filter-row`, `.mad-filters`, `.entries-control`,
+the trigger classes), and a form page's `.mac-fields` / `.gpc-fields` / `.pm-form-section` carries none of
+them. The wrapped native `<select>` — which `reports.js` hides at `opacity:0` behind the `.rounded-select-btn`
+driver — is excluded by the `[data-rounded-ready]` attribute `reports.js:750/757` sets on every select it
+enhances.
+
+**Two traps found while building it, both measured.**
+
+1. **A `:not()` holding a descendant combinator is not safe to match against.** `:not(.mad-modal *)` made the
+   engine apply a rule to an element that `Element.matches()` says does not match it: the hidden
+   `<select>` inside `.rounded-select-wrap` picked up `36px` (a second box under the driver), and in a
+   controlled page the guarded rule applied while `matches()` reported false for the same element. The dialog
+   exclusion is therefore structural (above); **no complex `:not()` ships in this sheet**.
+2. **A `height:100%` on `.rounded-select-wrap > .rounded-select-btn` outside the panel contexts is a bug**:
+   in a form the wrapper is auto-height, so the driver collapsed to `22.3px` on every create page
+   (`main-provider-endpoints` grew to `224px`). The driver is pinned to `36px` inside the named containers
+   instead, which is the same result without the collateral.
+
+**Kept as-is on purpose** (the tiers the owner asked to leave alone, re-measured after the change and identical
+to before): create/edit form fields `44px` (28 pages), dialog and panel-form fields `40px` (26 pages),
+`game-provider-create`'s `.gpc-fields` and `vip-level-edit`'s `.vle-field` `42px`, `frontend-display`'s
+`.display-setting-select` and `advertisement-popup`'s `.ad-field` `38px`, `vip-management`'s in-table EXP
+editors `32px`, the layout editor's find bar `28px`, and the agent-portal login fields `44px`.
+
+**The radius did not land, and that is measured rather than assumed.** The owner asked for the row's radius
+to follow the locked `8px` as well (2026-10-03: 一起收成 8px). It was attempted in three shapes — a rule in the
+standard sheet, a scoped `!important` block appended to `reports.css`, and the same selector with the inner
+`:not()` lifted out of `:is()` — plus an **inline** `border-radius` on the element itself. None of them moved the
+painted corner of a filter-row input: measured, `#ledgerMemberId` computes **10px** with every one of them in
+place; a fresh-load clone of the same input inside the same row also computes 10px; a *detached* input resolves
+`2px`/`20px` normally, so the environment is not globally broken. The declaration that actually wins for these
+inputs is `.field input,.field select{border-radius:10px}` in `reports.css`. Until that is understood in a real
+browser (this session's radius reporting for in-row form controls was not coherent — one element reported a
+computed `10px`, a painted fit of ~`1.75px` and a cascade value of `8px` within a single run), **the radius
+change is not shipped**; the height is the part the standard sheet can state and verify. Options for the owner:
+change that one `reports.css` value to `8px` — it is the rule that wins, but it also moves create/edit form
+fields — or re-check the row in a real browser first.
+
+**Guard:** `scripts/check-control-height.py` — asserts the sheet exists, is linked on every real page, states
+`36px` with `!important`, that neither token has drifted back to `42px`, and that no other sheet pins a new
+non-36 height on a panel-family selector (baseline file for the deliberate exceptions).
+

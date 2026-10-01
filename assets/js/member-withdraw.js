@@ -38,6 +38,14 @@
   }
   async function api(url,opt){const res=await fetch(url,opt||{headers:{...BO_AUTH.authHeader()}});const json=await res.json().catch(()=>({}));if(!res.ok||json.status==='error')throw new Error(json.message||'Request failed');return json;}
 
+  /* The strip has two ids in the wild. The dedicated Withdraw page names it `withdrawBankCards`
+     in its markup, and `member-deposit.html?tab=withdraw` renames the deposit host to that same
+     id before this file is loaded. The All tab leaves it as `depositBankCards`. Look up both, so
+     a mismatched id can never leave the strip on its static "Loading banks..." placeholder —
+     which is exactly what happened when this file asked for `depositBankCards` on the withdraw
+     page. */
+  function bankHost(){return document.getElementById('withdrawBankCards')||document.getElementById('depositBankCards');}
+
   async function paymentMethods(){
     // Always reload before approval because Bank Usage changes after every approved
     // deposit/withdrawal and a cached balance could allow an invalid withdrawal.
@@ -161,7 +169,7 @@
   /* A card per bank, every bank complete without a click. `flow` is this bank's total under the
      table's current filters, so the figures beside the panel agree with the rows below it. */
   async function renderBankCards(){
-    const host=document.getElementById('depositBankCards');
+    const host=bankHost();
     if(!host)return;
     // The grid's layout is keyed on this class rather than on the markup, so a page whose HTML
     // was cached before the matrix existed still gets it instead of the old 220px card grid.
@@ -236,7 +244,7 @@
   }
 
   function paintBankCards(host){
-    const el=host||document.getElementById('depositBankCards');
+    const el=host||bankHost();
     if(!el||!window.BO_BANK_SELECTOR) return;
     el.innerHTML=window.BO_BANK_SELECTOR.bankCardsHtml(bankColumns(),money);
   }
@@ -246,7 +254,7 @@
      bank. Repainted in place rather than rebuilt: rebuilding would throw away the button the
      admin just clicked, and with it the keyboard focus. */
   function paintChipSelection(){
-    const host=document.getElementById('depositBankCards');
+    const host=bankHost();
     if(!host)return;
     const current=selectedBankId==null?'':String(selectedBankId);
     Array.prototype.forEach.call(host.querySelectorAll('.bo-bank-chip[data-bank-id]'),function(btn){

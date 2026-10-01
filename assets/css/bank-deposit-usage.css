@@ -576,32 +576,19 @@ body.bo-wallet-tx.bank-deposit-usage-page .bank-usage-table td small{
   text-overflow:ellipsis!important;
   white-space:nowrap!important;
 }
-body.bo-wallet-tx.bank-deposit-usage-page .bank-usage-list-card > .table-footer{
-  flex:0 0 auto!important;
-  margin:0!important;
-  padding:10px 16px!important;
-  border-top:1px solid var(--bo-table-line,#EADCC8)!important;
-  background:var(--bo-table-paper,#FFF8EB)!important;
-  display:flex!important;
-  flex-wrap:wrap!important;
-  align-items:center!important;
-  justify-content:space-between!important;
-  gap:10px 16px!important;
-}
-body.bo-wallet-tx.bank-deposit-usage-page .bank-usage-list-card > .table-footer .table-info{
-  margin:0!important;
-  flex:1 1 auto!important;
-  min-width:0!important;
-}
-body.bo-wallet-tx.bank-deposit-usage-page .bank-usage-list-card > .table-footer .bo-usage-pager-host{
-  display:flex!important;
-  flex-wrap:wrap!important;
-  align-items:center!important;
-  justify-content:flex-end!important;
-  gap:10px!important;
-  flex:0 0 auto!important;
-  margin-left:auto!important;
-}
+/* THE FOOTER IS NOT DECLARED HERE. This sheet used to re-state the bar as a
+   two-slot flex row (`display:flex` + `space-between`, `padding:10px 16px`,
+   `.table-info{flex:1 1 auto}` and a `.bo-usage-pager-host` rule) at
+   `body.bo-wallet-tx.bank-deposit-usage-page .bank-usage-list-card > .table-footer` -
+   three classes, so it out-ranked the family's own
+   `body.bo-wallet-tx .table-card > .bo-pagination-standard` in
+   bo-wallet-transaction-amber.css and the app-wide three-slot recipe in
+   table-pagination-horizontal.css. Measured consequence: the footer was the only
+   one in the Transaction module that was not a grid, and it had nowhere to put a
+   `Show N entries` control, so Bank Deposit Usage was the sibling of Deposit
+   Approval with a different pagination bar (owner: "这个页面的pagination设计部分
+   与其他页面设计功能没有统一到"). The bar is now owned by the shared recipe and
+   by the family sheet's grid rule, exactly like Deposit Approval's. */
 
 .usage-bank-name{
   font-weight:800;

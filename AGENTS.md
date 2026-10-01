@@ -14,9 +14,14 @@ git fetch origin
 git rebase origin/main      # on your own branch
 ```
 
-If the fetch brings in commits you did not have, integrate them first. `main` is protected
-by a repository ruleset, so a direct push to it will be rejected — do not try to work
-around that.
+If the fetch brings in commits you did not have, integrate them first. Land on `main`
+through a pull request (next section). **Measured 2026-10-01: the ruleset that used to
+reject a direct push is no longer doing it.** A `git push --dry-run origin <tip>:refs/
+heads/main` on a branch built on `origin/main` reported a plain fast-forward
+(`74dda4e8..7a8d1788  HEAD -> main`) — the server would have accepted it, so the rule
+below is a convention the team keeps, not a lock. Nothing upstream will stop a stale tree
+either: that is why the pre-commit deletion guard and "verify before you claim" are the
+only remaining protection for `main`.
 
 ## Never commit a whole stale tree
 
@@ -38,8 +43,11 @@ cleanup opportunity.
 
 ## Work on your own branch, land through a pull request
 
-Commit to a personal branch (e.g. `kunzzit01/dev`) and merge through a PR. `main` requires
-a pull request; bypassing the ruleset is disabled.
+Commit to a personal branch (e.g. `kunzzit01/dev`) and merge through a pull request.
+`main` is landed on through a PR **by convention** — the ruleset that used to reject a
+direct push is not enforcing it any more (measured 2026-10-01, see *Always pull before you
+push* above), so nothing at the remote stops a bypass and nothing catches one after the
+fact. Keep the PR anyway: the review is the only review `main` gets.
 
 ## The server is a deploy target, not a workstation
 

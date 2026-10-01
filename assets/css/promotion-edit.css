@@ -1541,14 +1541,25 @@ html:not([data-bo-theme="dark"]) body.promotion-edit-page.report-body.bo-charcoa
 html:not([data-bo-theme="dark"]) body.promotion-edit-page.report-body.bo-charcoal:not(#bo-charcoal-off) #promoForm .rebate-dt-shell:focus-within .rebate-dt-trigger > .bi-calendar3{
   color:#D97706!important;
 }
-html:not([data-bo-theme="dark"]) body.promotion-edit-page.report-body.bo-charcoal:not(#bo-charcoal-off):not(#bo-input-fill-legacy):not(#bo-input-fill-legacy-2) #promoForm .rebate-dt-native{
+/* Start At / End At — the native datetime control is a value carrier, never a surface.
+   It lives inside `.report-content`, so reports.css's field rule (the placeholder-colour rule
+   at its 9-`:not(#…)` tier, which declares `color:#78716C!important;opacity:1!important` on
+   every `.report-content input` it does not exclude) out-ranks the `opacity:0` this sheet
+   used to declare here. Measured: the native control stayed visible behind the transparent
+   trigger, painting its own `mm/dd/yyyy --:--` text and calendar glyph underneath
+   "Select date & time" — the overlapping dates reported from promotion.html. It was also
+   light-only: this rule carried `html:not([data-bo-theme="dark"])` and no dark twin was ever
+   written, so dark mode showed the raw widget at full strength.
+   So hide it by a property no field rule in the panel declares, in both themes. `opacity`
+   stays out of the recipe for exactly the reason it failed. */
+html body.promotion-edit-page.report-body.bo-charcoal:not(#bo-charcoal-off) #promoForm .rebate-dt-native{
   position:absolute!important;inset:0!important;z-index:0!important;
-  width:100%!important;height:100%!important;margin:0!important;padding:0!important;
-  border:0!important;opacity:0!important;pointer-events:none!important;
-  background:transparent!important;color:transparent!important;
+  margin:0!important;padding:0!important;border:0!important;
+  background:transparent!important;
+  visibility:hidden!important;pointer-events:none!important;
   -webkit-appearance:none!important;appearance:none!important;
 }
-html:not([data-bo-theme="dark"]) body.promotion-edit-page.report-body.bo-charcoal:not(#bo-charcoal-off):not(#bo-input-fill-legacy):not(#bo-input-fill-legacy-2) #promoForm .rebate-dt-native::-webkit-calendar-picker-indicator{
+html body.promotion-edit-page.report-body.bo-charcoal:not(#bo-charcoal-off) #promoForm .rebate-dt-native::-webkit-calendar-picker-indicator{
   display:none!important;opacity:0!important;
 }
 

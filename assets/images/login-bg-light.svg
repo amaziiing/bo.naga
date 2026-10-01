@@ -74,7 +74,7 @@
 <line x1="113" y1="353" x2="113" y2="679" stroke-width="1"/>
 <line x1="148" y1="0" x2="148" y2="505" stroke-width="1"/>
 <line x1="187" y1="574" x2="187" y2="662" stroke-width="1"/>
-<line x1="226" y1="71" x2="226" y2="184" stroke-width="1"/>
+
 <line x1="261" y1="535" x2="261" y2="662" stroke-width="1"/>
 <line x1="272" y1="15" x2="272" y2="267" stroke-width="1.6"/>
 <line x1="290" y1="276" x2="290" y2="390" stroke-width="1"/>
@@ -82,7 +82,7 @@
 <line x1="332" y1="386" x2="332" y2="475" stroke-width="1"/>
 <line x1="345" y1="129" x2="345" y2="563" stroke-width="1"/>
 <line x1="384" y1="184" x2="384" y2="314" stroke-width="1"/>
-<line x1="417" y1="242" x2="417" y2="598" stroke-width="1.6"/>
+<line x1="417" y1="242" x2="417" y2="488" stroke-width="1.6"/>
 <line x1="1259" y1="195" x2="1259" y2="484" stroke-width="1"/>
 <line x1="1399" y1="83" x2="1399" y2="300" stroke-width="1"/>
 <line x1="0" y1="117" x2="272" y2="117" stroke-width="1"/>
@@ -122,7 +122,7 @@
 <polyline points="295,314 384,314"/>
 <polyline points="384,184 384,314"/>
 <polyline points="332,357 384,357"/>
-<polyline points="272,484 332,484 332,484"/>
+
 <polyline points="419,488 419,598"/>
 <polyline points="261,609 374,609"/>
 <polyline points="0,510 75,510 75,552"/>
@@ -132,61 +132,61 @@
 <path d="M 1399 320 L 1399 129 Q 1399 83 1447 83 L 1572 83"/>
 </g>
 <g id="nodes">
-<circle cx="113" cy="117" r="37" fill="url(#spark)"/>
+
 <rect x="102" y="106" width="22" height="22" rx="3.5" fill="url(#gold)"/>
-<circle cx="75" cy="226" r="41" fill="url(#spark)"/>
+
 <circle cx="75" cy="226" r="12.0" fill="url(#gold)"/>
-<circle cx="113" cy="252" r="26" fill="url(#spark)"/>
+
 <rect x="105.5" y="244.5" width="15" height="15" rx="2.4" fill="url(#gold)"/>
-<circle cx="384" cy="184" r="26" fill="url(#spark)"/>
+
 <rect x="376.5" y="176.5" width="15" height="15" rx="2.4" fill="url(#gold)"/>
-<circle cx="384" cy="314" r="29" fill="url(#spark)"/>
+
 <rect x="375.5" y="305.5" width="17" height="17" rx="2.7" fill="url(#gold)"/>
-<circle cx="332" cy="357" r="32" fill="url(#spark)"/>
+
 <circle cx="332" cy="357" r="9.5" fill="url(#gold)"/>
-<circle cx="75" cy="419" r="22" fill="url(#spark)"/>
+
 <rect x="68.5" y="412.5" width="13" height="13" rx="2.1" fill="url(#gold)"/>
-<circle cx="113" cy="419" r="20" fill="url(#spark)"/>
+
 <rect x="107" y="413" width="12" height="12" rx="1.9" fill="url(#gold)"/>
-<circle cx="240" cy="484" r="12" fill="url(#spark)"/>
-<rect x="236.5" y="480.5" width="7" height="7" rx="1.5" fill="url(#gold)"/>
-<circle cx="163" cy="484" r="14" fill="url(#spark)"/>
-<rect x="159" y="480" width="8" height="8" rx="1.5" fill="url(#gold)"/>
-<circle cx="187" cy="524" r="41" fill="url(#spark)"/>
+
+
+
+
+
 <rect x="175" y="512" width="24" height="24" rx="3.8" fill="url(#gold)"/>
-<circle cx="261" cy="535" r="12" fill="url(#spark)"/>
-<rect x="257.5" y="531.5" width="7" height="7" rx="1.5" fill="url(#gold)"/>
-<circle cx="148" cy="505" r="14" fill="url(#spark)"/>
-<rect x="144" y="501" width="8" height="8" rx="1.5" fill="url(#gold)"/>
-<circle cx="106" cy="578" r="14" fill="url(#spark)"/>
-<rect x="102" y="574" width="8" height="8" rx="1.5" fill="url(#gold)"/>
-<circle cx="102" cy="574" r="10" fill="url(#spark)"/>
-<rect x="99" y="571" width="6" height="6" rx="1.5" fill="url(#gold)"/>
-<circle cx="48" cy="605" r="12" fill="url(#spark)"/>
-<rect x="44.5" y="601.5" width="7" height="7" rx="1.5" fill="url(#gold)"/>
-<circle cx="106" cy="617" r="10" fill="url(#spark)"/>
-<rect x="103" y="614" width="6" height="6" rx="1.5" fill="url(#gold)"/>
-<circle cx="261" cy="609" r="20" fill="url(#spark)"/>
-<rect x="255" y="603" width="12" height="12" rx="1.9" fill="url(#gold)"/>
-<circle cx="75" cy="314" r="14" fill="url(#spark)"/>
-<rect x="71" y="310" width="8" height="8" rx="1.5" fill="url(#gold)"/>
-<circle cx="86" cy="365" r="10" fill="url(#spark)"/>
-<rect x="83" y="362" width="6" height="6" rx="1.5" fill="url(#gold)"/>
-<circle cx="1399" cy="218" r="29" fill="url(#spark)"/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<rect x="255" y="603" width="12" height="12" rx="1.9" fill="url(#gold)"><animate attributeName="opacity" values=".62;1;.62" dur="3.8s" begin="3.3s" repeatCount="indefinite"/></rect>
+
+
+
+
+
 <rect x="1390.5" y="209.5" width="17" height="17" rx="2.7" fill="url(#gold)"/>
-<circle cx="1399" cy="240" r="14" fill="url(#spark)"/>
-<rect x="1395" y="236" width="8" height="8" rx="1.5" fill="url(#gold)"/>
-<circle cx="1399" cy="296" r="10" fill="url(#spark)"/>
-<rect x="1396" y="293" width="6" height="6" rx="1.5" fill="url(#gold)"/>
-<circle cx="1399" cy="563" r="26" fill="url(#spark)"/>
-<rect x="1391.5" y="555.5" width="15" height="15" rx="2.4" fill="url(#gold)"/>
-<circle cx="1399" cy="390" r="41" fill="url(#spark)"/>
+
+
+
+
+
+<rect x="1391.5" y="555.5" width="15" height="15" rx="2.4" fill="url(#gold)"><animate attributeName="opacity" values=".62;1;.62" dur="5.8s" begin="6.1s" repeatCount="indefinite"/></rect>
+
 <circle cx="1399" cy="390" r="12.0" fill="url(#gold)"/>
-<circle cx="1492" cy="396" r="19" fill="url(#spark)"/>
-<circle cx="1492" cy="396" r="5.5" fill="url(#gold)"/>
-<circle cx="1168" cy="353" r="10" fill="url(#spark)"/>
-<circle cx="1168" cy="353" r="3.0" fill="url(#gold)"/>
-<circle cx="1305" cy="339" r="14" fill="url(#spark)"/>
+
+<circle cx="1492" cy="390" r="5.5" fill="url(#gold)"><animate attributeName="opacity" values=".62;1;.62" dur="5.6s" begin="4.38s" repeatCount="indefinite"/></circle>
+ fill="url(#spark)"/>
+ fill="url(#gold)"/>
+
 <circle cx="1305" cy="339" r="4.0" fill="url(#gold)"/>
 </g>
 <g fill="none">
@@ -194,17 +194,23 @@
 <circle cx="1399" cy="390" r="78" stroke="#FFFFFF" stroke-opacity=".55" stroke-width="1.4"/>
 <circle cx="1399" cy="390" r="52" stroke="#FFFFFF" stroke-opacity=".55" stroke-width="1.4"/>
 </g>
-<g fill="none" stroke="#F3B22C" stroke-opacity=".55" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="113,252 113,267 139,267"/><polyline points="240,484 272,484"/><polyline points="163,484 148,484"/><polyline points="187,524 187,510 152,510"/><polyline points="106,578 113,578"/><polyline points="48,605 75,605 75,552"/><polyline points="106,617 113,617"/><polyline points="75,314 75,339"/><polyline points="86,365 86,339"/><polyline points="1305,339 1259,339"/></g>
+
 <g class="motion">
 <g><animateTransform attributeName="transform" type="rotate" from="0 1399 390" to="360 1399 390" dur="9s" repeatCount="indefinite"/><path d="M1454.8,313.1 A95,95 0 0 1 1494,390" fill="none" stroke="url(#sweepTail)" stroke-width="3.2" stroke-linecap="round"/></g>
-<g><animateMotion dur="5.0s" begin="0.0s" repeatCount="indefinite" path="M148,0 L148,83 L148,145"/><circle r="11" fill="url(#spark)"/><circle r="3.2" fill="url(#pulse)"/></g>
-<g><animateMotion dur="5.7s" begin="1.1s" repeatCount="indefinite" path="M0,226 L75,226 L75,172 L75,129"/><circle r="11" fill="url(#spark)"/><circle r="3.2" fill="url(#pulse)"/></g>
-<g><animateMotion dur="6.4s" begin="2.2s" repeatCount="indefinite" path="M148,252 L148,505"/><circle r="11" fill="url(#spark)"/><circle r="3.2" fill="url(#pulse)"/></g>
-<g><animateMotion dur="7.1s" begin="3.3s" repeatCount="indefinite" path="M272,15 L272,267"/><circle r="11" fill="url(#spark)"/><circle r="3.2" fill="url(#pulse)"/></g>
-<g><animateMotion dur="7.8s" begin="4.4s" repeatCount="indefinite" path="M332,314 L332,484"/><circle r="11" fill="url(#spark)"/><circle r="3.2" fill="url(#pulse)"/></g>
-<circle cx="113" cy="117" r="16" fill="none" stroke="#F3B22C" stroke-opacity="0" stroke-width="1.4"><animate attributeName="r" values="16;64" dur="4.2s" begin="0s" repeatCount="indefinite"/><animate attributeName="stroke-opacity" values=".5;0" dur="4.2s" begin="0s" repeatCount="indefinite"/></circle>
-<circle cx="75" cy="226" r="16" fill="none" stroke="#F3B22C" stroke-opacity="0" stroke-width="1.4"><animate attributeName="r" values="16;64" dur="4.2s" begin="2.1s" repeatCount="indefinite"/><animate attributeName="stroke-opacity" values=".5;0" dur="4.2s" begin="2.1s" repeatCount="indefinite"/></circle>
-<circle cx="113" cy="252" r="16" fill="none" stroke="#F3B22C" stroke-opacity="0" stroke-width="1.4"><animate attributeName="r" values="16;64" dur="4.2s" begin="0s" repeatCount="indefinite"/><animate attributeName="stroke-opacity" values=".5;0" dur="4.2s" begin="0s" repeatCount="indefinite"/></circle>
-<circle cx="384" cy="184" r="16" fill="none" stroke="#F3B22C" stroke-opacity="0" stroke-width="1.4"><animate attributeName="r" values="16;64" dur="4.2s" begin="2.1s" repeatCount="indefinite"/><animate attributeName="stroke-opacity" values=".5;0" dur="4.2s" begin="2.1s" repeatCount="indefinite"/></circle>
+<g><animateMotion dur="5.0s" begin="0.0s" repeatCount="indefinite" path="M148,0 L148,83 L148,145"/><circle r="11" fill="url(#spark)"/><circle r="3.8" fill="url(#pulse)"/></g>
+<g><animateMotion dur="5.7s" begin="1.1s" repeatCount="indefinite" path="M0,226 L75,226 L75,172 L75,129"/><circle r="11" fill="url(#spark)"/><circle r="3.8" fill="url(#pulse)"/></g>
+<g><animateMotion dur="6.4s" begin="2.2s" repeatCount="indefinite" path="M148,252 L148,505"/><circle r="11" fill="url(#spark)"/><circle r="3.8" fill="url(#pulse)"/></g>
+<g><animateMotion dur="7.1s" begin="3.3s" repeatCount="indefinite" path="M272,15 L272,267"/><circle r="11" fill="url(#spark)"/><circle r="3.8" fill="url(#pulse)"/></g>
+<g><animateMotion dur="7.8s" begin="4.4s" repeatCount="indefinite" path="M332,314 L332,484"/><circle r="11" fill="url(#spark)"/><circle r="3.8" fill="url(#pulse)"/></g>
+<g><animateMotion dur="3.9s" begin="0.5s" repeatCount="indefinite" path="M0,510 L75,510 L75,552"/><circle r="11" fill="url(#spark)"/><circle r="3.8" fill="url(#pulse)"/></g>
+<g><animateMotion dur="3.8s" begin="1.4s" repeatCount="indefinite" path="M261,609 L374,609"/><circle r="11" fill="url(#spark)"/><circle r="3.8" fill="url(#pulse)"/></g>
+<g><animateMotion dur="4.2s" begin="2.3s" repeatCount="indefinite" path="M148,617 L148,743"/><circle r="11" fill="url(#spark)"/><circle r="3.8" fill="url(#pulse)"/></g>
+<g><animateMotion dur="5.8s" begin="3.2s" repeatCount="indefinite" path="M1399,390 L1399,563"/><circle r="11" fill="url(#spark)"/><circle r="3.8" fill="url(#pulse)"/></g>
+<g><animateMotion dur="5.6s" begin="4.1s" repeatCount="indefinite" path="M1399,390 L1568,390"/><circle r="11" fill="url(#spark)"/><circle r="3.8" fill="url(#pulse)"/></g>
+
+
+
+
 </g>
-</svg>
+
+<circle cx="1399" cy="390" r="16" fill="none" stroke="#F59E0B" stroke-opacity="0" stroke-width="1.4"><animate attributeName="r" values="16;64" dur="4.2s" begin="0s" repeatCount="indefinite"/><animate attributeName="stroke-opacity" values=".5;0" dur="4.2s" begin="0s" repeatCount="indefinite"/></circle><circle cx="1399" cy="390" r="16" fill="none" stroke="#F59E0B" stroke-opacity="0" stroke-width="1.4"><animate attributeName="r" values="16;64" dur="4.2s" begin="2.1s" repeatCount="indefinite"/><animate attributeName="stroke-opacity" values=".5;0" dur="4.2s" begin="2.1s" repeatCount="indefinite"/></circle><circle cx="187" cy="524" r="16" fill="none" stroke="#F59E0B" stroke-opacity="0" stroke-width="1.4"><animate attributeName="r" values="16;64" dur="4.2s" begin="0s" repeatCount="indefinite"/><animate attributeName="stroke-opacity" values=".5;0" dur="4.2s" begin="0s" repeatCount="indefinite"/></circle><circle cx="187" cy="524" r="16" fill="none" stroke="#F59E0B" stroke-opacity="0" stroke-width="1.4"><animate attributeName="r" values="16;64" dur="4.2s" begin="2.1s" repeatCount="indefinite"/><animate attributeName="stroke-opacity" values=".5;0" dur="4.2s" begin="2.1s" repeatCount="indefinite"/></circle><circle cx="75" cy="226" r="16" fill="none" stroke="#F59E0B" stroke-opacity="0" stroke-width="1.4"><animate attributeName="r" values="16;64" dur="4.2s" begin="0s" repeatCount="indefinite"/><animate attributeName="stroke-opacity" values=".5;0" dur="4.2s" begin="0s" repeatCount="indefinite"/></circle><circle cx="75" cy="226" r="16" fill="none" stroke="#F59E0B" stroke-opacity="0" stroke-width="1.4"><animate attributeName="r" values="16;64" dur="4.2s" begin="2.1s" repeatCount="indefinite"/><animate attributeName="stroke-opacity" values=".5;0" dur="4.2s" begin="2.1s" repeatCount="indefinite"/></circle><circle cx="113" cy="117" r="16" fill="none" stroke="#F59E0B" stroke-opacity="0" stroke-width="1.4"><animate attributeName="r" values="16;64" dur="4.2s" begin="0s" repeatCount="indefinite"/><animate attributeName="stroke-opacity" values=".5;0" dur="4.2s" begin="0s" repeatCount="indefinite"/></circle><circle cx="113" cy="117" r="16" fill="none" stroke="#F59E0B" stroke-opacity="0" stroke-width="1.4"><animate attributeName="r" values="16;64" dur="4.2s" begin="2.1s" repeatCount="indefinite"/><animate attributeName="stroke-opacity" values=".5;0" dur="4.2s" begin="2.1s" repeatCount="indefinite"/></circle></svg>

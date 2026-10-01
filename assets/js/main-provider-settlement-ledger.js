@@ -2,8 +2,7 @@
 const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const money=v=>Number(v||0).toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2});
 
-let settlementRows=[],settlementPage=1,settlementPageSize=10,syncedAt=Date.now();
-let providerDirectory=[];
+let settlementRows=[],settlementPage=1,settlementPageSize=10,syncedAt=Date.now();let providerDirectory=[];
 
 async function api(path,opt={}){
   const base=String((window.API_CONFIG&&window.API_CONFIG.BASE_URL)||'').replace(/\/$/,'');
@@ -56,6 +55,11 @@ function updateSyncLabel(){
 }
 
 function renderSettlements(){
+  /* The footer's Show control is the app-wide one now: `-` fits the panel, `All` shows every
+     row, a number means that number. `main-footer-pagination.js` resolves it — this page only
+     owns the rows. */
+  const rawSize=$('settlementPageSize')?.value;
+  settlementPageSize=window.boMad?boMad.resolve(rawSize,$('settlementRows')):(Number(rawSize)||10);
   const total=settlementRows.length,pages=Math.max(1,Math.ceil(total/settlementPageSize)||1);
   settlementPage=Math.max(1,Math.min(settlementPage,pages));
   const start=(settlementPage-1)*settlementPageSize,shown=settlementRows.slice(start,start+settlementPageSize);
@@ -64,8 +68,12 @@ function renderSettlements(){
     const name=x.counterpartyName||providerNameById(x.counterpartyKey,'Provider');
     return `<tr><td>${esc(x.month||'')}</td><td><b>${esc(name)}</b><small class="d-block text-muted">Provider</small></td><td>${directionChip(x.direction)}</td><td class="mre-num value-neutral">${money(x.totalDue)}</td><td class="mre-num value-positive">${money(x.paidAmount)}</td><td class="mre-num ${Number(x.balanceAmount)>0?'value-negative':'value-positive'}">${money(x.balanceAmount)}</td><td>${statusBadge(x.status)}</td><td class="msr-action-cell"><div class="settlement-actions msr-actions"><button type="button" class="mad-icon-btn" data-tip="Record Amount" title="Record Amount" aria-label="Record Amount" data-payment-id="${esc(x.id)}" data-payment-name="${esc(name)}" data-payment-balance="${Number(x.balanceAmount||0)}" data-payment-direction="${esc(x.direction||'')}" ${closed?'disabled':''}><i class="bi bi-cash-coin" aria-hidden="true"></i></button><button type="button" class="mad-icon-btn" data-tip="Carry Forward" title="Carry Forward" aria-label="Carry Forward" data-carry-id="${esc(x.id)}" ${closed||Number(x.balanceAmount)<=0?'disabled':''}><i class="bi bi-arrow-right-circle" aria-hidden="true"></i></button><button type="button" class="mad-icon-btn" data-tip="History" title="History" aria-label="History" data-history-id="${esc(x.id)}"><i class="bi bi-clock-history" aria-hidden="true"></i></button></div></td></tr>`;
   }).join('')||'<tr><td colspan="8" class="mad-empty">No Provider settlement records for this period.</td></tr>';
-  if($('settlementInfo')) $('settlementInfo').textContent=total?`Showing ${start+1} to ${start+shown.length} of ${total} settlement records`:'Showing 0 settlement records';
+  /* The app-wide sentence — the middle slot of every listing footer in the product. */
+  if($('settlementInfo')) $('settlementInfo').textContent=total?`Showing ${start+1} to ${start+shown.length} of ${total} entries`:'Showing 0 to 0 of 0 entries';
   if($('settlementPager')) $('settlementPager').innerHTML=total?pageButtons(settlementPage,pages):'';
+  /* `-` is measured before the first real row exists; verify a frame later and re-render once
+     while the panel still overflows (main-footer-pagination.js -> boMad.settle). */
+  window.boMad&&boMad.settle($('settlementRows'),renderSettlements);
 }
 
 async function loadSettlements(){
@@ -82,7 +90,7 @@ async function loadSettlements(){
     renderSettlements();
   }catch(e){
     if($('settlementRows')) $('settlementRows').innerHTML=`<tr><td colspan="8" class="mad-empty text-danger">${esc(e.message)}</td></tr>`;
-    if($('settlementInfo')) $('settlementInfo').textContent='Showing 0 settlement records';
+    if($('settlementInfo')) $('settlementInfo').textContent='Showing 0 to 0 of 0 entries';
     if($('settlementPager')) $('settlementPager').innerHTML='';
   }
 }
@@ -366,7 +374,7 @@ function setupDatePicker(){
 
 function bind(){
   $('settlementPager')?.addEventListener('click',e=>{const b=e.target.closest('[data-page]');if(!b||b.disabled)return;settlementPage=Number(b.dataset.page||1);renderSettlements()});
-  $('settlementPageSize')?.addEventListener('change',e=>{settlementPageSize=Number(e.target.value)||10;settlementPage=1;renderSettlements()});
+  $('settlementPageSize')?.addEventListener('change',()=>{settlementPage=1;renderSettlements()});
   $('settlementMonth')?.addEventListener('change',loadSettlements);
   $('settlementRefresh')?.addEventListener('click',loadSettlements);
   $('reportExport')?.addEventListener('click',exportCsv);

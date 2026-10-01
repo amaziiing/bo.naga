@@ -48,7 +48,8 @@
   /* `-` = as many rows as the panel shows. Same order of moves as
      `pagination-standardizer.js` → `resolvePageSize()` / `boAc.resolve()`: the
      scroller's own height, the head subtracted only while the head is still inside
-     it, the AVERAGE of the painted rows (these tables wrap their cells, so one
+     it (and the totals foot the same way — a visible foot is part of what the panel
+     shows), the AVERAGE of the painted rows (these tables wrap their cells, so one
      sample off the first row over-counts — measured on Bank Deposit Usage: 11 rows
      asked for, the 11th 13px behind the panel edge), and floor only. */
   function fitRows(scope) {
@@ -57,7 +58,12 @@
     if (!scroll) return 10;
     var head = scroll.querySelector('thead');
     var headH = head ? Math.ceil(head.getBoundingClientRect().height) : 0;
-    var avail = Math.max(0, Math.floor(scroll.clientHeight) - headH);
+    /* The merchant report family carries a totals `<tfoot>` inside the scroller; it is
+       subtracted like the head (never while `hidden`). Measured there: with the head
+       alone 8 rows fit, and the 54px totals row pushed the 8th 4px past the panel edge. */
+    var foot = scroll.querySelector('tfoot');
+    var footH = foot && !foot.hidden ? Math.ceil(foot.getBoundingClientRect().height) : 0;
+    var avail = Math.max(0, Math.floor(scroll.clientHeight) - headH - footH);
     var n = 0, sum = 0;
     var rows = scroll.querySelectorAll('tbody tr');
     for (var i = 0; i < rows.length; i++) {

@@ -185,6 +185,12 @@ function renderTable(){
   const info=$('mmrTableInfo');
   if(!tbody) return;
 
+  /* The footer's Show control is the app-wide one now: `-` fits the panel, `All` shows every
+     row, a number means that number. `main-footer-pagination.js` resolves it — this page only
+     owns the rows. */
+  const rawSize=$('mmrPageSize')?.value;
+  merchantPageSize=window.boMad?boMad.resolve(rawSize,$('mmrTableRows')):(Number(rawSize)||10);
+
   const total=filteredMerchants.length;
   const totalPages=Math.max(1,Math.ceil(total/merchantPageSize)||1);
   merchantPage=Math.max(1,Math.min(merchantPage,totalPages));
@@ -194,8 +200,8 @@ function renderTable(){
   if(pager) pager.innerHTML=pageButtons(merchantPage,totalPages);
   if(info){
     info.textContent=total
-      ? ('Showing '+(start+1)+' to '+(start+rows.length)+' of '+total+' merchants')
-      : 'Showing 0 to 0 of 0 merchants';
+      ? ('Showing '+(start+1)+' to '+(start+rows.length)+' of '+total+' entries')
+      : 'Showing 0 to 0 of 0 entries';
   }
 
   const sumBet=filteredMerchants.reduce((s,r)=>s+r.totalBet,0);
@@ -239,6 +245,9 @@ function renderTable(){
       </div></td>
     </tr>`;
   }).join('');
+  /* `-` is measured before the first real row exists; verify a frame later and re-render once
+     while the panel still overflows (main-footer-pagination.js -> boMad.settle). */
+  window.boMad&&boMad.settle($('mmrTableRows'),renderTable);
 }
 
 function showEmpty(){
@@ -275,7 +284,7 @@ async function load(){const loadSeq=++merchantReportLoadSeq;
     const foot=$('mmrTableFoot');
     if(foot) foot.hidden=true;
     const info=$('mmrTableInfo');
-    if(info) info.textContent='Showing 0 to 0 of 0 merchants';
+    if(info) info.textContent='Showing 0 to 0 of 0 entries';
     const pager=$('mmrPager');
     if(pager) pager.innerHTML='';
   }
@@ -323,7 +332,7 @@ function setupFilters(){
     const n=Number(b.dataset.page);
     if(n>=1&&n<=totalPages&&n!==merchantPage){merchantPage=n;renderTable();}
   });
-  $('mmrPageSize')?.addEventListener('change',e=>{merchantPageSize=Math.max(1,Number(e.target.value)||10);merchantPage=1;renderTable();});
+  $('mmrPageSize')?.addEventListener('change',()=>{merchantPage=1;renderTable();});
   document.querySelectorAll('[data-currency]').forEach(btn=>{
     btn.addEventListener('click',()=>{
       currency=btn.getAttribute('data-currency')||window.BO_MAIN_CURRENCY?.code?.()||'MYR';

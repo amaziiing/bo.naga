@@ -560,3 +560,103 @@ html[data-bo-theme="dark"] body.main-admin-detail-page.main-provider-family-page
   body.main-admin-detail-page.main-provider-family-page.main-report-exec-page[data-report-view="settlement"] .mad-footer-info{grid-area:info;grid-column:auto;justify-self:center;white-space:normal;text-align:center}
   body.main-admin-detail-page.main-provider-family-page.main-report-exec-page[data-report-view="settlement"] .mad-footer-right{grid-area:pager;grid-column:auto;justify-self:end}
 }
+
+/* ---------------------------------------------------------------------------
+   The merchant report family — main_merchant_report, main-merchant-balance,
+   main-merchant-settlement, main-merchant-transactions — four pages, four
+   footers each (merchants · settlement · balance · history). All 16 are the
+   house footer now.
+
+   Each one used to be a two-slot bar carrying `.mre-page-size-label`
+   ("Show [10] / page"), whose real select was hidden by the blanket rule in
+   `main-admin-detail-executive.css` while the label stayed on screen. The
+   markup is the house footer (Show N entries · info centred · the ladder) and
+   `assets/js/main-footer-pagination.js` resolves the value, so `-` fits the
+   panel and `All` shows every row.
+
+   Selector: the four pages — and only them. `main-provider-credentials.html`
+   also carries `main-merchant-report-page`; it has its own block above and is
+   excluded here.
+
+   `!important` on the grid because `main-provider-report-executive.css` pins
+   this bar as a flex row for every `main-report-exec-page`; the provider
+   family pages still rely on that rule, so it stays until they are converted.
+   --------------------------------------------------------------------------- */
+body.main-admin-detail-page.main-merchant-report-page:not(.main-provider-family-page) .mad-footer{
+  display:grid!important;
+  grid-template-columns:minmax(180px,1fr) minmax(220px,1fr) minmax(180px,1fr);
+  align-items:center;
+  gap:12px;
+  position:relative;
+  z-index:30;
+  overflow:visible!important;
+}
+body.main-admin-detail-page.main-merchant-report-page:not(.main-provider-family-page) .mad-page-size-control{
+  grid-column:1!important;
+  justify-self:start!important;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  margin:0;
+  color:var(--bo-muted);
+  font-size:13px;
+  font-weight:800;
+  white-space:nowrap;
+}
+body.main-admin-detail-page.main-merchant-report-page:not(.main-provider-family-page) .mad-footer-info{
+  grid-column:2!important;
+  justify-self:center!important;
+  white-space:nowrap;
+}
+body.main-admin-detail-page.main-merchant-report-page:not(.main-provider-family-page) .mad-footer-right{
+  grid-column:3!important;
+  justify-self:end!important;
+  margin-left:0;
+}
+/* Re-show the pill `reports.js` builds, against the blanket hide. */
+body.main-admin-detail-page.main-merchant-report-page:not(.main-provider-family-page) .mad-footer select.mad-page-size-select,
+body.main-admin-detail-page.main-merchant-report-page:not(.main-provider-family-page) .mad-page-size-control .rounded-select-wrap{
+  display:inline-flex!important;
+  align-items:center;
+  flex:0 0 auto;
+  width:auto!important;
+  min-width:0!important;
+  max-width:none!important;
+}
+body.main-admin-detail-page.main-merchant-report-page:not(.main-provider-family-page) .mad-page-size-control .rounded-select-btn{
+  height:36px!important;
+  min-width:72px!important;
+  padding:0 14px!important;
+  font-size:13px!important;
+  background:#FFF8EB!important;
+  border:1px solid #EADCC8!important;
+  border-radius:9px!important;
+  color:#18191C!important;
+}
+body.main-admin-detail-page.main-merchant-report-page:not(.main-provider-family-page) .mad-page-size-control .rounded-select-menu{
+  top:auto!important;
+  bottom:calc(100% + 6px)!important;
+  background:#FFF8EB!important;
+  border:1px solid #EADCC8!important;
+}
+html[data-bo-theme="dark"] body.main-admin-detail-page.main-merchant-report-page:not(.main-provider-family-page) .mad-page-size-control .rounded-select-btn{
+  background:#2A2C36!important;
+  border-color:rgba(255,255,255,.12)!important;
+  color:#F4EFE6!important;
+}
+html[data-bo-theme="dark"] body.main-admin-detail-page.main-merchant-report-page:not(.main-provider-family-page) .mad-page-size-control .rounded-select-menu{
+  top:auto!important;
+  bottom:calc(100% + 6px)!important;
+  background:#2A2C36!important;
+  border-color:rgba(255,255,255,.12)!important;
+}
+@media(max-width:767.98px){
+  body.main-admin-detail-page.main-merchant-report-page:not(.main-provider-family-page) .mad-footer{
+    grid-template-columns:minmax(0,1fr) auto;
+    grid-template-areas:"size pager" "info info";
+    gap:10px;
+  }
+  body.main-admin-detail-page.main-merchant-report-page:not(.main-provider-family-page) .mad-page-size-control{grid-area:size;grid-column:auto}
+  body.main-admin-detail-page.main-merchant-report-page:not(.main-provider-family-page) .mad-footer-info{grid-area:info;grid-column:auto;justify-self:center;white-space:normal;text-align:center}
+  body.main-admin-detail-page.main-merchant-report-page:not(.main-provider-family-page) .mad-footer-right{grid-area:pager;grid-column:auto;justify-self:end}
+}

@@ -1745,6 +1745,44 @@
     document.addEventListener('DOMContentLoaded', function(){ window.BO_AUTH.mountSidebarToggle(); });
   }
 
+  /* The Main panel's rail card is asked for from HERE, because the Main portal's page set is DB
+     data, not a filename family. One of its menu rows points at a BO file
+     (menu-management.html, data-bo-shell="bo") - the page the owner found with "Backoffice"
+     still sitting where the card belongs ("检查到 main的页面 很多页面他的sidebar 的acc没在最上面") -
+     and the Main panel's own role page links through to role-create.html, which no page-script
+     list carries either. This file passes on every page of both portals, which is what makes the
+     card's reach the portal's reach instead of a list that rots.
+     Deliberately generous: this only decides whether to FETCH the card's two files - the card
+     re-checks the panel itself before mounting (main-sidebar-account.js isMainPanelPage), so a
+     false positive costs two same-origin requests and nothing else.
+     The HEAD's stylesheet link is what the check reads, not the script tag further down the body:
+     the parser has not reached that one yet at this point, so it would look absent on the very
+     pages that carry it. A page that links the feature itself is left alone.
+     The two ?v= are hand-written, the same caveat the injected bo-global-quicknav.css carries
+     above: the asset-pin guard reads HTML only. Re-stamp them (`node scripts/check-asset-pins.js
+     --list` prints the current hash of a file) whenever either one changes, and keep the note in
+     main-sidebar-account.js in step. */
+  (function mountMainRailCard(){
+    try{
+      if(document.querySelector('link[href*="main-sidebar-account.css"]')) return;
+      var host = String(location.hostname || '').toLowerCase();
+      var mainPortal = (host === 'main.titanx7.com' || host === 'www.main.titanx7.com');
+      var u = window.BO_AUTH.user() || {};
+      var type = String(u.roleType || '').toUpperCase();
+      var isMainAccount = (type === 'MAIN' || u.mainAdmin === true || Number(u.mainAdmin) === 1);
+      var file = String(location.pathname || '').split('/').pop().split('?')[0].split('#')[0]
+        .replace(/\.html$/i, '').toLowerCase();
+      if(!mainPortal && !isMainAccount && !/^main[-_]/i.test(file) && file !== 'menu-permission') return;
+      var css = document.createElement('link');
+      css.rel = 'stylesheet';
+      css.href = 'assets/css/main-sidebar-account.css?v=6119e3c5';
+      (document.head || document.documentElement).appendChild(css);
+      var js = document.createElement('script');
+      js.src = 'assets/js/main-sidebar-account.js?v=11a3bb9b';
+      (document.body || document.documentElement).appendChild(js);
+    }catch(e){}
+  })();
+
   // Warm the small set of sibling workspace tabs in the browser cache. Tabs remain
   // normal links/full navigations; this only removes avoidable HTML wait when users
   // switch between Admin/Merchant/Provider/Report tabs — and between the page-level

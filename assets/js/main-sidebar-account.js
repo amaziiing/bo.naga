@@ -34,12 +34,25 @@
    anyway. The collapsed state is the `sidebar-mini` body class (reports.js), which is watched
    here rather than read once.
 
-   SCOPE
-   Main panel = main-*.html, main_*.html and menu-permission.html (AGENTS.md, "Scope: BO pages
-   only"). Filename-based on purpose: the owner asked for the page family to move, so a MAIN
-   account on a normal BO page keeps the chip it has today. auth.js's own isMainPanel test
-   (menuLinkHtml) is account-first as well as filename-based; that one controls the Dashboard pin
-   controls and is not this.
+   SCOPE - THE PORTAL, NOT A FILE LIST
+   Main panel = the portal the MAIN account is in. It cannot be a filename family: the Main
+   portal's menus are DB rows and at least one of them points at a BO file (menu-management.html,
+   data-bo-shell="bo"), and its own role page links through to role-create.html - the owner found
+   the first of those with "Backoffice" still where the card belongs ("检查到 main的页面 很多页面他
+   的sidebar 的acc没在最上面"). So the test is the one auth.js already uses for the rail's own pins
+   (account-first), plus the production host, plus the filename family a local checkout has to
+   fall back on because both portals share 127.0.0.1. auth.js carries the same predicate for its
+   loader (mountMainRailCard) and asks for these two files on any page that does not link them.
+   A MAIN account on a normal BO page therefore moves the chip here too - in production that
+   combination cannot happen (auth.js's portal isolation sends a MAIN account to the main host
+   and a BO account away from it), and in a local checkout it is the same person and the same
+   rail, so the card is the right answer there as well.
+
+   THE PIN THIS FILE DOES NOT OWN
+   auth.js's mountMainRailCard injects this file and its sheet with a hand-written ?v= (the
+   asset-pin guard reads HTML only). Any change here has to be re-stamped there too, or a
+   browser that already cached the injected URL keeps running the old copy on every page the
+   Main portal reaches through a BO file.
 
    WHERE THE BOTTOM PLACEMENT SITS
    A sibling of `.bo-sidebar-account-footer`, immediately BEFORE it - never inside it. The
@@ -58,6 +71,11 @@
   var DOCK_CLASS = 'main-side-account';
   var LINK_CLASS = 'main-side-account-link';
   var TOPBAR_HOST = '.report-actions [data-bo-profile]';
+  /* The marker the sheet styles the brand row by. A class of this block's own rather than a
+     `data-bo-shell` scope: the row has to be styled on BO files served in the Main portal as
+     well (menu-management.html declares data-bo-shell="bo"), and a shell-class selector in the
+     sheet would go straight into the drift guard's scope. See assets/css/main-sidebar-account.css. */
+  var BRAND_CLASS = 'main-rail-brand';
   /* The brand's title is every direct `div` that is not the logo - the dock itself is excluded
      by the caller, because after the first placement it is one of them. */
   var BRAND_TITLE = ':scope > div:not(.logo)';
@@ -76,8 +94,15 @@
   }
 
   function isMainPanelPage() {
+    /* Mirrors auth.js's mountMainRailCard (which runs before this file has loaded) and the pins'
+       own isMainPanel test in auth.js's menuLinkHtml. Change one, change the others. */
+    var host = String(location.hostname || '').toLowerCase();
+    if (host === 'main.titanx7.com' || host === 'www.main.titanx7.com') return true;
     var f = pageFile();
-    return /^main[-_]/i.test(f) || f === 'menu-permission';
+    if (/^main[-_]/i.test(f) || f === 'menu-permission') return true;
+    var u = user();
+    var type = String(u.roleType || '').toUpperCase();
+    return type === 'MAIN' || u.mainAdmin === true || Number(u.mainAdmin) === 1;
   }
 
   function user() {
@@ -163,9 +188,17 @@
       dock.className = DOCK_CLASS;
     }
     var brand = sidebar.querySelector('.report-brand');
+    if (brand) {
+      // The marker and the title are the brand row's business in BOTH rail states: the title is
+      // the card's predecessor and the owner asked for it to go, and the collapsed rail is no
+      // reason to keep a hidden node (reports.css hides it at that width too). The card itself
+      // only moves into the row when there is one to move into - a 72px rail's brand is the
+      // toggle's slot alone.
+      brand.classList.add(BRAND_CLASS);
+      retireBrandTitle(brand, dock);
+    }
     if (brand && !document.body.classList.contains('sidebar-mini')) {
       // Expanded rail: the title's place, first in the row.
-      retireBrandTitle(brand, dock);
       if (dock.parentNode !== brand || brand.firstElementChild !== dock) {
         brand.insertBefore(dock, brand.firstChild);
       }

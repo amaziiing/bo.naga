@@ -8,11 +8,11 @@ body.main-merchant-profit-page{
   --mpr-success:#12B76A;
   --mpr-success-tint:rgba(18,183,106,.12);
   --mpr-bg:#F5EBDC;
-  --mpr-surface:#FFFFFF;
-  --mpr-border:#E2E7F0;
-  --mpr-text:#11203A;
-  --mpr-muted:#657187;
-  --mpr-shadow:0 0 0 1px rgba(120,80,20,.04),0 1px 2px -1px rgba(120,80,20,.06),0 2px 8px rgba(26,45,80,.018);
+  --mpr-surface:#FFF8EB;
+  --mpr-border:#EADCC8;
+  --mpr-text:#18191C;
+  --mpr-muted:#57534E;
+  --mpr-shadow:0 0 0 1px rgba(120,80,20,.04),0 1px 2px -1px rgba(120,80,20,.06),0 2px 8px rgba(24,25,28,.04);
 }
 
 body.main-merchant-profit-page .mpr-workspace{

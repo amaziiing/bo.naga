@@ -101,7 +101,14 @@
     function sync(){menu.querySelectorAll('[data-lang]').forEach(function(x){x.classList.toggle('active',x.dataset.lang===lang());});}
     btn.addEventListener('click',function(e){e.stopPropagation();var open=!menu.classList.contains('is-open');closeMenus(menu);menu.classList.toggle('is-open',open);btn.setAttribute('aria-expanded',open?'true':'false');});
     menu.addEventListener('click',function(e){var x=e.target.closest('[data-lang]');if(!x)return;try{localStorage.setItem(STORAGE_KEY,x.dataset.lang);}catch(err){} sync();menu.classList.remove('is-open');btn.setAttribute('aria-expanded','false');walk(document.body);});
-    document.addEventListener('click',function(){menu.classList.remove('is-open');btn.setAttribute('aria-expanded','false');}); sync();
+    /* One slot, not one listener per entry: the router replaces the header on every swap, so
+       mount() builds a new switcher and used to add another document click handler while the
+       previous one (holding the previous switcher) stayed on `document` forever. Measured on
+       the Main provider pages: +1 click handler per entry. The window slot also covers a fresh
+       EXECUTION of this file, where this closure's variable would be a different one. */
+    if(window.__boMainI18nOutsideClick) document.removeEventListener('click',window.__boMainI18nOutsideClick);
+    window.__boMainI18nOutsideClick=function(){menu.classList.remove('is-open');btn.setAttribute('aria-expanded','false');};
+    document.addEventListener('click',window.__boMainI18nOutsideClick); sync();
   }
   var refreshTimer=null;
   function settleRefresh(){
@@ -110,6 +117,12 @@
   }
   function start(){
     mount();walk(document.body);
+    /* The router replays DOMContentLoaded for the target page's own scripts, so start() runs on
+       every entry into one of the 40 pages that load this file - and the previous observer kept
+       observing document.body (which survives a swap) for the rest of the session. Disconnect it
+       first; the window slot also covers a fresh execution of this file, whose module variable
+       would otherwise be a new one. */
+    if(window.__boMainI18nObserver){try{window.__boMainI18nObserver.disconnect();}catch(e){}}
     observer=new MutationObserver(function(ms){
       if(busy){settleRefresh();return;}
       ms.forEach(function(m){
@@ -122,6 +135,7 @@
       settleRefresh();
     });
     observer.observe(document.body,OBSERVER_OPTIONS);
+    window.__boMainI18nObserver=observer;
     /* Some page controllers render after DOMContentLoaded without producing a stable
        footer until API/table initialization completes. These bounded passes cover
        initial load only; the MutationObserver handles subsequent redraws. */

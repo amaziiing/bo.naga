@@ -5618,6 +5618,21 @@ refused, even though its rule can never match a BO page. The fix is a documented
 re-tested with a plain `.report-content{gap:9px}` appended to the same sheet and it still fails it, so the escape
 hatch is not a hole.
 
+**A `display:flex!important` on `.report-content` un-hid a hidden content frame (2026-10-01, user-reported).**
+Merchant Detail keeps its edit workspace (`#madEditWorkspace`) as a SECOND `.report-content` on the same page and
+hides it with the `hidden` attribute until the pencil is clicked. The first rule above matched it anyway - an
+important declaration beats the UA sheet's `[hidden]{display:none}` and the page's own
+`body.main-merchant-detail-page #madEditWorkspace{display:none}` (not important) - so the whole edit form was
+painted under the merchant list: owner “我的merchant页面 他的add merchant的设计跑来前面了”. The leaked form also
+took the height the list's auto page-size measures against, so the table fitted 5 rows and painted none while its
+footer still read “Showing 1 to 5 of 10 merchants”. Measured on the deployed bytes in headless Chrome
+(`CSS.getMatchedStylesForNode`): the winning rule was `(min-width:1024px) html[data-bo-shell="main"] .report-content
+-> display:flex !important`; the element read `hidden=true`, computed `display:flex`, box 1290x381 at top 367.
+Fixed with `:not([hidden])` on that selector. Re-measured on the fixed sheet: list `flex / gap 16px / 684px` with 5
+rows painted, edit workspace `hidden / display:none / 0px`, pencil -> `flex / 1591px`, Back to List -> hidden again.
+`main-merchant-detail.html` is the only Main page that hides a `.report-content` in its markup today - the rule
+would have hit any page that adds one, so anything declaring `display` on this frame must carry the `:not([hidden])`.
+
 **The theme toggle died on every navigation, and a cloned header is why.** `bo-spa.js` replaces
 `.report-main > .report-topbar` with a clone of the target page's header on every swap, so the `#boThemeToggle` the
 click was bound to no longer exists — and `bo-theme.js` bound it directly. Measured in a real browser,

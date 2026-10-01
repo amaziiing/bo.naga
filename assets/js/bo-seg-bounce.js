@@ -1,7 +1,11 @@
 (function(global){
   'use strict';
 
-  const mounts=new WeakMap();
+  /* Both registries live on `window` on purpose: a new EXECUTION of this file (the router runs
+     it whenever the page we come from did not load it) would otherwise create fresh, empty ones
+     and lose track of the listeners the previous execution had installed on `window` itself. */
+  const mounts=global.__boSegBounceMounted||(global.__boSegBounceMounted=new WeakMap());
+  const live=global.__boSegBounceLive||(global.__boSegBounceLive=new Set());
   const reduce=()=>!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
   function ensureThumb(track){
@@ -50,11 +54,13 @@
     const buttonSelector=opts.button||':scope > button, :scope > a.mad-pill, :scope > .mad-pill, :scope > .mp-scope-btn';
     const state={
       thumb:ensureThumb(track),
+      track:track,
       buttonSelector:buttonSelector,
       activeClass:opts.activeClass||'is-active',
       observer:null
     };
     mounts.set(track,state);
+    live.add(state);
 
     state.observer=new MutationObserver(function(){schedule(track);});
     state.observer.observe(track,{
@@ -69,17 +75,20 @@
     window.addEventListener('resize',onResize);
     state.onResize=onResize;
 
+    state.destroy=function(){
+      if(state.observer) state.observer.disconnect();
+      if(state.onResize) window.removeEventListener('resize',state.onResize);
+      mounts.delete(track);
+      live.delete(state);
+    };
+
     schedule(track);
     setTimeout(function(){schedule(track);},50);
     setTimeout(function(){schedule(track);},300);
 
     return {
       sync:function(){sync(track);},
-      destroy:function(){
-        if(state.observer) state.observer.disconnect();
-        if(state.onResize) window.removeEventListener('resize',state.onResize);
-        mounts.delete(track);
-      }
+      destroy:state.destroy
     };
   }
 
@@ -89,7 +98,21 @@
     });
   }
 
+  /* A swap replaces the content frame: the previous page's pill groups are DETACHED, but their
+     MutationObserver and their resize listener (registered on `window`, which outlives the page)
+     still hold the element alive. Nothing ever freed them, so every entry added a listener per
+     group - measured on the Main provider pages: 5 resize listeners on a direct load, 11 after
+     two swaps. Free the detached ones before mounting this page's; anything still in the
+     document is left alone (mount() re-schedules it instead of re-binding). */
+  function pruneDetached(){
+    live.forEach(function(state){
+      if(state.track&&state.track.isConnected) return;
+      try{state.destroy();}catch(e){ live.delete(state); }
+    });
+  }
+
   function autoMount(){
+    pruneDetached();
     mountAll('.mad-pills',{button:'.mad-pill',anim:'bounce'});
     mountAll('.mp-scope',{button:'.mp-scope-btn',anim:'bounce'});
   }

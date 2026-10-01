@@ -24,6 +24,22 @@ body.bo-login-body{
   background:linear-gradient(100deg,#FFE8CC 0%,#FFF1DC 22%,#FFF3E0 55%,#FFF6E8 78%,#FFF8EB 100%) fixed;
 }
 
+/* The artwork lives on `.auth-page`, not on the body. bo-charcoal-legacy.css pins the body (and
+   the html canvas behind it) to a flat #FFF1DC / #2C2E38 with !important for every bo-login-body
+   page, and a shorthand there resets background-image too - a body-level artwork loses that fight
+   on both specificity and sheet order. `.auth-page` is the 100vh element that actually paints the
+   viewport, and that flat-canvas rule never targets it, so the two tracks stay independent.
+   The selector carries html:not([data-bo-theme]) so it still beats reports.css's
+   `.auth-page{background:#F5EBDC}` without an !important. */
+html:not([data-bo-theme="dark"]) .auth-page{
+  background-color:var(--login-canvas);
+  background-image:url("../images/login-bg-light.svg?v=4");
+  background-size:cover;
+  background-position:center center;
+  background-repeat:no-repeat;
+  background-attachment:fixed;
+}
+
 .auth-page{
   position:relative;
   isolation:isolate;
@@ -31,7 +47,6 @@ body.bo-login-body{
   display:grid;
   place-items:center;
   padding:clamp(24px,5vw,72px) 20px;
-  background-image:none;
 }
 
 /* Keep the supplied artwork fully visible. The previous white radial overlay
@@ -385,9 +400,13 @@ body.bo-login-body{
 }
 
 @media(max-width:575.98px){
-  body.bo-login-body{
+  /* iOS refuses to paint a `fixed` attachment on a viewport-sized box, so the artwork scrolls
+     with the page instead. It is a wide banner, so `cover` still lands the visible band over
+     the empty centre behind the card. */
+  html:not([data-bo-theme="dark"]) .auth-page,
+  html[data-bo-theme="dark"] .auth-page{
     background-attachment:scroll;
-    background-position:center;
+    background-position:center center;
   }
 
   .auth-page{
@@ -529,11 +548,17 @@ html[data-bo-theme="dark"] .auth-theme-slot .bo-theme-btn:hover{
 html[data-bo-theme="dark"] .auth-brand{color:#F59E0B}
 html[data-bo-theme="dark"] .auth-brand-copy b{color:#F5F5F4}
 html[data-bo-theme="dark"] .auth-brand-copy small{color:#A1A1AA}
-/* Belt and braces for the dark canvas: `.auth-page` is the 100vh element and it is painted
-   explicitly here, so the viewport is dark even if a later-loaded sheet restates the body. */
-html[data-bo-theme="dark"] body.bo-login-body{background:#2C2E38!important}
-html[data-bo-theme="dark"] .auth-page{background:#2C2E38!important}
-html:not([data-bo-theme="dark"]) .auth-page{background:#FFF1DC!important}
+/* Night artwork, same element and same reason as the day rule above. The html[data-bo-theme]
+   prefix is what lifts it above reports.css's light `.auth-page{background:#F5EBDC}`, and it is
+   also what keeps the viewport dark even when a later-loaded sheet restates the body. */
+html[data-bo-theme="dark"] .auth-page{
+  background-color:#2C2E38;
+  background-image:url("../images/login-bg-dark.svg?v=4");
+  background-size:cover;
+  background-position:center center;
+  background-repeat:no-repeat;
+  background-attachment:fixed;
+}
 
 /* Shape audit (batch D visual pass): this file had drifted off the locked scale with 11/18/20/22px.
    DESIGN.md's Shapes line fixes the values at 8 (controls / theme toggle), 10 (nav), 12 (topbar

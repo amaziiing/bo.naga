@@ -93,20 +93,29 @@ body.frontend-display-page .report-content{
   gap:12px;
 }
 
-/* One outer frame — locked 2-col tracks so mid-lines align top-to-bottom */
+/* One outer frame — locked 2-col tracks so mid-lines align top-to-bottom.
+   Left column is the display modules, right column is install + money: that pairing is also
+   the one that balances the cells (276/334 | 193/194), where the old pairing left ~140px of
+   dead space under Wallet Limits and pushed the marquee past the fold. */
 .fd-grid{
   flex:1 1 auto;
   min-height:0;
   width:100%;
   display:grid;
   grid-template-columns:minmax(0,1fr) minmax(0,1fr);
-  grid-template-rows:auto auto minmax(0,1fr);
+  /* Three content-sized rows. The last one must NOT be flexible: a fr track here resolves to
+     the leftover space, and the marquee still needs ~300px of it, so it got 0-139px and painted
+     its body over the save bar. The panels must not be `height:100%` either - a percentage
+     against an indefinite row makes the panel's contribution 0, and the three auto rows then
+     split the container equally (250/250/249), squashing the taller panels into each other. */
+  grid-template-rows:auto auto auto;
   grid-template-areas:
-    "visibility live"
-    "install limits"
+    "visibility install"
+    "live limits"
     "marquee marquee";
   gap:0;
   align-items:stretch;
+  align-content:start;
   border:1px solid #DCC9A8;
   border-radius:12px;
   overflow:visible;
@@ -127,8 +136,9 @@ body.frontend-display-page .report-content{
   flex-direction:column;
   min-width:0;
   max-width:100%;
-  min-height:0;
-  height:100%;
+  /* Content-sized, stretched to its row by align-self - see .fd-grid. */
+  height:auto;
+  min-height:auto;
   z-index:1;
 }
 /* Open brand/mode menus must paint above the panel below (Add to Home Screen) */
@@ -144,8 +154,8 @@ body.frontend-display-page .fd-panel .rounded-select-menu{
   z-index:70!important;
 }
 #fd-sec-visibility{ grid-area:visibility; border-right:1px solid #EADCC8; }
-#fd-sec-live{ grid-area:live; }
-#fd-sec-install{ grid-area:install; border-right:1px solid #EADCC8; }
+#fd-sec-live{ grid-area:live; border-right:1px solid #EADCC8; }
+#fd-sec-install{ grid-area:install; }
 #fd-sec-limits{ grid-area:limits; }
 #fd-sec-marquee{ grid-area:marquee; border-right:0; border-bottom:0; }
 .fd-panel::before{ display:none; }
@@ -155,7 +165,7 @@ body.frontend-display-page .fd-panel .rounded-select-menu{
 }
 .fd-panel-head{
   display:flex; align-items:center; gap:10px;
-  padding:11px 14px;
+  padding:10px 14px;
   border-bottom:1px solid #EADCC8;
   background:#F5EBDC;
 }
@@ -195,8 +205,12 @@ body.frontend-display-page .fd-panel .rounded-select-menu{
   display:grid;
   grid-template-columns:repeat(2,minmax(0,1fr));
   column-gap:8px;
+  align-content:start;
 }
-#fd-sec-visibility #frontendDisplayBrandRow{
+/* Rows whose control is a select, not a switch: one full-width row, copy left / control right.
+   In a half-width cell the 160-280px control track crushed the copy column to 0px. */
+#fd-sec-visibility #frontendDisplayBrandRow,
+#fd-sec-visibility #boSidebarInteractionRow{
   grid-column:1 / -1;
   grid-template-columns:minmax(0,1fr) minmax(200px,320px);
   align-items:center;
@@ -233,6 +247,7 @@ body.frontend-display-page .fd-panel .rounded-select-menu{
 #fd-sec-live .fd-panel-body{
   display:grid;
   grid-template-columns:repeat(3,minmax(0,1fr));
+  align-content:start;
 }
 #fd-sec-live #liveTransactionModeRow,
 #fd-sec-live #liveTransactionRefreshRow{
@@ -250,17 +265,35 @@ body.frontend-display-page .fd-panel .rounded-select-menu{
 }
 #fd-sec-live .fd-metric-tile:last-child{ border-right:0; }
 #fd-sec-live .fd-metric-tile .fd-control{ justify-content:stretch; }
+/* A third of the panel is too narrow for "10.00 to 5000.00 amt" on one line: the fields came out
+   61px wide against a 99px need, so the value rendered as "50(". The unit moves to its own line
+   and the fields give up their side padding instead of their digits. */
+#fd-sec-live .fd-metric-tile .display-range-control{ grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); gap:8px 6px; }
+#fd-sec-live .fd-metric-tile .display-range-unit{ grid-column:1 / -1; }
+#fd-sec-live .fd-metric-tile input.display-setting-select{ padding:0 8px!important; }
+/* Same reason as the padding: an 18px spinner in a 79px field is the difference between
+   "5000.00" and "50(". The value is typed here, not stepped. */
+#fd-sec-live .fd-metric-tile input[type="number"]::-webkit-outer-spin-button,
+#fd-sec-live .fd-metric-tile input[type="number"]::-webkit-inner-spin-button{
+  -webkit-appearance:none;
+  margin:0;
+}
+#fd-sec-live .fd-metric-tile input[type="number"]{ -moz-appearance:textfield; appearance:textfield; }
 #fd-sec-live .fd-metric-tile.is-hidden{ display:none!important; }
 
 /* Wallet limits — 3 fields across */
 #fd-sec-limits .fd-panel-body{
   display:grid;
   grid-template-columns:repeat(3,minmax(0,1fr));
+  align-content:start;
   min-width:0;
 }
 #fd-sec-limits .display-setting-row{
   grid-template-columns:1fr;
   align-items:start;
+  /* The three descriptions are 2, 2 and 3 lines: keeping the field on the bottom edge of the
+     cell is what makes the three inputs line up with each other. */
+  align-content:space-between;
   gap:8px;
   border-right:1px solid #EADCC8;
   border-bottom:0;
@@ -275,6 +308,9 @@ body.frontend-display-page .fd-panel .rounded-select-menu{
   grid-template-columns:minmax(0,1fr) minmax(160px,280px);
   gap:10px 16px;
   align-items:center;
+  /* A panel taller than its rows must not hand the slack to the row gaps: the label and its
+     field belong together, the leftover belongs at the bottom of the panel. */
+  align-content:start;
   padding:12px 14px;
   border:0;
   border-bottom:1px solid #EADCC8;
@@ -286,7 +322,7 @@ body.frontend-display-page .fd-panel .rounded-select-menu{
   align-items:stretch;
 }
 .display-setting-row.is-stack .display-setting-copy{ margin-bottom:2px; }
-.fd-marquee-row{ border-bottom:0!important; padding:14px!important; }
+.fd-marquee-row{ border-bottom:0!important; padding:10px 12px!important; }
 .display-setting-copy h2{
   font-size:13px;
   font-weight:800;
@@ -651,7 +687,7 @@ body.frontend-display-page .fd-save-bar .clean-btn.primary i{ font-size:16px; li
   font-size:11px; font-weight:600; color:#78716C; line-height:1.35;
 }
 .marquee-editor{
-  min-height:96px; max-height:180px; overflow:auto;
+  min-height:72px; max-height:180px; overflow:auto;
   border:1px solid #DCC9A8; border-radius:0; padding:12px 14px;
   background:#F5EBDC; color:#18191C; font-size:13px; font-weight:600; outline:none;
 }
@@ -669,13 +705,13 @@ body.frontend-display-page .fd-save-bar .clean-btn.primary i{ font-size:16px; li
   overflow:hidden; white-space:nowrap;
   border:1px solid #DCC9A8; border-radius:0 0 8px 8px;
   padding:0; background:#F5EBDC; color:#18191C;
-  min-height:42px; display:block;
+  min-height:38px; display:block;
   position:relative;
 }
 .marquee-preview-inner{
   display:inline-block!important;
   white-space:nowrap;
-  padding:11px 0;
+  padding:8px 0;
   padding-left:100%;
   will-change:transform;
   animation:boMarqueePreview 14s linear infinite;
@@ -728,7 +764,7 @@ html[data-bo-theme="dark"] .fd-panel{
   border-bottom-color:var(--fd-dark-line-soft);
 }
 html[data-bo-theme="dark"] #fd-sec-visibility,
-html[data-bo-theme="dark"] #fd-sec-install{ border-right-color:var(--fd-dark-line-soft); }
+html[data-bo-theme="dark"] #fd-sec-live{ border-right-color:var(--fd-dark-line-soft); }
 html[data-bo-theme="dark"] .fd-panel-head{
   background:var(--fd-dark-head); border-bottom-color:var(--fd-dark-line);
 }
@@ -846,7 +882,8 @@ html[data-bo-theme="dark"] #fd-sec-limits .display-setting-row:last-child{ borde
   #fd-sec-limits .display-setting-row,
   #fd-sec-live #liveTransactionModeRow,
   #fd-sec-live #liveTransactionRefreshRow,
-  #fd-sec-visibility #frontendDisplayBrandRow{
+  #fd-sec-visibility #frontendDisplayBrandRow,
+  #fd-sec-visibility #boSidebarInteractionRow{
     grid-template-columns:minmax(0,1fr) minmax(140px,220px);
     align-items:center;
   }
@@ -869,7 +906,7 @@ html[data-bo-theme="dark"] #fd-sec-limits .display-setting-row:last-child{ borde
       "marquee";
   }
   #fd-sec-visibility,
-  #fd-sec-install{ border-right:0; }
+  #fd-sec-live{ border-right:0; }
   .fd-panel-wide{ grid-column:auto; }
 }
 @media (max-width:700px){
@@ -881,7 +918,8 @@ html[data-bo-theme="dark"] #fd-sec-limits .display-setting-row:last-child{ borde
   #fd-sec-limits .display-setting-row,
   #fd-sec-live #liveTransactionModeRow,
   #fd-sec-live #liveTransactionRefreshRow,
-  #fd-sec-visibility #frontendDisplayBrandRow{ grid-template-columns:1fr; gap:10px; }
+  #fd-sec-visibility #frontendDisplayBrandRow,
+  #fd-sec-visibility #boSidebarInteractionRow{ grid-template-columns:1fr; gap:10px; }
   .fd-control{ justify-content:flex-start; }
   body.frontend-display-page .fd-save-bar{
     height:auto!important; min-height:var(--bo-shell-foot-h,68px)!important; max-height:none!important;
@@ -936,7 +974,7 @@ html[data-bo-theme="dark"] #fd-sec-limits .display-setting-row:last-child{ borde
               <select id="frontendDisplayBrandTarget" class="display-setting-select" aria-label="Frontend display target brand"></select>
             </div>
           </div>
-          <div class="display-setting-row">
+          <div class="display-setting-row" id="boSidebarInteractionRow">
             <div class="display-setting-copy"><h2>Collapsed Sidebar</h2><p>Choose how submenu items open while the BO sidebar is collapsed.</p></div>
             <div class="fd-control">
               <select id="boSidebarInteraction" class="display-setting-select" aria-label="Collapsed sidebar behavior">
@@ -1137,10 +1175,6 @@ html[data-bo-theme="dark"] #fd-sec-limits .display-setting-row:last-child{ borde
         </div>
         <div class="fd-panel-body">
           <div class="display-setting-row is-stack fd-marquee-row">
-            <div class="display-setting-copy">
-              <h2>Marquee Text</h2>
-              <p>Edit above — preview scrolls below like the player header.</p>
-            </div>
             <div class="marquee-editor-wrap">
               <div class="marquee-toolbar" role="toolbar" aria-label="Marquee formatting">
                 <button type="button" class="marquee-tool" data-marquee-cmd="bold" title="Bold"><b>B</b></button>

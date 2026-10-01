@@ -256,14 +256,9 @@ body.main-merchant-report-page[data-report-view="settlement"] .mad-table-wrap.mr
   border-radius:0;
   background:transparent;
 }
-body.main-merchant-report-page[data-report-view="settlement"] .mre-panel[data-report-panel="settlement"] > .mad-footer.mre-table-footer{
-  flex:0 0 auto;
-  margin-top:auto;
-  padding:12px 16px!important;
-  min-height:auto;
-  border-top:1px solid var(--bo-border,#E2E7F0)!important;
-  background:var(--bo-surface,#fff);
-}
+/* The settlement panel's own footer geometry (12px padding / forced border) lived here until the
+   family moved onto the house footer — `main-admin-page-size.css` owns it now, and none of the four
+   merchant pages carries `.mre-table-footer` any more. */
 body.main-merchant-report-page[data-report-view="settlement"] .settlement-table.msr-settle-table,
 body.main-merchant-report-page[data-report-view="settlement"] .settlement-table{
   width:100%;

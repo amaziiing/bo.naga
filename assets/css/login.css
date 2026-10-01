@@ -33,7 +33,7 @@ body.bo-login-body{
    `.auth-page{background:#F5EBDC}` without an !important. */
 html:not([data-bo-theme="dark"]) .auth-page{
   background-color:var(--login-canvas);
-  background-image:url("../images/login-bg-light.svg?v=4");
+  background-image:url("../images/login-bg-light.svg?v=10");
   background-size:cover;
   background-position:center center;
   background-repeat:no-repeat;
@@ -553,7 +553,7 @@ html[data-bo-theme="dark"] .auth-brand-copy small{color:#A1A1AA}
    also what keeps the viewport dark even when a later-loaded sheet restates the body. */
 html[data-bo-theme="dark"] .auth-page{
   background-color:#2C2E38;
-  background-image:url("../images/login-bg-dark.svg?v=4");
+  background-image:url("../images/login-bg-dark.svg?v=10");
   background-size:cover;
   background-position:center center;
   background-repeat:no-repeat;

@@ -186,6 +186,63 @@
  .report-main .table-footer>.table-info{grid-area:info!important;grid-column:auto!important;justify-self:center!important;width:100%!important;white-space:normal!important}
 }
 
+/* v2.1.1 — THE WRAPPED PAGE-SIZE SELECT, AND THE MENU THAT OPENS UPWARD.
+
+   TWO DEFECTS, BOTH MEASURED ON PROMOTION BONUS, EACH ALREADY PATCHED PER THEME INSTEAD
+   OF ONCE HERE.
+
+   1. reports.js replaces every native select with `.rounded-select-wrap` + a
+      `.rounded-select-btn` (the control the operator actually clicks) and reports.css takes
+      the real select out of the flow (`position:absolute` / 1px). The `select` rule above is
+      more specific (`position:relative!important` + 68x40!important) and put it BACK IN
+      FLOW: the wrap is 72px, the invisible select took 68 of them, and the 30px button was
+      pushed past the wrap and painted over the word after it — measured `Show [ - ]ries`,
+      the report "show entries 的设计跑了". Same two declarations as
+      access-control-executive.css carries for the Access Control family (its comment records
+      the identical symptom, `Show 10 ries`) — shared here instead of copied an eighth time.
+
+   2. The page-size menu opened DOWNWARD (`top:calc(100% + 6px)` in reports.css) out of the
+      footer, which is the card's LAST row: on Promotion Bonus the menu measured 648..878
+      against a card ending at 788, and every ancestor that clips the table's corners ate it.
+      Opening upward is what the module sheets already settled on (access-control-executive,
+      agent-admin-management, reports.css → page-game-category, bo-charcoal-cms →
+      manual-rebate-approval): there is a card's worth of room above the footer, and the
+      wrap's own `overflow:hidden` — which exists to clip the table's corners — no longer
+      truncates the menu. */
+.report-main .table-footer>.entries-control .rounded-select-wrap>select,
+.report-main .admin-table-footer>.entries-control .rounded-select-wrap>select,
+.report-main .game-table-footer>.entries-control .rounded-select-wrap>select,
+.report-main .subcategory-table-footer>.entries-control .rounded-select-wrap>select,
+.report-main .bo-table-pagination>.entries-control .rounded-select-wrap>select,
+.report-main .bo-pagination-standard>.entries-control .rounded-select-wrap>select,
+.report-main .table-pagination-wrap>.table-page-size .rounded-select-wrap>select,
+.report-main .ref-pagination-row>:first-child .rounded-select-wrap>select{
+  position:absolute!important;left:0!important;top:0!important;
+  width:1px!important;min-width:0!important;max-width:1px!important;height:1px!important;
+  flex:0 0 auto!important;opacity:0!important;pointer-events:none!important;
+  margin:0!important;padding:0!important;border:0!important;
+}
+.report-main .table-footer>.entries-control .rounded-select-wrap>.rounded-select-btn,
+.report-main .admin-table-footer>.entries-control .rounded-select-wrap>.rounded-select-btn,
+.report-main .game-table-footer>.entries-control .rounded-select-wrap>.rounded-select-btn,
+.report-main .subcategory-table-footer>.entries-control .rounded-select-wrap>.rounded-select-btn,
+.report-main .bo-table-pagination>.entries-control .rounded-select-wrap>.rounded-select-btn,
+.report-main .bo-pagination-standard>.entries-control .rounded-select-wrap>.rounded-select-btn,
+.report-main .table-pagination-wrap>.table-page-size .rounded-select-wrap>.rounded-select-btn,
+.report-main .ref-pagination-row>:first-child .rounded-select-wrap>.rounded-select-btn{
+  flex:1 1 auto!important;width:100%!important;min-width:0!important;max-width:none!important;
+}
+.report-main .table-footer>.entries-control .rounded-select-wrap>.rounded-select-menu,
+.report-main .admin-table-footer>.entries-control .rounded-select-wrap>.rounded-select-menu,
+.report-main .game-table-footer>.entries-control .rounded-select-wrap>.rounded-select-menu,
+.report-main .subcategory-table-footer>.entries-control .rounded-select-wrap>.rounded-select-menu,
+.report-main .bo-table-pagination>.entries-control .rounded-select-wrap>.rounded-select-menu,
+.report-main .bo-pagination-standard>.entries-control .rounded-select-wrap>.rounded-select-menu,
+.report-main .table-pagination-wrap>.table-page-size .rounded-select-wrap>.rounded-select-menu,
+.report-main .ref-pagination-row>:first-child .rounded-select-wrap>.rounded-select-menu{
+  top:auto!important;bottom:calc(100% + 6px)!important;z-index:3000!important;
+}
+
 /* Referral Network: Show left, pager hard-right (override 3-col grid above) */
 body.referral-page .report-main .table-footer.ref-pagination-row,
 body.referral-page .table-footer.ref-pagination-row{

@@ -182,6 +182,16 @@
       delete el.dataset.boUiButton;
       return;
     }
+    /* The module row's per-tab pin (auth.js moduleTabHtml) is SHELL chrome, like
+       `.bo-theme-btn` / `.bo-tx-tab` above, not a page button: it is a 22px control inside a
+       48px text row, and the global icon-button recipe (40x40, `!important`, radius 10) turned
+       it into a 40px block that painted over the tab's own label. Measured: its box was 40x40
+       with the label shifted 8px, so the glyph sat on the last letters of the tab name. */
+    if(el.matches?.('.bo-module-tab-pin') || el.closest?.('.bo-module-tabs')){
+      el.classList.remove('bo-ui-button','bo-ui-button-primary','bo-ui-button-secondary','bo-ui-button-danger','bo-ui-icon-button');
+      delete el.dataset.boUiButton;
+      return;
+    }
     if(el.dataset.boUiSkip==='1' || el.matches?.('[data-bo-ui-skip],.dynamic-translation-toggle,[data-dt-collapse]')){
       el.classList.remove('bo-ui-button','bo-ui-button-primary','bo-ui-button-secondary','bo-ui-button-danger','bo-ui-icon-button');
       delete el.dataset.boUiButton;

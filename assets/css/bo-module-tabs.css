@@ -8,7 +8,9 @@
 
    Visual language is the Admin Management tab row (.mad-tab in
    menu-permission-executive.css): text only — no buttons, no per-tab cards, no
-   gradient — active state is dark text over a 2px orange underline.
+   gradient — active state is dark text over a 2px orange underline. The one control the
+   row carries is the per-tab Dashboard pin, which its own tab reveals and which is not
+   drawn at rest (see "Per-tab pin" below).
 
    Tokens are the Transaction module's own set. bo-wallet-transaction-amber.css states
    --bo-border / --bo-text / --bo-muted / --bo-cyan on body.bo-wallet-tx and re-states
@@ -84,6 +86,134 @@
   outline:2px solid var(--bo-cyan,#D97706);
   outline-offset:2px;
   box-shadow:0 0 0 3px var(--bo-cyan-tint,rgba(217,119,6,.14));
+}
+
+/* ------------------------------------------------------------------
+   Per-tab pin.
+   Every tab carries the pin of the page it points at — the SAME control the sidebar rows
+   carry, writing the same store (window.__boUiSetting.headerMenuKeys, PUT
+   /admin/ui-setting, see auth.js moduleTabHtml). It lives here because a module's sidebar
+   was collapsed into ONE row: the module's pages are no longer listed in the rail, so the
+   tab row is the last place their own pin can be.
+
+   Deliberately not drawn like the sidebar's pin. That one is always on and sits in the
+   rail's own gutter; a second copy of it on every tab would turn a text row into a row of
+   buttons, which is the one thing this row's design language rules out. So the row stays
+   text at rest, the pin is revealed by the tab it belongs to, and a pinned tab keeps it on.
+
+   Nothing about the resting row moves: same height, same padding, same font. The reveal
+   shifts the LABEL with a transform rather than with padding or width, so tabs never shove
+   each other sideways while the pointer crosses the row, and the pin is absolutely
+   positioned inside the tab's own right padding so it costs the row no width at all.
+   The 8px the label gives up while its pin is shown is what the pin sits in; the tab's
+   left padding keeps 4px of its 12. The glyph is 18px and carries no backdrop: a filled pill
+   in this row reads as a button glued to the tab's own name. ---- */
+.bo-module-tabs .bo-module-tab{
+  /* the pin is positioned inside the tab, so the tab is its containing block */
+  position:relative;
+}
+
+.bo-module-tabs .bo-module-tab-label{
+  display:inline-block;
+  transition:transform .16s var(--bo-ease,ease);
+}
+
+.bo-module-tabs .bo-module-tab-pin{
+  position:absolute;
+  top:50%;
+  right:0;
+  width:18px;
+  height:18px;
+  margin:0;
+  padding:0;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border:0;
+  border-radius:6px;
+  background:transparent;
+  color:var(--bo-muted,#71717A);
+  font-size:12px;
+  line-height:1;
+  cursor:pointer;
+  /* Invisible at rest, but never display:none: it keeps its place in the tab's focus
+     order, and pointer-events off means a click where it is not drawn still opens the
+     tab instead of hitting a control nobody can see. */
+  opacity:0;
+  pointer-events:none;
+  transform:translate(6px,-50%);
+  transition:opacity .16s var(--bo-ease,ease),transform .16s var(--bo-ease,ease),color .16s var(--bo-ease,ease),background .16s var(--bo-ease,ease);
+}
+
+/* A 18px glyph with a 26px target: the visual stays in the row's own scale, the hit area does
+   not go below the touch/pointer minimum. */
+.bo-module-tabs .bo-module-tab-pin::after{
+  content:"";
+  position:absolute;
+  inset:-4px;
+  border-radius:10px;
+}
+
+.bo-module-tabs .bo-module-tab:hover .bo-module-tab-pin,
+.bo-module-tabs .bo-module-tab:focus-within .bo-module-tab-pin,
+.bo-module-tabs .bo-module-tab.is-pinned .bo-module-tab-pin{
+  opacity:1;
+  pointer-events:auto;
+  transform:translate(0,-50%);
+}
+
+/* The tab makes room for its own pin. `is-pinned` carries the same shift, so a pinned tab
+   is not left with the pin sitting on its last letter — and the shift itself is the mark
+   that this tab is pinned, in the row's own vocabulary (nothing added, nothing coloured). */
+.bo-module-tabs .bo-module-tab:hover .bo-module-tab-label,
+.bo-module-tabs .bo-module-tab:focus-within .bo-module-tab-label,
+.bo-module-tabs .bo-module-tab.is-pinned .bo-module-tab-label{
+  transform:translateX(-8px);
+}
+
+/* No pill behind it, and no colour change to black. A filled box on hover made the glyph read
+   as a chip glued to the last letter of the tab's name - which is what the owner circled
+   ("需要调整"), and it put a button-shaped object in a row whose whole language is text. The
+   feedback is the glyph itself: muted → amber on hover (amber is what a pinned one looks
+   like, so the hover previews the state it will leave behind), and a 12% scale when it is
+   ALREADY amber - the one case a colour change cannot say anything. */
+.bo-module-tabs .bo-module-tab-pin:hover,
+.bo-module-tabs .bo-module-tab-pin:focus-visible{
+  color:var(--bo-cyan,#D97706);
+  transform:translate(0,-50%) scale(1.12);
+}
+
+.bo-module-tabs .bo-module-tab.is-pinned .bo-module-tab-pin{
+  color:var(--bo-cyan,#D97706);
+}
+
+.bo-module-tabs .bo-module-tab-pin:focus-visible{
+  outline:2px solid var(--bo-cyan,#D97706);
+  outline-offset:1px;
+}
+
+/* No hover to reveal it with (touch), or a narrow layout where the sidebar pins are on
+   their whole width anyway: show it, and give the label its room up front. */
+@media(hover:none),(max-width:991.98px){
+  .bo-module-tabs .bo-module-tab-pin{
+    opacity:1;
+    pointer-events:auto;
+    transform:translate(0,-50%);
+  }
+  .bo-module-tabs .bo-module-tab-label{
+    transform:translateX(-6px);
+  }
+}
+
+/* The reveal is a 6px slide and an opacity ramp; with motion reduced, only the ramp. */
+@media(prefers-reduced-motion:reduce){
+  .bo-module-tabs .bo-module-tab-label{
+    transition:none;
+  }
+  .bo-module-tabs .bo-module-tab-pin{
+    transform:translate(0,-50%);
+    transition:opacity .16s linear;
+  }
 }
 
 @media(max-width:991.98px){

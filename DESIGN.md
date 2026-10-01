@@ -5936,3 +5936,75 @@ removal re-applied each time; the 480px drawer lays the card out beside the clos
 Pins: `auth.js` and both `main-sidebar-account.*` files re-stamped across the pages that carry them, and the
 hand-written `?v=` inside `mountMainRailCard` re-stamped with them - the asset-pin guard reads HTML only, the same
 caveat the injected `bo-global-quicknav.css` link already carries.
+
+### Bank Deposit Usage's pagination is the module's, not its own (2026-10-01, owner: “这个页面的pagination设计部分与其他页面设计功能没有统一到”)
+
+The page was the odd one out in the **Transaction** module, and it was the page sheet that made it so. Three
+independent things, each measured on an auth-stubbed render at 1560x900 against `member-deposit.html` (Deposit
+Approval — the sibling tab in the same row):
+
+| | Bank Deposit Usage, before | Deposit Approval (the standard) |
+| --- | --- | --- |
+| footer | `display:flex` + `space-between` | `display:grid`, three slots |
+| left slot | **nothing existed** | `Show [- ▾] entries` |
+| middle slot | `Showing 1–10 of 12 bank record(s) · 0 unmatched approved transaction(s)`, 80px left of the footer's centre | `Showing 1 to 6 of 6 entries` |
+| right slot | `‹ 1 2 ›` 36x40 amber — already the house ladder | same |
+
+**1. The footer was re-declared in `bank-deposit-usage.css`.** Nineteen declarations
+(`body.bo-wallet-tx.bank-deposit-usage-page .bank-usage-list-card > .table-footer{display:flex!important; …}`, plus
+a `.table-info{flex:1 1 auto}` and a `.bo-usage-pager-host` rule) at **three classes**, which out-ranks the family's
+own `body.bo-wallet-tx .table-card > .bo-pagination-standard` grid in `bo-wallet-transaction-amber.css:2891` **and**
+the app-wide recipe in `table-pagination-horizontal.css`. That is why the page rendered a footer no other page in
+the module had: a two-slot flex row has nowhere to put the left slot, so the page-size control had never existed
+there. The block is gone, with a comment saying what used to be declared and why it must not come back; the footer's
+geometry now comes from the shared recipe and the family sheet, exactly as Deposit Approval's does. Nothing was
+added to any sheet to replace it.
+
+**2. The markup is the house footer.** `.table-footer.bo-pagination-standard` with the three slots stated in the
+page rather than left to `bo-ui-standard.js`'s scan — `entries-control` (a native select `#usagePageSize`, the
+product's own list `- · 10 · 20 · 50 · 100 · All`, opening on `-`), `.table-info.bo-pagination-info`, and
+`.pagination-clean.bo-pagination-buttons` (the ladder host, which used to be `.bo-usage-pager-host`). `reports.js`
+wraps the select in its `.rounded-select-wrap` exactly as it does on the sibling. Measured after: `display:grid`,
+columns `160 / 896 / 144`, `Show -` flush left, the sentence centred within 8px of the footer's centre, the ladder
+flush right, and the control visible in **both** themes.
+
+**3. The page size is the app-wide contract, and the sentence is the app-wide sentence.** `const PAGE_SIZE=10` is
+gone; `resolvePageSize()` is `wallet-ledger.js` / `member-deposit.js`'s own resolver, because this is the same
+module on the same viewport-locked card: `-` = as many rows as the panel can show, `All` = every row, a number =
+that number. The middle slot now reads `Showing X to Y of Z entries` (and `Showing 0 to 0 of 0 entries`), word for
+word what every other listing prints. The owner's call on the page-local trailing note — `· N unmatched approved
+transaction(s)` — was to **drop it** rather than keep the only footer in the product whose middle slot said
+something else; the counters behind it went with it.
+
+**4. The page's own click handler was stacking on every re-entry, and the ladder is what it handles.** The
+delegated `document.addEventListener('click', …)` that reads `[data-usage-page]` (and the status pill, the Show
+toggle and the delete button) sat at the top level of a page-private script, so every visit added a copy — and the
+copies left behind are the **previous** entry's closure, holding the previous payload and page number. Measured with
+`DOMDebugger.getEventListeners`: document click listeners **13 → 14 → 15** across two re-entries of the page, while
+the resize slot below stayed at **4 → 4 → 4**. Every stacked copy re-renders on the same click, so after navigating
+away and back a rung could paint the previous entry's page — and the delete button could fire as many requests as
+there were visits. Now the handler is replaced, not flagged (`document` is not part of a swap; a "bound" flag is what
+keeps a stale closure alive — SPA.md §2). Measured after: **13 → 13 → 13**, and **4 → 4 → 4** for the resize slot the
+new `-` fit binds (that one uses the window single-slot form, so it never stacked in the first place).
+
+**The fit needed the row AVERAGE, and that was the one real defect found while verifying.** A single sample off the
+first row (the Bank cell, one line, 53.9px) asked for **11** rows of a panel that holds **10** — measured after the
+first pass: `wrapScroll 680` against `wrapClient 667`, the 11th row 13px behind the panel edge, and a *repeated*
+measure that returned 11 every time, so the settle loop could not converge. Two causes, both in that one number:
+the head wraps to two lines (**53.6px**, not the 44 a report page assumes) and the rows are not uniform — an
+account cell that wraps is 58.7px against 53.9 for a one-line row, average **56.94**. The measure now averages the
+painted rows, and `settleAutofit()` **steps the value down by one** instead of re-measuring it (the painted rows are
+precisely the ones that did not fit, so a re-measure returns the same number — the same trap DESIGN.md records for
+the report family's "fit that converges against transient geometry").
+
+**Verified** on all three states of the control, light **and** dark, 1560x900, 12 banks: arrival `-` →
+`Showing 1 to 10 of 12 entries`, 10 rows, `panelOverflow 0` (no panel scrollbar, the acceptance line for `-`);
+`All` → 12/12, one page, panel scrolls as it should; `10` → 2 pages, clicking rung 2 renders `Showing 11 to 12 of 12
+entries` and lights rung 2; `50` → 12/12; back to `-` → re-fits to 10. Empty states: the Suspend pill and an
+unmatched keyword both read `Showing 0 to 0 of 0 entries` with the ladder disabled and no JS error. **0 JS errors**
+in either theme, and the console was checked, not assumed.
+
+Pins: `bank-deposit-usage.css` `e9060a55 → 64fb5153` and `bank-deposit-usage.js` `fac97dd7 → 3331e161` — only
+`bank-deposit-usage.html` references either file, so one page was restamped (`check-asset-pins` 0 stale).
+Guards: shell-drift OK (2616 baseline declarations untouched) · spa-readiness exit 0 · pin-spa 0 pages re-pinned ·
+`node --check` on the script.

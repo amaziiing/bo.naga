@@ -8,7 +8,107 @@
   const methodsById=new Map();
   let statusFilter='active';
   let listPage=1;
-  const PAGE_SIZE=10;
+  /* ---------------------------------------------------------------------------
+     PAGE SIZE — the app-wide footer contract (`-` · 10 · 20 · 50 · 100 · All).
+
+     `-` is the arrival value and means "as many rows as the panel can show", `All`
+     means every row, a number means that number. This page used to hold a
+     `const PAGE_SIZE=10` and a footer with nowhere to put a control, so it was the
+     only listing in the Transaction module you could not change the page size on.
+
+     The measure is `wallet-ledger.js` / `member-deposit.js`'s own
+     (`measureAutoPageSize`), because it is the same module and the same
+     viewport-locked card: the scroller's own height minus the head while the head
+     is still inside it, a PAINTED row (>= 38px) as the divisor, and floor only —
+     never add the row that `overflow:hidden` would clip.
+     --------------------------------------------------------------------------- */
+  let lockedAutoSize=null;
+  function usageScroller(){
+    return document.querySelector('.bank-usage-list-card .table-wrap')||document.querySelector('.table-wrap');
+  }
+  /* A real row, not the "Loading..." placeholder: that one is a single colspan cell
+     measuring one line where a real row here is two, so it over-counts the fit. */
+  function usageRowSample(scroll){
+    for(const tr of scroll.querySelectorAll('tbody tr')){
+      if(tr.cells&&tr.cells.length>1&&tr.getClientRects().length) return tr.cells[0];
+    }
+    return null;
+  }
+  /* The AVERAGE of the painted rows, not one sample. This table's rows are not all
+     the same height — an account cell that wraps to two lines is 58.7px where a
+     one-line row is 53.9 — and a sample taken off the first row (the Bank cell, one
+     line, 53.9) asks for one row more than the panel holds. Measured on the page: 11
+     rows requested, the 11th 13px behind the panel edge, with a two-line head
+     (53.6px) above them. */
+  function usageRowMetrics(scroll){
+    let n=0,sum=0;
+    for(const tr of scroll.querySelectorAll('tbody tr')){
+      if(!tr.cells||tr.cells.length<=1||!tr.getClientRects().length) continue;
+      n++; sum+=tr.getBoundingClientRect().height;
+    }
+    return n?{n,rowH:Math.max(38,Math.round(sum/n))}:null;
+  }
+  function measureAutoPageSize(){
+    const scroll=usageScroller();
+    if(!scroll) return lockedAutoSize||12;
+    /* Nothing real painted yet (first load): keep the last fit and let
+       settleAutofit() correct it once the rows exist. */
+    const metrics=usageRowMetrics(scroll);
+    if(!metrics) return lockedAutoSize||12;
+    const head=scroll.querySelector('thead');
+    const headH=head?Math.ceil(head.getBoundingClientRect().height):0;
+    const avail=Math.max(0,Math.floor(scroll.clientHeight)-headH);
+    return Math.max(5,Math.min(200,Math.floor(avail/metrics.rowH)||12));
+  }
+  function autoFitPageSize(){
+    if(lockedAutoSize!=null) return lockedAutoSize;
+    lockedAutoSize=measureAutoPageSize();
+    return lockedAutoSize;
+  }
+  function clearLockedAutoSize(){lockedAutoSize=null;}
+  function isAutoPageSize(raw){
+    const v=String(raw??'-').trim();
+    return v===''||v==='-'||/^auto$/i.test(v);
+  }
+  function pageSizeValue(){
+    return $('usagePageSize')?.value??'-';
+  }
+  function resolvePageSize(){
+    const v=String(pageSizeValue()).trim();
+    if(isAutoPageSize(v)) return autoFitPageSize();
+    if(/^all$/i.test(v)) return 10000;
+    const n=Number(v);
+    return Number.isFinite(n)&&n>0?n:autoFitPageSize();
+  }
+  /* The fit is measured before the first real row exists, so verify it a frame later
+     against the painted rows and step down one row while the panel still overflows —
+     `wallet-ledger.js`'s post-paint correction. Bounded, because a fit corrected from
+     painted rows is a fixed point: the counter resets as soon as a pass does not
+     overflow. */
+  let autofitPasses=0,autofitRaf=0;
+  function rerenderUsage(){
+    render(lastPayload.methods,lastPayload.deposits,lastPayload.withdrawals,lastPayload.manualMovements);
+  }
+  function settleAutofit(){
+    if(!isAutoPageSize(pageSizeValue())) return;
+    cancelAnimationFrame(autofitRaf);
+    autofitRaf=requestAnimationFrame(()=>{
+      const scroll=usageScroller();
+      if(!scroll) return;
+      if(scroll.scrollHeight<=scroll.clientHeight+1){autofitPasses=0;return;}
+      if(autofitPasses>=6) return;
+      autofitPasses++;
+      /* Step DOWN from the value that overflowed instead of re-measuring it: the
+         painted rows are exactly the ones that did not fit, so a re-measure of the
+         same sample returns the same number and the loop never converges (measured: 11
+         rows asked for, the 11th 13px behind the panel edge, identical passes). One row
+         less is the answer the flat arithmetic cannot give when the head wraps to two
+         lines and the row height varies with the account cell. */
+      lockedAutoSize=Math.max(5,(lockedAutoSize??resolvePageSize())-1);
+      listPage=1;
+      rerenderUsage();
+    });
+  }
   let lastPayload={methods:[],deposits:[],withdrawals:[],manualMovements:[]};
   function uploadUrl(name){
     if(!name)return '';
@@ -170,9 +270,9 @@
     lastPayload={methods:methods||[],deposits:deposits||[],withdrawals:withdrawals||[],manualMovements:manualMovements||[]};
     methodsById.clear();
     lastPayload.methods.forEach(m=>methodsById.set(String(m.id),m));
-    const stats=new Map(lastPayload.methods.map(m=>[String(m.id),{deposit:0,depositCount:0,withdraw:0,withdrawCount:0}]));let unmatchedDeposit=0,unmatchedWithdraw=0,unmatchedCount=0;
-    lastPayload.deposits.forEach(r=>{const m=matchDeposit(r,lastPayload.methods);if(!m){unmatchedDeposit+=num(r.amount);unmatchedCount++;return;}const st=stats.get(String(m.id));st.deposit+=num(r.amount);st.depositCount++;});
-    lastPayload.withdrawals.forEach(r=>{const m=matchWithdraw(r,lastPayload.methods);if(!m){unmatchedWithdraw+=num(r.amount);unmatchedCount++;return;}const st=stats.get(String(m.id));st.withdraw+=num(r.amount);st.withdrawCount++;});
+    const stats=new Map(lastPayload.methods.map(m=>[String(m.id),{deposit:0,depositCount:0,withdraw:0,withdrawCount:0}]));let unmatchedDeposit=0,unmatchedWithdraw=0;
+    lastPayload.deposits.forEach(r=>{const m=matchDeposit(r,lastPayload.methods);if(!m){unmatchedDeposit+=num(r.amount);return;}const st=stats.get(String(m.id));st.deposit+=num(r.amount);st.depositCount++;});
+    lastPayload.withdrawals.forEach(r=>{const m=matchWithdraw(r,lastPayload.methods);if(!m){unmatchedWithdraw+=num(r.amount);return;}const st=stats.get(String(m.id));st.withdraw+=num(r.amount);st.withdrawCount++;});
     lastPayload.manualMovements.forEach(r=>{const m=lastPayload.methods.find(x=>String(x.id)===String(r.paymentMethodId));if(!m)return;const st=stats.get(String(m.id));const t=String(r.ledgerType||'').toUpperCase();if(t==='ADMIN_DEPOSIT'){st.deposit+=Math.abs(num(r.amount));st.depositCount++;}else if(t==='ADMIN_WITHDRAW'){st.withdraw+=Math.abs(num(r.amount));st.withdrawCount++;}});
     const kw=norm($('usageKeyword')?.value||'');
     const activeCount=lastPayload.methods.filter(isActive).length;
@@ -186,9 +286,10 @@
       if(kw&&!paymentKeys(m).some(k=>k.includes(kw)))return false;
       return true;
     });
-    const totalPages=Math.max(1,Math.ceil(filtered.length/PAGE_SIZE)||1);
+    const pageSize=resolvePageSize();
+    const totalPages=Math.max(1,Math.ceil(filtered.length/pageSize)||1);
     listPage=Math.max(1,Math.min(listPage,totalPages));
-    const pageRows=filtered.slice((listPage-1)*PAGE_SIZE,listPage*PAGE_SIZE);
+    const pageRows=filtered.slice((listPage-1)*pageSize,listPage*pageSize);
     const manualDeposits=lastPayload.manualMovements.filter(r=>String(r.ledgerType||'').toUpperCase()==='ADMIN_DEPOSIT'),manualWithdrawals=lastPayload.manualMovements.filter(r=>String(r.ledgerType||'').toUpperCase()==='ADMIN_WITHDRAW');
     $('usageBankCount')&&($('usageBankCount').textContent=lastPayload.methods.length.toLocaleString());
     $('usageApprovedCount')&&($('usageApprovedCount').textContent=(lastPayload.deposits.length+manualDeposits.length).toLocaleString());
@@ -214,14 +315,21 @@
         <td><div class="bo-tx-actions">${qrViewBtn(m)}<a class="bo-tx-action-btn is-edit" href="payment-method-create.html?id=${encodeURIComponent(m.id)}&from=usage" title="Edit" aria-label="Edit"><i class="bi bi-pencil" aria-hidden="true"></i></a><button type="button" class="bo-tx-action-btn is-reject" title="Delete" aria-label="Delete" data-usage-del="${esc(m.id)}"><i class="bi bi-trash" aria-hidden="true"></i></button></div></td>
       </tr>`;
     }).join(''):'<tr><td colspan="11">No payment method found.</td></tr>';
-    const from=filtered.length?((listPage-1)*PAGE_SIZE+1):0;
-    const to=Math.min(listPage*PAGE_SIZE,filtered.length);
+    const from=filtered.length?((listPage-1)*pageSize+1):0;
+    const to=Math.min(listPage*pageSize,filtered.length);
+    /* The app-wide sentence, word for word: the footer's middle slot reads exactly
+       this on every listing in the product (`Showing 1 to 6 of 6 entries` on Deposit
+       Approval, this page's sibling tab). The page-local "· N unmatched approved
+       transaction(s)" that used to hang off it was the only middle slot in the app
+       saying something else; the owner chose to drop it rather than keep a second
+       line, so this page no longer tracks that count. */
     $('usageInfo').textContent=filtered.length
-      ?`Showing ${from}–${to} of ${filtered.length} bank record(s) · ${unmatchedCount} unmatched approved transaction(s)`
-      :`0 bank record(s) · ${unmatchedCount} unmatched approved transaction(s)`;
+      ?`Showing ${from} to ${to} of ${filtered.length} entries`
+      :'Showing 0 to 0 of 0 entries';
     const pagerHost=$('usagePagerHost');
     if(pagerHost) pagerHost.innerHTML=pageButtons(listPage,totalPages);
     syncStatusTabs();
+    settleAutofit();
   }
   async function load(){
     const body=$('usageBody');
@@ -242,7 +350,17 @@
       alert(err.message||'Delete failed');
     }
   }
-  document.addEventListener('click',e=>{
+  /* ONE handler per realm. `document` is not part of a swap, so a re-entry (bo-spa
+     re-runs this page's private script) used to stack a second copy of this
+     listener — and the copy left behind is the PREVIOUS entry's closure, holding the
+     previous payload and page number. Measured with DOMDebugger.getEventListeners:
+     document click listeners 13 → 14 → 15 across two re-entries, while the resize
+     slot below stayed at 4. Every stacked copy re-renders on the same click, so
+     after navigating away and back a rung (or the delete button) could be handled
+     twice, once with the previous entry's data. Replaced, not flagged: a "bound"
+     flag would keep that stale closure forever (SPA.md §2). */
+  if(window.__usageClickHandler) document.removeEventListener('click',window.__usageClickHandler);
+  window.__usageClickHandler=e=>{
     const pageBtn=e.target.closest('[data-usage-page]');
     if(pageBtn){
       if(pageBtn.disabled)return;
@@ -302,7 +420,8 @@
     }
     const delBtn=e.target.closest('[data-usage-del]');
     if(delBtn) delMethod(delBtn.getAttribute('data-usage-del'));
-  });
+  };
+  document.addEventListener('click',window.__usageClickHandler);
   document.addEventListener('DOMContentLoaded',()=>{
     BO_AUTH.requireLogin();
     BO_AUTH.renderProfile&&BO_AUTH.renderProfile();
@@ -315,6 +434,32 @@
     $('usageRefresh')?.addEventListener('click',load);
     $('usageFrom')?.addEventListener('change',load);
     $('usageTo')?.addEventListener('change',load);
+    /* Footer page size — the app-wide control. reports.js wraps the native select in
+       `.rounded-select-wrap` and dispatches change/input on it from the menu, so this
+       listener is the one the operator's click reaches. */
+    $('usagePageSize')?.addEventListener('change',()=>{
+      clearLockedAutoSize();
+      listPage=1;
+      rerenderUsage();
+    });
+    /* The card is viewport-locked, so the viewport decides what `-` fits.
+       `window` is not part of a swap, so re-entering the page (bo-spa replays this
+       DCL) must REPLACE its own handler rather than stack a second one — SPA.md's
+       window single-slot rule. A "already bound" flag would be wrong here: it would
+       leave the previous page's closure behind, reading the previous page's state. */
+    let usageResizeTimer=0;
+    if(window.__usageResizeHandler) window.removeEventListener('resize',window.__usageResizeHandler);
+    window.__usageResizeHandler=()=>{
+      if(!isAutoPageSize(pageSizeValue())) return;
+      clearTimeout(usageResizeTimer);
+      usageResizeTimer=setTimeout(()=>{
+        const prev=lockedAutoSize;
+        clearLockedAutoSize();
+        const next=autoFitPageSize();
+        if(next!==prev){listPage=1;rerenderUsage();}
+      },180);
+    };
+    window.addEventListener('resize',window.__usageResizeHandler);
     $('usageKeyword')?.addEventListener('keydown',e=>{if(e.key==='Enter'){listPage=1;render(lastPayload.methods,lastPayload.deposits,lastPayload.withdrawals,lastPayload.manualMovements);}});
     $('usageKeyword')?.addEventListener('input',()=>{clearTimeout(window.__usageKwTimer);window.__usageKwTimer=setTimeout(()=>{listPage=1;render(lastPayload.methods,lastPayload.deposits,lastPayload.withdrawals,lastPayload.manualMovements);},280);});
     setTimeout(load,0);

@@ -16,7 +16,7 @@
 <link href="assets/css/bo-targeted-fixes.css?v=5ad3de3e" rel="stylesheet"/>
 <link href="assets/css/bo-wallet-transaction-amber.css?v=6b167772" rel="stylesheet"/>
 <link href="assets/css/bo-seg-bounce.css?v=adb8ca0e" rel="stylesheet"/>
-<link href="assets/css/bank-deposit-usage.css?v=e9060a55" rel="stylesheet"/>
+<link href="assets/css/bank-deposit-usage.css?v=64fb5153" rel="stylesheet"/>
 <link href="assets/css/bo-account-chip.css?v=c8730135" rel="stylesheet" />
 <link href="assets/css/bo-charcoal-shell.css?v=b43bfd5f" rel="stylesheet" />
 <link href="assets/css/bo-charcoal-legacy.css?v=8ed5566f" rel="stylesheet" />
@@ -63,9 +63,19 @@
 <tbody id="usageBody"><tr><td colspan="11">Loading...</td></tr></tbody>
 </table>
 </div>
-<div class="table-footer">
-<div class="table-info" id="usageInfo">Loading bank usage...</div>
-<div class="bo-usage-pager-host" id="usagePagerHost" aria-label="Bank usage pagination"></div>
+<div class="table-footer bo-pagination-standard">
+<!-- The app-wide footer: Show N entries · Showing X to Y of Z entries · the page ladder.
+     Three slots, stated here rather than left to bo-ui-standard.js's scan, because the
+     bar is also reached by the family sheet's own `.table-card > .bo-pagination-standard`
+     grid rule (bo-wallet-transaction-amber.css) and by the shared recipe in
+     table-pagination-horizontal.css. The page size list is the product's own, `-` first,
+     where `-` means "as many rows as the panel can show". Deposit Approval, the sibling
+     tab in this module, carries the identical bar. -->
+<div class="entries-control">Show
+<select id="usagePageSize" aria-label="Rows per page"><option value="-" selected>-</option><option value="10">10</option><option value="20">20</option><option value="50">50</option><option value="100">100</option><option value="All">All</option></select>
+entries</div>
+<div class="table-info bo-pagination-info" id="usageInfo">Loading bank usage...</div>
+<div class="pagination-clean bo-pagination-buttons" id="usagePagerHost" aria-label="Bank usage pagination"></div>
 </div>
 </div>
 </section>
@@ -79,7 +89,7 @@
 <script src="assets/js/reports.js?v=3200d0bd"></script>
 <script src="assets/js/bo-date-range-bank-usage.js?v=f8cb1278"></script>
 <script src="assets/js/bo-seg-bounce.js?v=493fd4cd"></script>
-<script src="assets/js/bank-deposit-usage.js?v=fac97dd7"></script>
+<script src="assets/js/bank-deposit-usage.js?v=3331e161"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 <script src="assets/js/firebase-config.js?v=c41fc3b0"></script>

@@ -24,7 +24,7 @@ body.main-merchant-repayments-page .mac-section-copy p{
   font-size:12.5px;
   font-weight:500;
   line-height:1.45;
-  color:var(--bo-muted, #657187);
+  color:var(--bo-muted, #71717A);
   text-wrap:pretty;
 }
 body.main-merchant-repayments-page .mac-section-head-rich .mac-back-section{
@@ -46,7 +46,7 @@ body.main-merchant-repayments-page .mprd-stat{
   display:flex;
   align-items:center;
   gap:12px;
-  border:1px solid var(--bo-border, #E2E7F0);
+  border:1px solid var(--bo-border, #EADCC8);
   border-radius:10px;
   background:var(--bo-bg, #FFF8EB);
   padding:14px 16px;
@@ -75,19 +75,19 @@ body.main-merchant-repayments-page .mprd-stat-copy{
 body.main-merchant-repayments-page .mprd-stat-copy span{
   font-size:11px;
   font-weight:700;
-  color:var(--bo-muted, #657187);
+  color:var(--bo-muted, #71717A);
 }
 body.main-merchant-repayments-page .mprd-stat-copy b{
   font-size:18px;
   font-weight:800;
-  color:var(--bo-text, #11203A);
+  color:var(--bo-text, #18191C);
   line-height:1.2;
 }
 
 body.main-merchant-repayments-page .mprd-form-hint{
   font-size:12.5px;
   font-weight:500;
-  color:var(--bo-muted, #657187);
+  color:var(--bo-muted, #71717A);
   margin:0;
 }
 body.main-merchant-repayments-page .mprd-status-msg{
@@ -99,7 +99,7 @@ body.main-merchant-repayments-page .mprd-status-msg.success{color:#027A48}
 body.main-merchant-repayments-page .mprd-status-msg.error{color:#B42318}
 
 body.main-merchant-repayments-page .mprd-table-wrap{
-  border:1px solid var(--bo-border, #E2E7F0);
+  border:1px solid var(--bo-border, #EADCC8);
   border-radius:10px;
   overflow:auto;
   background:var(--bo-surface, #fff);
@@ -125,7 +125,7 @@ body.main-merchant-repayments-page .mprd-table th{
   padding:14px 12px;
   font-size:12px;
   font-weight:700;
-  color:var(--bo-muted, #657187);
+  color:var(--bo-muted, #71717A);
   letter-spacing:.03em;
   background:var(--bo-bg, #FFF8EB);
 }
@@ -230,7 +230,7 @@ body.main-merchant-repayments-page .mprd-table .mad-row-check{
 }
 body.main-merchant-repayments-page .mprd-merchant{
   font-weight:800;
-  color:var(--bo-text, #11203A);
+  color:var(--bo-text, #18191C);
   white-space:normal;
   line-height:1.25;
   overflow:hidden;
@@ -239,7 +239,7 @@ body.main-merchant-repayments-page .mprd-merchant small{
   display:block;
   margin-top:2px;
   font-weight:500;
-  color:var(--bo-muted, #657187);
+  color:var(--bo-muted, #71717A);
 }
 body.main-merchant-repayments-page .mprd-status{
   display:inline-flex;
@@ -303,7 +303,7 @@ body.main-merchant-repayments-page .mprd-row-amount .mac-input-addon{
   border-right:0;
   border-radius:8px 0 0 8px;
   background:var(--bo-bg, #F5EBDC);
-  color:var(--bo-muted, #657187);
+  color:var(--bo-muted, #71717A);
   font-size:11px;
   font-weight:700;
   line-height:1;
@@ -329,7 +329,7 @@ body.main-merchant-repayments-page .report-content .mprd-row-amount > input.mprd
   font-weight:800;
   font-size:13px;
   padding:0 10px!important;
-  color:var(--bo-text, #11203A)!important;
+  color:var(--bo-text, #18191C)!important;
 }
 body.main-merchant-repayments-page .mprd-row-amount:focus-within .mprd-row-unit,
 body.main-merchant-repayments-page .mprd-row-amount:focus-within .mac-input-addon{

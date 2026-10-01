@@ -10,7 +10,7 @@
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-<link href="assets/css/reports.css?v=a6cd4e78" rel="stylesheet">
+<link href="assets/css/reports.css?v=f0c5c091" rel="stylesheet">
 
   <link href="assets/css/bo-ui-standard.css?v=55263a79" rel="stylesheet" />
   <link href="assets/css/bo-targeted-fixes.css?v=5ad3de3e" rel="stylesheet" />
@@ -21,6 +21,7 @@
 <link href="assets/css/bo-charcoal-cms.css?v=866f5e92" rel="stylesheet" />
 <link href="assets/css/bo-input-fill.css?v=1ab80f49" rel="stylesheet" />
 <link href="assets/css/bo-scrollbar.css?v=39f413e5" rel="stylesheet"/>
+<link href="assets/css/bo-control-height.css?v=ff703846" rel="stylesheet">
 <link href="assets/css/bo-field-standard.css?v=6673ed98" rel="stylesheet">
 <style>
 /* Frontend Display — full-bleed Charcoal + Amber ops console
@@ -99,16 +100,23 @@ body.frontend-display-page .report-content{
    dead space under Wallet Limits and pushed the marquee past the fold. */
 .fd-grid{
   flex:1 1 auto;
-  min-height:0;
+  /* Content-sized, and never shrunk below it. With min-height:0 the grid box stayed at the board's
+     height while its rows needed more, so in any scrolling state (Random Demo, or any window
+     short enough) the last panel grew past the box and painted over the frame's bottom border -
+     the left and right edges then just faded out at the corner radius, leaving both bottom
+     corners open. As a flex item, min-height:auto is the content-based minimum: it fills the board
+     when there is room and stops covering its own border when there is not. */
+  min-height:auto;
   width:100%;
   display:grid;
   grid-template-columns:minmax(0,1fr) minmax(0,1fr);
-  /* Three content-sized rows. The last one must NOT be flexible: a fr track here resolves to
-     the leftover space, and the marquee still needs ~300px of it, so it got 0-139px and painted
-     its body over the save bar. The panels must not be `height:100%` either - a percentage
-     against an indefinite row makes the panel's contribution 0, and the three auto rows then
-     split the container equally (250/250/249), squashing the taller panels into each other. */
-  grid-template-rows:auto auto auto;
+  /* Two content-sized rows and a marquee that takes what is left: on a window taller than the
+     content the frame's bottom line must belong to the last panel, not float below it.
+     `minmax(auto,1fr)` and not `1fr` - the auto minimum is the marquee's own height, which is only
+     respected because the panels below are content-sized. While `.fd-panel` carried
+     height:100% + min-height:0 its contribution was 0, the fr track resolved to the leftover
+     space (139px for 289px of content) and the marquee painted over the save bar. */
+  grid-template-rows:auto auto minmax(auto,1fr);
   grid-template-areas:
     "visibility install"
     "live limits"
@@ -158,6 +166,14 @@ body.frontend-display-page .fd-panel .rounded-select-menu{
 #fd-sec-install{ grid-area:install; }
 #fd-sec-limits{ grid-area:limits; }
 #fd-sec-marquee{ grid-area:marquee; border-right:0; border-bottom:0; }
+/* The surface at each corner follows the frame's radius. The frame is 12px with a 1px border, so
+   the panel that owns the corner - and the head band painting it - needs 11px: concentric curves
+   nest exactly, while a square corner cuts across the arc and reads as a notch. */
+#fd-sec-visibility,
+#fd-sec-visibility > .fd-panel-head{ border-top-left-radius:11px; }
+#fd-sec-install,
+#fd-sec-install > .fd-panel-head{ border-top-right-radius:11px; }
+#fd-sec-marquee{ border-bottom-left-radius:11px; border-bottom-right-radius:11px; }
 .fd-panel::before{ display:none; }
 .fd-panel-wide{
   grid-column:1 / -1;
@@ -243,51 +259,35 @@ body.frontend-display-page .fd-panel .rounded-select-menu{
   padding:0;
 }
 
-/* Live Feed — mode full width, demo metrics in 3 columns */
-#fd-sec-live .fd-panel-body{
-  display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
-  align-content:start;
-}
-#fd-sec-live #liveTransactionModeRow,
-#fd-sec-live #liveTransactionRefreshRow{
-  grid-column:1 / -1;
-  grid-template-columns:minmax(0,1fr) minmax(180px,280px);
-  border-right:0;
-}
-#fd-sec-live .fd-metric-tile{
-  grid-template-columns:1fr;
-  align-items:start;
-  gap:8px;
-  padding:14px;
-  border-right:1px solid #EADCC8;
-  border-bottom:0;
-}
-#fd-sec-live .fd-metric-tile:last-child{ border-right:0; }
-#fd-sec-live .fd-metric-tile .fd-control{ justify-content:stretch; }
-/* A third of the panel is too narrow for "10.00 to 5000.00 amt" on one line: the fields came out
-   61px wide against a 99px need, so the value rendered as "50(". The unit moves to its own line
-   and the fields give up their side padding instead of their digits. */
-#fd-sec-live .fd-metric-tile .display-range-control{ grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); gap:8px 6px; }
-#fd-sec-live .fd-metric-tile .display-range-unit{ grid-column:1 / -1; }
-#fd-sec-live .fd-metric-tile input.display-setting-select{ padding:0 8px!important; }
-/* Same reason as the padding: an 18px spinner in a 79px field is the difference between
-   "5000.00" and "50(". The value is typed here, not stepped. */
-#fd-sec-live .fd-metric-tile input[type="number"]::-webkit-outer-spin-button,
-#fd-sec-live .fd-metric-tile input[type="number"]::-webkit-inner-spin-button{
-  -webkit-appearance:none;
-  margin:0;
-}
-#fd-sec-live .fd-metric-tile input[type="number"]{ -moz-appearance:textfield; appearance:textfield; }
-#fd-sec-live .fd-metric-tile.is-hidden{ display:none!important; }
+/* Live Feed — one full-width row per setting: source, refresh, then the demo bounds.
+   These three were tiles a third of the panel wide, and a third of 632px cannot hold
+   "10.00 to 5000.00 amt" on one line: the fields came out 61px wide against a 99px need, so the
+   max price rendered as "50(". The rows now read like the two above them, which also means the
+   unit sits beside its field instead of hanging on a line of its own. */
 
-/* Wallet limits — 3 fields across */
+/* Wallet limits — 3 fields across. The column rules are painted on the body rather than left to
+   each cell's border-right: a cell is only as tall as its own description, while the panel is
+   stretched to whatever sits beside it (Live Feed in Random Demo mode is 124px taller), and the
+   cell border then stopped well short of the panel's own bottom line. */
 #fd-sec-limits .fd-panel-body{
   display:grid;
   grid-template-columns:repeat(3,minmax(0,1fr));
   align-content:start;
   min-width:0;
+  position:relative;
 }
+#fd-sec-limits .fd-panel-body::before,
+#fd-sec-limits .fd-panel-body::after{
+  content:'';
+  position:absolute;
+  top:0;
+  bottom:0;
+  width:1px;
+  background:#EADCC8;
+  pointer-events:none;
+}
+#fd-sec-limits .fd-panel-body::before{ left:calc(100% / 3); }
+#fd-sec-limits .fd-panel-body::after{ left:calc(200% / 3); }
 #fd-sec-limits .display-setting-row{
   grid-template-columns:1fr;
   align-items:start;
@@ -295,12 +295,11 @@ body.frontend-display-page .fd-panel .rounded-select-menu{
      cell is what makes the three inputs line up with each other. */
   align-content:space-between;
   gap:8px;
-  border-right:1px solid #EADCC8;
+  border-right:0;
   border-bottom:0;
   padding:14px;
   min-width:0;
 }
-#fd-sec-limits .display-setting-row:last-child{ border-right:0; }
 #fd-sec-limits .fd-control{ justify-content:stretch; }
 
 .display-setting-row{
@@ -787,11 +786,9 @@ html[data-bo-theme="dark"] .fd-color-rgb label{ color:var(--fd-dark-muted-2); }
 html[data-bo-theme="dark"] .fd-panel-head h3,
 html[data-bo-theme="dark"] .display-setting-copy h2{ color:var(--fd-dark-ink); }
 html[data-bo-theme="dark"] .display-setting-row,
-html[data-bo-theme="dark"] #fd-sec-visibility #frontendDisplayBrandRow,
-html[data-bo-theme="dark"] #fd-sec-live .fd-metric-tile,
-html[data-bo-theme="dark"] #fd-sec-limits .display-setting-row{ border-color:var(--fd-dark-line-soft); }
-html[data-bo-theme="dark"] #fd-sec-live .fd-metric-tile,
-html[data-bo-theme="dark"] #fd-sec-limits .display-setting-row{ border-right-color:var(--fd-dark-line-soft); }
+html[data-bo-theme="dark"] #fd-sec-visibility #frontendDisplayBrandRow{ border-color:var(--fd-dark-line-soft); }
+html[data-bo-theme="dark"] #fd-sec-limits .fd-panel-body::before,
+html[data-bo-theme="dark"] #fd-sec-limits .fd-panel-body::after{ background:var(--fd-dark-line-soft); }
 html[data-bo-theme="dark"] .fd-switch-track{ background:var(--fd-dark-field); border-color:rgba(255,255,255,.14); }
 html[data-bo-theme="dark"] .fd-switch-thumb{ background:var(--fd-dark-ink); }
 html[data-bo-theme="dark"] .fd-switch-text{ color:var(--fd-dark-muted); }
@@ -859,26 +856,27 @@ html[data-bo-theme="dark"] .install-app-logo-actions .clean-btn{
 html[data-bo-theme="dark"] .install-app-logo-actions .clean-btn:hover{
   border-color:var(--fd-dark-amber)!important; color:var(--fd-dark-amber-soft)!important;
 }
-html[data-bo-theme="dark"] #fd-sec-live .fd-metric-tile:last-child,
 html[data-bo-theme="dark"] #fd-sec-limits .display-setting-row:last-child{ border-bottom-color:transparent; }
 
 @media (max-width:1100px){
   body.frontend-display-page{ --fd-pad-x:12px; }
   #fd-sec-visibility .fd-panel-body,
-  #fd-sec-live .fd-panel-body,
   #fd-sec-limits .fd-panel-body{ grid-template-columns:1fr; }
-  #fd-sec-live .fd-metric-tile,
+  /* One column: the rules between the fields are the rows' own border-bottom now. */
+  #fd-sec-limits .fd-panel-body::before,
+  #fd-sec-limits .fd-panel-body::after{ display:none; }
   #fd-sec-limits .display-setting-row{
     border-right:0;
     border-bottom:1px solid #EADCC8;
     min-height:0;
   }
-  html[data-bo-theme="dark"] #fd-sec-live .fd-metric-tile,
   html[data-bo-theme="dark"] #fd-sec-limits .display-setting-row{
     border-bottom-color:rgba(255,255,255,.10);
   }
-  #fd-sec-live .fd-metric-tile:last-child,
   #fd-sec-limits .display-setting-row:last-child{ border-bottom:0; }
+  /* A 140-220px control would clip "5000.00" again, so the demo bounds stack here and give the
+     range the whole row width. */
+  #fd-sec-live .random-demo-only{ grid-template-columns:1fr; }
   #fd-sec-limits .display-setting-row,
   #fd-sec-live #liveTransactionModeRow,
   #fd-sec-live #liveTransactionRefreshRow,
@@ -907,6 +905,11 @@ html[data-bo-theme="dark"] #fd-sec-limits .display-setting-row:last-child{ borde
   }
   #fd-sec-visibility,
   #fd-sec-live{ border-right:0; }
+  /* One column: the first panel owns both top corners, and the second no longer owns one. */
+  #fd-sec-visibility,
+  #fd-sec-visibility > .fd-panel-head{ border-top-right-radius:11px; }
+  #fd-sec-install,
+  #fd-sec-install > .fd-panel-head{ border-top-right-radius:0; }
   .fd-panel-wide{ grid-column:auto; }
 }
 @media (max-width:700px){
@@ -916,8 +919,6 @@ html[data-bo-theme="dark"] #fd-sec-limits .display-setting-row:last-child{ borde
   }
   .display-setting-row,
   #fd-sec-limits .display-setting-row,
-  #fd-sec-live #liveTransactionModeRow,
-  #fd-sec-live #liveTransactionRefreshRow,
   #fd-sec-visibility #frontendDisplayBrandRow,
   #fd-sec-visibility #boSidebarInteractionRow{ grid-template-columns:1fr; gap:10px; }
   .fd-control{ justify-content:flex-start; }
@@ -1057,7 +1058,7 @@ html[data-bo-theme="dark"] #fd-sec-limits .display-setting-row:last-child{ borde
               <input id="liveTransactionIntervalSeconds" class="display-setting-select" type="number" min="2" max="60" step="1" value="5" aria-label="Live transaction refresh seconds">
             </div>
           </div>
-          <div class="display-setting-row random-demo-only is-hidden fd-metric-tile" id="liveTransactionRandomSecondsRow">
+          <div class="display-setting-row random-demo-only is-hidden" id="liveTransactionRandomSecondsRow">
             <div class="display-setting-copy">
               <h2>Demo Interval</h2>
               <p>Random next update between these values.</p>
@@ -1071,7 +1072,7 @@ html[data-bo-theme="dark"] #fd-sec-limits .display-setting-row:last-child{ borde
               </div>
             </div>
           </div>
-          <div class="display-setting-row random-demo-only is-hidden fd-metric-tile" id="liveTransactionRandomRowsRow">
+          <div class="display-setting-row random-demo-only is-hidden" id="liveTransactionRandomRowsRow">
             <div class="display-setting-copy">
               <h2>Demo Count</h2>
               <p>How many demo rows per update.</p>
@@ -1085,7 +1086,7 @@ html[data-bo-theme="dark"] #fd-sec-limits .display-setting-row:last-child{ borde
               </div>
             </div>
           </div>
-          <div class="display-setting-row random-demo-only is-hidden fd-metric-tile" id="liveTransactionRandomPriceRow">
+          <div class="display-setting-row random-demo-only is-hidden" id="liveTransactionRandomPriceRow">
             <div class="display-setting-copy">
               <h2>Demo Price</h2>
               <p>Amount range for each demo transaction.</p>

@@ -727,15 +727,40 @@
     if (!nav) return;
     var file = assetKey(u.pathname);
 
+    /* The row for this destination, when the rail has one. A module's pages share ONE rail
+       row - a direct link to the module's first page - so most module navigations have no
+       href to match, and the row that was already active is the right answer. */
     var target = null;
     each(nav.querySelectorAll('a[href]'), function (a) {
       if (target) return;
       if (assetKey(a.getAttribute('href')) === file) target = a;
     });
-    if (!target && prev && nav.contains(prev)) target = prev;
-
-    each(nav.querySelectorAll('a.active'), function (a) { a.classList.remove('active'); });
+    if (!target && prev) {
+      if (nav.contains(prev)) {
+        target = prev;
+      } else {
+        /* The rail was REBUILT while we were swapping. Several page scripts call
+           BO_AUTH.renderSidebar() on boot - bank-deposit-usage.js:309, bulk-member-operation.js,
+           game-category-edit.js and others - which writes nav.innerHTML and DETACHES the node
+           captured a moment earlier, so `nav.contains(prev)` was false and the fallback above
+           silently did nothing. Measured on member-deposit.html -> bank-deposit-usage.html: the
+           Transaction row went from [ACTIVE] to no marked row at all, while a direct load of the
+           same page lights it. Match the rebuilt row by the keys it carries - data-menu-key
+           first, href second - instead of by node identity. */
+        var key = prev.getAttribute ? prev.getAttribute('data-menu-key') : null;
+        var href = prev.getAttribute ? prev.getAttribute('href') : null;
+        var rows = nav.querySelectorAll('a[href]');
+        for (var i = 0; i < rows.length && !target; i++) {
+          if (key && rows[i].getAttribute('data-menu-key') === key) target = rows[i];
+          else if (href && rows[i].getAttribute('href') === href) target = rows[i];
+        }
+      }
+    }
+    /* Nothing to move to: leave the rail exactly as it is. Either it still shows the correct
+       row, or a rebuild has just resolved it from the new URL - and clearing here is what left
+       the rail with no marked row at all. */
     if (!target) return;
+    each(nav.querySelectorAll('a.active'), function (a) { a.classList.remove('active'); });
     target.classList.add('active');
 
     var group = target.closest ? target.closest('.nav-group') : null;

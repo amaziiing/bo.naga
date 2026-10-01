@@ -753,23 +753,30 @@ body:not(.site-customize-page) .asset-upload-row[data-field$="Zh"],
   font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
   color:#57534E;
 }
-/* Light-gray JSON wells (neutral inset — not cream) */
+/* JSON wells are the theme's inset well — control well `#F5EBDC` light / `#2A2C36` dark, warm
+   border — not a cool grey, and never an amber fill.
+   The amber was the `28a356d0` scrollbar sweep landing in a background: that rule names its thumb
+   colour `#8B6B4A` in the same declaration list, so the transform read the line instead of the
+   property and a light-grey well became a brown slab with dark-grey JSON on it (dark mode went to
+   `#F59E0B`, an amber pane with light-grey text). Only this rule and its dark twin were hit. */
 .pwt-page .payload-box{
   min-height:72px;max-height:320px;overflow:auto;margin:0;padding:10px 12px;
-  background:#8B6B4A!important;color:#3F3F46;
-  border:1px solid #E4E4E7;border-radius:8px;
+  background:#F5EBDC!important;color:var(--bo-text-secondary,#27272A);
+  border:1px solid var(--bo-border,#EADCC8);border-radius:8px;
   font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   font-size:12px;line-height:1.5;white-space:pre-wrap;word-break:break-word;
   scrollbar-width:thin;scrollbar-color:#8B6B4A transparent;scrollbar-gutter:stable;
 }
+/* Muted state reads on cream: `#57534E`, not the `#A1A1AA` that vanishes on a warm well. */
 .pwt-page .payload-block.is-empty .payload-box{
-  min-height:0;max-height:none;padding:8px 12px;color:#A1A1AA;
+  min-height:0;max-height:none;padding:8px 12px;color:#57534E;
 }
-.pwt-page .payload-block.is-loading .payload-box{color:#A1A1AA;font-style:italic}
+.pwt-page .payload-block.is-loading .payload-box{color:#57534E;font-style:italic}
+/* Error well = the house danger chip pair (`.status-pill.off`: `#fee4e2` / `#b42318`). */
 .pwt-page .error-box{
-  background:#FEF3F2!important;color:#B91C1C;border-color:rgba(185,28,28,.28);min-height:56px;
+  background:#FEE4E2!important;color:#B42318;border-color:rgba(180,35,24,.28);min-height:56px;
 }
-.pwt-page .payload-block.is-empty .error-box{min-height:0;background:#F4F4F5!important;color:#A1A1AA;border-color:#E4E4E7}
+.pwt-page .payload-block.is-empty .error-box{min-height:0;background:#F5EBDC!important;color:#57534E;border-color:#EADCC8}
 .pwt-page .modal-content{
   border:0;border-radius:16px;overflow:hidden;background:#FFF8EB;
   box-shadow:0 24px 70px rgba(60,48,32,.28);
@@ -790,20 +797,31 @@ body:not(.site-customize-page) .asset-upload-row[data-field$="Zh"],
 }
 .pwt-page .pwt-meta-chip .pwt-meta-k{color:#B45309;font-size:10.5px;font-weight:800;letter-spacing:.03em;text-transform:uppercase}
 .pwt-page .pwt-meta-chip.muted{background:#F5EBDC;color:#78716C;font-weight:600}
-.pwt-page .pwt-modal-close{
-  flex:0 0 auto;width:36px;height:36px;padding:0;border-radius:8px;
+/* The dialog's button tier, pinned against the two page-level rules that reach inside it:
+   `.standardized-listing-page .clean-btn{min-height:42px;border-radius:10px!important}` — the body
+   class this page carries, so it matched every button in the modal — and `body.bo-wallet-tx
+   .clean-btn`'s cream ghost gradient, whose `background` shorthand wipes the close well.
+   Measured before: the close square was 36x42 with a 10px radius, the footer Close 42px, the
+   Copy JSON chip 42px instead of its own 32px. One extra class step (`.pwt-modal`) out-ranks
+   both; the gradient stays on the two real buttons, the close keeps its documented well
+   (DESIGN.md -> Components -> Modal close). */
+.pwt-page .pwt-modal .pwt-modal-close{
+  flex:0 0 auto;width:36px!important;height:36px!important;
+  min-height:36px!important;max-height:36px!important;
+  padding:0;border-radius:8px!important;
   display:inline-grid;place-items:center;line-height:1;
-  background:#F5EBDC;border:1px solid #EADCC8;color:#57534E;
+  background:#F5EBDC!important;border:1px solid #EADCC8!important;color:#57534E;
 }
-.pwt-page .pwt-modal-close:hover{background:#FFE8CC;color:#18191C;border-color:#EADCC8}
+.pwt-page .pwt-modal .pwt-modal-close:hover{background:#FFE8CC!important;color:#18191C!important;border-color:#EADCC8!important}
 .pwt-page .modal-body{background:#FFF8EB;padding:16px 18px}
 .pwt-page .modal-footer{
   display:flex;justify-content:flex-end;gap:10px;
   background:#FFF8EB;border-top:1px solid #EADCC8;padding:12px 18px;
 }
-.pwt-page .pwt-modal-foot-close,
-.pwt-page .debug-copy-btn{
-  height:40px;padding:0 16px;border-radius:8px;font-size:13px;font-weight:700;
+.pwt-page .pwt-modal .pwt-modal-foot-close,
+.pwt-page .pwt-modal .debug-copy-btn{
+  height:40px!important;min-height:40px!important;max-height:40px!important;
+  padding:0 16px;border-radius:8px!important;font-size:13px;font-weight:700;
 }
 .pwt-page .modal-backdrop.show{opacity:1}
 /* Provider payload modal must cover the sticky BO header just like other BO detail modals. */
@@ -826,10 +844,11 @@ html[data-bo-theme="dark"] .pwt-page .pwt-url{color:#FFFFFF!important}
 html[data-bo-theme="dark"] .pwt-page .pwt-modal .modal-title{color:#F5F5F4}
 html[data-bo-theme="dark"] .pwt-page .payload-block label{color:#A1A1AA}
 html[data-bo-theme="dark"] .pwt-page .payload-box{
-  background:#F59E0B!important;color:#E7E5E4;border-color:rgba(255,255,255,.10);
+  background:#2A2C36!important;color:#E7E5E4;border-color:rgba(255,255,255,.12);
   scrollbar-color:#F59E0B transparent;
 }
 html[data-bo-theme="dark"] .pwt-page .payload-block.is-empty .payload-box{color:#A1A1AA}
+html[data-bo-theme="dark"] .pwt-page .payload-block.is-loading .payload-box{color:#A1A1AA}
 html[data-bo-theme="dark"] .pwt-page .pwt-meta-chip{
   background:rgba(245,158,11,.14);border-color:rgba(245,158,11,.28);color:#F5F5F4;
 }
@@ -837,10 +856,10 @@ html[data-bo-theme="dark"] .pwt-page .pwt-meta-chip .pwt-meta-k{color:#FBBF24}
 html[data-bo-theme="dark"] .pwt-page .pwt-meta-chip.muted{
   background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.10);color:#A1A1AA;
 }
-html[data-bo-theme="dark"] .pwt-page .pwt-modal-close{
-  background:#2A2C36;border-color:rgba(255,255,255,.12);color:#E7E5E4;
+html[data-bo-theme="dark"] .pwt-page .pwt-modal .pwt-modal-close{
+  background:#2A2C36!important;border-color:rgba(255,255,255,.12)!important;color:#E7E5E4;
 }
-html[data-bo-theme="dark"] .pwt-page .pwt-modal-close:hover{background:#40424E;color:#F5F5F4}
+html[data-bo-theme="dark"] .pwt-page .pwt-modal .pwt-modal-close:hover{background:#40424E!important;color:#F5F5F4!important}
 html[data-bo-theme="dark"] .pwt-page .error-box{
   background:rgba(248,113,113,.14)!important;color:#F87171;border-color:rgba(248,113,113,.28);
 }
@@ -853,7 +872,7 @@ body.pwt-page.modal-open .report-main{pointer-events:none}
 body.pwt-page.modal-open .pwt-modal{pointer-events:auto}
 .pwt-page .debug-json-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px}
 .pwt-page .debug-json-head label{margin:0}
-.pwt-page .debug-copy-btn{flex:0 0 auto;display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 12px}
+.pwt-page .pwt-modal .debug-copy-btn{flex:0 0 auto;display:inline-flex;align-items:center;gap:7px;height:32px!important;min-height:32px!important;max-height:32px!important;padding:0 12px}
 .pwt-page .debug-json-box{min-height:180px;max-height:480px}
 .pwt-page .report-user{align-items:center;gap:8px}
 .pwt-page .report-user span{width:30px;height:30px;border-radius:999px;background:#EADCC8;color:#57534E;display:grid;place-items:center;font-weight:900}
@@ -3920,7 +3939,11 @@ body.standardized-game-management .report-main .category-filter-card.bo-filter-r
 
 
 /* v33 - filter order, unified controls, single-border search and full category artwork */
-:root{--bo-control-height:42px}
+/* 36px - the locked listing/filter control height (system.md -> Listing filter controls).
+   Was 42px: the retired pair this token was introduced with. Flipped 2026-10-03 so the
+   filter rows, the single-border search frames and the filter buttons it sizes agree with
+   the locked recipe instead of needing a per-page override. */
+:root{--bo-control-height:36px}
 
 /* Keep every filter input/select/search/button on the same visual height. */
 .filter-card .field input,

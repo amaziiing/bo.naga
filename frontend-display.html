@@ -99,7 +99,13 @@ body.frontend-display-page .report-content{
    dead space under Wallet Limits and pushed the marquee past the fold. */
 .fd-grid{
   flex:1 1 auto;
-  min-height:0;
+  /* Content-sized, and never shrunk below it. With min-height:0 the grid box stayed at the board's
+     height while its rows needed more, so in any scrolling state (Random Demo, or any window
+     short enough) the last panel grew past the box and painted over the frame's bottom border -
+     the left and right edges then just faded out at the corner radius, leaving both bottom
+     corners open. As a flex item, min-height:auto is the content-based minimum: it fills the board
+     when there is room and stops covering its own border when there is not. */
+  min-height:auto;
   width:100%;
   display:grid;
   grid-template-columns:minmax(0,1fr) minmax(0,1fr);

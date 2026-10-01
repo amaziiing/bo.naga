@@ -6008,3 +6008,59 @@ Pins: `bank-deposit-usage.css` `e9060a55 → 64fb5153` and `bank-deposit-usage.j
 `bank-deposit-usage.html` references either file, so one page was restamped (`check-asset-pins` 0 stale).
 Guards: shell-drift OK (2616 baseline declarations untouched) · spa-readiness exit 0 · pin-spa 0 pages re-pinned ·
 `node --check` on the script.
+
+### The promotion edit jump nav flickered through six tabs and landed next to Wallet, not on it (2026-10-01, owner: “如果从display 跳去wallet 但是他过程中会乱跳 而且也不是精准停留在wallet”)
+
+One click, two independent defects. Both were reproduced and measured on the real page in headless Chrome
+(auth-stubbed, 1568x900, `promotion-edit.html`), sampling `#promoForm.scrollTop` and the lit pill once per frame
+through a single **Display -> Wallet** jump — 157 frames, one trace.
+
+**1. The pill was decided by "the largest visible fraction", and two short cards share the band.** The
+`IntersectionObserver` watched the top 40% of the form (`rootMargin:'0px 0px -60% 0px'`, thresholds .08/.2/.5/.75)
+and lit whichever observed section had the biggest ratio, which re-fires all through a smooth scroll. Sampled through
+that one jump the highlight went:
+
+```
+wallet -> display -> basic -> amount -> claim -> period -> claim -> period -> wallet -> period -> wallet -> period -> wallet -> rebate
+```
+
+— six alternations *and* it settled on **Rebate** while the viewport was resting on Wallet, because at rest Wallet
+(short card) and Rebate (taller) both intersect the band and the ratio broke the tie. That is the 乱跳. It is now a
+deterministic rule in `promotion-form-sections.js`: the **last section whose top has reached the form's top band**
+(+24px), evaluated on a rAF-throttled `scroll` listener, with the bottom-of-scroll case folded in (the old
+`syncBottom`). One position, one pill — measured for all six sections parked at the band (claim / wallet / rebate /
+extra / content each lit themselves, `err 0`). While a jump is in flight the pill is *pinned* to the clicked section
+and the position rule is not consulted at all.
+
+**2. The landing offset was computed once, before the page had finished loading.** The offset that reaches a section
+is `scrollTop + (target.top - form.top) - 10`, and it is only correct while the page is the shape it was in at the
+moment of the click. Everything above the target that arrives afterwards pushes it down by its own height — and on
+this page that is not hypothetical: the provider / game block inside **Claim** (above Wallet) renders when its request
+answers, hundreds of px tall. Measured: a 400px block landing mid-animation left the jump **410px short**; a 700px one
+left it **710px** short; the identical shift 1.1s *after* the animation had finished left it **610px** short. The jump
+now follows the animation and then keeps **correcting** while the scroller is still (5 unchanged frames, and never
+before the animation's 80ms ramp-up — nudging a moving animation is what makes one jump look like two), for up to 4s,
+gliding when the gap is over 120px and snapping below that. It releases the pin the moment the user wheels, touches,
+types or clicks into the form, and hands the pill back to the position rule.
+
+| one Display -> Wallet jump | before | after |
+| --- | --- | --- |
+| pill through the jump | 14 states, ending on Rebate | **Wallet, 1 state in 157 frames** |
+| resting offset from Wallet's top | 10px (correct, pill wrong) | 10px |
+| 400px block lands mid-animation | 410px short, pill Period | **10px**, pill Wallet |
+| 700px block lands mid-animation | 710px short, pill Claim | **10px**, pill Wallet |
+| 600px block lands 1.1s after the animation | 610px short | **10px**, pill Wallet |
+| user wheels 300px mid-jump | — | correction lets go: `pulledBack false`, pill re-derived (Amount) |
+| SPA swap entry, and a second entry | — | identical trace to the direct load; 1 form / 1 nav / 10 buttons |
+
+`prefers-reduced-motion: reduce` jumps instantly (`behavior:'auto'`) instead of animating 1400px, and the correction
+loop then only ever has to hold the offset.
+
+**Verified** on the real page headless: direct load (3 scenarios of async growth, no injection, 300ms/400px and
+120ms/700px), late growth at 1.1s, manual parking of all six sections, a wheel mid-jump, SPA entry and a second SPA
+entry — plus `node --check`, `audit-spa-swaps.js promotion-edit.html` (**0 flagged**), and 0 JS errors in the console.
+The page is the only consumer of the script.
+
+Pins: `promotion-form-sections.js` `2d50f881 → 91f9a0ba`, restamped in `promotion-edit.html` (the only page that
+references it). Guards: shell-drift OK (2616 baseline declarations untouched) · check-asset-pins 0 stale ·
+check-global-collisions 0 · spa-readiness exit 0 · pin-spa 0 pages re-pinned.

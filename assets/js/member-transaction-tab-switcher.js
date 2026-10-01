@@ -1,6 +1,11 @@
 (function(){
   'use strict';
 
+  /* One copy per document. The dispatcher loads this file on every entry into the All workspace and
+     a swap can re-run the tag, and a second copy would put a second capture-phase delegation in
+     front of the same table. */
+  if(window.BO_MEMBER_TX_ALL_PAGE){ window.BO_MEMBER_TX_ALL_PAGE.reinit(); return; }
+
   const requestedTab=new URLSearchParams(location.search).get('tab');
   const state={type:['deposit','withdraw','all'].includes(requestedTab)?requestedTab:'deposit',page:1,totalPages:1,rows:[]};
   let reloadGeneration=0;
@@ -8,6 +13,12 @@
   const $=id=>document.getElementById(id);
   const domPrefix=document.getElementById('depositBody')?'deposit':'withdraw';
   const id=name=>domPrefix+name;
+  /* The All workspace is the only view this file owns: BO_TX_VIEW is written by the dispatcher on
+     every entry, so as soon as the user leaves for Deposit or Withdraw this switcher goes quiet.
+     Its capture-phase guards and its click delegation sit on `document` - a swap does not replace
+     them - and an inert switcher that still vetoed events would block the module that owns the
+     table now. */
+  function ownsAll(){ return window.BO_TX_VIEW==='all'&&!document.getElementById('withdrawBody'); }
   const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const money=v=>Number(v||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
   const date=v=>window.BO_FORMAT?.dateTime?window.BO_FORMAT.dateTime(v):(v?String(v).replace('T',' ').slice(0,19):'-');
@@ -249,6 +260,7 @@
     reload();
   }
   document.addEventListener('click',async e=>{
+    if(!ownsAll())return;
     const approve=e.target.closest?.('[data-tab-approve]');
     const reject=e.target.closest?.('[data-tab-reject]');
     const btn=approve||reject;
@@ -308,6 +320,9 @@
   }
   async function init(){
     if(state.type!=='all')return;
+    /* Re-entry: the dispatcher asks this copy to take the fresh frame instead of loading a second
+       one, and the All view may have been left and entered again in the same document. */
+    if(!ownsAll())return;
     setTableShape();
     installCleanListeners();
     hideBankSelector();
@@ -322,6 +337,7 @@
   let realtimeAllWithdrawSignature='';
   let realtimeAllTimer=0;
   document.addEventListener('bo:operation-counts',e=>{
+    if(!ownsAll())return;
     if(state.type!=='all')return;
     const detail=e?.detail||{};
     const ids=Array.isArray(detail.withdrawIds)?detail.withdrawIds.map(String).sort():[];
@@ -333,11 +349,12 @@
   });
   window.addEventListener('pagehide',()=>{clearTimeout(realtimeAllTimer);reloadGeneration++;countGeneration++;});
   window.addEventListener('pageshow',async e=>{
-    if(!e.persisted||state.type!=='all')return;
+    if(!e.persisted||!ownsAll()||state.type!=='all')return;
     await waitForDateRangeReady();
     state.page=1;
     reload();
   });
+  window.BO_MEMBER_TX_ALL_PAGE={reinit:init};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
   else init();
   /* The All workspace spans every bank, so it has no per-bank selector. Deposit and

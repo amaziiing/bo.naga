@@ -1,9 +1,35 @@
 (function(){
+  /* One copy per document - and with it one set of document-level handlers. The dispatcher loads
+     this file into a document that then keeps running while the user moves between the three views,
+     so a second execution must never build a second set of handlers: two click delegations would
+     handle one bank-chip click twice (select, then unselect again). The first copy owns the state;
+     a later execution only asks it to take the frame that was just swapped in. */
+  if(window.BO_MEMBER_WITHDRAW_PAGE){ window.BO_MEMBER_WITHDRAW_PAGE.reinit(); return; }
+
   let page=1,totalPages=1,currentRows=[];
   /* The one selected bank (id) and the directory the chips/strip read: id -> {id,name,
      label,balance,balanceKnown,pending,flow}. `flow` is the selected bank's total under the
      table's current filters, filled in by load(). */
   let selectedBankId=null,bankIndex=null;
+  /* Clicking the tab of the view you are already on. The router leaves a link whose URL equals the
+     current one to the browser - there is nothing to swap - so without this a `data-bo-spa-link`
+     tab would throw the page away and reload it. One slot, because both modules can live in the
+     same document (the All workspace loads them together). */
+  if(!window.__boTxSameTabGuard){
+    window.__boTxSameTabGuard=1;
+    document.addEventListener('click',e=>{
+      const a=e.target.closest?.('.bo-tx-tab[data-bo-tx-type]');
+      if(a&&a.href===location.href) e.preventDefault();
+    });
+  }
+
+  /* Which view owns the shared table right now. The dispatcher writes BO_TX_VIEW on every entry, so
+     normally this file only reads it; claimView() is the fallback for a document that runs this file
+     without one. The test is the deposit ids: they are present on every view that is not Withdraw -
+     the Deposit view, and the All workspace, which keeps them and hands the table to
+     member-transaction-tab-switcher.js. */
+  function claimView(){ if(!document.getElementById('depositBody')) window.BO_TX_VIEW='withdraw'; }
+  function ownsView(){ return window.BO_TX_VIEW==='withdraw'&&!!document.getElementById('withdrawBody'); }
   /* Only page numbers — pagination-standardizer already wraps ‹ #withdrawPager ›. */
   function pageButtons(current,total){
     total=Math.max(1,Number(total)||1);
@@ -169,6 +195,7 @@
   /* A card per bank, every bank complete without a click. `flow` is this bank's total under the
      table's current filters, so the figures beside the panel agree with the rows below it. */
   async function renderBankCards(){
+    if(!ownsView())return;
     const host=bankHost();
     if(!host)return;
     // The grid's layout is keyed on this class rather than on the markup, so a page whose HTML
@@ -289,7 +316,7 @@
      filters while a plain filter change reads one, so responses can arrive out of order and
      an older, unfiltered one would otherwise overwrite the bank-filtered table. */
   let loadToken=0;
-  async function load(){const token=++loadToken;const body=document.getElementById('withdrawBody');if(body)body.innerHTML='<tr><td colspan="9">Loading withdraw requests...</td></tr>';try{if(selectedBankId!=null){
+  async function load(){if(!ownsView())return;const token=++loadToken;const body=document.getElementById('withdrawBody');if(body)body.innerHTML='<tr><td colspan="9">Loading withdraw requests...</td></tr>';try{if(selectedBankId!=null){
     // A bank is selected: the table shows that bank only, so the list is read for the
     // current filters and narrowed here (see loadBankRows). The same filters feed the matrix's
     // Withdraw column, so the figures and the rows always agree.
@@ -320,6 +347,7 @@
   // Action buttons are rendered dynamically, so use delegated clicks.
   // This keeps Approve / Reject working after load, search, pagination and refresh.
   document.addEventListener('click',e=>{
+    if(!ownsView())return;
     const chip=e.target.closest?.('[data-bank-id]');
     if(chip){
       e.preventDefault();
@@ -367,6 +395,7 @@
   }
 
   const initWithdrawPage=()=>{
+    claimView();
     syncTxTypeTabs('withdraw');
     let keywordTimer=0;
     const runSearch=()=>{page=1;clearLockedAutoSize();load();renderBankCards();};
@@ -390,7 +419,9 @@
       load();
     }));
     let resizeTimer=0;
-    window.addEventListener('resize',()=>{
+    /* See member-deposit.js: `resize` is on window, which outlives the frame, so the listener is a
+       single slot rather than one per entry. */
+    const onResize=()=>{
         if(!isAutoPageSize(document.getElementById('withdrawSize')?.value)) return;
       clearTimeout(resizeTimer);
       resizeTimer=setTimeout(()=>{
@@ -400,7 +431,10 @@
         if(next!==prev){page=1;load();}
         else evenFillRowHeights();
       },180);
-    });
+    };
+    if(window.__boTxWithdrawResize) window.removeEventListener('resize',window.__boTxWithdrawResize);
+    window.__boTxWithdrawResize=onResize;
+    window.addEventListener('resize',onResize);
   };
   // Keep an already-open Withdraw listing synchronized with the global realtime
   // notification poll. Use pending request IDs as well as the count so a new
@@ -409,6 +443,7 @@
   let realtimeWithdrawSignature='';
   let realtimeWithdrawTimer=0;
   document.addEventListener('bo:operation-counts',e=>{
+    if(!ownsView())return;
     if(new URLSearchParams(location.search).get('tab')==='all')return;
     const detail=e?.detail||{};
     const ids=Array.isArray(detail.withdrawIds)?detail.withdrawIds.map(String).sort():[];
@@ -427,9 +462,12 @@
 
   window.addEventListener('pagehide',()=>{clearTimeout(realtimeWithdrawTimer);loadToken++;});
   window.addEventListener('pageshow',e=>{
-    if(!e.persisted)return;
+    if(!e.persisted||!ownsView())return;
     page=1;clearLockedAutoSize();load();renderBankCards();
   });
+  /* Reached by the dispatcher and by the router instead of a second copy of this file - see the
+     guard at the top. */
+  window.BO_MEMBER_WITHDRAW_PAGE={reinit:initWithdrawPage};
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',initWithdrawPage,{once:true});
   else initWithdrawPage();
 })();

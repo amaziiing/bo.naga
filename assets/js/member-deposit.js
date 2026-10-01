@@ -1,9 +1,35 @@
 (function(){
+  /* One copy per document - and with it one set of document-level handlers. This file is loaded
+     through the dispatcher on every entry into member-deposit.html, and the router re-runs a page's
+     scripts on a swap, so a second copy can arrive in the same document; a second click delegation
+     would handle one bank-chip click twice (select, then unselect again). The copy that is already
+     live keeps the state, and every later copy hands it the fresh frame instead. */
+  if(window.BO_MEMBER_DEPOSIT_PAGE){ window.BO_MEMBER_DEPOSIT_PAGE.reinit(); return; }
+
   let page=1,totalPages=1,currentRows=[];
   /* The one selected bank (id) and the directory the chips/strip read: id -> {id,name,
      label,balance,balanceKnown,pending,flow}. `flow` is the selected bank's total under the
      table's current filters, filled in by load(). */
   let selectedBankId=null,bankIndex=null;
+  /* Clicking the tab of the view you are already on. The router leaves a link whose URL equals the
+     current one to the browser - there is nothing to swap - so without this a `data-bo-spa-link`
+     tab would throw the page away and reload it. One slot, because both modules can live in the
+     same document (the All workspace loads them together). */
+  if(!window.__boTxSameTabGuard){
+    window.__boTxSameTabGuard=1;
+    document.addEventListener('click',e=>{
+      const a=e.target.closest?.('.bo-tx-tab[data-bo-tx-type]');
+      if(a&&a.href===location.href) e.preventDefault();
+    });
+  }
+
+  /* Which view owns the shared table right now: member-transaction-page.js writes BO_TX_VIEW on
+     every entry, because all three views share one document after a swap and this file stays
+     loaded when its view is left. A module that no longer owns the view must stay inert - its
+     click delegation and its 60s-ish realtime refresh live on `document`, which a swap does not
+     replace. The table body is the second half of the test: it sits inside the frame, so it is
+     only there while this page is the one on screen. */
+  function ownsView(){return window.BO_TX_VIEW==='deposit'&&!!document.getElementById('depositBody');}
   /* Only page numbers — pagination-standardizer already wraps ‹ #depositPager ›. */
   function pageButtons(current,total){
     total=Math.max(1,Number(total)||1);
@@ -290,6 +316,7 @@
   /* A card per bank, every bank complete without a click. `flow` is this bank's total under the
      table's current filters, so the figures beside the panel agree with the rows below it. */
   async function renderBankCards(){
+    if(!ownsView()) return;
     const host=document.getElementById('depositBankCards');
     if(!host)return;
     // The grid's layout is keyed on this class rather than on the markup, so a page whose HTML
@@ -430,6 +457,7 @@
      an older, unfiltered one would otherwise overwrite the bank-filtered table. */
   let loadToken=0;
   async function load(){
+    if(!ownsView()) return;
     const token=++loadToken;
     const body=document.getElementById('depositBody'); if(body)body.innerHTML='<tr><td colspan="8">Loading...</td></tr>';
     try{
@@ -477,7 +505,7 @@
       const json=await api(endpoint('MEMBER_DEPOSIT_APPROVE')+'/'+encodeURIComponent(id),{method:'POST',headers:{'Content-Type':'application/json','X-Admin-Username':String(BO_AUTH.user()?.username||'ADMIN'),...BO_AUTH.authHeader()},body:JSON.stringify({adminRemark:picked.adminRemark,paymentMethodId:picked.paymentMethodId})});BO_DIALOG.alert(json.message||'Done',{title:'Deposit Updated'});await load();await renderBankCards();document.dispatchEvent(new CustomEvent('bo:wallet-request-updated',{detail:{type:'deposit',action:type,id:String(id)}}));
     }catch(e){BO_DIALOG.alert(e.message||'Action failed',{title:'Deposit Action Failed',type:'error'});}
   }
-  document.addEventListener('click',e=>{const chip=e.target.closest?.('[data-bank-id]');if(chip){e.preventDefault();selectBank(chip.dataset.bankId);return;}const proof=e.target.closest?.('[data-proof-preview]');if(proof){e.preventDefault();e.stopPropagation();openProofPreview(proof.dataset.proofPreview);return;}const a=e.target.closest?.('[data-approve]'); const r=e.target.closest?.('[data-reject]'); if(a)action(a.dataset.approve,'approve'); if(r)action(r.dataset.reject,'reject');});
+  document.addEventListener('click',e=>{if(!ownsView())return;const chip=e.target.closest?.('[data-bank-id]');if(chip){e.preventDefault();selectBank(chip.dataset.bankId);return;}const proof=e.target.closest?.('[data-proof-preview]');if(proof){e.preventDefault();e.stopPropagation();openProofPreview(proof.dataset.proofPreview);return;}const a=e.target.closest?.('[data-approve]'); const r=e.target.closest?.('[data-reject]'); if(a)action(a.dataset.approve,'approve'); if(r)action(r.dataset.reject,'reject');});
   async function refreshTxTabCounts(){
     const from=document.getElementById('depositFrom')?.value||'';
     const to=document.getElementById('depositTo')?.value||'';
@@ -518,6 +546,10 @@
   }
 
   const initDepositPage=()=>{
+    /* The dispatcher has already written BO_TX_VIEW for the view it asked for; this fallback only
+       matters if the file is ever loaded without one, and it never overrides the All workspace -
+       which keeps the deposit ids but hands the table to the switcher. */
+    if(window.BO_TX_VIEW!=='all') window.BO_TX_VIEW='deposit';
     syncTxTypeTabs('deposit');
     let keywordTimer=0;
     const runSearch=()=>{page=1;clearLockedAutoSize();load();renderBankCards();refreshTxTabCounts();};
@@ -540,7 +572,10 @@
       load();
     }));
     let resizeTimer=0;
-    window.addEventListener('resize',()=>{
+    /* `resize` is on window and window outlives the frame, so a per-entry listener would leave one
+       more behind on every entry into this view (SPA.md section 4, rule 2). One slot, rebound to
+       the newest closure so it always reads the control that is on screen. */
+    const onResize=()=>{
         if(!isAutoPageSize(document.getElementById('depositSize')?.value)) return;
       clearTimeout(resizeTimer);
       resizeTimer=setTimeout(()=>{
@@ -550,8 +585,14 @@
         if(next!==prev){page=1;load();}
         else evenFillRowHeights();
       },180);
-    });
+    };
+    if(window.__boTxDepositResize) window.removeEventListener('resize',window.__boTxDepositResize);
+    window.__boTxDepositResize=onResize;
+    window.addEventListener('resize',onResize);
   };
+  /* Reached by the dispatcher and by the router instead of a second copy of this file - see the
+     guard at the top. */
+  window.BO_MEMBER_DEPOSIT_PAGE={reinit:initDepositPage};
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',initDepositPage,{once:true});
   else initDepositPage();
 })();

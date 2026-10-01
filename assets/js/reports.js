@@ -555,22 +555,37 @@ document.addEventListener('DOMContentLoaded', () => {
       labels.push(text);
     });
     if(!labels.length) return;
-    const widest=Math.max.apply(null, labels.map(function(label){
-      return measureLabelWidth(label, parts.button);
-    }));
+    /* Deferred on purpose. Measuring is one getComputedStyle + one canvas measureText per
+       option, and that getComputedStyle forces a synchronous style recalc of whatever the
+       page has just mutated. Only the auto-width branch below reads the number; the form
+       branch sizes from the button's own box and would throw it away. Measured on
+       promotion-edit.html before this: 898 forced reads and ~1.2s of UpdateLayoutTree per
+       entry, because all 26 of that page's selects took the form branch. */
+    let widest=null;
+    const widestLabel=function(){
+      if(widest===null){
+        widest=Math.max.apply(null, labels.map(function(label){
+          return measureLabelWidth(label, parts.button);
+        }));
+      }
+      return widest;
+    };
     const inFilterRow=!!parts.wrap.closest('.bo-filter-row');
     const inEntriesControl=!!parts.wrap.closest('.entries-control,.bo-pagination-standard');
     /* Filter rows / pagination entries: size the FIELD, keep wrap at 100% so
        Status/Page Size and "Show N entries" never overflow neighbors
        (was Math.max(160) wrap inside an 80–112px cell). */
-    let contentWidth=(inFilterRow || inEntriesControl)
-      ? Math.max(inEntriesControl ? 72 : 80, widest+(inEntriesControl ? 44 : 54))
-      : Math.max(160, widest+72);
     /* Transaction listing MD — Status locked at 150px (Wallet Ledger Type specimen) */
     const listingFixed={depositStatus:150,withdrawStatus:150,dbgStatus:150};
-    if(document.body.classList.contains('bo-wallet-tx') && listingFixed[select.id]!=null){
-      contentWidth=listingFixed[select.id];
-    }
+    const contentWidthNow=function(){
+      let width=(inFilterRow || inEntriesControl)
+        ? Math.max(inEntriesControl ? 72 : 80, widestLabel()+(inEntriesControl ? 44 : 54))
+        : Math.max(160, widestLabel()+72);
+      if(document.body.classList.contains('bo-wallet-tx') && listingFixed[select.id]!=null){
+        width=listingFixed[select.id];
+      }
+      return width;
+    };
     /* Promotion Bonus listing — keep filter strip even; CSS owns field widths */
     if(parts.wrap.closest('.promotion-filter-card') || select.dataset.boAutoWidth==='0'){
       const item=parts.wrap.closest('.bo-filter-select-item,.field');
@@ -615,6 +630,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if(isCompactAutoWidthWrap(parts.wrap)){
+      /* The only branch that reads a text-metric width — measure here, not for every form field. */
+      let contentWidth=contentWidthNow();
       if(inFilterRow || inEntriesControl){
         /* Never size a container that holds more than the select — that
            collapses its other children into the select's width. `.bo-filter-row`
@@ -694,7 +711,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     parts.button.disabled=!!select.disabled;
     parts.button.setAttribute('aria-disabled',select.disabled?'true':'false');
-    parts.button.innerHTML='<span>'+escapeHtml(selectedLabel(select))+'</span><i class="bi bi-chevron-down"></i>';
+    /* Rewriting identical markup is a DOM mutation with no visible effect, and the
+       getComputedStyle further down then pays a forced style recalc for it. Measured on
+       promotion-edit.html: each select was rewritten 16 times on one entry while only its
+       first render actually changed the label. */
+    const buttonHtml='<span>'+escapeHtml(selectedLabel(select))+'</span><i class="bi bi-chevron-down"></i>';
+    if(parts.button.innerHTML!==buttonHtml) parts.button.innerHTML=buttonHtml;
     const options=Array.from(select.options||[]);
     const currentItems=Array.from(parts.menu.querySelectorAll('.rounded-select-option'));
 

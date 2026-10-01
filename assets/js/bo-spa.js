@@ -1236,6 +1236,16 @@
 
   DOC.addEventListener('click', function (e) {
     if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    /* A pin control lives INSIDE the row it belongs to - the rail's `.bo-sidebar-pin` and the
+       module row's `.bo-module-tab-pin` are children of their anchor - so `closest` reached
+       the link and the click looked like a navigation: the pin toggled AND the router swapped
+       to that page. Measured from member-deposit.html: clicking the rail's pin on `account-lock`
+       left the URL at `/account-lock.html` (`nav ... via link` in the log) with `account_lock`
+       added to headerMenuKeys - a pin is a toggle, not a link, so it is left entirely to
+       auth.js. Only clicks that ORIGINATE in a pin are skipped; everything else on the row is
+       untouched (the module row binds its own listener for the same reason, see auth.js
+       bindModuleTabPins). */
+    if (e.target && e.target.closest && e.target.closest('[data-bo-pin-menu],[data-bo-pin-tab]')) return;
     var a = e.target && e.target.closest ? e.target.closest(LINKS) : null;
     if (!eligible(a)) return;
     e.preventDefault();

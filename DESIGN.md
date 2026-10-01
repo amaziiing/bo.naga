@@ -384,7 +384,7 @@ Sidebar **3. Transaction** pages use listing chrome: filter/select = surface `#F
 
 **Deposit / Withdraw shell (locked):** bank selector above the panel = **one segmented strip on no rail** (34px skewed segments, house 6px radius, uniform width from the longest name, unselected on `--bo-control-well`, selected on `--bo-surface` with a 1px accent ring and an accent wedge pointing into the panel, pending count inline, `data-bo-ui-skip`, scrolls sideways with 4px side room) with a constant-height three-zone summary bar under it (Start / Deposit / Balance only — no account/period block and no explanation sentence; an impossible figure shows `n/a` with its reason in that slot's tooltip; 1px separators, no second fill, Balance the only accent, 8px radius; selecting a bank also narrows the table to it) · mad-pill tabs Deposit→Withdraw→All **left** + inline filters **right** inside `.table-card` (no Reset/Search/Page Size in the filter row) · filter boxes = listing **`36px`** · date `240` · keyword `140` · status `150` · gap `10` · Bank column = bold `Name (account)` · Member = username only · action chips `.bo-tx-action-btn` 26×26 / icon 15px (Approve/Reject/Ledger) · no Pending metrics strip · no Filtered Total bar · Withdraw Remark without `Admin:` sub-line. Selector styles `bo-bank-selector.css`, markup `bo-bank-selector.js`; balance contract `BANK_BALANCE_API.md` — a figure that is not known prints `-`, never a guess.
 
-**Module navigation, not a sidebar submenu (locked):** a module whose pages are peers of one workspace lists them as page-level tabs under the page header, on the content container's left edge, and the sidebar keeps a single row that merely carries the module's active state — clicking it never opens a floating submenu over the content. Nine groups use this today — **Transaction** (`Deposit Approval · Win/Lose Adjustment · Bonus Adjustment · Bank Deposit Usage`), **Member** (`User Management · Member Wallet · Wallet Ledger · Referral Network`), **Promotion**, **VIP**, **Agent**, **Report**, **Game Management**, **Design** and **Setting**; `MODULE_TABS` in `auth.js` is the authoritative list of both the modules and the pages each row carries. **Membership carries two contracts** — a page listed there must link `assets/css/bo-module-tabs.css`, and every sidebar row of the group must be listed there — see *A module's pages must be registered and must load its row sheet* at the end of this file. Sections come from the admin's own assigned menus, so a section the role cannot open never appears, and one section alone renders no row. A database group counts as a module's group only when it holds at least two of that module's pages **and owns the module's anchor page** (`MODULE_ANCHORS` holds one anchor page per module) — without the anchor test a group that merely shares two files (a Wallet group holding Member Wallet + Wallet Ledger) would lose its own submenu to this feature. A section that is two pages (Bulk Adjustment) hands the page's own authored pair to the row instead of showing one entry. Styles `bo-module-tabs.css` (text-only tabs, active = dark text + 2px amber underline), logic in `auth.js` (`MODULE_TABS` / `MODULE_ANCHORS` / `renderModuleTabs`).
+**Module navigation, not a sidebar submenu (locked):** a module whose pages are peers of one workspace lists them as page-level tabs under the page header, on the content container's left edge, and the sidebar keeps a single row that merely carries the module's active state — clicking it never opens a floating submenu over the content. Nine groups use this today — **Transaction** (`Deposit Approval · Win/Lose Adjustment · Bonus Adjustment · Bank Deposit Usage`), **Member** (`User Management · Member Wallet · Wallet Ledger · Referral Network`), **Promotion**, **VIP**, **Agent**, **Report**, **Game Management**, **Design** and **Setting**; `MODULE_TABS` in `auth.js` is the authoritative list of both the modules and the pages each row carries. **Membership carries two contracts** — a page listed there must link `assets/css/bo-module-tabs.css`, and every sidebar row of the group must be listed there — see *A module's pages must be registered and must load its row sheet* at the end of this file. Sections come from the admin's own assigned menus, so a section the role cannot open never appears, and one section alone renders no row. A database group counts as a module's group only when it holds at least two of that module's pages **and owns the module's anchor page** (`MODULE_ANCHORS` holds one anchor page per module) — without the anchor test a group that merely shares two files (a Wallet group holding Member Wallet + Wallet Ledger) would lose its own submenu to this feature. A section that is two pages (Bulk Adjustment) hands the page's own authored pair to the row instead of showing one entry. Styles `bo-module-tabs.css` (text-only tabs, active = dark text + 2px amber underline), logic in `auth.js` (`MODULE_TABS` / `MODULE_ANCHORS` / `renderModuleTabs`). **Every tab also carries its own Dashboard pin** — the same control and the same store as the sidebar rows, because a module's rail row is one direct link and its pages therefore have no row of their own to pin; the row stays text at rest and only the tab's label makes room for its own pin — see *The module row's per-tab Dashboard pin* at the end of this file.
 
 
 **Payment Method Config** (`payment-method.html`): same Transaction listing table/pager · Edit/Delete `.bo-tx-action-btn` wells · amber QR View link · form-well modal. **Bank Deposit Usage** twin: Active/Suspend/All pills · View QR + mad-pager · no Config link. **Bulk Adjustment / Bulk Bonus:** Manual split **60% / 40%** (Select Members · Configure) · panel pill scrollbars on member picker + selected table — light chocolate `#8B6B4A` / hover `#5C4A30` · dark `#F59E0B` / `#D97706` · **`6px`** · no arrows (not cool slate). **Wallet Ledger:** `bo-wallet-tx` · split **`.bo-tx-table-head` (fixed)** + **`.bo-tx-table-body`** (`#ledgerTableScroll` · only vertical scroller · panel pill chocolate · **`6px`**) · wrap `overflow:hidden` · type menu same pill · **specimen** for 36px filter geometry · **Created/Posted Time** = date `DD/MM/YYYY` in cell · cream pill tip `HH:MM:SS` · **no arrow** · footer **Show N entries** = same as Deposit (`-` · `10` · `20` · `50` · `100` · `All` · Role select chrome · `#ledgerSize` hidden). Full notes: `.interface-design/system.md` → Bulk / Wallet Ledger / Panel pill scrollbar / Listing filter controls / Date time tips.
@@ -5689,3 +5689,78 @@ all (no Agent row is rendered), and the fallback can only ever ADD a highlight, 
 
 Pins: `auth.js` and `bo-spa.js` re-stamped across the 136 pages that reference them (`check-asset-pins` 0
 stale). Guards: shell-drift OK · global-collisions 0 · spa-readiness exit 0 · pin-spa 0.
+
+### The module row's per-tab Dashboard pin (2026-10-01, owner: “在每一个页面的tab 需要添加像左边sidebar的livechat的 pin 但是设计需要不一样 但是要人性化 用户一眼就明白的设计icon”)
+
+**The gap.** A module's rail row is ONE direct link, so when the submenu was replaced by the page-level row the
+module's pages stopped being listed in the rail — and the sidebar's pin lives on those rows. Every page of every
+module (Transaction, Member, Promotion, VIP, Agent, Report, Game Management, Design, Setting) had therefore lost
+its own way to be pinned; the tab row is the only place left that knows which page each tab is.
+
+**What it is.** Each `.bo-module-tab` carries the same pin the sidebar rows carry — one store,
+`window.__boUiSetting.headerMenuKeys` through `PUT /admin/ui-setting` — so the two entry points cannot disagree:
+pinning from the tab shows on the rail row and in the Dashboard quicknav, and `toggleDashboardPin` re-renders both.
+`moduleTabHtml()` resolves the menu that owns each tab's page (`modulePinKeyByFile`) and renders **no** pin when no
+menu owns the destination, rather than pinning the wrong thing. A section that is two URLs of one page
+(`bulk-adjustment.html?tab=winlose|bonus`) resolves to the same menu on purpose: the PAGE is what is pinned, so
+both tabs carry its state.
+
+**Design — deliberately not the sidebar's pin.** That one is always on and sits in the rail's own gutter; a second
+copy on every tab would turn a text row into a row of buttons, which is the one thing this row's language rules
+out. So the row stays text at rest, the tab reveals its own pin on hover/focus, and a pinned tab keeps it on: an
+**18px glyph, 12px icon, no backdrop at all**, `bi-pin-angle` → `bi-pin-angle-fill` in `--bo-cyan` (amber in dark,
+both straight from `bo-wallet-transaction-amber.css`'s tokens), 26px effective target under the 18px face. Feedback
+is the glyph itself: muted → amber on hover, and a 12% scale when it is *already* amber (the pinned case, where a
+colour change cannot say anything). `is-pinned` on the anchor carries an 8px label shift. Touch (`hover:none`) and
+everything below 992px — where the sidebar pins are always visible too — show it with a 6px shift. Reduced motion
+keeps the opacity ramp and drops the 6px slide.
+
+**The first pass had a pill behind it, and it was wrong.** It shipped as a 22px rounded box that filled on hover;
+the owner circled it (“需要调整”) — a filled box put a chip glued to the last letter of the tab's name into a row
+whose entire language is text, and it measured only 2.5px of clearance between the label's box and the glyph.
+Dropping the backdrop and 4px of the face took that clearance to 5px (box-to-box, ~6px ink-to-ink) without touching
+the label's shift or the row's geometry, so the resting row still measures byte-identical.
+
+**The reveal costs the row no geometry.** The label gives up its 8px with a `transform`, not with padding or width,
+and the pin is absolutely positioned inside the tab's own right padding. Measured at rest, the row is 48px and every
+tab box is byte-identical to before (`member-deposit.html`: `140.67 / 161.83 / 141.05 / 150.63`), with every
+neighbouring tab staying put while the pointer crosses the row — the tab's own 2px amber underline is untouched
+because the pin never enters the tab's layout. The label keeps 4px of its 12px left padding while its pin is shown.
+
+**Trap A — the router would have eaten the click.** `bo-spa.js` registers its `document` click listener while the
+page is parsed, i.e. **before `auth.js` has executed**, and it takes over any click inside `.bo-module-tabs a[href]`;
+auth.js's delegated handlers are bound at `DOMContentLoaded` and therefore run afterwards. A pin nested in the tab
+anchor would have been handled by the router FIRST — `e.defaultPrevented` is checked, but by a listener that had not
+run yet. The row therefore binds its own listener (`bindModuleTabPins`), which runs while the event is still below
+`document`, and stops ONLY pin clicks: measured, clicking the pin of the Win/Lose tab from `member-deposit.html` kept
+the URL at `/member-deposit.html` and added `bulk_adjustment` to `headerMenuKeys`.
+
+**The same shape was already live on the rail.** The sidebar pin has the same parent/listener relationship, and
+nothing stopped the router there: measured, clicking the rail's pin on `account-lock` from `member-deposit.html`
+logged `nav /account-lock.html (via link)` and left the URL on `/account-lock.html` — the pin toggled *and* the
+router swapped to that page. `bo-spa.js`'s click handler now ignores clicks that ORIGINATE in a pin control
+(`[data-bo-pin-menu],[data-bo-pin-tab]`): a pin is a toggle, not a link. Everything else on the row is untouched —
+after the fix the same probe reads `navigated:false` with `account_lock` still added, and a real click on a tab
+label still swaps (measured: the fourth tab of `member-deposit.html` → `/bank-deposit-usage.html`).
+
+**Trap B — the global button decorator owned the control.** `bo-ui-standard.js`'s MutationObserver repaints every
+button inside the content frame as `.bo-ui-icon-button` (40×40, `!important`, radius 10). Measured, the pin computed
+`40px × 40px` while the label had moved 8px, so the glyph sat on the last letters of the tab's name. The decorator
+now skips `.bo-module-tabs` (and `.bo-module-tab-pin`) the way it already skips `.bo-tx-tab`, `.mad-tab` and the
+other page-owned control families.
+
+**Keyboard.** Toggling a pin rebuilds the row (`toggleDashboardPin` → `renderSidebar` → `renderModuleTabs`), which
+would have dropped focus to the body and made one pin cost a full Tab-walk: `renderModuleTabs` puts the keyboard
+back on the control carrying the same `data-bo-pin-tab` (measured `focusedBefore true` → `focusBackOnSameKey true`).
+
+**Measured, after:** rest 48px row, 0px added width, pin `opacity 0 / pointer-events none`; hover → `opacity 1`,
+label `translateX(-8px)`, neighbours unmoved; click → pinned + amber (`bi-pin-angle-fill`), URL unchanged, focus
+kept; unpin → class, `aria-pressed` and the store all revert; dark mode resolves `rgb(245,158,11)` from the tokens;
+a `BO_SPA.go()` swap rebuilds the row with a pin per tab (`data-bo-pin-bound="1"`, 4/4 pins); Report's nine-tab row
+(every key distinct, row still inside the frame) and `bulk-adjustment.html` (its OWN authored links via
+`MODULE_SECTION_PAGES`) both carry theirs; a 900px window shows them always-on with the row scrolling sideways
+instead of wrapping.
+
+Pins: `auth.js`, `bo-ui-standard.js`, `bo-spa.js` and `bo-module-tabs.css` re-stamped across the pages that
+reference them (`check-asset-pins` 0 stale · `pin-spa` 0). Guards: shell-drift OK · global-collisions 0 ·
+spa-readiness exit 0 · pin-spa 0.

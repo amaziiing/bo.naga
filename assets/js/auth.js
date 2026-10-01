@@ -269,10 +269,80 @@
 
   // One module-row tab. Same element for every source of sections, so a tab can never
   // look or announce itself differently depending on where its link came from.
-  function moduleTabHtml(label, href, active){
-    return '<a class="bo-module-tab' + (active ? ' is-active' : '') + '" role="tab" href="' + esc(href) + '"' +
-      ' aria-selected="' + (active ? 'true' : 'false') + '"' + (active ? ' aria-current="page"' : '') + '>' +
-      esc(label) + '</a>';
+  //
+  // `pinKey` is the menu the tab's page owns. The tab then carries the SAME pin the sidebar
+  // rows carry - one store, `window.__boUiSetting.headerMenuKeys` written through
+  // PUT /admin/ui-setting - which exists here because a module's sidebar was collapsed into
+  // a single row: its pages are no longer listed in the rail, so the tab row is the last
+  // place their own pin can live. A tab whose destination owns no menu row renders without
+  // one rather than pinning the wrong thing.
+  function moduleTabHtml(label, href, active, pinKey){
+    const key = String(pinKey || '');
+    const pinned = !!key && pinnedMenuKeys().has(key);
+    return '<a class="bo-module-tab' + (active ? ' is-active' : '') + (pinned ? ' is-pinned' : '') + '" role="tab" href="' + esc(href) + '"' +
+      ' aria-selected="' + (active ? 'true' : 'false') + '"' + (active ? ' aria-current="page"' : '') +
+      // An explicit name: the pin button sits inside this anchor, and without it the tab
+      // would announce as "Deposit Approval Pin to Dashboard".
+      ' aria-label="' + esc(label) + '">' +
+      '<span class="bo-module-tab-label">' + esc(label) + '</span>' +
+      (key
+        ? '<button type="button" class="bo-module-tab-pin" data-bo-pin-tab="' + esc(key) + '"' +
+          ' aria-pressed="' + (pinned ? 'true' : 'false') + '"' +
+          ' title="' + (pinned ? 'Unpin from Dashboard' : 'Pin to Dashboard') + '"' +
+          ' aria-label="' + esc((pinned ? 'Unpin ' : 'Pin ') + label + (pinned ? ' from Dashboard' : ' to Dashboard')) + '">' +
+          '<i class="bi ' + (pinned ? 'bi-pin-angle-fill' : 'bi-pin-angle') + '" aria-hidden="true"></i>' +
+          '</button>'
+        : '') +
+      '</a>';
+  }
+
+  // The pages that are pinned, as both rows that draw them read them. A Set, because every
+  // tab on the row asks the same question.
+  function pinnedMenuKeys(){
+    const cfg = window.__boUiSetting;
+    const keys = cfg && Array.isArray(cfg.headerMenuKeys) ? cfg.headerMenuKeys : [];
+    const set = new Set();
+    keys.forEach(function(k){ k = String(k || ''); if(k) set.add(k); });
+    return set;
+  }
+
+  // The file a tab points at -> the menu that owns it, i.e. the key a pin stores.
+  function modulePinKeyByFile(menus){
+    const byFile = {};
+    (menus || []).forEach(function(m){
+      const file = pageFile(m && m.url || '');
+      const key = String(m && m.menuKey || '');
+      if(!file || file === '#' || !key || byFile[file]) return;
+      byFile[file] = key;
+    });
+    return byFile;
+  }
+
+  /* The tab row's pins, delegated on the ROW - deliberately not on `document`.
+     bo-spa.js registers its own document click listener while the page is parsed, i.e.
+     before auth.js has even executed, and that listener takes over any click inside
+     `.bo-module-tabs a[href]`. A document-level handler here would therefore run AFTER the
+     router had already called preventDefault and started a swap - clicking a pin would
+     navigate to that tab rather than pin it. A listener on the row runs while the event is
+     still below `document`, so stopping it there keeps the router away from this one
+     control, and from it alone: every other click in the row propagates untouched, so the
+     router still swaps the tab's own navigation. */
+  function bindModuleTabPins(row){
+    if(!row || row.dataset.boPinBound === '1') return;
+    row.dataset.boPinBound = '1';
+    row.addEventListener('click', function(e){
+      const pin = e.target && e.target.closest ? e.target.closest('[data-bo-pin-tab]') : null;
+      if(!pin || !row.contains(pin)) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const key = pin.getAttribute('data-bo-pin-tab');
+      if(!key || pin.disabled || !window.BO_AUTH || !BO_AUTH.toggleDashboardPin) return;
+      pin.disabled = true;
+      // Toggling a pin re-renders this row (toggleDashboardPin -> renderSidebar ->
+      // renderModuleTabs), so this button is usually detached by the time the request
+      // settles; re-enabling it is harmless and keeps the state consistent if it is not.
+      BO_AUTH.toggleDashboardPin(key).catch(function(err){ console.error(err); }).finally(function(){ pin.disabled = false; });
+    });
   }
 
   function canonicalMenuUrl(menuKey, rawUrl){
@@ -717,8 +787,9 @@
       const moduleKey = currentTab ? currentTab.module
         : (isSectionPage ? MODULE_TABS[MODULE_SECTION_PAGES[current]].module : null);
       if(!moduleKey) return '';
+      const menus = this.allowedMenus(user || this.user());
       const assigned = {};
-      this.allowedMenus(user || this.user()).forEach(function(m){
+      menus.forEach(function(m){
         const file = pageFile(m.url || '');
         const tab = MODULE_TABS[file];
         if(tab && tab.module === moduleKey) assigned[file] = true;
@@ -727,8 +798,12 @@
       const files = Object.keys(MODULE_TABS)
         .filter(function(f){ return MODULE_TABS[f].module === moduleKey && assigned[f]; })
         .sort(function(a,b){ return MODULE_TABS[a].order - MODULE_TABS[b].order; });
+      // Which menu each tab's page belongs to - the key its pin stores. Sections that are
+      // two URLs of one page (bulk-adjustment.html?tab=winlose / ?tab=bonus) resolve to the
+      // same menu on purpose: the page is what is pinned, so both tabs carry its state.
+      const pinKeys = modulePinKeyByFile(menus);
       // The page's own section links, handed over in place of the one section it covers.
-      const owned = isSectionPage ? this.ownedSectionLinks() : null;
+      const owned = isSectionPage ? this.ownedSectionLinks(pinKeys) : null;
       const slot = MODULE_SECTION_PAGES[current];
       const useOwned = !!(owned && owned.links.length && files.indexOf(slot) !== -1);
       const tabs = [];
@@ -736,10 +811,10 @@
         const section = MODULE_TABS[f];
         if(section.sections){
           if(useOwned && f === slot) owned.links.forEach(function(l){ tabs.push(l.html); });
-          else section.sections.forEach(function(s){ tabs.push(moduleTabHtml(s.label, s.href, false)); });
+          else section.sections.forEach(function(s){ tabs.push(moduleTabHtml(s.label, s.href, false, pinKeys[pageFile(s.href)])); });
           return;
         }
-        tabs.push(moduleTabHtml(section.label, f, f === current));
+        tabs.push(moduleTabHtml(section.label, f, f === current, pinKeys[f]));
       });
       // One section is not navigation; a single tab would only repeat the page title.
       if(tabs.length < 2) return '';
@@ -747,16 +822,19 @@
       return '<nav class="bo-module-tabs" role="tablist" aria-label="' + esc(MODULE_LABELS[moduleKey] || 'Module') + ' sections">' + tabs.join('') + '</nav>';
     },
     /* The section links this page already authored for itself, as module-row tabs.
-       Only the destination and the label travel; the appearance is the module row's. */
-    ownedSectionLinks: function(){
+       Only the destination and the label travel; the appearance is the module row's.
+       `pinKeys` is the file -> menu map the row resolved, so a handed-over link carries
+       the same pin as any other tab. */
+    ownedSectionLinks: function(pinKeys){
       const row = document.querySelector('.report-content > .bulk-family-tabs');
       if(!row) return null;
       const links = [];
+      const byFile = pinKeys || {};
       Array.prototype.forEach.call(row.querySelectorAll('a[href]'), function(a){
         const href = String(a.getAttribute('href') || '');
         if(!href) return;
         const active = a.classList.contains('is-active') || a.getAttribute('aria-current') === 'page';
-        links.push({ html: moduleTabHtml(String(a.textContent || '').trim(), href, active) });
+        links.push({ html: moduleTabHtml(String(a.textContent || '').trim(), href, active, byFile[pageFile(href)]) });
       });
       return { row: row, links: links };
     },
@@ -774,10 +852,30 @@
       holder.innerHTML = html;
       const next = holder.firstElementChild;
       if(existing){
-        if(existing.innerHTML === next.innerHTML){ if(state.adoptRow) hiddenSectionRow(state.adoptRow); return; }
+        if(existing.innerHTML === next.innerHTML){
+          // Same row, same pins: the delegated listener (bound on the row element itself)
+          // is still in place, so binding again is only about the first pass.
+          bindModuleTabPins(existing);
+          if(state.adoptRow) hiddenSectionRow(state.adoptRow);
+          return;
+        }
+        /* Toggling a pin rebuilds this row, and the button the user was standing on is
+           replaced with it. Put the keyboard back on the same control instead of dropping
+           focus to the body - one pin otherwise cost a full Tab-walk through the page. */
+        const from = document.activeElement;
+        const focusedPin = from && from.closest ? from.closest('[data-bo-pin-tab]') : null;
+        const restoreKey = focusedPin && existing.contains(focusedPin) ? focusedPin.getAttribute('data-bo-pin-tab') : null;
         existing.replaceWith(next);
+        bindModuleTabPins(next);
+        if(restoreKey){
+          const pins = next.querySelectorAll('[data-bo-pin-tab]');
+          for(let i=0;i<pins.length;i++){
+            if(pins[i].getAttribute('data-bo-pin-tab') === restoreKey){ pins[i].focus(); break; }
+          }
+        }
       } else {
         content.insertBefore(next, content.firstChild);
+        bindModuleTabPins(next);
       }
       // Its links are on the module row now, so the page's own row has nothing left to
       // show. It is hidden rather than removed: it stays the one source of those links,

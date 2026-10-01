@@ -103,12 +103,13 @@ body.frontend-display-page .report-content{
   width:100%;
   display:grid;
   grid-template-columns:minmax(0,1fr) minmax(0,1fr);
-  /* Three content-sized rows. The last one must NOT be flexible: a fr track here resolves to
-     the leftover space, and the marquee still needs ~300px of it, so it got 0-139px and painted
-     its body over the save bar. The panels must not be `height:100%` either - a percentage
-     against an indefinite row makes the panel's contribution 0, and the three auto rows then
-     split the container equally (250/250/249), squashing the taller panels into each other. */
-  grid-template-rows:auto auto auto;
+  /* Two content-sized rows and a marquee that takes what is left: on a window taller than the
+     content the frame's bottom line must belong to the last panel, not float below it.
+     `minmax(auto,1fr)` and not `1fr` - the auto minimum is the marquee's own height, which is only
+     respected because the panels below are content-sized. While `.fd-panel` carried
+     height:100% + min-height:0 its contribution was 0, the fr track resolved to the leftover
+     space (139px for 289px of content) and the marquee painted over the save bar. */
+  grid-template-rows:auto auto minmax(auto,1fr);
   grid-template-areas:
     "visibility install"
     "live limits"
@@ -249,13 +250,29 @@ body.frontend-display-page .fd-panel .rounded-select-menu{
    max price rendered as "50(". The rows now read like the two above them, which also means the
    unit sits beside its field instead of hanging on a line of its own. */
 
-/* Wallet limits — 3 fields across */
+/* Wallet limits — 3 fields across. The column rules are painted on the body rather than left to
+   each cell's border-right: a cell is only as tall as its own description, while the panel is
+   stretched to whatever sits beside it (Live Feed in Random Demo mode is 124px taller), and the
+   cell border then stopped well short of the panel's own bottom line. */
 #fd-sec-limits .fd-panel-body{
   display:grid;
   grid-template-columns:repeat(3,minmax(0,1fr));
   align-content:start;
   min-width:0;
+  position:relative;
 }
+#fd-sec-limits .fd-panel-body::before,
+#fd-sec-limits .fd-panel-body::after{
+  content:'';
+  position:absolute;
+  top:0;
+  bottom:0;
+  width:1px;
+  background:#EADCC8;
+  pointer-events:none;
+}
+#fd-sec-limits .fd-panel-body::before{ left:calc(100% / 3); }
+#fd-sec-limits .fd-panel-body::after{ left:calc(200% / 3); }
 #fd-sec-limits .display-setting-row{
   grid-template-columns:1fr;
   align-items:start;
@@ -263,12 +280,11 @@ body.frontend-display-page .fd-panel .rounded-select-menu{
      cell is what makes the three inputs line up with each other. */
   align-content:space-between;
   gap:8px;
-  border-right:1px solid #EADCC8;
+  border-right:0;
   border-bottom:0;
   padding:14px;
   min-width:0;
 }
-#fd-sec-limits .display-setting-row:last-child{ border-right:0; }
 #fd-sec-limits .fd-control{ justify-content:stretch; }
 
 .display-setting-row{
@@ -755,9 +771,9 @@ html[data-bo-theme="dark"] .fd-color-rgb label{ color:var(--fd-dark-muted-2); }
 html[data-bo-theme="dark"] .fd-panel-head h3,
 html[data-bo-theme="dark"] .display-setting-copy h2{ color:var(--fd-dark-ink); }
 html[data-bo-theme="dark"] .display-setting-row,
-html[data-bo-theme="dark"] #fd-sec-visibility #frontendDisplayBrandRow,
-html[data-bo-theme="dark"] #fd-sec-limits .display-setting-row{ border-color:var(--fd-dark-line-soft); }
-html[data-bo-theme="dark"] #fd-sec-limits .display-setting-row{ border-right-color:var(--fd-dark-line-soft); }
+html[data-bo-theme="dark"] #fd-sec-visibility #frontendDisplayBrandRow{ border-color:var(--fd-dark-line-soft); }
+html[data-bo-theme="dark"] #fd-sec-limits .fd-panel-body::before,
+html[data-bo-theme="dark"] #fd-sec-limits .fd-panel-body::after{ background:var(--fd-dark-line-soft); }
 html[data-bo-theme="dark"] .fd-switch-track{ background:var(--fd-dark-field); border-color:rgba(255,255,255,.14); }
 html[data-bo-theme="dark"] .fd-switch-thumb{ background:var(--fd-dark-ink); }
 html[data-bo-theme="dark"] .fd-switch-text{ color:var(--fd-dark-muted); }
@@ -831,6 +847,9 @@ html[data-bo-theme="dark"] #fd-sec-limits .display-setting-row:last-child{ borde
   body.frontend-display-page{ --fd-pad-x:12px; }
   #fd-sec-visibility .fd-panel-body,
   #fd-sec-limits .fd-panel-body{ grid-template-columns:1fr; }
+  /* One column: the rules between the fields are the rows' own border-bottom now. */
+  #fd-sec-limits .fd-panel-body::before,
+  #fd-sec-limits .fd-panel-body::after{ display:none; }
   #fd-sec-limits .display-setting-row{
     border-right:0;
     border-bottom:1px solid #EADCC8;

@@ -60,20 +60,123 @@
       });
     };
 
+    /* —— A jump is a promise about where the section ENDS UP —————————————————————
+       The offset that reaches it can only be computed once, before the page has finished
+       loading, and everything above the target that arrives afterwards pushes it down by
+       its own height. That is not hypothetical here: the provider / game block in Claim
+       (above Wallet) renders when its request answers, and a 400px block measured after a
+       jump left the page 410px short of Wallet. So a jump follows the animation and then
+       keeps correcting until the section actually sits at the offset it was asked for.
+
+       Corrections only run while the scroller is STILL: nudging a moving animation is what
+       makes a jump look like two jumps. `pin` is the section a jump owns - the pill is not
+       derived from the scroll position while it is set, which is the second half of this:
+       through one Display -> Wallet jump the highlight used to alternate Period/Wallet six
+       times and then settle on Rebate, because the rule was "the largest visible fraction"
+       and two short cards shared the band that was being measured. */
+    var OFFSET = 10;          /* px between the form's top edge and a jumped-to section */
+    var HOLD_MS = 4000;       /* how long a jump keeps correcting while the page settles */
+    var pin = null;           /* the section a jump is travelling to (null = at rest) */
+    var jumpToken = 0;        /* supersedes an earlier jump's correction loop */
+    var jumpBehavior = (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) ? 'auto' : 'smooth';
+
+    var maxTop = function () { return form ? Math.max(0, form.scrollHeight - form.clientHeight) : 0; };
+    var clampTop = function (v) { return Math.max(0, Math.min(v, maxTop())); };
+    /* How far the target sits BELOW where the click asked for it: positive = still to come. */
+    var offsetError = function (target) {
+      return (target.getBoundingClientRect().top - form.getBoundingClientRect().top) - OFFSET;
+    };
+
+    /* The section the viewport is resting on: the LAST one whose top has reached the form's
+       top band. Deterministic, unlike the fraction-of-visibility rule this replaces. */
+    var currentSectionId = function () {
+      if (!form) return sections[0].id;
+      if (maxTop() > 0 && form.scrollTop >= maxTop() - 2) return sections[sections.length - 1].id;
+      var line = form.getBoundingClientRect().top + 24;
+      var id = sections[0].id;
+      for (var i = 0; i < sections.length; i++) {
+        if (sections[i].getBoundingClientRect().top <= line) id = sections[i].id;
+        else break;
+      }
+      return id;
+    };
+
+    var syncActive = function () {
+      if (pin) return;                       /* a jump owns the pill until it has landed */
+      setActive(currentSectionId());
+    };
+
+    var holdTarget = function (target, token) {
+      var t0 = performance.now();
+      var last = -1, quiet = 0, rest = 0, satisfied = false;
+      var frame = function () {
+        if (token !== jumpToken || !target.isConnected) return;
+        var top = form.scrollTop;
+        quiet = (Math.abs(top - last) < 0.5) ? quiet + 1 : 0;
+        last = top;
+        /* 5 still frames AND past the animation's ramp-up: an animation that has started
+           moves the offset every frame, so "still" here means it is over (or never began). */
+        if (quiet >= 5 && performance.now() - t0 > 80) {
+          var err = offsetError(target);
+          if (Math.abs(err) > 1) {
+            var next = clampTop(top + err);
+            if (next === top) {
+              rest++;                        /* end of the scroll - it cannot reach the top */
+            } else {
+              form.scrollTo({ top: next, behavior: Math.abs(err) > 120 ? jumpBehavior : 'auto' });
+              quiet = 0;
+              rest = 0;
+            }
+          } else {
+            satisfied = true;
+            rest++;
+          }
+        }
+        if (rest > 30 || performance.now() - t0 > HOLD_MS) {   /* ~half a second at rest */
+          pin = null;
+          /* Released at the end of the scroll without landing: the click's pill stays lit
+             rather than flipping to the bottom-most section the position rule would name;
+             the next scroll re-derives it. */
+          if (satisfied) syncActive();
+          return;
+        }
+        requestAnimationFrame(frame);
+      };
+      requestAnimationFrame(frame);
+    };
+
     var scrollToSection = function (target) {
       if (!target) return;
+      pin = target.id;
       setActive(target.id);
-      var scroller = form;
-      if (!scroller) {
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (!form) {
+        target.scrollIntoView({ behavior: jumpBehavior, block: 'start' });
+        pin = null;
         return;
       }
-      var scrollerRect = scroller.getBoundingClientRect();
-      var targetRect = target.getBoundingClientRect();
-      var nextTop = scroller.scrollTop + (targetRect.top - scrollerRect.top) - 10;
-      var maxTop = Math.max(0, scroller.scrollHeight - scroller.clientHeight);
-      scroller.scrollTo({ top: Math.max(0, Math.min(nextTop, maxTop)), behavior: 'smooth' });
+      var token = ++jumpToken;
+      form.scrollTo({ top: clampTop(form.scrollTop + offsetError(target)), behavior: jumpBehavior });
+      holdTarget(target, token);
     };
+
+    /* The user takes the wheel back the moment they scroll, type or click into the form:
+       a correction that lands after that is the page fighting its own user. */
+    var releasePin = function () {
+      if (!pin) return;
+      jumpToken++;
+      pin = null;
+      syncActive();
+    };
+    if (form) {
+      ['wheel', 'touchstart', 'keydown', 'pointerdown'].forEach(function (ev) {
+        form.addEventListener(ev, releasePin, { passive: true });
+      });
+      var rafId = 0;
+      form.addEventListener('scroll', function () {
+        if (rafId) return;
+        rafId = requestAnimationFrame(function () { rafId = 0; syncActive(); });
+      }, { passive: true });
+    }
 
     sections.forEach(function (sec, index) {
       if (!sec.id) sec.id = 'promo-sec-' + (index + 1);
@@ -103,32 +206,6 @@
     }
 
     if (buttons[0]) setActive(buttons[0].dataset.target);
-
-    if ('IntersectionObserver' in window) {
-      var scrollRoot = form || workspace;
-      var observer = new IntersectionObserver(function (entries) {
-        var visible = entries
-          .filter(function (e) { return e.isIntersecting; })
-          .sort(function (a, b) { return b.intersectionRatio - a.intersectionRatio; });
-        if (visible[0] && visible[0].target && visible[0].target.id) {
-          setActive(visible[0].target.id);
-        }
-      }, { root: scrollRoot, rootMargin: '0px 0px -60% 0px', threshold: [0.08, 0.2, 0.5, 0.75] });
-      sections.forEach(function (sec) { observer.observe(sec); });
-
-      // Bottom sections (More / Content) often never hit the top band — sync when scrolled to end.
-      if (form) {
-        var syncBottom = function () {
-          var maxTop = Math.max(0, form.scrollHeight - form.clientHeight);
-          if (maxTop <= 0) return;
-          if (form.scrollTop >= maxTop - 24) {
-            var last = sections[sections.length - 1];
-            if (last && last.id) setActive(last.id);
-          }
-        };
-        form.addEventListener('scroll', syncBottom, { passive: true });
-      }
-    }
   }
 
   ready(function () {

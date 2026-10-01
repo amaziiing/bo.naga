@@ -1005,7 +1005,12 @@ const API_CUSTOMIZE_MAIN_LAYOUT_URL =
 
     (async function bootLayoutEditors() {
         try {
-            const cm6Url = new URL('assets/js/layout-section.js?v=1.0.26', window.location.href).href;
+            /* `?v=` is the module's own content hash (same rule as every page's asset pin):
+               the router re-enters this page by re-running this script, and a stale copy of
+               the module in the HTTP cache would keep the old behaviour for the whole session.
+               Recompute it after editing assets/js/layout-section.js:
+               sha1 of the file with CRLF normalised to LF, first 8 hex chars. */
+            const cm6Url = new URL('assets/js/layout-section.js?v=d85021fc', window.location.href).href;
             const mod = await import(cm6Url);
             cmEditors = mod.mountLayoutCodeEditors({
                 html: htmlEditor,

@@ -603,7 +603,14 @@ function setupSettlement(){
   $('settlementSubmit').onclick=submitSettlement;
   $('settlementRefresh').onclick=loadSettlements;
   $('settlementPaymentSave').onclick=savePayment;
-  document.addEventListener('click',e=>{
+  /* The four bindings below live on `document`/`window`, which survive a swap, while this file
+     now re-runs on every entry (the page carries data-bo-spa-rerun: main-provider-balance /
+     -settlement / -transactions and main_provider_report.html all load it). An unguarded
+     addEventListener would stack a handler per entry and an interval per entry; a plain "bound"
+     flag would keep the PREVIOUS entry's closure, driving the previous report's state. A single
+     slot that is released and re-pointed is what SPA.md asks for ("先清理旧句柄"). */
+  if(window.__boMreSettleClick) document.removeEventListener('click',window.__boMreSettleClick);
+  window.__boMreSettleClick=e=>{
     const s=e.target.closest('[data-settle-type]');
     if(s) prefillSettlement(s.dataset.settleType,s.dataset.settleKey,s.dataset.settleName,s.dataset.settleDirection,s.dataset.settleAmount);
     const p=e.target.closest('[data-payment-id]');
@@ -612,7 +619,8 @@ function setupSettlement(){
     if(h) showHistory(h.dataset.historyId);
     const c=e.target.closest('[data-carry-id]');
     if(c&&!c.disabled) carryForward(c.dataset.carryId);
-  });
+  };
+  document.addEventListener('click',window.__boMreSettleClick);
   refreshSettlementParties();
 }
 
@@ -760,7 +768,8 @@ function setupFilters(){
   });
   $('reportExport')?.addEventListener('click',exportCsv);
   $('reportSyncLabel')?.addEventListener('click',()=>{load();});
-  document.addEventListener('click',e=>{
+  if(window.__boMreHistoryClick) document.removeEventListener('click',window.__boMreHistoryClick);
+  window.__boMreHistoryClick=e=>{
     const view=e.target.closest('[data-mre-view]');
     if(view){
       const code=view.getAttribute('data-mre-view');
@@ -796,7 +805,8 @@ function setupFilters(){
     if(hist){
       document.querySelector('[data-report-tab="settlement"]')?.click();
     }
-  });
+  };
+  document.addEventListener('click',window.__boMreHistoryClick);
 }
 
 /* Date range picker (preserved) */
@@ -855,7 +865,9 @@ function setupDatePicker(){
   pickerState.view=new Date(a+'T00:00:00');
   setRange(a,b,'today');
   $('reportDateTrigger').addEventListener('click',e=>{e.stopPropagation();$('reportRangePicker').classList.toggle('show');pickerState.mode='days';renderCalendar();});
-  document.addEventListener('click',e=>{const rp=$('reportRangePicker');if(rp&&e.target&&e.target.closest&&!e.target.closest('.ref-range-wrap')) rp.classList.remove('show');});
+  if(window.__boMrePickerClick) document.removeEventListener('click',window.__boMrePickerClick);
+  window.__boMrePickerClick=e=>{const rp=$('reportRangePicker');if(rp&&e.target&&e.target.closest&&!e.target.closest('.ref-range-wrap')) rp.classList.remove('show');};
+  document.addEventListener('click',window.__boMrePickerClick);
   document.querySelectorAll('[data-report-preset]').forEach(btn=>btn.addEventListener('click',e=>{
     e.stopPropagation();
     const key=btn.dataset.reportPreset,[aa,bb]=presetRange(key);
@@ -897,7 +909,8 @@ setupHistory();
 setupExtraPagination();
 updateCurrencyLabels();
 updateSyncLabel();
-setInterval(updateSyncLabel,30000);
+if(window.__boMreSyncTimer) clearInterval(window.__boMreSyncTimer);
+window.__boMreSyncTimer=setInterval(updateSyncLabel,30000);
 load().then(()=>{
   const view=String(document.body?.dataset?.reportView||'provider');
   if(view==='settlement') loadSettlements();

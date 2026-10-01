@@ -280,7 +280,7 @@ html[data-bo-theme="dark"] body.layout-section-page.report-body.bo-charcoal:not(
 
 /* Section items — L2 nav chip (not gray slate rail) */
 html body.layout-section-page.report-body.bo-charcoal:not(#bo-charcoal-off) .layout-section-item{
-  width:100%!important;display:flex!important;align-items:center!important;gap:8px!important;
+  width:100%!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:8px!important;
   border:1px solid transparent!important;border-radius:9px!important;
   background:transparent!important;text-align:left!important;
   padding:9px 12px!important;margin:0 0 3px!important;

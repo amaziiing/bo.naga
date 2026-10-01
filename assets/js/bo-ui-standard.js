@@ -187,6 +187,17 @@
       delete el.dataset.boUiButton;
       return;
     }
+    /* Layout Section editor: the section nav chips and the Reload/Save pair own their recipe in
+       bo-layout-section-md.css. The page does not even load this sheet, so the class used to be
+       inert on a direct load - but a SWAP from a sibling page that does link it left the sheet in
+       the document, and its `justify-content:center` then re-centred every section row (measured:
+       label x=361 after a swap vs x=300 on a reload). Excluded like `.custom-tab` and the other
+       page-owned chip families above, so the two paths cannot disagree. */
+    if(el.closest?.('.layout-editor-shell')){
+      el.classList.remove('bo-ui-button','bo-ui-button-primary','bo-ui-button-secondary','bo-ui-button-danger','bo-ui-icon-button');
+      delete el.dataset.boUiButton;
+      return;
+    }
     if(el.matches?.('.fd-switch,[role="switch"],.marquee-tool,.fd-color-swatch-btn,.fd-color-pop-close,.wallet-side-tab,.nm-status-btn,.nm-mode-tab,.bo-theme-btn,#boThemeToggle,.mad-btn,.mad-tab,.mad-pill,.mad-icon-btn,.mad-eye,.mac-link-btn,.mac-change-role,.mac-credit-mode-btn,.mac-currency-add-btn,.mac-currency-add-inline,.mac-currency-chip-remove,.mac-currency-picker-item,.mac-currency-move-btn,.mac-currency-pane-item,.mprr-mode-btn,.mprr-entry-opt,.mp-scope-btn,.mrc-chip-btn,.mrc-btn,.status-pill,.usage-show-switch,.usage-status-chip,.bo-tx-tab,.banner-status-opt,.slider-pill,.custom-tab,.asset-slot-drag,.asset-slot-zone-btn') || el.closest?.('.md-rail,.nm-status-seg,.nm-mode-tabs,#newMenuModal .nm-status-seg,#newMenuModal .nm-mode-tabs,.mp-workspace,.mrc-workspace,.mad-workspace,.mad-modal,.mad-pager,.mac-workspace,.mp-scope,.mprr-entry-options,.banner-status-seg,.custom-tabs[aria-label="Asset language"],.asset-slot-chrome,.asset-slot-zones,.fd-color-pop,.pc-toolbar,.pc-editor')){
       el.classList.remove('bo-ui-button','bo-ui-button-primary','bo-ui-button-secondary','bo-ui-button-danger','bo-ui-icon-button');
       delete el.dataset.boUiButton;

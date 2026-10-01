@@ -82,6 +82,7 @@
   var EXECUTED = {};                     // script key -> already run in this document
   var CSS_SEEN = {};                     // stylesheet key -> already in this document
   var STYLE_SEEN = {};                   // inline <style> fingerprint -> already applied
+  var IMPORTMAP_SEEN = {};               // import map fingerprint -> already in this document
   var busy = false;
   var scrollMemo = {};                   // href (pathname+search) -> scrollY
   var current = null;                    // href we are on / heading to
@@ -454,6 +455,29 @@
       el.textContent = text;
       DOC.head.appendChild(el);
     });
+    /* The import map is part of a page's environment, like its stylesheets - and the one page
+       that declares it (layout-section.html) is an ES-module page: site-customize.js reaches
+       assets/js/layout-section.js with import(), whose bare @codemirror/* specifiers can only
+       resolve through that map (it is what pins ONE esm.sh URL per package, and therefore a
+       single @codemirror/state instance - a second one makes every extension invalid). A swap
+       re-runs the page's scripts, so without the map the mount threw "Failed to resolve module
+       specifier '@codemirror/view'" and the editor silently fell back to the plain textareas -
+       measured on site-customize.html -> layout-section.html and reported as "the page's
+       functionality is all gone". Carried BEFORE the scripts run, so it is in place even for
+       engines that only accept a map before the first module load; Chrome >=133 (multiple
+       import maps) accepts it later as well. */
+    each(doc.querySelectorAll('head script[type="importmap"]'), function (s) {
+      var text = s.textContent || '';
+      if (!text.trim()) return;
+      var key = fp(text);
+      if (IMPORTMAP_SEEN[key]) return;
+      IMPORTMAP_SEEN[key] = 1;
+      var el = DOC.createElement('script');
+      el.type = 'importmap';
+      el.setAttribute('data-bo-spa-importmap', key);
+      el.textContent = text;
+      DOC.head.appendChild(el);
+    });
     // The fetched document never ran its own inline theme bootstrap, so it carries no
     // data-bo-theme. This document's value is the user's, and must be left alone.
     return { wait: Promise.all(pending), want: want };
@@ -488,6 +512,20 @@
       if (src) {
         var key = assetKey(src);
         if (!key) return;
+        /* A page may declare that this file builds ITS markup, even though another page also
+           loads the same file: `data-bo-spa-rerun`. The ownership test below is by file name,
+           so without this a hop between two pages that share one dispatcher script skipped the
+           target's boot completely - measured on site-customize.html -> layout-section.html,
+           both of which load site-customize.js: the section menu, the save/reload handlers,
+           the find bar and the CodeMirror mount were all dead until a manual reload, and the
+           same in the other direction (the Site Customize card never rendered from the layout
+           page). It is a script that runs at top level and registers no DOMContentLoaded
+           listener, so the boot replay could not cover it either. */
+        if (s.hasAttribute('data-bo-spa-rerun')) {
+          EXECUTED[key] = 1;
+          out.push({ src: src, key: key });
+          return;
+        }
         /* Run it unless THIS page already ran it.
 
            The old rule was "never run the same file twice in a session", which is wrong for a
@@ -510,6 +548,11 @@
       var text = s.textContent || '';
       if (!text.trim()) return;
       var tkey = 'inline:' + fp(text);
+      if (s.hasAttribute('data-bo-spa-rerun')) {
+        EXECUTED[tkey] = 1;
+        out.push({ text: text, key: tkey });
+        return;
+      }
       if (EXECUTED[tkey] && PAGE_KEYS[tkey]) return;
       EXECUTED[tkey] = 1;
       out.push({ text: text, key: tkey });

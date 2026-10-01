@@ -2,8 +2,12 @@
  * Layout Section — CodeMirror 6 hosts (HTML / CSS / JS).
  * Requires importmap on the page (see layout-section.html) so all @codemirror/*
  * packages share one @codemirror/state instance.
+ *
+ * This file is an ES MODULE (top-level import/export), not a classic page script: the router
+ * never re-runs it directly, site-customize.js reaches it with `import()`. Wrapping its body
+ * in (function(){ ... })() - the shape the classic page scripts need - is a SyntaxError here
+ * and the whole editor silently falls back to the plain textareas.
  */
-(function () {
 
 import {
   EditorView,
@@ -49,6 +53,9 @@ import {
   SearchQuery,
 } from '@codemirror/search';
 import { lintKeymap } from '@codemirror/lint';
+
+/* The live mount, so a re-entry into the page can tear the previous one down (see mountLayoutCodeEditors). */
+let previous = null;
 
 function isDark() {
   return document.documentElement.getAttribute('data-bo-theme') === 'dark';
@@ -417,6 +424,14 @@ function applyTheme(views) {
  * @param {{ html?: HTMLTextAreaElement|null, css?: HTMLTextAreaElement|null, js?: HTMLTextAreaElement|null }} textareas
  */
 export function mountLayoutCodeEditors(textareas) {
+  /* site-customize.js boots this on every entry - a swap into the page runs its script again -
+     and `import()` hands back the same, already-evaluated module. Without this, each entry left
+     the previous mount alive: a second theme observer, a second document-level Ctrl+F/F3
+     handler, and a second set of live CodeMirror views over the same (now detached) editors.
+     Destroying the previous mount keeps exactly one of each. */
+  if (previous && typeof previous.destroy === 'function') {
+    try { previous.destroy(); } catch (err) { /* a detached previous mount is already inert */ }
+  }
   const slots = [
     { key: 'html', el: textareas.html },
     { key: 'css', el: textareas.css },
@@ -647,7 +662,7 @@ export function mountLayoutCodeEditors(textareas) {
     });
   }
 
-  return {
+  const api = {
     getHtml: () => get('html'),
     getCss: () => get('css'),
     getJs: () => get('js'),
@@ -670,7 +685,8 @@ export function mountLayoutCodeEditors(textareas) {
     },
     openFind: () => focusFindBar(),
   };
+  previous = api;
+  return api;
 }
 
 export default mountLayoutCodeEditors;
-})();

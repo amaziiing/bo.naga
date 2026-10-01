@@ -163,10 +163,14 @@
 
   function render() {
     const all = filteredRows();
-    const pages = Math.max(1, Math.ceil(all.length / state.pageSize));
+    /* The footer's Show control is the app-wide one: `-` fits the panel, `All` shows every row,
+       a number means that many rows (main-footer-pagination.js -> boMad.resolve). */
+    const rawSize = $('mprEntriesPageSize')?.value;
+    const size = window.boMad ? boMad.resolve(rawSize, $('mprRows')) : (Number(rawSize) || state.pageSize);
+    const pages = Math.max(1, Math.ceil(all.length / size));
     state.page = Math.min(Math.max(1, state.page), pages);
-    const start = (state.page - 1) * state.pageSize;
-    const slice = all.slice(start, start + state.pageSize);
+    const start = (state.page - 1) * size;
+    const slice = all.slice(start, start + size);
     const end = start + slice.length;
 
     if (!slice.length) {
@@ -203,9 +207,12 @@
     }
 
     $('mprShowing').textContent = all.length
-      ? `Showing ${start + 1} to ${end} of ${all.length} records`
-      : 'Showing 0 to 0 of 0 records';
+      ? `Showing ${start + 1} to ${end} of ${all.length} entries`
+      : 'Showing 0 to 0 of 0 entries';
     $('mprPager').innerHTML = pageButtons(state.page, pages);
+    /* `-` is measured against the rows already painted; one more pass after paint if the panel
+       still overflows (the Loading placeholder is one line tall where a real row is two). */
+    window.boMad && boMad.settle($('mprRows'), render);
   }
 
   async function loadPricing() {
@@ -239,7 +246,7 @@
       state.total = state.pricingTotal = state.manualTotal = 0;
       updateKpis();
       $('mprRows').innerHTML = `<tr><td colspan="9" class="mad-empty text-danger">${esc(e.message)}</td></tr>`;
-      $('mprShowing').textContent = 'Showing 0 to 0 of 0 records';
+      $('mprShowing').textContent = 'Showing 0 to 0 of 0 entries';
       $('mprPager').innerHTML = '';
     }
 
@@ -581,6 +588,10 @@
     const b = e.target.closest('[data-page]');
     if (!b || b.disabled) return;
     state.page = +b.dataset.page;
+    render();
+  });
+  $('mprEntriesPageSize')?.addEventListener('change', () => {
+    state.page = 1;
     render();
   });
 

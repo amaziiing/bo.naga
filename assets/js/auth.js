@@ -232,6 +232,19 @@
     'layout-section.html':{label:'Layout Section',order:6,module:'design'},
     'page-customize.html':{label:'Page Customize',order:7,module:'design'},
     'image-to-url.html':{label:'Image To URL',order:8,module:'design'},
+    // 11. Access Control. All six rows of the group are registered, so it collapses to one
+    // Access Control row and the row carries them. Five are ordinary BO pages; Roles &
+    // Permissions (11.1, menu-permission.html) is a Main panel page (data-bo-shell="main") that
+    // the same BO group also holds - registered too, deliberately: a row the tab strip does not
+    // carry is reachable from neither the rail nor the row. That page keeps the Administrators /
+    // Roles & Permissions / Security & Audit row it already carried (it is the Main panel's own
+    // Admin workspace), with the module row drawn above it. Labels and order follow the group.
+    'admin-user.html':{label:'Admin Management',order:1,module:'access'},
+    'menu-permission.html':{label:'Menu Permission',order:2,module:'access'},
+    'role.html':{label:'Staff Permission',order:3,module:'access'},
+    'admin-login-log.html':{label:'Admin Login Log',order:4,module:'access'},
+    'admin-operation-log.html':{label:'Admin Operation Log',order:5,module:'access'},
+    'ip-whitelist-security.html':{label:'IP Whitelist Security',order:6,module:'access'},
     // 12. Setting. Four sidebar rows, all four registered - the group collapses to one Setting row
     // and the row carries them. Labels follow the Menu Management titles.
     'timezone-setting.html':{label:'Timezone',order:1,module:'setting'},
@@ -240,8 +253,8 @@
     'compliance-policy.html':{label:'Compliance Policy',order:4,module:'setting'}
   };
 
-  const MODULE_ANCHORS = {transaction:'member-deposit.html', member:'index.html', promotion:'promotion.html', vip:'vip-management.html', agent:'agent-management.html', report:'casino-overview-report.html', game:'game-provider.html', design:'slider.html', setting:'timezone-setting.html'};
-  const MODULE_LABELS = {transaction:'Transaction', member:'Member', promotion:'Promotion', vip:'VIP', agent:'Agent', report:'Report', game:'Game Management', design:'Design', setting:'Setting'};
+  const MODULE_ANCHORS = {transaction:'member-deposit.html', member:'index.html', promotion:'promotion.html', vip:'vip-management.html', agent:'agent-management.html', report:'casino-overview-report.html', game:'game-provider.html', design:'slider.html', setting:'timezone-setting.html', access:'admin-user.html'};
+  const MODULE_LABELS = {transaction:'Transaction', member:'Member', promotion:'Promotion', vip:'VIP', agent:'Agent', report:'Report', game:'Game Management', design:'Design', setting:'Setting', access:'Access Control'};
 
   // Those two pages are the ones that own that pair, and each already authors it as its
   // own .bulk-family-tabs row — a second row of links under the module row, drawn like

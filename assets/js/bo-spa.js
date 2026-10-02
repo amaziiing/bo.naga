@@ -382,7 +382,18 @@
 
   function getDoc(href) {
     if (CACHE[href] && (Date.now() - (CACHE_AT[href] || 0)) < CACHE_TTL) return CACHE[href];
-    CACHE[href] = fetch(href, { credentials: 'same-origin' }).then(function (r) {
+    /* Revalidate the document on every fetch - never let the browser answer it from its own
+       HTTP cache. A response that carries Last-Modified and no Cache-Control (what this host
+       serves) is allowed heuristic freshness, so a plain fetch() can hand back the PREVIOUS
+       deploy's HTML for minutes: its `?v=` pins are the old ones, the router then loads the
+       old sheets and scripts, and only a reload (which revalidates the top-level document)
+       shows the new revision. Measured against a local server that sends Last-Modified only:
+       arriving at promotion-report.html by swap delivered the v1 body with NO server request,
+       while a reload of the same page revalidated and showed v2 - the reported "switching
+       tabs still shows the old CSS, refresh is fine". no-cache keeps the response cacheable
+       but forces the conditional request: a 304 on an unchanged file, while the 5s memory
+       cache above still absorbs the hover prefetch and a double click. */
+    CACHE[href] = fetch(href, { credentials: 'same-origin', cache: 'no-cache' }).then(function (r) {
       if (!r.ok) throw new Error('http ' + r.status);
       return r.text();
     }).then(function (html) { return new DOMParser().parseFromString(html, 'text/html'); })

@@ -1,5 +1,12 @@
 (function(){
   'use strict';
+  /* A swap re-runs this file against a fresh frame, so the DCL block below was replayed on each
+     entry: N entries meant N resize/visibility handlers and N 5s presence timers. Release the
+     previous run's bindings first; the timer stops itself once the page is gone. */
+  if(window.__boOuUnbind) window.__boOuUnbind();
+  const unbinds=[];
+  const listen=(target,type,fn,opt)=>{ target.addEventListener(type,fn,opt); unbinds.push(()=>target.removeEventListener(type,fn,opt)); };
+  window.__boOuUnbind=()=>{ unbinds.forEach(fn=>fn()); unbinds.length=0; };
   const $=id=>document.getElementById(id);
   const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const first=(o,ks,d='')=>{for(const k of ks){if(o&&o[k]!==undefined&&o[k]!==null&&o[k]!=='')return o[k]}return d;};
@@ -65,18 +72,21 @@
   function reset(){['onlineSearchName','onlineSearchMobile','onlineSearchAgent','onlineSearchBank','onlineSearchStatus','onlineSearchLock'].forEach(id=>{if($(id))$(id).value=''});page=1;render();}
   function exportCsv(){const rows=filtered.map((m,i)=>[i+1,first(m,['username'],'-'),first(m,['fullName','name'],'-'),first(m,['mobile','phone'],'-'),first(m,['bank','bankName'],'-'),money(first(m,['mainWalletBalance','balance'],0)),'VIP '+first(m,['vipLevel'],0),status(m),dt(m.lastSeenAt)]);const csv=[['#','Username','Name','Mobile','Bank','Main Wallet','VIP Level','Status','Last Seen'],...rows].map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv'}));a.download='online-users-'+new Date().toISOString().slice(0,10)+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500);}
   document.addEventListener('DOMContentLoaded',()=>{
-    size=resolvePageSize($('onlinePageSize')?.value); load(true,true); timer=setInterval(()=>load(false,false),5000);
+    const alive=()=>!!$('onlineSearchName');
+    size=resolvePageSize($('onlinePageSize')?.value); load(true,true);
+    timer=setInterval(()=>{ if(!alive()){ clearInterval(timer); timer=null; return; } load(false,false); },5000);
+    unbinds.push(()=>{ if(timer){ clearInterval(timer); timer=null; } });
     ['onlineSearchName','onlineSearchMobile','onlineSearchAgent','onlineSearchBank'].forEach(id=>$(id)?.addEventListener('input',()=>{page=1;render()}));
     ['onlineSearchStatus','onlineSearchLock'].forEach(id=>$(id)?.addEventListener('change',()=>{page=1;render()}));
     $('onlineSearchBtn')?.addEventListener('click',()=>{page=1;render()}); $('onlineFilterResetBtn')?.addEventListener('click',reset); $('onlineManualRefreshBtn')?.addEventListener('click',()=>load(true,true)); $('onlineExportBtn')?.addEventListener('click',exportCsv);
     $('onlinePageSize')?.addEventListener('change',()=>{size=resolvePageSize($('onlinePageSize')?.value);page=1;render()});
     $('onlinePager')?.addEventListener('click',e=>{const b=e.target.closest('[data-online-page]');if(!b||b.disabled)return;page=Number(b.dataset.onlinePage)||1;render();document.querySelector('.user-main-table')?.scrollIntoView({behavior:'smooth',block:'start'});});
     let resizeTimer=null;
-    window.addEventListener('resize',()=>{
+    listen(window,'resize',()=>{
       if(!isAutoPageSize($('onlinePageSize')?.value)) return;
       clearTimeout(resizeTimer);
       resizeTimer=setTimeout(()=>{const next=resolvePageSize('-'); if(next!==size){size=next;page=1;render();}},150);
     });
-    document.addEventListener('visibilitychange',()=>{if(!document.hidden)load(false)}); window.addEventListener('focus',()=>load(false));
+    listen(document,'visibilitychange',()=>{if(!document.hidden&&alive())load(false)}); listen(window,'focus',()=>{if(alive())load(false)});
   });
 })();

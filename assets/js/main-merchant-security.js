@@ -1,5 +1,14 @@
+/* A swap re-runs this file against a fresh frame; the bindings both IIFEs below put on
+   window/document are recorded here so the next run releases them before adding its own. */
+if(window.__boMseUnbind) window.__boMseUnbind();
+window.__boMseUnbinds=[];
+window.__boMseUnbind=function(){ window.__boMseUnbinds.forEach(function(fn){fn();}); window.__boMseUnbinds.length=0; };
+
 (function(){
   'use strict';
+
+  const unbinds=window.__boMseUnbinds;
+  const listen=(target,type,fn,opt)=>{ target.addEventListener(type,fn,opt); unbinds.push(()=>target.removeEventListener(type,fn,opt)); };
 
   const tbody = document.getElementById('masTableBody');
   const infoEl = document.getElementById('masTableInfo');
@@ -716,7 +725,7 @@
       pickerState.hover = '';
       renderCalendar();
     });
-    document.addEventListener('click', e => {
+    listen(document,'click', e => {
       if(!e.target.closest('.mas-date-field')) picker.classList.remove('show');
     });
     document.querySelectorAll('[data-mas-range-preset]').forEach(btn => {
@@ -1340,7 +1349,7 @@
 
   initDatePicker();
 
-  window.addEventListener('resize', () => {
+  listen(window,'resize', () => {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => {
       fitTableArea();
@@ -1379,7 +1388,7 @@
     if(tab){ setPayloadTab(tab.getAttribute('data-mas-tab')); return; }
     if(e.target.closest('#masJsonToggle')) setPayloadOpen(!!(payloadBox && payloadBox.hidden));
   });
-  document.addEventListener('keydown', e => {
+  listen(document,'keydown', e => {
     if(e.key !== 'Escape') return;
     if(detailPanel && !detailPanel.hidden) closeDetail();
   });
@@ -1428,6 +1437,9 @@
    -------------------------------------------------------------------------- */
 (function(){
   'use strict';
+  /* Both IIFEs in this file share one registry per run; see the note at the top of the file. */
+  var unbinds=(window.__boMseUnbinds=window.__boMseUnbinds||[]);
+  var listen=function(target,type,fn,opt){ target.addEventListener(type,fn,opt); unbinds.push(function(){target.removeEventListener(type,fn,opt);}); };
   var tip = null, host = null;
   function box(){
     if(!tip || !tip.isConnected){
@@ -1458,16 +1470,16 @@
     t.style.left = Math.round(left) + 'px';
     t.style.top = Math.round(below ? r.bottom + 10 : above) + 'px';
   }
-  document.addEventListener('mouseover', function(e){
+  listen(document,'mouseover', function(e){
     var el = e.target && e.target.closest ? e.target.closest('.mad-time-tip') : null;
     if(el){ if(el !== host) place(el); return; }
     if(host) hide();
   });
-  document.addEventListener('focusin', function(e){
+  listen(document,'focusin', function(e){
     var el = e.target && e.target.closest ? e.target.closest('.mad-time-tip') : null;
     if(el) place(el);
   });
-  document.addEventListener('focusout', hide);
-  window.addEventListener('scroll', hide, true);
-  window.addEventListener('resize', hide);
+  listen(document,'focusout', hide);
+  listen(window,'scroll', hide, true);
+  listen(window,'resize', hide);
 })();

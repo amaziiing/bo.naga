@@ -51,6 +51,17 @@ const getJson = (u) => new Promise((res, rej) => {
 
 /* ---- the pages to audit, and the fake account to audit them with ----------------------- */
 
+/* Date-range pairs owned by the picker files, per file. After a swap every declared pair must
+   be BUILT (its two native inputs hidden behind the .bo-range-field host); a pair still visible
+   is the "raw dd/mm/yyyy boxes came back on the second tab switch" failure. */
+const RANGE_FILES = ['bo-date-range.js', 'bo-date-range-promotion.js', 'bo-date-range-bank-usage.js'];
+const RANGE_PAIRS = {};
+for (const f of RANGE_FILES) {
+  const src = fs.readFileSync(path.join(ROOT, 'assets', 'js', f), 'utf8');
+  const body = (src.match(/const PAIRS=\[([\s\S]*?)\];/) || [])[1] || '';
+  RANGE_PAIRS[f] = [...body.matchAll(/\['([A-Za-z0-9_]+)','([A-Za-z0-9_]+)'\]/g)].map((m) => [m[1], m[2]]);
+}
+
 const manifestSrc = fs.readFileSync(path.join(ROOT, 'assets/js/bo-spa-manifest.js'), 'utf8');
 const manifest = manifestSrc.match(/window\.__BO_SPA_PAGES=\{(.*)\};/s)[1]
   .split(',').map((s) => s.split(':')[0].replace(/"/g, '')).filter(Boolean);
@@ -138,6 +149,19 @@ const STEP = (target, start, twice) => `(async () => {
   };
   const miss = (a, b) => a.filter(x => b.indexOf(x) < 0);
   const last = (window.BO_SPA.debug.navlog() || []).slice(-1)[0] || {};
+  /* Date-range pairs this page loads must be BUILT after the swap: the two native boxes are
+     hidden behind the .bo-range-field host. A pair still visible is the exact "the picker came
+     back as raw dd/mm/yyyy inputs on the second tab switch" failure. */
+  const rangeWanted = ${JSON.stringify(RANGE_PAIRS)};
+  const rangeRaw = [];
+  for (const f in rangeWanted) {
+    if (!html.includes('assets/js/' + f)) continue;
+    for (const p of rangeWanted[f]) {
+      const A = document.getElementById(p[0]), B = document.getElementById(p[1]);
+      if (!A || !B) continue;
+      if (A.offsetParent !== null || B.offsetParent !== null) rangeRaw.push(p[0] + '/' + p[1]);
+    }
+  }
   return JSON.stringify({
     page: t,
     declared: { frameIds: want.frameIds.length, extras: want.extraIds.length, sheets: want.sheets.length, title: want.title },
@@ -152,6 +176,7 @@ const STEP = (target, start, twice) => `(async () => {
     sheetsExtra: [],
     extrasMissing: want.extraIds.filter(x => live.extraIds.indexOf(x) < 0).slice(0, 6),
     title: live.h1,
+    rangeRaw,
     errs: errs.filter(e => !${NOISE}.test(e)).slice(0, 5)
   });
 })()`;
@@ -196,7 +221,8 @@ const STEP = (target, start, twice) => `(async () => {
       if (raw && raw.__error) f = { page, harnessError: raw.__error };
       else { try { f = JSON.parse(raw); } catch (e) { f = { page, contextDied: String(raw) }; } }
       f.bad = !!(f.harnessError || f.contextDied || f.swapped === false || f.landed !== '/' + page || f.frameKids === 0 ||
-        f.idsMissing.length || f.sheetsMissing.length || f.sheetsExtra.length || f.extrasMissing.length || f.errs.length);
+        f.idsMissing.length || f.sheetsMissing.length || f.sheetsExtra.length || f.extrasMissing.length || f.errs.length ||
+        (f.rangeRaw && f.rangeRaw.length));
       if (f.bad) {
         bad++;
         const why = [];
@@ -210,6 +236,7 @@ const STEP = (target, start, twice) => `(async () => {
         if (f.sheetsExtra && f.sheetsExtra.length) why.push('stylesheets left over: ' + f.sheetsExtra.join(', '));
         if (f.extrasMissing && f.extrasMissing.length) why.push('page markup outside the shell missing: ' + f.extrasMissing.join(', '));
         if (f.errs && f.errs.length) why.push('script errors: ' + f.errs.join(' | '));
+        if (f.rangeRaw && f.rangeRaw.length) why.push('date pickers not built: ' + f.rangeRaw.join(', '));
         console.log('BAD  ' + page.padEnd(34) + why.join(' ; '));
       } else if (process.env.VERBOSE) {
         console.log('ok   ' + page);

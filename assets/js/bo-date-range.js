@@ -106,4 +106,15 @@
      inputs visible in the filter row for seconds. Ranges appended later by other scripts still
      arrive through the DOMContentLoaded call, and build() is idempotent per input pair. */
   ready(()=>PAIRS.forEach(p=>build(document.getElementById(p[0]),document.getElementById(p[1]))));
+  /* SPA: build on EVERY entry, before the first paint. The DOMContentLoaded boot above only
+     exists when this file was first run during parsing: a run that happens during a swap sees
+     readyState 'complete', calls the build directly and registers nothing - so the NEXT swap
+     (both pages load this file, so it is skipped as shared) had no record to replay and the
+     raw dd/mm/yyyy boxes came back until a reload (measured: dashboard -> casino report ->
+     commission tab). This hook fires in the SAME task as the frame's replacement; build() is
+     idempotent per input pair (data-range-built). One slot per document: a re-execution of
+     this file replaces the previous hook so the listeners cannot stack. */
+  if(window.__boDateRangeSpaBound) document.removeEventListener('bo:spa:content-mounted',window.__boDateRangeSpaBound);
+  window.__boDateRangeSpaBound=()=>PAIRS.forEach(p=>build(document.getElementById(p[0]),document.getElementById(p[1])));
+  document.addEventListener('bo:spa:content-mounted',window.__boDateRangeSpaBound);
 })();

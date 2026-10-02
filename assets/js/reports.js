@@ -1016,7 +1016,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if(window.DynamicTranslation){ window.DynamicTranslation.autoAttach(document); return; }
     if(document.querySelector('script[data-dynamic-translation-loader]')) return;
     const script=document.createElement('script');
-    script.src='assets/js/dynamic-translation.js?v=1.1.0';
+    script.src='assets/js/dynamic-translation.js?v=5ad59a20';
     script.async=false;
     script.setAttribute('data-dynamic-translation-loader','1');
     script.onload=function(){ if(window.DynamicTranslation) window.DynamicTranslation.autoAttach(document); };

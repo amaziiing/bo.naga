@@ -1,4 +1,11 @@
 (function(){
+  /* A swap re-runs this file; the router replays the DOMContentLoaded block below, so the two
+     delegated listeners inside it (row edit/delete/expand and the keyboard expand) were added
+     again on each entry. Release the previous run's bindings first. */
+  if(window.__boMenuUnbind) window.__boMenuUnbind();
+  const unbinds=[];
+  const listen=(target,type,fn,opt)=>{ target.addEventListener(type,fn,opt); unbinds.push(()=>target.removeEventListener(type,fn,opt)); };
+  window.__boMenuUnbind=()=>{ unbinds.forEach(fn=>fn()); unbinds.length=0; };
   let rows=[],groups=[];
   let activePanel='MAIN';
   let nmMode='group'; // 'item' | 'group'
@@ -890,7 +897,7 @@
     $('groupSort')?.addEventListener('input',updateLivePreview);
     $('groupSort')?.addEventListener('change',updateLivePreview);
 
-    document.addEventListener('click',e=>{
+    listen(document,'click',e=>{
       // Action buttons always win.
       const me=e.target.closest('[data-edit-menu]');if(me){edit(me.dataset.editMenu);return;}
       const md=e.target.closest('[data-delete-menu]');if(md){menuDelete(md.dataset.deleteMenu);return;}
@@ -907,7 +914,7 @@
         }
       }
     });
-    document.addEventListener('keydown',e=>{
+    listen(document,'keydown',e=>{
       if(e.key!=='Enter'&&e.key!==' ') return;
       const row=e.target.closest('tr.menu-row-group.is-toggleable');
       if(!row||e.target!==row) return;

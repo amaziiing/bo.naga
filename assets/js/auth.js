@@ -761,7 +761,7 @@
       if(!document.querySelector('link[data-bo-quicknav-css]')){
         const pinCss=document.createElement('link');
         pinCss.rel='stylesheet';
-        pinCss.href='assets/css/bo-global-quicknav.css?v=c84f0546';
+        pinCss.href='assets/css/bo-global-quicknav.css?v=7bad56b7';
         pinCss.dataset.boQuicknavCss='1';
         document.head.appendChild(pinCss);
       }
@@ -1269,7 +1269,7 @@
         BO_AUTH.openDashboardPanel(url);
       };
       BO_AUTH.bindDashboardWorkspace();
-      if(!document.querySelector('link[data-bo-quicknav-css]')){const l=document.createElement('link');l.rel='stylesheet';l.href='assets/css/bo-global-quicknav.css?v=c84f0546';l.dataset.boQuicknavCss='1';document.head.appendChild(l);}
+      if(!document.querySelector('link[data-bo-quicknav-css]')){const l=document.createElement('link');l.rel='stylesheet';l.href='assets/css/bo-global-quicknav.css?v=7bad56b7';l.dataset.boQuicknavCss='1';document.head.appendChild(l);}
     },
     clearDashboardPanel: function(){
       ['dashboardWorkspaceFrame','dashboardWorkspaceFrameB'].forEach(function(id){

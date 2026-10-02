@@ -23,7 +23,7 @@ import subprocess
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-REF = re.compile(r'(assets/(?:css|js)/[\w\-\.]+\.(?:css|js))\?v=([\w\.\-]+)')
+REF = re.compile(r'''(["'])assets/((?:css|js)/[\w\-\.]+\.(?:css|js))(\?v=([\w\.\-]+))?''')
 SKIP_DIRS = {".git", "node_modules", "_preview", "_verify", ".interface-design", "scripts"}
 
 
@@ -67,6 +67,7 @@ def stamp(path):
 def main():
     check = "--check" in sys.argv
     stale, missing, touched = {}, set(), 0
+    unpinned = {}
     ignored_dirs, ignored_files = git_ignored()
     for dirpath, dirnames, filenames in os.walk(ROOT):
         rel = os.path.relpath(dirpath, ROOT).replace(os.sep, "/")
@@ -76,21 +77,38 @@ def main():
             if d not in SKIP_DIRS and (prefix + d + "/") not in ignored_dirs
         ]
         for name in filenames:
-            if not name.endswith(".html") or (prefix + name) in ignored_files:
+            # Pages, and the scripts - a script injects sheets and other scripts at runtime
+            # with a pin hard-coded in it (auth.js mounts the shell's quicknav sheet,
+            # reports.js the translation panel), which is outside every .html file and was
+            # therefore never stamped. The reference must start right after a quote, so prose
+            # that names a path is not one, and a script naming itself is skipped (its own
+            # hash inside the file can never be stable).
+            is_script = rel == "assets/js" and name.endswith(".js")
+            if not (name.endswith(".html") or is_script) or (prefix + name) in ignored_files:
                 continue
             full = os.path.join(dirpath, name)
+            relpath = (prefix + name)
             with io.open(full, encoding="utf-8", errors="replace") as fh:
                 text = fh.read()
-            new = text
-            for asset, pinned in REF.findall(text):
+
+            def _sub(m, relpath=relpath):
+                quote, asset, pinned = m.group(1), "assets/" + m.group(2), m.group(4)
+                if relpath == asset:
+                    return m.group(0)
                 target = os.path.join(ROOT, asset.replace("/", os.sep))
                 if not os.path.exists(target):
                     missing.add(asset)
-                    continue
+                    return m.group(0)
                 want = stamp(target)
-                if want != pinned:
+                if want == pinned:
+                    return m.group(0)
+                if pinned is None:
+                    unpinned[asset] = want
+                else:
                     stale[asset] = want
-                    new = new.replace("%s?v=%s" % (asset, pinned), "%s?v=%s" % (asset, want))
+                return "%s%s?v=%s" % (quote, asset, want)
+
+            new = REF.sub(_sub, text)
             if new != text:
                 if not check:
                     with io.open(full, "w", encoding="utf-8", newline="") as fh:
@@ -101,12 +119,16 @@ def main():
         print("referenced but missing on disk: %d" % len(missing))
         for asset in sorted(missing):
             print("   ", asset)
-    if stale:
-        print("%s: %d asset(s) out of date" % ("drift" if check else "restamped", len(stale)))
+    if stale or unpinned:
+        print("%s: %d asset(s) out of date%s%s" % ("drift" if check else "restamped", len(stale),
+              ", %d with no pin at all" % len(unpinned) if unpinned else "",
+              ":" if (stale or unpinned) else ""))
         for asset in sorted(stale):
             print("    %-46s -> %s" % (asset, stale[asset]))
+        for asset in sorted(unpinned):
+            print("    %-46s -> %s (had no pin)" % (asset, unpinned[asset]))
     print("%s: %d page(s)" % ("would change" if check else "rewritten", touched))
-    return 1 if (check and stale) else 0
+    return 1 if (check and (stale or unpinned)) else 0
 
 
 if __name__ == "__main__":

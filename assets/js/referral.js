@@ -1,5 +1,11 @@
 (function () {
 (function(){
+  /* A swap re-runs this file: the delegated click below, plus the date-picker's outside-click,
+     were added again on each entry. Release the previous run's bindings first. */
+  if(window.__boRefUnbind) window.__boRefUnbind();
+  const unbinds=[];
+  const listen=(target,type,fn,opt)=>{ target.addEventListener(type,fn,opt); unbinds.push(()=>target.removeEventListener(type,fn,opt)); };
+  window.__boRefUnbind=()=>{ unbinds.forEach(fn=>fn()); unbinds.length=0; };
   const state={members:[],downline:[],selected:null,rewardMember:null,defaultReward:{enabled:0,mode:'FIXED',value:0}};
   function endpoint(k){return API_CONFIG.BASE_URL+API_CONFIG.ENDPOINTS[k];}
   function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
@@ -361,7 +367,7 @@
     markPreset('today');
     renderCalendar(); updateDateLabel();
     trigger.addEventListener('click',e=>{e.stopPropagation(); picker.classList.toggle('show'); refDatePicker.mode='days'; renderCalendar();});
-    document.addEventListener('click',e=>{if(!e.target.closest('.ref-range-wrap'))picker.classList.remove('show');});
+    listen(document,'click',e=>{if(!e.target.closest('.ref-range-wrap'))picker.classList.remove('show');});
     document.querySelectorAll('[data-range-preset]').forEach(btn=>btn.addEventListener('click',(e)=>{
       e.stopPropagation();
       const key=btn.dataset.rangePreset;
@@ -483,7 +489,7 @@
     }catch(e){alert(e.message);}finally{btn.disabled=false;}
   }
 
-  document.addEventListener('click',e=>{
+  listen(document,'click',e=>{
     const b=e.target.closest('[data-view]'); if(b)loadDownline(b.dataset.view,b.dataset.name);
     const rc=e.target.closest('[data-reward-member]'); if(rc)openMemberReward(rc.dataset.rewardMember,rc.dataset.name);
     const ex=e.target.closest('[data-export]'); if(ex)exportCsv(ex.dataset.export);

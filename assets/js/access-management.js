@@ -1,4 +1,12 @@
 (function(){
+  /* A swap re-runs this file against a fresh frame: the delegations in the lower half and the
+     amber topbar observer were added again on each entry, so N entries meant N change/click/
+     keydown copies (each one able to fire a permission sync or a role save twice). Release the
+     previous run's bindings first. */
+  if(window.__boAmUnbind) window.__boAmUnbind();
+  const unbinds=[];
+  const listen=(target,type,fn,opt)=>{ target.addEventListener(type,fn,opt); unbinds.push(()=>target.removeEventListener(type,fn,opt)); };
+  window.__boAmUnbind=()=>{ unbinds.forEach(fn=>fn()); unbinds.length=0; };
   try{(JSON.parse(localStorage.getItem('bo_menu_group_meta_v1')||'[]')||[]).forEach(function(g){if(window.BO_MENU_GROUP_META&&g.groupKey)window.BO_MENU_GROUP_META[g.groupKey]={title:g.title,icon:g.icon,sortOrder:g.sortOrder};});}catch(e){}
   const page = document.body.dataset.accessPage;
   const isMerchantRolesPage = document.body.classList.contains('main-merchant-roles-page');
@@ -822,7 +830,7 @@
     }finally{btn.disabled=false;}
   }
 
-  document.addEventListener('change',e=>{
+  listen(document,'change',e=>{
     if(e.target.matches('[data-group-toggle]')){
       const group=e.target.closest('[data-permission-group]');
       group.querySelectorAll('.permission-item input, .mp-menu-card input').forEach(x=>x.checked=e.target.checked);
@@ -840,7 +848,7 @@
       }
     }
   });
-  document.addEventListener('click',e=>{
+  listen(document,'click',e=>{
     if(e.target.closest('#openRoleModalBtn'))openCreate();
     const edit=e.target.closest('[data-edit-role]');if(edit)openEdit(edit.dataset.editRole);
     if(e.target.closest('#menuPermissionDeleteRoleBtn')){
@@ -856,7 +864,7 @@
       if(group) setGroupOpen(group,!group.classList.contains('is-open'));
     }
   });
-  document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(document.getElementById('roleCreateModal')?.classList.contains('show'))closeModal();});
+  listen(document,'keydown',e=>{if(e.key!=='Escape')return;if(document.getElementById('roleCreateModal')?.classList.contains('show'))closeModal();});
 
   function viewerRoleLabel(){
     const user = (window.BO_AUTH && typeof BO_AUTH.user === 'function') ? (BO_AUTH.user() || {}) : {};
@@ -951,8 +959,10 @@
         enhanceAmberTopbarProfile();
       });
     };
-    new MutationObserver(run).observe(host, { childList: true });
-    document.addEventListener('bo:profile-updated', run);
+    const obs = new MutationObserver(run);
+    obs.observe(host, { childList: true });
+    unbinds.push(() => obs.disconnect());
+    listen(document,'bo:profile-updated', run);
     setTimeout(enhanceAmberTopbarProfile, 80);
     setTimeout(enhanceAmberTopbarProfile, 400);
   }
@@ -1036,5 +1046,5 @@
   });
 
   async function loadAccountLock(){const body=document.getElementById('lockTableBody');try{const rows=(await api(BO_AUTH.memberListUrl(),{headers:{...BO_AUTH.authHeader()}})).data||[];body.innerHTML=rows.map(m=>`<tr><td><b>${esc(m.username)}</b><br><small>${esc(m.fullName||m.mobile)}</small></td><td>${m.locked==1?'<span class="status-pill off">Locked</span>':'<span class="status-pill active">Normal</span>'}</td><td><button class="clean-btn" data-lock-id="${m.id}" data-lock="${m.locked==1?0:1}">${m.locked==1?'Unlock':'Lock'}</button></td></tr>`).join('')||'<tr><td colspan="3">No member.</td></tr>';}catch(e){body.innerHTML='<tr><td colspan="3">'+esc(e.message)+'</td></tr>';}}
-  document.addEventListener('click',async e=>{const b=e.target.closest('[data-lock-id]');if(!b)return;await api(BO_AUTH.memberUpdateUrl(b.dataset.lockId),{method:'POST',headers:{'Content-Type':'application/json',...BO_AUTH.authHeader()},body:JSON.stringify({locked:Number(b.dataset.lock)})});loadAccountLock();});
+  listen(document,'click',async e=>{const b=e.target.closest('[data-lock-id]');if(!b)return;await api(BO_AUTH.memberUpdateUrl(b.dataset.lockId),{method:'POST',headers:{'Content-Type':'application/json',...BO_AUTH.authHeader()},body:JSON.stringify({locked:Number(b.dataset.lock)})});loadAccountLock();});
 })();

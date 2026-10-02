@@ -27,6 +27,13 @@
    ========================================================================== */
 (function () {
   'use strict';
+  /* A swap re-runs this file: bindTimeTips()' own flag guards one run, not the next (the re-run
+     replaces the function object the flag lives on), so N entries meant N copies of each
+     time-tip listener. Release the previous run's bindings first. */
+  if (window.__boAclUnbind) window.__boAclUnbind();
+  const unbinds = [];
+  const listen = (target, type, fn, opt) => { target.addEventListener(type, fn, opt); unbinds.push(() => target.removeEventListener(type, fn, opt)); };
+  window.__boAclUnbind = () => { unbinds.forEach(fn => fn()); unbinds.length = 0; };
 
   var SIZES = ['-', '10', '20', '50', '100', 'All'];
 
@@ -158,23 +165,23 @@ function bindTimeTips(){
   if (bindTimeTips._bound) return;
   bindTimeTips._bound = true;
   var find = function (e) { return e.target && e.target.closest && e.target.closest('.bo-tx-datetime[data-tip]'); };
-  document.addEventListener('mouseover', function (e) { var el = find(e); if (el) placeTimeTip(el); });
-  document.addEventListener('mouseout', function (e) {
+  listen(document, 'mouseover', function (e) { var el = find(e); if (el) placeTimeTip(el); });
+  listen(document, 'mouseout', function (e) {
     var el = find(e); if (!el) return;
     var next = e.relatedTarget;
     if (next && el.contains(next)) return;
     hideTimeTip();
   });
-  document.addEventListener('focusin', function (e) { var el = find(e); if (el) placeTimeTip(el); });
-  document.addEventListener('focusout', function (e) {
+  listen(document, 'focusin', function (e) { var el = find(e); if (el) placeTimeTip(el); });
+  listen(document, 'focusout', function (e) {
     var el = find(e); if (!el) return;
     var next = e.relatedTarget;
     if (next && el.contains(next)) return;
     hideTimeTip();
   });
-  window.addEventListener('scroll', hideTimeTip, true);
-  window.addEventListener('resize', hideTimeTip);
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') hideTimeTip(); });
+  listen(window, 'scroll', hideTimeTip, true);
+  listen(window, 'resize', hideTimeTip);
+  listen(document, 'keydown', function (e) { if (e.key === 'Escape') hideTimeTip(); });
 }
 
 window.boAc = {

@@ -1,6 +1,14 @@
 (function(){
   'use strict';
 
+  /* A swap re-runs this file against a fresh frame, so the document bindings below were added
+     again on each entry: N entries meant N password-toggle / role-menu / Escape handlers.
+     Release the previous run's bindings first; they always close over the frame on screen. */
+  if(window.__boMaeUnbind) window.__boMaeUnbind();
+  const unbinds=[];
+  const listen=(target,type,fn,opt)=>{ target.addEventListener(type,fn,opt); unbinds.push(()=>target.removeEventListener(type,fn,opt)); };
+  window.__boMaeUnbind=()=>{ unbinds.forEach(fn=>fn()); unbinds.length=0; };
+
   const form = document.getElementById('madEditForm');
   const statusEl = document.getElementById('madEditStatus');
   const submitBtn = document.getElementById('madEditSubmit');
@@ -365,13 +373,13 @@
   document.getElementById('maeResetPasswordModal')?.addEventListener('click', function(e){
     if(e.target === this) closeResetPasswordModal({ clear: true });
   });
-  document.addEventListener('keydown', function(e){
+  listen(document,'keydown', function(e){
     if(e.key !== 'Escape') return;
     const modal = document.getElementById('maeResetPasswordModal');
     if(modal && modal.classList.contains('show')) closeResetPasswordModal({ clear: true });
   });
 
-  document.addEventListener('click', function(e){
+  listen(document,'click', function(e){
     const toggle = e.target.closest && e.target.closest('[data-toggle-password]');
     if(!toggle) return;
     const id = toggle.getAttribute('data-toggle-password');
@@ -395,12 +403,12 @@
     if(!opt) return;
     selectRole(opt.getAttribute('data-role-id'));
   });
-  document.addEventListener('click', function(e){
+  listen(document,'click', function(e){
     if(!roleMenuOpen) return;
     if(e.target.closest && (e.target.closest('#madRoleMenu') || e.target.closest('#madRolePickBtn') || e.target.closest('.mac-role-dd'))) return;
     setRoleMenuOpen(false);
   });
-  document.addEventListener('keydown', function(e){
+  listen(document,'keydown', function(e){
     if(e.key === 'Escape' && roleMenuOpen) setRoleMenuOpen(false);
   });
 

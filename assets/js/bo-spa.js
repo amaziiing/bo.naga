@@ -655,16 +655,17 @@
      Everything else either runs once per document (observers) or is a page's own script,
      which is handled by the ownership rules below. */
   var SHARED_REPLAY = {
+    /* crud-modal-pattern.js is deliberately NOT here: it lifts the page's own form card into
+       its modal container, and after that file stopped registering a DOMContentLoaded listener
+       in the swap path (it runs while the document is already complete, so ready() calls init()
+       straight through) this entry replayed nothing while the card stayed in the grid and the
+       modal stayed empty - measured arriving at game.html from game-category.html. The file
+       now redoes that work on `bo:spa:content`, the document-level hook the frame's replacement
+       fires, which is also the shape SPA.md prescribes for a document-level runtime. */
     'bo-date-range.js': 1,
     'pagination-standardizer.js': 1,
     'report-table-split.js': 1,
-    'report-table-sort.js': 1,
-    /* crud-modal-pattern.js lifts the page's own form card into its modal container, and marks
-       the body so it cannot happen twice. The body survives a swap, so without both this entry
-       and the reset in apply(), the NEXT page's card is never lifted while the modal keeps the
-       previous page's - two elements with the same ids, and a modal showing the wrong or empty
-       form. Reported as "switch back to Promotion Bonus and the data is incomplete". */
-    'crud-modal-pattern.js': 1
+    'report-table-sort.js': 1
   };
 
   /* Basenames of every script the target page carries; a page's own listener must still

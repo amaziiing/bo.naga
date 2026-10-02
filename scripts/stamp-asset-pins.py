@@ -19,11 +19,36 @@ import hashlib
 import io
 import os
 import re
+import subprocess
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 REF = re.compile(r'(assets/(?:css|js)/[\w\-\.]+\.(?:css|js))\?v=([\w\.\-]+)')
 SKIP_DIRS = {".git", "node_modules", "_preview", "_verify", ".interface-design", "scripts"}
+
+
+def git_ignored():
+    """Paths .gitignore already excludes, so scratch snapshots (.tmp-*) are not scanned.
+
+    check-asset-pins.js reads the served pages in the repository root; this walker is
+    recursive, so it used to reach the local scratch copies too - hundreds of pages that
+    are not part of the tree - and reported (and offered to rewrite) drift inside them.
+    Git knows which paths are ignored; one `ls-files` beats walking into them.
+    """
+    try:
+        out = subprocess.check_output(
+            ["git", "-C", ROOT, "ls-files", "--others", "--ignored", "--exclude-standard", "--directory", "-z"],
+            stderr=subprocess.DEVNULL,
+        )
+    except Exception:
+        return set(), set()
+    dirs, files = set(), set()
+    for raw in out.decode("utf-8", "replace").split("\0"):
+        if raw.endswith("/"):
+            dirs.add(raw)
+        elif raw:
+            files.add(raw)
+    return dirs, files
 
 
 def stamp(path):
@@ -42,10 +67,16 @@ def stamp(path):
 def main():
     check = "--check" in sys.argv
     stale, missing, touched = {}, set(), 0
+    ignored_dirs, ignored_files = git_ignored()
     for dirpath, dirnames, filenames in os.walk(ROOT):
-        dirnames[:] = [d for d in dirnames if d not in SKIP_DIRS]
+        rel = os.path.relpath(dirpath, ROOT).replace(os.sep, "/")
+        prefix = "" if rel == "." else rel + "/"
+        dirnames[:] = [
+            d for d in dirnames
+            if d not in SKIP_DIRS and (prefix + d + "/") not in ignored_dirs
+        ]
         for name in filenames:
-            if not name.endswith(".html"):
+            if not name.endswith(".html") or (prefix + name) in ignored_files:
                 continue
             full = os.path.join(dirpath, name)
             with io.open(full, encoding="utf-8", errors="replace") as fh:

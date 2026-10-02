@@ -339,6 +339,14 @@
   }
 
   document.addEventListener('DOMContentLoaded', function(){
+    /* A swap replays this listener, so the two document handlers further down were added
+       again on every entry while the old ones stayed bound to the previous run's state - a
+       stale pager handler could render an old table's page into the new first table. Release
+       the previous run's bindings first, then bind this one. */
+    if(window.__boCasinoReportUnbind) window.__boCasinoReportUnbind();
+    const unbinds=[];
+    const on=(target,type,fn,opt)=>{ target.addEventListener(type,fn,opt); unbinds.push(()=>target.removeEventListener(type,fn,opt)); };
+    window.__boCasinoReportUnbind=()=>{ unbinds.forEach(fn=>fn()); unbinds.length=0; };
     // No Search / Reset buttons on this family (owner: "report的所有reset，search，refresh按键
     // 全去除"). The date range auto-applies as soon as a complete range is chosen — see
     // autoLoadSelectedRange below — so the row needs no trigger at all.
@@ -358,7 +366,7 @@
 
     // Pager + Show N entries live in the page footer. One table is mounted per page,
     // so the pager only has to resolve the body that actually rendered.
-    document.addEventListener('click', function(e){
+    on(document,'click', function(e){
       const btn = e.target.closest('[data-cr-page]');
       if(!btn || btn.disabled || !activeTableId) return;
       const state = TABLES.get(activeTableId);
@@ -368,7 +376,7 @@
       state.page = next;
       renderTablePage(state);
     });
-    document.addEventListener('change', function(e){
+    on(document,'change', function(e){
       if(!e.target || e.target.id !== 'crPageSize') return;
       pageSizeLock = null;
       autoSteps = 0;

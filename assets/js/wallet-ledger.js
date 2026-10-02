@@ -224,6 +224,7 @@
       scroll._boEvenFillTimer=setTimeout(evenFillRowHeights,32);
     });
     scroll._boEvenFillObs.observe(scroll);
+    return scroll._boEvenFillObs;
   }
   function publishPagerMeta(pagination,size){
     const card=document.querySelector('.table-card');
@@ -311,7 +312,7 @@
     const tip=document.getElementById('wlTimeTip');
     if(tip) tip.classList.remove('is-on','is-below');
   }
-  function bindTimeTips(){
+  function bindTimeTips(on){
     const body=document.getElementById('walletLedgerBody');
     if(!body||body.dataset.tipBound==='1') return;
     body.dataset.tipBound='1';
@@ -337,8 +338,8 @@
       if(next&&el.contains(next)) return;
       hideTimeTip();
     });
-    window.addEventListener('scroll',hideTimeTip,true);
-    window.addEventListener('resize',hideTimeTip);
+    on(window,'scroll',hideTimeTip,true);
+    on(window,'resize',hideTimeTip);
   }
   async function api(endpoint){
     const res = await fetch(endpoint, {headers:{...BO_AUTH.authHeader()}});
@@ -388,7 +389,7 @@
     (values||[]).map(v=>String(v||'').trim().toUpperCase()).filter(v=>LEDGER_TYPES.includes(v)).forEach(v=>selectedTypes.add(v));
     syncTypeControl();
   }
-  function initTypeMulti(){
+  function initTypeMulti(on){
     const options=document.getElementById('ledgerTypeOptions');
     const wrap=document.getElementById('ledgerTypeMulti');
     const trigger=document.getElementById('ledgerTypeTrigger');
@@ -398,8 +399,8 @@
     trigger.addEventListener('click',()=>{const open=menu.hidden;menu.hidden=!open;wrap.classList.toggle('open',open);trigger.setAttribute('aria-expanded',String(open));});
     options.addEventListener('change',e=>{const cb=e.target.closest('[data-ledger-type]');if(!cb)return;cb.checked?selectedTypes.add(cb.dataset.ledgerType):selectedTypes.delete(cb.dataset.ledgerType);syncTypeControl();});
     document.getElementById('ledgerTypeAll')?.addEventListener('change',e=>{if(e.target.checked)setSelectedTypes([]);});
-    document.addEventListener('click',e=>{if(!wrap.contains(e.target)){menu.hidden=true;wrap.classList.remove('open');trigger.setAttribute('aria-expanded','false');}});
-    document.addEventListener('keydown',e=>{if(e.key==='Escape'){menu.hidden=true;wrap.classList.remove('open');trigger.setAttribute('aria-expanded','false');}});
+    on(document,'click',e=>{if(!wrap.contains(e.target)){menu.hidden=true;wrap.classList.remove('open');trigger.setAttribute('aria-expanded','false');}});
+    on(document,'keydown',e=>{if(e.key==='Escape'){menu.hidden=true;wrap.classList.remove('open');trigger.setAttribute('aria-expanded','false');}});
     syncTypeControl();
   }
   function ensureDefaultDates(){
@@ -562,8 +563,17 @@
     }
   }
   document.addEventListener('DOMContentLoaded', function(){
-    initTypeMulti();
-    bindTimeTips();
+    /* A swap re-runs this block against a fresh frame, so every window/document binding added
+       below was added again on each entry: N entries meant N type-menu handles and N resize
+       handlers, and the autofit one issues a ledger request - one resize could fire several
+       loads. Release the previous run's bindings first; the handlers then always close over
+       the state of the frame that is on screen. */
+    if(window.__boWalletLedgerUnbind) window.__boWalletLedgerUnbind();
+    const unbinds=[];
+    const on=(target,type,fn,opt)=>{ target.addEventListener(type,fn,opt); unbinds.push(()=>target.removeEventListener(type,fn,opt)); };
+    window.__boWalletLedgerUnbind=()=>{ unbinds.forEach(fn=>fn()); unbinds.length=0; };
+    initTypeMulti(on);
+    bindTimeTips(on);
     ensureDefaultDates();
     setFromUrl();
     syncLedgerHScroll();
@@ -575,10 +585,12 @@
       }, {passive:true});
       if(headScroll) bindLedgerDragScroll(bodyScroll,[bodyScroll,headScroll]);
       if(typeof ResizeObserver!=='undefined'){
-        new ResizeObserver(()=>syncLedgerHScroll()).observe(bodyScroll);
+        const hscrollObs=new ResizeObserver(()=>syncLedgerHScroll());
+        hscrollObs.observe(bodyScroll);
+        unbinds.push(()=>hscrollObs.disconnect());
       }
     }
-    window.addEventListener('resize', syncLedgerHScroll);
+    on(window,'resize',syncLedgerHScroll);
     const runSearch=()=>{ page=1; clearLockedAutoSize(); syncAutofitMode(); load(); };
     document.getElementById('ledgerSearchBtn')?.addEventListener('click', runSearch);
     document.getElementById('ledgerKeyword')?.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); runSearch(); } });
@@ -614,9 +626,10 @@
     document.getElementById('ledgerPrevBtn')?.addEventListener('click', ()=>{ if(page>1){ page--; load(); } });
     document.getElementById('ledgerNextBtn')?.addEventListener('click', ()=>{ if(page<totalPages){ page++; load(); } });
     document.getElementById('ledgerPager')?.addEventListener('click', e=>{ const b=e.target.closest('[data-page]'); if(!b)return; const n=Number(b.dataset.page); if(n>=1&&n<=totalPages&&n!==page){page=n;load();} });
-    bindEvenFillObserver();
+    const evenFillObs=bindEvenFillObserver();
+    if(evenFillObs) unbinds.push(()=>evenFillObs.disconnect());
     let resizeTimer=0;
-    window.addEventListener('resize',()=>{
+    on(window,'resize',()=>{
       if(!isAutoPageSize(document.getElementById('ledgerSize')?.value)) return;
       clearTimeout(resizeTimer);
       resizeTimer=setTimeout(()=>{

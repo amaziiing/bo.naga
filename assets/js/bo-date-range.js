@@ -1,4 +1,11 @@
 (function(){
+  /* A swap re-runs this file against a fresh frame, and build() binds one outside-click handler
+     per date-range field to the document; the old handlers outlived their fields (detached, but
+     still called on every click, and one more per field per entry). One registry per run: the
+     previous run's handlers are released before this one binds its own. */
+  if(window.__boDateRangeUnbind) window.__boDateRangeUnbind();
+  const unbinds=[];
+  window.__boDateRangeUnbind=()=>{ unbinds.forEach(fn=>fn()); unbinds.length=0; };
   const PAIRS=[['betFrom','betTo'],['txFrom','txTo'],['sessionFrom','sessionTo'],['ledgerFrom','ledgerTo'],['casinoFrom','casinoTo'],['reportFrom','reportTo'],['manualFrom','manualTo'],['wlFrom','wlTo'],['depositFrom','depositTo'],['withdrawFrom','withdrawTo'],['usageFrom','usageTo'],['agentDashFrom','agentDashTo'],['agentPlayerFrom','agentPlayerTo'],['agentBetFrom','agentBetTo'],['agentSettlementFrom','agentSettlementTo'],['agentWalletFrom','agentWalletTo'],['agentProductFrom','agentProductTo'],['agentReportFrom','agentReportTo'],['agentBonusFrom','agentBonusTo'],['adminAgentBetFrom','adminAgentBetTo'],['accFrom','accTo'],['detailFrom','detailTo'],['adminAgentFrom','adminAgentTo'],['agentCommissionFrom','agentCommissionTo'],['agentSettlementAdminFrom','agentSettlementAdminTo'],['agentClaimFrom','agentClaimTo'],['agentPayoutFrom','agentPayoutTo'],['agentPromotionFrom','agentPromotionTo'],['perfFrom','perfTo'],['memberFrom','memberTo']];
   const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   const pad=n=>String(n).padStart(2,'0');
@@ -87,7 +94,10 @@
     monthGrid.addEventListener('click',e=>{const b=e.target.closest('[data-month]');if(!b)return;const selectedMonth=Number(b.dataset.month),selectedYear=view.getFullYear();view=new Date(selectedYear,selectedMonth,1);commit(new Date(selectedYear,selectedMonth,1),new Date(selectedYear,selectedMonth+1,0));mode='days';render();pop.classList.remove('show')});
     yearGrid.addEventListener('click',e=>{const b=e.target.closest('[data-year]');if(!b)return;const selectedYear=Number(b.dataset.year);view=new Date(selectedYear,0,1);commit(new Date(selectedYear,0,1),new Date(selectedYear,11,31));mode='days';render();pop.classList.remove('show')});
     const syncExternal=()=>{start=from.value||'';end=to.value||'';syncText();syncPresetActive();render()};from.addEventListener('change',syncExternal);to.addEventListener('change',syncExternal);
-    document.addEventListener('click',e=>{const path=typeof e.composedPath==='function'?e.composedPath():[];if(!host.contains(e.target)&&!path.includes(host))pop.classList.remove('show')});syncText();syncPresetActive();render();
+    const outsideClick=e=>{const path=typeof e.composedPath==='function'?e.composedPath():[];if(!host.contains(e.target)&&!path.includes(host))pop.classList.remove('show')};
+    document.addEventListener('click',outsideClick);
+    unbinds.push(()=>document.removeEventListener('click',outsideClick));
+    syncText();syncPresetActive();render();
   }
   function ready(fn){if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',fn);else fn();}
   /* Build as soon as this file runs when the DOM is already parsed. The old listener waited for

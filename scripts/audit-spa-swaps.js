@@ -76,6 +76,17 @@ const PER_ENTRY_SLOTS = {
   'bo-date-range-bank-usage.js': '__boDateRangeBankUsageSpaBound'
 };
 
+/* Files whose per-entry boot relies on `data-bo-spa-rerun` instead of a hook: each of them runs
+   its page's work at top level (not inside a DOMContentLoaded callback) and releases the
+   previous run's bindings itself. A page that declares one must tag it, and the tag must have
+   been re-run for this navigation - measured on transaction-report.html, which declared
+   operations-report.js untagged: it stayed on its static "Loading..." cell while
+   promotion-report went blank on the hop back. Data-independent, and no false positives from
+   the audit's dead API - a renderer that ran but failed still clears the tag check. */
+const RERUN_REQUIRED = ['operations-report.js', 'main-provider-report.js', 'site-customize.js', 'profile.js',
+  'change-password.js', 'rebate-management.js', 'rebate-log.js', 'player-game-ranking.js',
+  'rebate-rule-edit.js', 'member-transaction-page.js'];
+
 const manifestSrc = fs.readFileSync(path.join(ROOT, 'assets/js/bo-spa-manifest.js'), 'utf8');
 const manifest = manifestSrc.match(/window\.__BO_SPA_PAGES=\{(.*)\};/s)[1]
   .split(',').map((s) => s.split(':')[0].replace(/"/g, '')).filter(Boolean);
@@ -182,6 +193,22 @@ const STEP = (target, start, twice) => `(async () => {
   for (const f in slotsWanted) {
     if (html.includes('assets/js/' + f) && !window[slotsWanted[f]]) slotsMissing.push(f);
   }
+  /* A swap that leaves a "Loading..." placeholder on screen is NOT asserted here: every renderer
+     this audit meets also fails its request against the audit's dead API, and several pages ship
+     that placeholder in their static markup (role.html, main-admin-detail.html), so the signal
+     cannot tell "never ran" from "ran and failed". The checks below assert the mechanism
+     instead, which is exact and data-independent. */
+  /* See RERUN_REQUIRED: the tag must say data-bo-spa-rerun and the file must have run in THIS
+     navigation - __boScriptTimes is reset by runScripts, so it is this navigation's list. */
+  const rerunRequired = ${JSON.stringify(RERUN_REQUIRED)};
+  const times = (window.__boScriptTimes || []).map(x => String(x.src || '').split('?')[0]);
+  const rerunMissing = [];
+  for (const f of rerunRequired) {
+    if (!html.includes('assets/js/' + f)) continue;
+    const tag = [...pd.querySelectorAll('script[src]')].find(s => String(s.getAttribute('src')).indexOf('assets/js/' + f) >= 0);
+    if (!tag || !tag.hasAttribute('data-bo-spa-rerun')) rerunMissing.push(f + ' (tag has no data-bo-spa-rerun)');
+    else if (times.indexOf(f) < 0) rerunMissing.push(f + ' (did not run this navigation)');
+  }
   return JSON.stringify({
     page: t,
     declared: { frameIds: want.frameIds.length, extras: want.extraIds.length, sheets: want.sheets.length, title: want.title },
@@ -198,6 +225,7 @@ const STEP = (target, start, twice) => `(async () => {
     title: live.h1,
     rangeRaw,
     slotsMissing,
+    rerunMissing,
     errs: errs.filter(e => !${NOISE}.test(e)).slice(0, 5)
   });
 })()`;
@@ -243,7 +271,8 @@ const STEP = (target, start, twice) => `(async () => {
       else { try { f = JSON.parse(raw); } catch (e) { f = { page, contextDied: String(raw) }; } }
       f.bad = !!(f.harnessError || f.contextDied || f.swapped === false || f.landed !== '/' + page || f.frameKids === 0 ||
         f.idsMissing.length || f.sheetsMissing.length || f.sheetsExtra.length || f.extrasMissing.length || f.errs.length ||
-        (f.rangeRaw && f.rangeRaw.length) || (f.slotsMissing && f.slotsMissing.length));
+        (f.rangeRaw && f.rangeRaw.length) || (f.slotsMissing && f.slotsMissing.length) ||
+        (f.rerunMissing && f.rerunMissing.length));
       if (f.bad) {
         bad++;
         const why = [];
@@ -259,6 +288,7 @@ const STEP = (target, start, twice) => `(async () => {
         if (f.errs && f.errs.length) why.push('script errors: ' + f.errs.join(' | '));
         if (f.rangeRaw && f.rangeRaw.length) why.push('date pickers not built: ' + f.rangeRaw.join(', '));
         if (f.slotsMissing && f.slotsMissing.length) why.push('per-entry runtime not armed: ' + f.slotsMissing.join(', '));
+        if (f.rerunMissing && f.rerunMissing.length) why.push('data-bo-spa-rerun contract broken: ' + f.rerunMissing.join(', '));
         console.log('BAD  ' + page.padEnd(34) + why.join(' ; '));
       } else if (process.env.VERBOSE) {
         console.log('ok   ' + page);

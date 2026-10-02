@@ -22,7 +22,21 @@ body.provider-session-page .bo-range-field,
 .provider-bet-report-page .bo-range-trigger,
 .provider-transaction-page .bo-range-trigger,
 body.provider-session-page .bo-range-trigger,
-.rebate-page .bo-range-trigger{width:100%!important;max-width:240px!important}
+.rebate-page .bo-range-trigger{width:100%!important;min-width:0!important;max-width:240px!important}
+/* Manual Rebate Approval shows ONE date slot: bo-date-range.js collapses the From/To pair into a
+   single 240px chip. Unbuilt, the pair was 220px + 220px + 10px gap against a 240px chip, so the
+   row (Search / Status / Approve) shifted ~240px the moment the chip arrived - measured on the
+   swap from rebate-management.html, 90-500ms after the content landed. So the raw pair is made to
+   occupy exactly the chip's slot: From floats over it, and To is the spacer that holds the space
+   in the flow (To, not From: the picker inserts its chip BEFORE the field wrapper it replaces, so
+   only the SECOND field can occupy the space the chip will take). The picker then hides both
+   wrappers with an inline display:none, which is why these rules must not set display with
+   !important - that would beat the inline hide and leave the raw inputs on screen under the chip. */
+.rebate-page .manual-rebate-filters{position:relative!important}
+.rebate-page .manual-rebate-filters > .field:has(#manualFrom){position:absolute!important;left:0!important;top:0!important;width:240px!important;height:36px!important;min-width:0!important;max-width:240px!important;margin:0!important;padding:0!important}
+.rebate-page .manual-rebate-filters > .field:has(#manualTo){width:240px!important;height:36px!important;min-width:0!important;max-width:240px!important;margin:0!important;padding:0!important;flex:0 0 240px!important}
+.rebate-page .manual-rebate-filters > .field:has(#manualFrom) input,
+.rebate-page .manual-rebate-filters > .field:has(#manualTo) input{width:100%!important;height:36px!important;margin:0!important;box-sizing:border-box!important}
 .wallet-ledger-page .bo-range-field,
 .wallet-ledger-page .filter-card .bo-range-field,
 .wallet-ledger-page .bo-filter-range-item{

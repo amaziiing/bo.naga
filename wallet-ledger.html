@@ -10,12 +10,12 @@
 <title>Wallet Ledger</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
-<link href="assets/css/reports.css?v=c5c39452" rel="stylesheet"/>
+<link href="assets/css/reports.css?v=bd926796" rel="stylesheet"/>
 <link href="assets/css/table-pagination-horizontal.css?v=e0d02694" rel="stylesheet"/>
 <link href="assets/css/operations-upgrade.css?v=5a657dc5" rel="stylesheet"/>
 <link href="assets/css/bo-ui-standard.css?v=817727e7" rel="stylesheet">
-<link href="assets/css/bo-targeted-fixes.css?v=5ad3de3e" rel="stylesheet">
-<link href="assets/css/bo-wallet-transaction-amber.css?v=6b167772" rel="stylesheet"/>
+<link href="assets/css/bo-targeted-fixes.css?v=3147d00a" rel="stylesheet">
+<link href="assets/css/bo-wallet-transaction-amber.css?v=e28632a2" rel="stylesheet"/>
 <link href="assets/css/bo-scrollbar.css?v=39f413e5" rel="stylesheet"/>
 <link href="assets/css/bo-control-height.css?v=ff703846" rel="stylesheet">
 <link href="assets/css/bo-field-standard.css?v=6673ed98" rel="stylesheet">
@@ -85,12 +85,11 @@ body:not(#bo-filter-standard-off):not(#bo-filter-standard-legacy) .report-main .
     min-width:220px!important;
     max-width:240px!important;
   }
-  .wallet-ledger-page .filter-card .bo-filter-row>.field:has(#ledgerMemberId),
-  .wallet-ledger-page .filter-card .bo-filter-row>.field:has(#ledgerProviderCode){
-    flex:0 0 140px!important;
-    width:140px!important;
-    min-width:140px!important;
-    max-width:140px!important;
+  .wallet-ledger-page .filter-card .bo-filter-row>.field:has(#ledgerKeyword){
+    flex:0 0 240px!important;
+    width:240px!important;
+    min-width:220px!important;
+    max-width:240px!important;
   }
   .wallet-ledger-page .filter-card .bo-filter-row>.ledger-type-field{
     flex:0 0 150px!important;
@@ -118,7 +117,7 @@ body:not(#bo-filter-standard-off):not(#bo-filter-standard-legacy) .report-main .
 @media (min-width:1100px){
   .wallet-ledger-page .filter-card .user-search-grid.bo-filter-row{
     display:grid!important;
-    grid-template-columns:minmax(220px,1fr) 140px 140px 150px auto!important;
+    grid-template-columns:minmax(220px,1fr) 240px 150px auto!important;
     align-items:end!important;
     column-gap:10px!important;
     row-gap:0!important;
@@ -130,17 +129,19 @@ body:not(#bo-filter-standard-off):not(#bo-filter-standard-legacy) .report-main .
     min-width:0!important;
     max-width:none!important;
   }
-  .wallet-ledger-page .filter-card .user-search-grid.bo-filter-row>.field:has(#ledgerMemberId){grid-column:2!important;width:100%!important;min-width:0!important;max-width:none!important}
-  .wallet-ledger-page .filter-card .user-search-grid.bo-filter-row>.field:has(#ledgerProviderCode){grid-column:3!important;width:100%!important;min-width:0!important;max-width:none!important}
-  .wallet-ledger-page .filter-card .user-search-grid.bo-filter-row>.ledger-type-field{grid-column:4!important;width:100%!important;min-width:0!important;max-width:none!important}
-  .wallet-ledger-page .filter-card .user-search-grid.bo-filter-row>.wallet-filter-actions{grid-column:5!important;width:auto!important;min-width:0!important;max-width:none!important}
+  .wallet-ledger-page .filter-card .user-search-grid.bo-filter-row>.field:has(#ledgerKeyword){grid-column:2!important;width:100%!important;min-width:0!important;max-width:none!important}
+  .wallet-ledger-page .filter-card .user-search-grid.bo-filter-row>.ledger-type-field{grid-column:3!important;width:100%!important;min-width:0!important;max-width:none!important}
+  .wallet-ledger-page .filter-card .user-search-grid.bo-filter-row>.wallet-filter-actions{grid-column:4!important;width:auto!important;min-width:0!important;max-width:none!important}
   .wallet-ledger-page .ledger-type-multi,
   .wallet-ledger-page .ledger-type-trigger{width:100%!important;min-width:0!important;max-width:none!important}
 }
 
-/* Fill the card; column widths below are proportions under table-layout:fixed.
-   Horizontal scroll is OFF — cells ellipsis; a V-scrollbar must not spawn an H-bar. */
-/* Split head (fixed) + body (scroll) — same frame as Deposit / Member Wallet. */
+/* 2026-10-02 — Member Wallet recipe for a table that cannot fit the card:
+   px column widths (measured), `width:max(100%,2056px)`, H-scroll inside
+   `.bo-tx-table-body`, fixed head that follows the body's scrollLeft and can be
+   dragged. Measured on the rendered page at 1568×900 before: 9 of 15 headings and
+   11 of 15 cells were clipped. The old block forced `width:100%` + nth-child
+   percentages, which is what truncated MEMBER/PROVIDER/AMOUNT/REMARK. */
 .wallet-ledger-page .table-wrap{
   width:100%!important;
   max-width:100%!important;
@@ -152,54 +153,79 @@ body:not(#bo-filter-standard-off):not(#bo-filter-standard-legacy) .report-main .
 .wallet-ledger-page .bo-tx-table-head{
   flex:0 0 auto!important;
   overflow:hidden!important;
+  scrollbar-gutter:stable!important;
+  cursor:grab;
 }
 .wallet-ledger-page .bo-tx-table-body{
   flex:1 1 auto!important;
   min-height:0!important;
-  overflow-x:hidden!important;
-  overflow-x:clip!important;
+  overflow-x:auto!important;
   overflow-y:auto!important;
+  scrollbar-gutter:stable!important;
+  cursor:grab;
 }
-.wallet-ledger-page .bo-tx-table-body::-webkit-scrollbar{width:6px!important;height:0!important}
-.wallet-ledger-page .bo-tx-table-body::-webkit-scrollbar:horizontal{height:0!important;display:none!important}
+.wallet-ledger-page .bo-tx-table-body.is-hdrag,
+.wallet-ledger-page .bo-tx-table-head.is-hdrag,
+.wallet-ledger-page .bo-tx-table-body:active,
+.wallet-ledger-page .bo-tx-table-head:active{cursor:grabbing}
+.wallet-ledger-page .bo-tx-table-body.is-hdrag{user-select:none!important}
+/* Panel pill scrollbar, BOTH axes (6px · chocolate light / amber dark · no arrows).
+   The head declares the same 6px bar it reserves via scrollbar-gutter, so the two
+   slots keep the same client width and the columns stay locked. */
+.wallet-ledger-page .bo-tx-table-body::-webkit-scrollbar{width:6px!important;height:6px!important}
+.wallet-ledger-page .bo-tx-table-body::-webkit-scrollbar-button{display:none!important;height:0!important;width:0!important}
+.wallet-ledger-page .bo-tx-table-body::-webkit-scrollbar-thumb{background:#8B6B4A!important;border-radius:999px!important}
+.wallet-ledger-page .bo-tx-table-body::-webkit-scrollbar-thumb:hover{background:#5C4A30!important}
+.wallet-ledger-page .bo-tx-table-body::-webkit-scrollbar-track{background:transparent!important}
+.wallet-ledger-page .bo-tx-table-body::-webkit-scrollbar-corner{background:transparent!important}
+html[data-bo-theme="dark"] .wallet-ledger-page .bo-tx-table-body::-webkit-scrollbar-thumb{background:#F59E0B!important}
+html[data-bo-theme="dark"] .wallet-ledger-page .bo-tx-table-body::-webkit-scrollbar-thumb:hover{background:#D97706!important}
+.wallet-ledger-page .bo-tx-table-head::-webkit-scrollbar{width:6px!important;height:6px!important;background:transparent!important}
+.wallet-ledger-page .bo-tx-table-head::-webkit-scrollbar-track,
+.wallet-ledger-page .bo-tx-table-head::-webkit-scrollbar-corner{background:transparent!important}
+.wallet-ledger-page .bo-tx-table-head::-webkit-scrollbar-button,
+.wallet-ledger-page .bo-tx-table-head::-webkit-scrollbar-button:single-button{display:none!important;height:0!important;width:0!important}
 .wallet-ledger-page .report-table{
   table-layout:fixed!important;
-  width:100%!important;
-  min-width:0!important;
-  max-width:100%!important;
+  width:max(100%,2056px)!important;
+  min-width:2056px!important;
+  max-width:none!important;
   box-sizing:border-box!important;
 }
-.wallet-ledger-page .report-table th,
-.wallet-ledger-page .report-table td{overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+/* Headings never ellipsise themselves (Member Wallet rule); body cells ellipsis only
+   where a column is deliberately capped. */
+.wallet-ledger-page .bo-tx-head-table th{overflow:visible!important;text-overflow:clip!important;white-space:nowrap!important}
+.wallet-ledger-page .bo-tx-body-table td{overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
 /* Table body — all cell data bold (Transaction listing MD) */
 .wallet-ledger-page .report-table tbody td,
 .wallet-ledger-page .report-table tbody td *{
   font-weight:700!important;
 }
-/* Column shares (sum 100%) — fixed layout fills the card without H-overflow. */
-.wallet-ledger-page .report-table th:nth-child(1),.wallet-ledger-page .report-table td:nth-child(1){width:7%!important}
-.wallet-ledger-page .report-table th:nth-child(2),.wallet-ledger-page .report-table td:nth-child(2){width:7%!important}
-.wallet-ledger-page .report-table th:nth-child(3),.wallet-ledger-page .report-table td:nth-child(3){width:7%!important}
-.wallet-ledger-page .report-table th:nth-child(4),.wallet-ledger-page .report-table td:nth-child(4){width:5%!important}
-.wallet-ledger-page .report-table th:nth-child(5),.wallet-ledger-page .report-table td:nth-child(5){width:8%!important}
-.wallet-ledger-page .report-table th:nth-child(6),.wallet-ledger-page .report-table td:nth-child(6){width:5%!important}
-.wallet-ledger-page .report-table th:nth-child(7),.wallet-ledger-page .report-table td:nth-child(7),
-.wallet-ledger-page .report-table th:nth-child(8),.wallet-ledger-page .report-table td:nth-child(8){width:5%!important}
-.wallet-ledger-page .report-table th:nth-child(9),.wallet-ledger-page .report-table td:nth-child(9){width:5%!important}
-.wallet-ledger-page .report-table th:nth-child(10),.wallet-ledger-page .report-table td:nth-child(10),
-.wallet-ledger-page .report-table th:nth-child(11),.wallet-ledger-page .report-table td:nth-child(11){width:6%!important}
-.wallet-ledger-page .report-table th:nth-child(12),.wallet-ledger-page .report-table td:nth-child(12){width:7%!important}
-.wallet-ledger-page .report-table th:nth-child(13),.wallet-ledger-page .report-table td:nth-child(13){width:10%!important}
-.wallet-ledger-page .report-table th:nth-child(14),.wallet-ledger-page .report-table td:nth-child(14){width:12%!important}
-.wallet-ledger-page .report-table th:nth-child(15),.wallet-ledger-page .report-table td:nth-child(15){width:5%!important}
-.wallet-ledger-page .report-table td:nth-child(13) small,
-.wallet-ledger-page .report-table td:nth-child(14) small{display:block!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+/* Column widths in px — each is the rendered max(heading, widest data) at the real
+   fonts, plus ~2px headroom, measured on the page; the sum (2056) is the table's
+   `min-width`, so no column can be squeezed below its content. Both tables carry the
+   same colgroup so head and body stay pixel-locked. */
+.wallet-ledger-page .wl-col-created{width:110px}
+.wallet-ledger-page .wl-col-posted{width:104px}
+.wallet-ledger-page .wl-col-member{width:130px}
+.wallet-ledger-page .wl-col-provider{width:110px}
+.wallet-ledger-page .wl-col-type{width:146px}
+.wallet-ledger-page .wl-col-amount{width:112px}
+.wallet-ledger-page .wl-col-before{width:112px}
+.wallet-ledger-page .wl-col-after{width:112px}
+.wallet-ledger-page .wl-col-game{width:110px}
+.wallet-ledger-page .wl-col-createdby{width:120px}
+.wallet-ledger-page .wl-col-approvedby{width:110px}
+.wallet-ledger-page .wl-col-reason{width:110px}
+.wallet-ledger-page .wl-col-ref{width:240px}
+.wallet-ledger-page .wl-col-remark{width:340px}
+.wallet-ledger-page .wl-col-status{width:90px}
 
 /* v1.0.33 - Compact Wallet Ledger filter row (36px controls). */
 @media (min-width:1200px){
   .wallet-ledger-page .filter-card .user-search-grid.bo-filter-row{
     display:grid!important;
-    grid-template-columns:minmax(220px,1fr) 140px 140px 150px auto!important;
+    grid-template-columns:minmax(220px,1fr) 240px 150px auto!important;
     gap:10px!important;
     align-items:end!important;
     width:100%!important;
@@ -207,21 +233,18 @@ body:not(#bo-filter-standard-off):not(#bo-filter-standard-legacy) .report-main .
   .wallet-ledger-page .filter-card .user-search-grid.bo-filter-row>.bo-range-field{
     grid-column:1!important; width:100%!important; min-width:0!important; max-width:none!important;
   }
-  .wallet-ledger-page .filter-card .user-search-grid.bo-filter-row>.field:has(#ledgerMemberId){
-    grid-column:2!important; width:140px!important; min-width:140px!important; max-width:140px!important;
-  }
-  .wallet-ledger-page .filter-card .user-search-grid.bo-filter-row>.field:has(#ledgerProviderCode){
-    grid-column:3!important; width:140px!important; min-width:140px!important; max-width:140px!important;
+  .wallet-ledger-page .filter-card .user-search-grid.bo-filter-row>.field:has(#ledgerKeyword){
+    grid-column:2!important; width:240px!important; min-width:220px!important; max-width:240px!important;
   }
   .wallet-ledger-page .filter-card .user-search-grid.bo-filter-row>.ledger-type-field{
-    grid-column:4!important; width:150px!important; min-width:150px!important; max-width:150px!important;
+    grid-column:3!important; width:150px!important; min-width:150px!important; max-width:150px!important;
   }
   .wallet-ledger-page .ledger-type-field .ledger-type-multi,
   .wallet-ledger-page .ledger-type-field .ledger-type-trigger{
     display:flex!important; width:100%!important; min-width:0!important; max-width:none!important; box-sizing:border-box!important;
   }
   .wallet-ledger-page .filter-card .user-search-grid.bo-filter-row>.wallet-filter-actions{
-    grid-column:5!important; width:auto!important; min-width:0!important; max-width:none!important;
+    grid-column:4!important; width:auto!important; min-width:0!important; max-width:none!important;
   }
   .wallet-ledger-page .wallet-filter-actions .filter-action-row{
     display:flex!important; flex-flow:row nowrap!important; gap:8px!important; width:auto!important;
@@ -229,8 +252,7 @@ body:not(#bo-filter-standard-off):not(#bo-filter-standard-legacy) .report-main .
   .wallet-ledger-page .wallet-filter-actions .filter-action-row>button{width:auto!important; min-width:0!important; padding:0 12px!important;}
 }
 
-/* Stable table width after records render: fill the card (no forced px floor). */
-.wallet-ledger-page .report-table{width:100%!important;min-width:0!important;max-width:100%!important;table-layout:fixed!important;}
+/* Do NOT re-pin the table to the card: the wide-table recipe above needs the px floor. */
 
 
 
@@ -443,8 +465,7 @@ html[data-bo-theme="dark"] .wallet-ledger-page .bo-tx-datetime{color:#D4D4D8}
 <div class="user-search-grid bo-filter-row">
 <div class="field"><label>From</label><input id="ledgerFrom" type="date"/></div>
 <div class="field"><label>To</label><input id="ledgerTo" type="date"/></div>
-<div class="field"><label>Member ID</label><input id="ledgerMemberId" placeholder="Optional"/></div>
-<div class="field"><label>Provider</label><input id="ledgerProviderCode" placeholder="LIVE22"/></div>
+<div class="field"><label>Search</label><input id="ledgerKeyword" placeholder="Member ID / Provider" autocomplete="off"/></div>
 <div class="field ledger-type-field"><label>Type</label>
 <div class="ledger-type-multi" id="ledgerTypeMulti">
 <input id="ledgerType" type="hidden" value=""/>
@@ -465,11 +486,17 @@ html[data-bo-theme="dark"] .wallet-ledger-page .bo-tx-datetime{color:#D4D4D8}
 <div class="table-wrap">
 <div class="bo-tx-table-head">
 <table class="report-table bo-tx-head-table">
+<colgroup>
+<col class="wl-col-created"/><col class="wl-col-posted"/><col class="wl-col-member"/><col class="wl-col-provider"/><col class="wl-col-type"/><col class="wl-col-amount"/><col class="wl-col-before"/><col class="wl-col-after"/><col class="wl-col-game"/><col class="wl-col-createdby"/><col class="wl-col-approvedby"/><col class="wl-col-reason"/><col class="wl-col-ref"/><col class="wl-col-remark"/><col class="wl-col-status"/>
+</colgroup>
 <thead><tr><th>Created Time</th><th>Posted Time</th><th>Member</th><th>Provider</th><th>Type</th><th>Amount</th><th>Before</th><th>After</th><th>Game</th><th>Created By</th><th>Approved By</th><th>Reason Code</th><th>Related ID</th><th>Remark</th><th>Status</th></tr></thead>
 </table>
 </div>
 <div class="bo-tx-table-body" id="ledgerTableScroll">
 <table class="report-table bo-tx-body-table">
+<colgroup>
+<col class="wl-col-created"/><col class="wl-col-posted"/><col class="wl-col-member"/><col class="wl-col-provider"/><col class="wl-col-type"/><col class="wl-col-amount"/><col class="wl-col-before"/><col class="wl-col-after"/><col class="wl-col-game"/><col class="wl-col-createdby"/><col class="wl-col-approvedby"/><col class="wl-col-reason"/><col class="wl-col-ref"/><col class="wl-col-remark"/><col class="wl-col-status"/>
+</colgroup>
 <tbody id="walletLedgerBody"><tr><td colspan="15">Loading...</td></tr></tbody>
 </table>
 </div>
@@ -485,12 +512,12 @@ html[data-bo-theme="dark"] .wallet-ledger-page .bo-tx-datetime{color:#D4D4D8}
 </div>
 <script src="assets/js/config.js?v=e7312672"></script>
 <script src="assets/js/brand-context.js?v=27360386"></script>
-<script src="assets/js/main-currency-runtime.js?v=7a2c0062"></script>
+<script src="assets/js/main-currency-runtime.js?v=4060eb86"></script>
 <script src="assets/js/currency-runtime.js?v=b63c89fb"></script>
 <script src="assets/js/auth.js?v=9f29bfe8"></script>
 <script src="assets/js/reports.js?v=3200d0bd"></script>
-<script src="assets/js/bo-date-range.js?v=ab116fda"></script>
-<script src="assets/js/wallet-ledger.js?v=4e2ab023"></script>
+<script src="assets/js/bo-date-range.js?v=523169ae"></script>
+<script src="assets/js/wallet-ledger.js?v=ae7d37e0"></script>
 <!-- Global live-chat listener: keeps the custom MP3 notification active throughout the BO. -->
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
@@ -503,5 +530,5 @@ html[data-bo-theme="dark"] .wallet-ledger-page .bo-tx-datetime{color:#D4D4D8}
 <script src="assets/js/bo-account-chip.js?v=94cb2c63"></script>
 <script src="assets/js/bo-spa-manifest.js?v=afa9dfeb"></script><script src="assets/js/bo-spa.js?v=3f5cdcab"></script>
 </body>
-</link></link><link href="assets/css/bo-shell.css?v=04140969" rel="stylesheet" />
+</link></link><link href="assets/css/bo-shell.css?v=37894b58" rel="stylesheet" />
 <link href="assets/css/bo-global-quicknav.css?v=7bad56b7" rel="stylesheet" data-bo-quicknav-css="1"/></head></html>

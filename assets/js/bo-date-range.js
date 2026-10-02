@@ -89,5 +89,11 @@
     const syncExternal=()=>{start=from.value||'';end=to.value||'';syncText();syncPresetActive();render()};from.addEventListener('change',syncExternal);to.addEventListener('change',syncExternal);
     document.addEventListener('click',e=>{const path=typeof e.composedPath==='function'?e.composedPath():[];if(!host.contains(e.target)&&!path.includes(host))pop.classList.remove('show')});syncText();syncPresetActive();render();
   }
-  document.addEventListener('DOMContentLoaded',()=>PAIRS.forEach(p=>build(document.getElementById(p[0]),document.getElementById(p[1]))));
+  function ready(fn){if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',fn);else fn();}
+  /* Build as soon as this file runs when the DOM is already parsed. The old listener waited for
+     DOMContentLoaded, which waits for every external script on the page (the gstatic Firebase pair
+     and the livechat notifier among them) - on a real network that left the raw two-box date
+     inputs visible in the filter row for seconds. Ranges appended later by other scripts still
+     arrive through the DOMContentLoaded call, and build() is idempotent per input pair. */
+  ready(()=>PAIRS.forEach(p=>build(document.getElementById(p[0]),document.getElementById(p[1]))));
 })();

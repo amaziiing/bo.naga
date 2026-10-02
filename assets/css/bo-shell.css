@@ -58,7 +58,18 @@ html:has(.report-topbar[data-bo-topbar]){
    when paging. 18px is the majority. Desktop only, like the header inset above.
    The id-guard again out-ranks the referral family's own inset. */
 @media (min-width:1024px){
-  html:not(#bo-charcoal-off) body.report-body .report-shell .report-main .report-content{
+  /* Two id-guards, not one. `.report-content`'s inset is the one shell metric a page sheet
+     also states: bo-charcoal-cms.css sets `padding: 10px 16px` for `.promotion-bonus-page`
+     and `12px 16px 16px` for `.page-bonus-category-title` (promotion.html carries both body
+     classes), and those selectors tie this rule exactly - 1 id / 4 classes / 2 elements. A
+     tie is broken by order, and the order is not always the file order: the SPA router ADDS
+     a swapped-in page's sheets and never re-inserts them, so a page entered from a swap can
+     have bo-charcoal-cms.css AFTER bo-shell.css. Measured: with that sheet moved
+     to the end of <head>, the frame came back 16px inset (card left 276 vs 278, width 1239
+     vs 1235) - the owner's "整个设计会跑掉" screenshot measures the same 16px. The second
+     id-guard makes the inset order-independent; it is the idiom this file already uses for
+     the referral family's two-id guard below. */
+  html:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body.report-body .report-shell .report-main .report-content{
     padding-left:18px!important;
     padding-right:18px!important;
   }

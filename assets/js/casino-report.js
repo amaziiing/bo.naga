@@ -222,6 +222,9 @@
     rows = (rows || []).filter(function(r){ return hasAnyData(r, ['activeMembers','betCount','betAmount','validBetAmount','payout','memberWinLoss','companyWinLoss']); });
     mountRows('crProviderBody', rows.map(r=>`<tr><td><b>${esc(r.date || '-')}</b></td><td><b>${esc(r.providerCode)}</b></td><td>${whole(r.activeMembers)}</td><td>${whole(r.betCount)}</td><td>${money(r.betAmount)}</td><td>${money(r.validBetAmount)}</td><td>${money(r.payout)}</td><td class="${num(r.memberWinLoss)<0?'text-danger':'text-success'}">${money(r.memberWinLoss)}</td><td class="${num(r.companyWinLoss)<0?'text-danger':'text-success'}"><b>${money(r.companyWinLoss)}</b></td></tr>`), 'No provider bet records.');
   }
+  /* The deposit/withdraw row set, in one place: the table below and the KPI strip above it have to
+     agree on which rows count, so they share this list rather than each spelling it out. */
+  const DW_ROW_FIELDS = ['depositApprovedMembers','depositApprovedCount','depositApprovedAmount','depositPendingAmount','depositFailedCount','depositFailedAmount','withdrawApprovedMembers','withdrawApprovedCount','withdrawApprovedAmount','withdrawPendingAmount','withdrawFailedCount','withdrawFailedAmount','netCashflow'];
   function renderStatus(rows){
     const depositBody=document.getElementById('crDepositStatusBody');
     const withdrawBody=document.getElementById('crWithdrawStatusBody');
@@ -257,7 +260,7 @@
     }
 
     if(legacyBody){
-      const combinedRows = rows.filter(function(r){ return hasAnyData(r, ['depositApprovedMembers','depositApprovedCount','depositApprovedAmount','depositPendingAmount','depositFailedCount','depositFailedAmount','withdrawApprovedMembers','withdrawApprovedCount','withdrawApprovedAmount','withdrawPendingAmount','withdrawFailedCount','withdrawFailedAmount','netCashflow']); });
+      const combinedRows = rows.filter(function(r){ return hasAnyData(r, DW_ROW_FIELDS); });
       mountRows('crStatusBody', combinedRows.map(r=>`<tr>
         <td><b>${esc(r.date)}</b></td>
         <td>${whole(r.depositApprovedMembers)}</td>
@@ -276,6 +279,21 @@
       </tr>`), 'No deposit / withdraw request data.');
     }
   }
+  /* The Deposit / Withdraw page's own KPI strip (`dwDepositApproved` exists only on that page):
+     the four tiles the Overview report leads with, so the two pages read the same at a glance.
+     Every tile is summed from the SAME daily rows the table renders, filtered by the same rule, so
+     the strip cannot disagree with the table underneath it - a strip fed from a different aggregate
+     is the classic "the numbers do not add up" report. `setMetric` is a no-op for an id that is not
+     on the page, so the other four casino reports run through this harmlessly. */
+  function sumField(rows, key){ return rows.reduce(function(s, r){ return s + num(r && r[key]); }, 0); }
+  function renderDepositWithdrawStats(rows){
+    if(!document.getElementById('dwDepositApproved')) return;
+    const list = (rows || []).filter(function(r){ return hasAnyData(r, DW_ROW_FIELDS); });
+    setMetric('dwDepositApproved', sumField(list, 'depositApprovedAmount'), true);
+    setMetric('dwWithdrawApproved', sumField(list, 'withdrawApprovedAmount'), true);
+    setMetric('dwDepositPending', sumField(list, 'depositPendingAmount'), true);
+    setMetric('dwWithdrawPending', sumField(list, 'withdrawPendingAmount'), true);
+  }
   function renderBonus(rows){
     rows = (rows || []).filter(function(r){ return hasAnyData(r, ['memberCount','claimCount','bonusAmount']); });
     mountRows('crBonusBody', rows.map(r=>`<tr><td><b>${esc(r.date || '-')}</b></td><td><b>${esc(r.referenceNo || r.promotionName || '-')}</b></td><td>${whole(r.memberCount)}</td><td>${whole(r.claimCount)}</td><td>${money(r.bonusAmount)}</td></tr>`), 'No bonus ledger data.');
@@ -287,6 +305,7 @@
     renderBreakdown(data.breakdown || []);
     renderProvider(data.providerDaily || data.provider || []);
     renderStatus(data.depositWithdrawDaily || []);
+    renderDepositWithdrawStats(data.depositWithdrawDaily || []);
     renderBonus(Array.isArray(data.bonusDaily) ? data.bonusDaily : (Array.isArray(data.bonus) ? data.bonus : []));
   }
   let reportLoadSeq = 0;

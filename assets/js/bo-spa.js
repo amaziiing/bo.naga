@@ -545,6 +545,14 @@
      document order. Inline scripts count: pages keep one or two of them, and they are
      part of how the page boots. Non-JS script tags (speculationrules, JSON payloads)
      are skipped - they are data, not code. */
+  /* Is there a DOMContentLoaded record for this script - i.e. anything the replay can call? */
+  function registryHas(key) {
+    var reg = window.__boDCL;
+    if (!reg || !reg.length) return false;
+    for (var i = 0; i < reg.length; i++) if (reg[i] && reg[i].s === key) return true;
+    return false;
+  }
+
   function collectScripts(doc) {
     var out = [];
     each(doc.querySelectorAll('script'), function (s) {
@@ -583,7 +591,20 @@
            timers, document listeners, injected containers - and re-running them is exactly the
            duplication the first version guarded against. PAGE_KEYS is the set the current
            document loaded, updated on every swap. */
-        if (EXECUTED[key] && PAGE_KEYS[key]) return;
+        if (EXECUTED[key] && PAGE_KEYS[key]) {
+          /* Replayed, not re-run - unless there is NOTHING to replay. A file that first ran
+             during a swap registered no DOMContentLoaded listener (readyState was already
+             complete, so its ready()-style helper called the boot directly), and that record
+             is the router's only handle on it: skipping the file then left the target without
+             its per-page work until a reload - measured, the shared date pickers stayed raw on
+             the second tab switch (dashboard -> casino report -> commission tab). Everything
+             on SHARED_REPLAY is written to be re-runnable, so run it again instead. */
+          if (SHARED_REPLAY[key] && !registryHas(key)) {
+            EXECUTED[key] = 1;
+            out.push({ src: src, key: key });
+          }
+          return;
+        }
         EXECUTED[key] = 1;
         out.push({ src: src, key: key });
         return;

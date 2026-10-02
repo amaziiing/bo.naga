@@ -61,5 +61,11 @@
     yearGrid.addEventListener('click',e=>{const b=e.target.closest('[data-year]');if(!b)return;const selectedYear=Number(b.dataset.year);view=new Date(selectedYear,0,1);commit(new Date(selectedYear,0,1),new Date(selectedYear,11,31));mode='days';render();pop.classList.remove('show')});
     document.addEventListener('click',e=>{const path=typeof e.composedPath==='function'?e.composedPath():[];if(!host.contains(e.target)&&!path.includes(host))pop.classList.remove('show')});syncText();render();
   }
+  /* SPA: build on every entry, before the first paint - the DOMContentLoaded boot alone leaves
+     the raw inputs on screen for the whole script window, and a run that happened during a swap
+     registers no listener at all. One slot per document; build() is idempotent per pair. */
+  if(window.__boDateRangeBankUsageSpaBound) document.removeEventListener('bo:spa:content-mounted',window.__boDateRangeBankUsageSpaBound);
+  window.__boDateRangeBankUsageSpaBound=()=>PAIRS.forEach(p=>build(document.getElementById(p[0]),document.getElementById(p[1])));
+  document.addEventListener('bo:spa:content-mounted',window.__boDateRangeBankUsageSpaBound);
   document.addEventListener('DOMContentLoaded',()=>PAIRS.forEach(p=>build(document.getElementById(p[0]),document.getElementById(p[1]))));
 })();

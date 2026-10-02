@@ -12,7 +12,6 @@
   const editModal = document.getElementById('adminEditModal');
   const editForm = document.getElementById('editAdminForm');
   const searchInput = document.getElementById('adminSearchInput');
-  const roleFilter = document.getElementById('adminRoleFilter');
   const cancelBtn = document.getElementById('cancelCreateAdminBtn');
   const exportBtn = document.getElementById('exportAdminBtn');
   const pageSizeEl = document.getElementById('adminPageSize');
@@ -130,7 +129,6 @@
       roleMap = Object.assign(roleMap, Object.fromEntries(rows.map(r=>[String(r.id),r.name||r.code])));
       const html = rows.map(r => '<option value="'+esc(r.id)+'">'+esc(r.name || r.code)+(r.roleType==='BRAND_OWNER'?' (Owner)':'')+'</option>').join('') || '<option value="">No role available for this selection</option>';
       ['newAdminRole','editAdminRole'].forEach(id => { const el=document.getElementById(id); if(el) el.innerHTML = html; });
-      if(roleFilter){ roleFilter.innerHTML = '<option value="">All Roles</option>' + html; }
       const pg = document.getElementById('newAdminPermissionGroup'); if(pg) pg.innerHTML = '<option value="">Select permission group (optional)</option>' + html;
       return rows;
     }catch(e){
@@ -159,12 +157,10 @@
 
   function applyFilters(){
     const q = (searchInput && searchInput.value || '').trim().toLowerCase();
-    const role = roleFilter && roleFilter.value || '';
     const status = statusTerm;
     filteredAdmins = allAdmins.filter(row => {
       const hay = [row.username, row.displayName, roleName(row)].join(' ').toLowerCase();
       if(q && !hay.includes(q)) return false;
-      if(role && String(row.roleId || '') !== String(role)) return false;
       if(status !== 'all' && rowStatus(row) !== status) return false;
       return true;
     });
@@ -287,9 +283,10 @@
 
   /* The edit form lives on admin-user-create.html?id=N now. */
 
-  // No Reset / Search in the strip any more: the fields drive the filter. Text
-  // waits out a 400ms debounce (the report family's value), the selects apply at
-  // once. Enter still commits immediately.
+  // No Reset / Search in the strip any more: the field drives the filter. Text
+  // waits out a 400ms debounce (the report family's value). Enter still commits
+  // immediately. The Role select went with its own dead option list - the pills
+  // and the search field are this page's controls (see admin-user.html).
   (function wireLiveFilters(){
     let t = 0;
     const soon = () => { clearTimeout(t); t = setTimeout(applyFilters, 400); };
@@ -297,7 +294,6 @@
       searchInput.addEventListener('input', soon);
       searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') { clearTimeout(t); applyFilters(); } });
     }
-    roleFilter && roleFilter.addEventListener('change', applyFilters);
   })();
   wireStatusPills();
   searchInput && searchInput.addEventListener('keydown', e => { if(e.key === 'Enter') applyFilters(); });

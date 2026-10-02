@@ -9,7 +9,7 @@
 <title>Rebate Management</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
-<link href="assets/css/reports.css?v=bd926796" rel="stylesheet"/>
+<link href="assets/css/reports.css?v=31e784eb" rel="stylesheet"/>
 <link href="assets/css/table-pagination-horizontal.css?v=e0d02694" rel="stylesheet"/>
 <link href="assets/css/bo-ui-standard.css?v=817727e7" rel="stylesheet">
 <link href="assets/css/bo-targeted-fixes.css?v=3147d00a" rel="stylesheet">
@@ -19,7 +19,7 @@
 <link href="assets/css/bo-charcoal-primitives.css?v=ff214d1a" rel="stylesheet" />
 <link href="assets/css/bo-input-fill.css?v=1ab80f49" rel="stylesheet" />
 <link href="assets/css/rebate-pages.css?v=9731491c" rel="stylesheet"/>
-<link href="assets/css/rebate-management-craft.css?v=3553cf36" rel="stylesheet"/>
+<link href="assets/css/rebate-management-craft.css?v=d50bde80" rel="stylesheet"/>
 <link href="assets/css/bo-scrollbar.css?v=39f413e5" rel="stylesheet"/>
 <link href="assets/css/bo-control-height.css?v=ff703846" rel="stylesheet">
 <link href="assets/css/bo-field-standard.css?v=6673ed98" rel="stylesheet">
@@ -112,7 +112,7 @@
       <button class="clean-btn" id="runSettle" type="button"><i class="bi bi-play-circle"></i> Run yesterday</button>
       <button class="clean-btn" id="runWeeklySettle" type="button"><i class="bi bi-calendar-week"></i> Finalize week</button>
     </div>
-    <button class="clean-btn primary" id="addRule" type="button"><i class="bi bi-plus-lg"></i> Add rule</button>
+    <a class="clean-btn primary" id="addRule" href="rebate-rule-edit.html"><i class="bi bi-plus-lg" aria-hidden="true"></i> Add rule</a>
   </div>
   <div class="rebate-chrome-action-set" data-actions="batches" hidden>
     <button class="clean-btn" id="refreshBatches" type="button"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
@@ -172,12 +172,11 @@
 </section>
 </main>
 </div>
-<div aria-hidden="true" class="modal-clean rebate-modal" id="ruleModal"><div class="modal-clean-panel"><div class="modal-clean-head"><div><h3 id="ruleModalTitle">Add Rebate Rule</h3><p>Provider/category/VIP matching produces one final effective rate.</p></div><button class="modal-clean-close" id="closeRule" type="button" aria-label="Close"><i class="bi bi-x-lg"></i></button></div><form id="ruleForm"><input id="rrId" type="hidden"/><div class="modal-clean-body"><div class="rebate-form-section"><h4><span class="rebate-form-sec-icon" aria-hidden="true"><i class="bi bi-info-circle"></i></span>Basic Rule</h4><div class="rebate-form-grid"><label class="wide">Rule Name *<input id="rrName" required=""/></label><label>Provider Code<input id="rrProviderCode" placeholder="Blank = all providers"/></label><label>Game Category<select id="rrGameCategory"><option value="">All Categories</option><option value="SLOT">Slot</option><option value="LIVE">Live</option><option value="SPORTS">Sports</option></select><small class="rebate-field-help">Loaded from Game Category. No manual typing required.</small></label><label>VIP Scope<select id="rrVipScope"><option value="SPECIFIC">Specific VIP Level</option><option value="ALL">All VIP Levels</option></select><small class="rebate-field-help">Specific VIP for one tier, or All VIP for a global rule.</small></label><label>VIP Level<select id="rrVipLevel"><option value="">Select level</option></select><small class="rebate-field-help">Loaded from VIP Management by VIP Order.</small></label><label>Priority<input id="rrPriority" min="0" type="number" value="0"/></label><label>Status<select id="rrStatus"><option value="1">Active</option><option value="0">Inactive</option></select></label></div></div><div class="rebate-form-section"><h4><span class="rebate-form-sec-icon" aria-hidden="true"><i class="bi bi-bar-chart"></i></span>Valid Bet Tier &amp; Rate</h4><div class="rebate-form-grid rebate-form-grid--rate"><label>Minimum Valid Bet<input id="rrMinValidBet" min="0" step="0.0001" type="number"/></label><label>Maximum Valid Bet<input id="rrMaxValidBet" min="0" placeholder="Blank = unlimited" step="0.0001" type="number"/></label><label>Rebate Rate (%) *<input id="rrRebateRate" min="0" required="" step="0.000001" type="number"/></label><label>Maximum Rebate<input id="rrMaxRebate" min="0" placeholder="Blank = unlimited" step="0.0001" type="number"/></label></div></div><div class="rebate-form-section"><h4><span class="rebate-form-sec-icon" aria-hidden="true"><i class="bi bi-gem"></i></span>VIP &amp; Claim</h4><div class="rebate-form-grid"><label>VIP Combination<select id="rrCombinationMode"><option value="HIGHER_RATE">Use Higher Rate</option><option value="PROVIDER_RATE_ONLY">Provider Rate Only</option><option value="VIP_RATE_ONLY">VIP Rate Only</option><option value="PROVIDER_PLUS_VIP_EXTRA">Provider + VIP Extra</option></select></label><label>Claim Mode<select id="rrClaimMode"><option value="MANUAL">Manual Claim</option><option value="AUTO">Automatic Credit</option></select></label><label>Settlement Cycle<select id="rrSettlementCycle"><option value="DAILY">Daily</option><option value="WEEKLY">Weekly</option></select></label><label class="rebate-dt-field">Start At<div class="rebate-dt-shell"><button type="button" class="rebate-dt-trigger" data-dt-for="rrStartAt" aria-label="Select start date and time"><span class="rebate-dt-text is-empty">Select date &amp; time</span><i class="bi bi-calendar3" aria-hidden="true"></i></button><input id="rrStartAt" class="rebate-dt-native" type="datetime-local" lang="en" tabindex="-1"/></div></label><label class="rebate-dt-field">End At<div class="rebate-dt-shell"><button type="button" class="rebate-dt-trigger" data-dt-for="rrEndAt" aria-label="Select end date and time"><span class="rebate-dt-text is-empty">Select date &amp; time</span><i class="bi bi-calendar3" aria-hidden="true"></i></button><input id="rrEndAt" class="rebate-dt-native" type="datetime-local" lang="en" tabindex="-1"/></div></label></div></div></div><div class="modal-clean-foot"><button class="clean-btn" id="cancelRule" type="button">Cancel</button><button class="clean-btn primary" type="submit"><i class="bi bi-save"></i> Save Rule</button></div></form></div></div>
 <div aria-hidden="true" class="modal-clean audit-detail-modal" id="auditDetailModal"><div aria-hidden="true" class="modal-clean-panel"><div aria-hidden="true" class="modal-clean-head"><div><h3>Audit Detail</h3><p>Immutable before/after snapshots and execution details.</p></div><button class="modal-clean-close" id="closeAuditDetail" type="button"><i class="bi bi-x-lg"></i></button></div><div aria-hidden="true" class="modal-clean-body"><div class="audit-detail-content" id="auditDetailContent"></div></div><div aria-hidden="true" class="modal-clean-foot"><button class="clean-btn primary" id="closeAuditDetailBottom" type="button">Close</button></div></div></div>
 <script src="assets/js/config.js?v=e7312672"></script>
 <script src="assets/js/brand-context.js?v=27360386"></script>
 <script src="assets/js/main-currency-runtime.js?v=4060eb86"></script>
-<script src="assets/js/currency-runtime.js?v=b63c89fb"></script><script src="assets/js/auth.js?v=becad1fa"></script><script src="assets/js/reports.js?v=f5cb7d42"></script><script src="assets/js/rebate-management.js?v=8940ccc8" data-bo-spa-rerun></script><script src="assets/js/pagination-standardizer.js?v=9eb44c56"></script><script src="assets/js/operation-global-notification.js?v=efe72819"></script>
+<script src="assets/js/currency-runtime.js?v=b63c89fb"></script><script src="assets/js/auth.js?v=d732a06b"></script><script src="assets/js/reports.js?v=f5cb7d42"></script><script src="assets/js/rebate-management.js?v=860c233a" data-bo-spa-rerun></script><script src="assets/js/pagination-standardizer.js?v=9eb44c56"></script><script src="assets/js/operation-global-notification.js?v=efe72819"></script>
 <script src="assets/js/bo-ui-standard.js?v=83c736eb"></script>
 <!-- Global live-chat unread reminder: sounds across BO until admin unread count reaches 0. -->
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
@@ -186,5 +185,5 @@
 <script src="assets/js/livechat-global-notification.js?v=d7f4667a"></script>
 <script src="assets/js/bo-theme.js?v=d78603d9"></script>
 <script src="assets/js/bo-account-chip.js?v=94cb2c63"></script>
-<script src="assets/js/bo-spa-manifest.js?v=afa9dfeb"></script><script src="assets/js/bo-spa.js?v=ad7d4784"></script>
+<script src="assets/js/bo-spa-manifest.js?v=df570cb9"></script><script src="assets/js/bo-spa.js?v=ad7d4784"></script>
 </body></html>

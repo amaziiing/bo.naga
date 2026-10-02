@@ -1,0 +1,1140 @@
+/* Rebate Rule — Add / Edit, on its own page (was the #ruleModal modal on
+   rebate-management.html / daily-rebate-setting.html).
+
+   The frame is the rebate family's: .report-content is a viewport-locked flex box, so this
+   page's own scrollport is .rre-workspace and the action bar is fixed to the viewport bottom
+   with the shell's foot height (var(--bo-shell-foot-h,68px) + safe area), the recipe
+   vip-level-edit.html uses. Colors are the family amber ladder: canvas #FFF8EB → card #FFFCF7
+   → well #F5EBDC.
+
+   Everything from "form ladder" down used to be scoped to #ruleModal in
+   rebate-management-craft.css; the modal is gone and the scope is this page's form. Nothing
+   was re-designed — the same rules, the same values, a different owner.
+
+   WHOLE FILE NOTE: no shell metric lives here (check-shell-drift.js); the closest thing is
+   .rre-workspace / .rre-footer, which are this page's own elements. */
+
+/* ---- Frame: workspace scrollport + action bar ---- */
+body.rebate-rule-edit-page.report-body.bo-charcoal .rre-workspace{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  width:100%!important;
+  max-width:none!important;
+  box-sizing:border-box!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  -webkit-overflow-scrolling:touch;
+  padding-bottom:calc(var(--bo-shell-foot-h,68px) + 20px + env(safe-area-inset-bottom,0px))!important;
+}
+body.rebate-rule-edit-page.report-body.bo-charcoal .rre-form{
+  display:flex!important;
+  flex-direction:column!important;
+  margin:0!important;
+  padding:0!important;
+  width:100%!important;
+  max-width:none!important;
+  box-sizing:border-box!important;
+}
+/* Back to list sits in the first section's <h4> (the same place slider-edit / game-category-edit
+   / vip-level-edit put theirs: last child of the card's head row). The row is already
+   flex/gap, so the control takes margin-left:auto to land at its right end. */
+
+/* ---- Back to list — the house back control, measured off the pages that already carry one
+   (manual-rebate-detail #detailBack, vip-level-edit .vle-back-list, payment-method-create
+   #pmBackLink, game-category-edit .banner-edit-back): 36px · radius 8 · pad 0 14px ·
+   12.5px/700 · 3-stop cream · #DCC9A8 · #18191C, at the right end of its row. ---- */
+body.rebate-rule-edit-page.report-body.bo-charcoal .rre-back{
+  margin-left:auto!important;
+  flex:0 0 auto!important;
+  align-self:center!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:7px!important;
+  height:36px!important;
+  min-height:36px!important;
+  padding:0 14px!important;
+  border-radius:8px!important;
+  font-size:12.5px!important;
+  font-weight:700!important;
+  line-height:1!important;
+  text-decoration:none!important;
+  background-color:#F5EBDC!important;
+  background-image:linear-gradient(180deg,#FFFCF7 0%,#F5EBDC 55%,#EDE4D4 100%)!important;
+  border:1px solid #DCC9A8!important;
+  color:#18191C!important;
+  box-shadow:0 1px 2px rgba(60,48,32,.06),0 2px 6px rgba(120,80,20,.08),inset 0 1px 0 rgba(255,255,255,.55)!important;
+  transition:background-image .16s ease,border-color .16s ease,transform .16s ease!important;
+}
+body.rebate-rule-edit-page.report-body.bo-charcoal .rre-back i{font-size:14px!important;line-height:1!important;color:inherit!important}
+body.rebate-rule-edit-page.report-body.bo-charcoal .rre-back:hover,
+body.rebate-rule-edit-page.report-body.bo-charcoal .rre-back:focus-visible{
+  background-image:linear-gradient(180deg,#FFF8EB 0%,#F3E8D6 100%)!important;
+  border-color:#D97706!important;
+  color:#18191C!important;
+  transform:translateY(-1px)!important;
+}
+body.rebate-rule-edit-page.report-body.bo-charcoal .rre-back:focus-visible{
+  outline:2px solid #D97706!important;
+  outline-offset:2px!important;
+}
+body.rebate-rule-edit-page.report-body.bo-charcoal .rre-back:active{transform:translateY(1px)!important}
+
+/* ---- Structure the light ladder below states inside its own theme scope ----
+   The rules that came over from the modal described these three things as LIGHT rules, because
+   the modal only ever rendered them in light: the card head's flex row, the datetime shell's
+   36px box, and the hidden native <input type="datetime-local"> behind the trigger. Dark is a
+   first-class state on this page, and measured there:
+
+     h4            display block      → Back to list sat beside the title (gapToRowRight 1015,
+                                        against 0 in light) instead of at the row's right end
+     dt shell      78px tall          → the browser's own date control was visible under a 36px
+                                        trigger (the native input is only hidden in the light
+                                        scope), and the shell carried no well fill of its own
+     dt trigger    inline-flex, 164px → painted as a ghost BUTTON (#383A46 fill, border, 14px
+                                        padding, centred) rather than the field's text row
+
+   Geometry is stated once here and applies in both themes; the colour of each is left to the
+   light/dark ladder further down. */
+body.rebate-rule-edit-page.report-body.bo-charcoal .rebate-form-section h4{
+  display:flex!important;
+  align-items:center!important;
+  gap:8px!important;
+}
+body.rebate-rule-edit-page.report-body.bo-charcoal:not(#bo-input-fill-legacy):not(#bo-input-fill-legacy-2) #rreForm .rebate-dt-shell{
+  position:relative!important;
+  display:block!important;
+  margin-top:6px!important;
+  height:36px!important;
+  min-height:36px!important;
+  box-sizing:border-box!important;
+}
+body.rebate-rule-edit-page.report-body.bo-charcoal #rreForm .rebate-dt-trigger{
+  position:relative!important;
+  z-index:1!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:10px!important;
+  width:100%!important;
+  padding:0 12px!important;
+  border:0!important;
+  background:transparent!important;
+  background-image:none!important;
+  box-shadow:none!important;
+  font-size:13px!important;
+  font-weight:600!important;
+}
+body.rebate-rule-edit-page.report-body.bo-charcoal:not(#bo-input-fill-legacy):not(#bo-input-fill-legacy-2) #rreForm .rebate-dt-native{
+  /* `display:none` and not "invisible": the input is a value holder only (the picker reads and
+     writes `.value`), and every colour/opacity statement loses here. Measured cascade on
+     #rrStartAt: bo-field-standard.css declares background/color with a 32-id guard
+     (`html body:not(#field-standard-off):not(#field-standard-legacy):not(#bo-charcoal-off)…`)
+     and reports.css declares `opacity:1!important` on `.report-content input`, both above this
+     rule - which is how the native control kept painting its value and its calendar glyph UNDER
+     the trigger (`opacity` computed 1, `color` the field ink). `display` has no other owner. */
+  display:none!important;
+  position:absolute!important;
+  inset:0!important;
+  z-index:0!important;
+  width:100%!important;
+  height:100%!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  pointer-events:none!important;
+}
+body.rebate-rule-edit-page.report-body.bo-charcoal #rreForm .rebate-dt-native::-webkit-calendar-picker-indicator{
+  display:none!important;
+  opacity:0!important;
+}
+
+/* ---- Action bar (fixed to the viewport bottom, shell foot height) ---- */
+/* The bar's paint (fill / border / shadow) is its own ladder further down, moved from the
+   modal foot; this rule owns only where it sits and how tall it is. */
+body.rebate-rule-edit-page.report-body.bo-charcoal .rre-footer{
+  position:fixed!important;
+  left:var(--sidebar-w,260px)!important;
+  right:0!important;
+  bottom:0!important;
+  z-index:900!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  gap:12px!important;
+  height:calc(var(--bo-shell-foot-h,68px) + env(safe-area-inset-bottom,0px))!important;
+  min-height:calc(var(--bo-shell-foot-h,68px) + env(safe-area-inset-bottom,0px))!important;
+  padding:14px 20px calc(14px + env(safe-area-inset-bottom,0px))!important;
+  box-sizing:border-box!important;
+}
+body.sidebar-mini.rebate-rule-edit-page.report-body.bo-charcoal .rre-footer{
+  left:var(--rail-w,72px)!important;
+}
+/* Cancel is an <a> here (it must work without a click handler): give it the button box the
+   base `.clean-btn` only implies for a <button>. */
+body.rebate-rule-edit-page.report-body.bo-charcoal .rre-footer a.clean-btn{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:8px!important;
+  text-decoration:none!important;
+  cursor:pointer!important;
+}
+
+/* ---- Form ladder (was #ruleModal) ---- */
+
+/* ---- Frame · dark ---- */
+html[data-bo-theme="dark"] body.rebate-rule-edit-page.report-body.bo-charcoal .rre-back{
+  background-color:#383A46!important;
+  background-image:linear-gradient(180deg,#4A4C58 0%,#383A46 48%,#2C2E38 100%)!important;
+  border:1px solid rgba(255,255,255,.12)!important;
+  color:#F5F5F4!important;
+  box-shadow:0 1px 2px rgba(0,0,0,.22),0 2px 6px rgba(0,0,0,.16)!important;
+}
+html[data-bo-theme="dark"] body.rebate-rule-edit-page.report-body.bo-charcoal .rre-back:hover,
+html[data-bo-theme="dark"] body.rebate-rule-edit-page.report-body.bo-charcoal .rre-back:focus-visible{
+  background-image:linear-gradient(180deg,#383A46 0%,#2C2E38 100%)!important;
+  border-color:rgba(245,158,11,.5)!important;
+  color:#F5F5F4!important;
+}
+html[data-bo-theme="dark"] body.rebate-rule-edit-page.report-body.bo-charcoal .rre-back:focus-visible{outline-color:#F59E0B!important}
+
+/* ---- Form ladder · dark (was #ruleModal) ---- */
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page .rre-footer{
+  flex:0 0 auto!important;
+  display:flex!important;
+  justify-content:flex-end!important;
+  align-items:center!important;
+  gap:10px!important;
+  padding:14px 20px!important;
+  border-top:1px solid #DCC9A8!important;
+  background:#FFFCF7!important;
+  box-shadow:0 -8px 24px rgba(92,74,48,.06)!important;
+}
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page #rreForm .rebate-form-section{
+  padding:14px 16px!important;
+  margin:0 0 12px!important;
+  border:1px solid #DCC9A8!important;
+  border-radius:10px!important;
+  background:#FFFCF7!important;
+  border-left:3px solid #D97706!important;
+  box-shadow:0 1px 2px rgba(92,74,48,.04)!important;
+}
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page #rreForm .rebate-form-section:last-child{
+  margin-bottom:0!important;
+}
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page #rreForm .rebate-form-section h4{
+  display:flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  margin:0 0 12px!important;
+  padding:0 0 10px!important;
+  border-bottom:1px solid #EADCC8!important;
+  color:#18191C!important;
+  font-size:13px!important;
+  font-weight:800!important;
+}
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page #rreForm .rebate-form-sec-icon{
+  display:inline-grid!important;
+  place-items:center!important;
+  width:28px!important;
+  height:28px!important;
+  border-radius:8px!important;
+  background:linear-gradient(180deg,#FFF8EB 0%,#FFE8CC 100%)!important;
+  border:1px solid #EADCC8!important;
+  color:#D97706!important;
+  flex:0 0 28px!important;
+}
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page #rreForm .rebate-form-sec-icon i{
+  font-size:14px!important;
+  margin:0!important;
+  color:inherit!important;
+}
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page #rreForm .rebate-form-grid{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:12px 14px!important;
+}
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page #rreForm .rebate-form-grid--rate{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+}
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page #rreForm .rebate-form-grid label{
+  display:flex!important;
+  flex-direction:column!important;
+  gap:0!important;
+  min-width:0!important;
+  color:#57534E!important;
+  font-size:11px!important;
+  font-weight:800!important;
+  letter-spacing:.04em!important;
+  text-transform:uppercase!important;
+}
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page #rreForm .rebate-form-grid .wide{
+  grid-column:1/-1!important;
+}
+
+/* Form wells — recessed #F5EBDC on section lift.
+   Must beat bo-input-fill.css listing fill #FFF8EB: that sheet uses
+   body:not(#bo-input-fill-legacy):not(#bo-input-fill-legacy-2) + many input:not()
+   (ID-tier specificity). Match that escalation under #ruleModal or wells stay flat. */
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page:not(#bo-input-fill-legacy):not(#bo-input-fill-legacy-2) #rreForm .rebate-form-grid input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]):not([type="color"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not(:disabled):not([readonly]):not(.rebate-dt-native),
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page:not(#bo-input-fill-legacy):not(#bo-input-fill-legacy-2) #rreForm .rebate-form-grid select:not(:disabled),
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page:not(#bo-input-fill-legacy):not(#bo-input-fill-legacy-2) #rreForm .rebate-form-grid .rounded-select-btn,
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page:not(#bo-input-fill-legacy):not(#bo-input-fill-legacy-2) #rreForm .rebate-form-grid [role="combobox"]{
+  width:100%!important;
+  height:36px!important;
+  min-height:36px!important;
+  max-height:36px!important;
+  margin-top:6px!important;
+  box-sizing:border-box!important;
+  border:1px solid #DCC9A8!important;
+  border-radius:8px!important;
+  padding:0 12px!important;
+  background-color:#F5EBDC!important;
+  color:#18191C!important;
+  font-size:13px!important;
+  font-weight:600!important;
+  line-height:normal!important;
+  box-shadow:none!important;
+}
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page:not(#bo-input-fill-legacy):not(#bo-input-fill-legacy-2) #rreForm .rebate-form-grid input:hover:not(:disabled):not([readonly]):not(.rebate-dt-native),
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page:not(#bo-input-fill-legacy):not(#bo-input-fill-legacy-2) #rreForm .rebate-form-grid input:focus:not(:disabled):not([readonly]):not(.rebate-dt-native),
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page:not(#bo-input-fill-legacy):not(#bo-input-fill-legacy-2) #rreForm .rebate-form-grid select:hover:not(:disabled),
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page:not(#bo-input-fill-legacy):not(#bo-input-fill-legacy-2) #rreForm .rebate-form-grid select:focus:not(:disabled),
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page:not(#bo-input-fill-legacy):not(#bo-input-fill-legacy-2) #rreForm .rebate-form-grid .rounded-select-btn:hover,
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page:not(#bo-input-fill-legacy):not(#bo-input-fill-legacy-2) #rreForm .rebate-form-grid .rounded-select-btn.open,
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page:not(#bo-input-fill-legacy):not(#bo-input-fill-legacy-2) #rreForm .rebate-form-grid .rounded-select-btn:focus{
+  background-color:#F5EBDC!important;
+  outline:none!important;
+  border-color:#D97706!important;
+  box-shadow:0 0 0 3px rgba(217,119,6,.14)!important;
+}
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page:not(#bo-input-fill-legacy):not(#bo-input-fill-legacy-2) #rreForm .rebate-form-grid input::placeholder{
+  color:#78716C!important;
+}
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page #rreForm .rebate-field-help{
+  margin-top:5px!important;
+  font-size:11px!important;
+  font-weight:500!important;
+  letter-spacing:0!important;
+  text-transform:none!important;
+  color:#78716C!important;
+  line-height:1.35!important;
+}
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page .rre-footer .clean-btn:not(.primary){
+  height:40px!important;
+  min-height:40px!important;
+  padding:0 16px!important;
+  border-radius:8px!important;
+  border:1px solid #DCC9A8!important;
+  background:#FFFCF7!important;
+  background-image:linear-gradient(180deg,#FFFCF7 0%,#F5EBDC 55%,#EDE4D4 100%)!important;
+  color:#18191C!important;
+  font-size:13px!important;
+  font-weight:700!important;
+  box-shadow:0 1px 2px rgba(92,74,48,.06),inset 0 1px 0 rgba(255,255,255,.55)!important;
+}
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page .rre-footer .clean-btn:not(.primary):hover{
+  background-image:linear-gradient(0deg,#FFFCF7 0%,#F5EBDC 45%,#EDE4D4 100%)!important;
+  border-color:#D97706!important;
+  color:#6b360c!important;
+}
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page .rre-footer .clean-btn.primary{
+  height:40px!important;
+  min-height:40px!important;
+  padding:0 16px!important;
+  border-radius:8px!important;
+  border:1px solid #E8901A!important;
+  background-color:#F59E0B!important;
+  background-image:linear-gradient(180deg,#FBBF24 0%,#F59E0B 42%,#EA8608 100%)!important;
+  color:#fff!important;
+  font-size:13px!important;
+  font-weight:800!important;
+  box-shadow:none!important;
+}
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page .rre-footer .clean-btn.primary:hover{
+  background-image:linear-gradient(0deg,#FCD34D 0%,#FBBF24 38%,#F59E0B 72%,#EA8608 100%)!important;
+  border-color:#F59E0B!important;
+  transform:translateY(-1px);
+}
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page .rre-footer .clean-btn.primary i{
+  color:#fff!important;
+}
+
+
+/* Start At / End At — MD date-trigger chrome on form wells (hide native locale chrome) */
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page:not(#bo-input-fill-legacy):not(#bo-input-fill-legacy-2) #rreForm .rebate-dt-shell{
+  position:relative!important;
+  display:block!important;
+  margin-top:6px!important;
+  height:36px!important;
+  min-height:36px!important;
+  box-sizing:border-box!important;
+  border:1px solid #DCC9A8!important;
+  border-radius:8px!important;
+  background-color:#F5EBDC!important;
+  box-shadow:none!important;
+}
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page:not(#bo-input-fill-legacy):not(#bo-input-fill-legacy-2) #rreForm .rebate-dt-shell:focus-within{
+  border-color:#D97706!important;
+  box-shadow:0 0 0 3px rgba(217,119,6,.14)!important;
+}
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-trigger{
+  position:relative!important;
+  z-index:1!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:10px!important;
+  width:100%!important;
+  height:100%!important;
+  margin:0!important;
+  padding:0 12px!important;
+  border:0!important;
+  border-radius:8px!important;
+  background:transparent!important;
+  color:#18191C!important;
+  font-size:13px!important;
+  font-weight:600!important;
+  line-height:1!important;
+  font-variant-numeric:tabular-nums!important;
+  letter-spacing:-.01em!important;
+  cursor:pointer!important;
+  box-shadow:none!important;
+}
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-text{
+  flex:1 1 auto!important;
+  min-width:0!important;
+  text-align:left!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+}
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-text.is-empty{
+  color:#78716C!important;
+  font-weight:500!important;
+}
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-trigger > .bi-calendar3{
+  flex:0 0 auto!important;
+  font-size:15px!important;
+  color:#57534E!important;
+  opacity:.9!important;
+}
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-shell:focus-within .rebate-dt-trigger > .bi-calendar3{
+  color:#D97706!important;
+}
+/* (the native input's own rules live with the theme-neutral block above: the light ladder's
+   copy of them was inert - see the measurement there) */
+
+
+/* Datetime popover v4 — side-by-side · compact */
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-shell{
+  position:relative!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-pop{
+  display:none!important;
+  position:absolute!important;
+  z-index:80!important;
+  top:calc(100% + 6px)!important;
+  left:0!important;
+  width:min(348px,calc(100vw - 36px))!important;
+  border:1px solid #EADCC8!important;
+  border-radius:12px!important;
+  background:#FFF8EB!important;
+  box-shadow:0 16px 36px rgba(92,74,48,.16)!important;
+  overflow:hidden!important;
+  font-family:ui-sans-serif,"Segoe UI",system-ui,sans-serif!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-pop.show{
+  display:flex!important;
+  flex-direction:column!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-pop.is-up{
+  top:auto!important;
+  bottom:calc(100% + 6px)!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-summary{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:8px!important;
+  padding:8px 10px!important;
+  border-bottom:1px solid #EADCC8!important;
+  background:#FFFCF7!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-summary-text{
+  min-width:0!important;
+  font-size:12.5px!important;
+  font-weight:700!important;
+  letter-spacing:-.01em!important;
+  color:#18191C!important;
+  font-variant-numeric:tabular-nums!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-summary-text.is-empty{
+  color:#A8A29E!important;
+  font-weight:600!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-summary-clear{
+  flex:0 0 auto!important;
+  border:0!important;
+  background:transparent!important;
+  padding:2px 6px!important;
+  border-radius:6px!important;
+  cursor:pointer!important;
+  color:#A8A29E!important;
+  font-size:11.5px!important;
+  font-weight:650!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-summary-clear:hover{
+  color:#B45309!important;
+  background:rgba(217,119,6,.08)!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-body{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) 86px!important;
+  gap:0!important;
+  padding:0!important;
+  align-items:stretch!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-cal{
+  padding:8px 8px 6px!important;
+  border:0!important;
+  border-right:1px solid #EADCC8!important;
+  min-width:0!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-cal-head{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:2px!important;
+  margin:0 0 6px!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-nav{
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  color:#57534E!important;
+  font-size:12px!important;
+  width:26px!important;
+  height:26px!important;
+  min-width:26px!important;
+  padding:0!important;
+  border-radius:8px!important;
+  cursor:pointer!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-month{
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  color:#18191C!important;
+  font-size:12.5px!important;
+  font-weight:700!important;
+  height:26px!important;
+  padding:0 4px!important;
+  border-radius:8px!important;
+  flex:1 1 auto!important;
+  cursor:default!important;
+  letter-spacing:-.015em!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-nav:hover{
+  background:#F5EBDC!important;
+  color:#18191C!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-week{
+  display:grid!important;
+  grid-template-columns:repeat(7,minmax(0,1fr))!important;
+  gap:0!important;
+  margin:0 0 2px!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-week span{
+  text-align:center!important;
+  color:#A8A29E!important;
+  font-size:10px!important;
+  font-weight:600!important;
+  line-height:18px!important;
+  letter-spacing:0!important;
+  text-transform:none!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-days{
+  display:grid!important;
+  grid-template-columns:repeat(7,minmax(0,1fr))!important;
+  gap:1px!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-day{
+  height:28px!important;
+  min-height:28px!important;
+  max-height:28px!important;
+  width:auto!important;
+  min-width:0!important;
+  padding:0!important;
+  margin:0!important;
+  border:0!important;
+  border-radius:999px!important;
+  background:transparent!important;
+  color:#18191C!important;
+  font-size:12px!important;
+  font-weight:600!important;
+  line-height:28px!important;
+  cursor:pointer!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  box-sizing:border-box!important;
+  box-shadow:none!important;
+  transition:background .12s ease,color .12s ease!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-day:hover{
+  background:#F5EBDC!important;
+  color:#18191C!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-day.is-muted{
+  color:#D6C7B3!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-day.is-today:not(.is-selected){
+  box-shadow:none!important;
+  color:#D97706!important;
+  font-weight:700!important;
+  background:rgba(217,119,6,.08)!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-day.is-selected,
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-day.is-selected:hover{
+  background:#D97706!important;
+  color:#fff!important;
+  box-shadow:none!important;
+  font-weight:700!important;
+}
+
+/* Right rail: hour | min stacked compact */
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-time{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:6px!important;
+  margin:0!important;
+  padding:6px 4px!important;
+  background:#FFFCF7!important;
+  border:0!important;
+  border-radius:0!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-time-colon{
+  display:none!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-step{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  gap:1px!important;
+  min-width:0!important;
+  width:100%!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-step-label{
+  font-size:10px!important;
+  font-weight:600!important;
+  color:#A8A29E!important;
+  letter-spacing:0!important;
+  text-transform:none!important;
+  margin:0!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-step-btn,
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-step-btn.bi,
+html body.report-body.bo-charcoal.rebate-page #rreForm button.rebate-dt-step-btn{
+  width:28px!important;
+  height:20px!important;
+  min-height:20px!important;
+  max-height:20px!important;
+  padding:0!important;
+  margin:0!important;
+  border:0!important;
+  border-radius:6px!important;
+  background:transparent!important;
+  color:#78716C!important;
+  cursor:pointer!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  font-size:10px!important;
+  line-height:1!important;
+  box-shadow:none!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-step-btn i{
+  font-size:10px!important;
+  line-height:1!important;
+  pointer-events:none!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-step-btn:hover{
+  background:#F5EBDC!important;
+  color:#18191C!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-step-val{
+  width:52px!important;
+  max-width:52px!important;
+  height:32px!important;
+  min-height:32px!important;
+  padding:0!important;
+  border:1px solid #EADCC8!important;
+  border-radius:8px!important;
+  background:#FFF8EB!important;
+  color:#18191C!important;
+  font-size:16px!important;
+  font-weight:700!important;
+  letter-spacing:-.02em!important;
+  font-variant-numeric:tabular-nums!important;
+  cursor:pointer!important;
+  box-shadow:none!important;
+  position:relative!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-step-val::after{
+  content:""!important;
+  position:absolute!important;
+  right:5px!important;
+  bottom:5px!important;
+  width:0!important;
+  height:0!important;
+  border-left:3px solid transparent!important;
+  border-right:3px solid transparent!important;
+  border-top:4px solid #C4B5A0!important;
+  opacity:.9!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-step-val:hover{
+  border-color:#D97706!important;
+  color:#B45309!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-body{
+  position:relative!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-pick{
+  position:absolute!important;
+  inset:0!important;
+  z-index:5!important;
+  display:flex!important;
+  flex-direction:column!important;
+  gap:6px!important;
+  padding:8px!important;
+  background:#FFF8EB!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-pick[hidden]{
+  display:none!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-pick-bar{
+  display:flex!important;
+  align-items:center!important;
+  gap:4px!important;
+  flex:0 0 auto!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-pick-back{
+  width:26px!important;
+  height:26px!important;
+  min-height:26px!important;
+  padding:0!important;
+  margin:0!important;
+  border:0!important;
+  border-radius:8px!important;
+  background:transparent!important;
+  color:#57534E!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  cursor:pointer!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-pick-back:hover{
+  background:#F5EBDC!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-pick-title{
+  font-size:12.5px!important;
+  font-weight:700!important;
+  color:#18191C!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-pick-quick{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  gap:4px!important;
+  flex:0 0 auto!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-pick-quick[hidden]{
+  display:none!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-pick-chip{
+  height:26px!important;
+  min-height:26px!important;
+  padding:0 10px!important;
+  margin:0!important;
+  border:1px solid #EADCC8!important;
+  border-radius:999px!important;
+  background:#FFFCF7!important;
+  color:#57534E!important;
+  font-size:11.5px!important;
+  font-weight:700!important;
+  cursor:pointer!important;
+  font-variant-numeric:tabular-nums!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-pick-chip:hover{
+  border-color:#D97706!important;
+  color:#B45309!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-pick-chip.is-selected{
+  background:#D97706!important;
+  border-color:#D97706!important;
+  color:#fff!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-pick-grid{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  overflow:auto!important;
+  display:grid!important;
+  gap:3px!important;
+  align-content:start!important;
+  scrollbar-width:thin!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-pick-grid.is-hour{
+  grid-template-columns:repeat(6,minmax(0,1fr))!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-pick-grid.is-min{
+  grid-template-columns:repeat(6,minmax(0,1fr))!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-pick-opt{
+  height:28px!important;
+  min-height:28px!important;
+  padding:0!important;
+  margin:0!important;
+  border:0!important;
+  border-radius:8px!important;
+  background:transparent!important;
+  color:#18191C!important;
+  font-size:12px!important;
+  font-weight:650!important;
+  cursor:pointer!important;
+  font-variant-numeric:tabular-nums!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-pick-opt:hover{
+  background:#F5EBDC!important;
+  color:#B45309!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-pick-opt.is-selected{
+  background:#D97706!important;
+  color:#fff!important;
+  font-weight:700!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-pick{
+  background:#383A46!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-pick-back{
+  color:#A1A1AA!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-pick-back:hover{
+  background:rgba(255,255,255,.06)!important;
+  color:#F5F5F4!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-pick-title{
+  color:#F5F5F4!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-pick-chip{
+  background:#2A2C36!important;
+  border-color:rgba(255,255,255,.12)!important;
+  color:#D4D4D8!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-pick-chip:hover{
+  border-color:#F59E0B!important;
+  color:#FBBF24!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-pick-chip.is-selected{
+  background:#F59E0B!important;
+  border-color:#F59E0B!important;
+  color:#18191C!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-pick-opt{
+  color:#F5F5F4!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-pick-opt:hover{
+  background:rgba(255,255,255,.06)!important;
+  color:#FBBF24!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-pick-opt.is-selected{
+  background:#F59E0B!important;
+  color:#18191C!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-foot{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:8px!important;
+  padding:6px 8px 8px!important;
+  border-top:1px solid #EADCC8!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-foot-ghost{
+  border:0!important;
+  background:transparent!important;
+  padding:5px 8px!important;
+  border-radius:8px!important;
+  cursor:pointer!important;
+  color:#57534E!important;
+  font-size:12px!important;
+  font-weight:650!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-foot-ghost:hover{
+  background:#F5EBDC!important;
+  color:#18191C!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-foot-primary{
+  border:0!important;
+  padding:5px 12px!important;
+  border-radius:8px!important;
+  cursor:pointer!important;
+  background:#D97706!important;
+  color:#fff!important;
+  font-size:12px!important;
+  font-weight:700!important;
+  box-shadow:none!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-foot-primary:hover{
+  background:#B45309!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-pop{
+  background:#383A46!important;
+  border-color:rgba(255,255,255,.12)!important;
+  box-shadow:0 16px 36px rgba(0,0,0,.5)!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-summary{
+  background:#2A2C36!important;
+  border-bottom-color:rgba(255,255,255,.10)!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-summary-text{
+  color:#F5F5F4!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-summary-text.is-empty{
+  color:#71717A!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-summary-clear{
+  color:#A1A1AA!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-summary-clear:hover{
+  color:#FBBF24!important;
+  background:rgba(245,158,11,.12)!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-cal{
+  border-right-color:rgba(255,255,255,.10)!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-nav{
+  color:#A1A1AA!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-month{
+  color:#F5F5F4!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-nav:hover{
+  background:rgba(255,255,255,.06)!important;
+  color:#F5F5F4!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-week span{
+  color:#71717A!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-day{
+  color:#F5F5F4!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-day:hover{
+  background:rgba(255,255,255,.06)!important;
+  color:#F5F5F4!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-day.is-muted{
+  color:#52525B!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-day.is-today:not(.is-selected){
+  color:#FBBF24!important;
+  background:rgba(245,158,11,.12)!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-day.is-selected,
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-day.is-selected:hover{
+  background:#F59E0B!important;
+  color:#18191C!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-time{
+  background:#2A2C36!important;
+  border-color:transparent!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-step-label{
+  color:#71717A!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-step-btn{
+  color:#A1A1AA!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-step-btn:hover{
+  background:rgba(255,255,255,.06)!important;
+  color:#F5F5F4!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-step-val{
+  background:#383A46!important;
+  border-color:rgba(255,255,255,.12)!important;
+  color:#F5F5F4!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-step-val:hover{
+  border-color:#F59E0B!important;
+  color:#FBBF24!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-foot{
+  border-top-color:rgba(255,255,255,.10)!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-foot-ghost{
+  color:#A1A1AA!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-foot-ghost:hover{
+  background:rgba(255,255,255,.06)!important;
+  color:#F5F5F4!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-foot-primary{
+  background:#F59E0B!important;
+  color:#18191C!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-foot-primary:hover{
+  background:#D97706!important;
+}
+
+
+/* Rounded-select menus — escape panel/body overflow clip (VIP Combination etc.) */
+html body.report-body.bo-charcoal.rebate-page #rreForm:has(.rounded-select-menu.show),
+html body.report-body.bo-charcoal.rebate-page #rreForm:has(.rounded-select-btn.open),
+html body.report-body.bo-charcoal.rebate-page #rreForm:has(.rebate-dt-pop.show),
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-form-section:has(.rounded-select-menu.show),
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-form-section:has(.rounded-select-btn.open),
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-form-section:has(.rebate-dt-pop.show){
+  overflow:visible!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-form-grid,
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-form-grid > label,
+html body.report-body.bo-charcoal.rebate-page #rreForm .rounded-select-wrap,
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-shell{
+  overflow:visible!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-form-section:has(.rounded-select-menu.show),
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-form-section:has(.rounded-select-btn.open),
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-form-section:has(.rebate-dt-pop.show),
+html body.report-body.bo-charcoal.rebate-page #rreForm .rounded-select-wrap:has(.rounded-select-menu.show),
+html body.report-body.bo-charcoal.rebate-page #rreForm .rounded-select-wrap:has(.rounded-select-btn.open),
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-shell.is-open{
+  position:relative!important;
+  z-index:40!important;
+}
+html body.report-body.bo-charcoal.rebate-page #rreForm .rounded-select-menu{
+  z-index:60!important;
+  max-height:min(240px,42vh)!important;
+}
+
+/* VIP & Claim sits on the sticky foot — open menus upward */
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-form-section:last-of-type .rounded-select-menu{
+  top:auto!important;
+  bottom:calc(100% + 6px)!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page .rre-footer{
+  background:#2A2C36!important;
+  border-top-color:rgba(255,255,255,.12)!important;
+  box-shadow:none!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-form-section{
+  background:#2A2C36!important;
+  border-color:rgba(255,255,255,.12)!important;
+  border-left-color:#F59E0B!important;
+  box-shadow:none!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-form-section h4{
+  color:#F5F5F4!important;
+  border-bottom-color:rgba(255,255,255,.12)!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-form-sec-icon{
+  background:#1F2128!important;
+  border-color:rgba(255,255,255,.14)!important;
+  color:#FBBF24!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-form-grid label{
+  color:#D4D4D8!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-form-grid input:not(.rebate-dt-native),
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-form-grid select,
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-form-grid .rounded-select-btn,
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-form-grid [role="combobox"]{
+  background-color:#2A2C36!important;
+  border-color:rgba(255,255,255,.12)!important;
+  color:#F5F5F4!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-form-grid input:focus:not(.rebate-dt-native),
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-form-grid select:focus,
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-form-grid .rounded-select-btn.open,
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-form-grid .rounded-select-btn:focus{
+  border-color:#F59E0B!important;
+  box-shadow:0 0 0 3px rgba(245,158,11,.18)!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-shell{
+  background-color:#2A2C36!important;
+  border-color:rgba(255,255,255,.12)!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-shell:focus-within{
+  border-color:#F59E0B!important;
+  box-shadow:0 0 0 3px rgba(245,158,11,.18)!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-trigger{
+  color:#F5F5F4!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-text.is-empty{
+  color:#A1A1AA!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-trigger > .bi-calendar3{
+  color:#D4D4D8!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-shell:focus-within .rebate-dt-trigger > .bi-calendar3{
+  color:#FBBF24!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-field-help{
+  color:#A1A1AA!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page .rre-footer .clean-btn:not(.primary){
+  background:#383A46!important;
+  background-image:linear-gradient(180deg,#4A4C58 0%,#383A46 55%,#2C2E38 100%)!important;
+  border:1px solid rgba(255,255,255,.14)!important;
+  color:#F5F5F4!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page .rre-footer .clean-btn.primary{
+  color:#2A2C36!important;
+  background-image:linear-gradient(180deg,#FBBF24 0%,#F59E0B 42%,#EA8608 100%)!important;
+  border:1px solid #F59E0B!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page .rre-footer .clean-btn.primary i{
+  color:#2A2C36!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-shell{
+  background-color:#2A2C36!important;
+  border-color:rgba(255,255,255,.12)!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-shell:focus-within{
+  border-color:#F59E0B!important;
+  box-shadow:0 0 0 3px rgba(245,158,11,.18)!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-trigger{
+  color:#F5F5F4!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-text.is-empty{
+  color:#A1A1AA!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-trigger > .bi-calendar3{
+  color:#D4D4D8!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page #rreForm .rebate-dt-shell:focus-within .rebate-dt-trigger > .bi-calendar3{
+  color:#FBBF24!important;
+}
+@media(max-width:900px){
+  html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-form-grid,
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-form-grid--rate{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+}
+@media(max-width:575px){
+  html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-form-grid,
+html body.report-body.bo-charcoal.rebate-page #rreForm .rebate-form-grid--rate{
+    grid-template-columns:1fr!important;
+  }
+  html body.report-body.bo-charcoal.rebate-page .rre-footer .clean-btn{
+    flex:1 1 auto!important;
+  }
+}

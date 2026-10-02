@@ -320,6 +320,9 @@
     alertModal.querySelector('.bo-global-primary').onclick=close;
     alertModal.querySelector('.bo-global-close').onclick=close;
     alertModal.querySelector('.bo-global-backdrop').onclick=close;
+    /* A shared notice must not outlive the page it was raised from - the frame swap is a cut,
+       and this modal lives on `body`. */
+    document.addEventListener('bo:spa:before', close);
     return alertModal;
   }
 
@@ -353,6 +356,10 @@
     dialogModal.querySelector('.bo-global-close').onclick=()=>finish(dialogModal.dataset.input==='1'?null:false);
     dialogModal.querySelector('.bo-global-backdrop').onclick=()=>finish(dialogModal.dataset.input==='1'?null:false);
     dialogModal.querySelector('.bo-global-input').addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();dialogModal.querySelector('.bo-global-primary').click();}});
+    /* A confirm/prompt awaiting an answer when the frame is replaced resolves as a cancel:
+       the asker's page is gone, and letting the modal sit over the next page kept the
+       pending promise (and the old page's continuation) alive. */
+    document.addEventListener('bo:spa:before', function(){ finish(dialogModal.dataset.input==='1'?null:false); });
     return dialogModal;
   }
 
@@ -374,6 +381,11 @@
   window.alert=function(message){standardAlert(message);};
 
   function boot(){
+    // The SPA replays registered DOMContentLoaded callbacks on a persistent document.
+    // This runtime already observes body additions, so install its document-wide observer
+    // and change handler once instead of once per page entry.
+    if(window.__boUiStandardBooted) return;
+    window.__boUiStandardBooted=true;
     prepareFilters(document);
     scanButtons(document);
     normalizePagination(document);

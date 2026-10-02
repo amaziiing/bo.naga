@@ -14,7 +14,7 @@
   const submitBtn = document.getElementById('madEditSubmit');
   const roleSelect = document.getElementById('madEditRole');
   const brandSelect = document.getElementById('madEditBrand');
-  const statusSelect = document.getElementById('madEditStatus');
+  const statusSelect = document.getElementById('madEditStatusValue');
   const changeRoleBtn = document.getElementById('madRolePickBtn');
   const roleMenu = document.getElementById('madRoleMenu');
   let roleRows = [];

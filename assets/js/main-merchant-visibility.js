@@ -34,6 +34,15 @@
     }
   }
 
+  /* SPA: this file is shared by every merchant page, so the router does not re-run it on a
+     swap and an old {once:true} boot is no longer replayed (once means once). Its work is
+     per-content, though - re-apply it on the hook the router fires after the frame has been
+     replaced, with a window slot so a fresh execution of this file never stacks a second
+     listener. */
+  if (!window.__boMmvSpaBound) {
+    window.__boMmvSpaBound = 1;
+    document.addEventListener('bo:spa:content', apply);
+  }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply, {once:true});
   else apply();
 })();

@@ -118,22 +118,22 @@ node scripts/audit-spa-swaps.js 你的页面.html   # 只测你改的页
 | 1 | **拦截判定**：链接目的地是否在 `bo-spa-manifest.js` 清单里 | 不在清单（agent 门户、存根、无内容帧的页面）**一律交给浏览器原生跳转**；否则会"先 fetch 一次再整页跳"，比不拦截更慢 |
 | 2 | `fetch` + `DOMParser` 解析目标页 | 只解析、不执行；解析结果缓存（上限 16 份，避免长会话内存膨胀），**并且只复用 5 秒**：超过 5 秒重新取。没有这条时限时，服务端改了页面（开发时是常态、部署时也是）在会话里永远看不到——实测：改掉服务端 `game.html` 后从 tab 再进去，**一个文档请求都没发出**，标题还是旧的。请求本身还带 `cache:'no-cache'`（每次强制重验证）：只带 `Last-Modified`、没有 `Cache-Control` 的响应允许启发性缓存，不重验证时 `fetch` 会直接吃浏览器缓存里的上一版 HTML——表现为“切页还是旧 CSS/旧 JS、刷新就正常”（实测：切到 `promotion-report.html` 拿到旧文档且**零请求**，刷新才重验证取到新版） |
 | 3 | **样式表收敛**：补上目标页声明而当前文档还没有的表（**只会增加，不会移除**，同 `<head>` 里的 import map） | 与内容替换在**同一个任务**里完成，中间不给浏览器绘制机会 → 不会闪。是否"已有"按 **`文件名+?v=`** 判断：改了 CSS 重打指纹后那是一张**新表**，会被补上（旧指纹那张留着不撤，CSS 同特异性下后加的生效）；只按文件名判断的话，**重打指纹的新表永远不会被请求**，整个会话继续跑旧样式——这正是 `pin-spa.js` / `check-asset-pins.js` 要防的"我改了怎么没生效"（实测：声明 `bo-shell.css?v=deadbeef99` 的页面，新指纹 0 请求） |
-| 4 | **内容帧替换** | 帧元素相同 → 只换子节点（保留脚本可能持有的引用）；帧元素不同 → 整体替换 |
+| 4 | **内容帧替换**（实际顺序：紧随第 3 步，之后才是第 8 步的权限判定） | 帧元素（标签与全部属性）相同 → 只换子节点（保留脚本可能持有的引用）；不同 → 整体替换 |
 | 5 | **body 级页面自有标记收敛**：`body > 非 shell、非 script` 的元素 | 页面自己的模态框（`#approveModal`、`#ruleModal`）在 body 级，既不进帧也不属外壳。不做这一步：换页后它们不存在 → 脚本 `$('x').onclick` 抛 null → **后面所有绑定都不执行，页面"在但用不了"** |
 | 6 | **帧的后续兄弟节点收敛** | `slider-edit.html` 的 Save/Reset 在 `<footer id="bannerEditFooter">`——帧的兄弟。不做这一步 `#resetSliderBtn` 不存在，`slider-edit.js` 第一句绑定就抛错 |
 | 7 | **清理 body 上的"本页已完成"标记** | 共享脚本常把 `body.dataset.xxx='1'` 当"只做一次"的守卫。**body 不参与换页**，标记会永久保留 → 后续页面该做的工作全被跳过（`crud-modal-pattern` 就是这个坑） |
-| 8 | `pushState` → 重建模块 tab 行 → **重跑页面权限校验** | 权限校验在 auth.js 启动时执行一次；不重跑的话，换页可以绕到菜单权限以外的页面 |
+| 8 | `pushState` → **先跑页面权限校验（紧跟第 3 步样式表、在第 4 步内容替换之前；拒绝即中止换页）** | 权限校验在 auth.js 启动时执行一次；不重跑的话，换页可以绕到菜单权限以外的页面。在替换前判定意味着被拒绝时目标页的 DOM 与脚本都不会出现（旧行为是先换内容、再跳转）；校验接收目标文件名，因为此时 `location` 已经指向目的地 |
 | 9 | **立即绘制外壳状态**：标题/图标、高亮 tab、侧栏高亮、滚动归零 | 目标页脚本要跑 2–300ms；先绘制让点击**立刻有反馈** |
 | 10 | **执行目标页脚本**：先并行预载，再按文档顺序执行 | 顺序不能变（同页脚本互相依赖）；预载只是把网络并行起来 |
-| 11 | **重放 `DOMContentLoaded`**：只重放本次注册的 / 目标页自己的 / 白名单共享脚本的 | 不能无差别派发（会把上一页的监听在新 DOM 上再跑一遍 → 报错 + 请求风暴） |
-| 12 | 再绘制一次外壳，派发 `bo:spa:content` | 目标页脚本可能重建了 tab 行 |
+| 11 | **重放 `DOMContentLoaded`**：只重放本次注册的 / 目标页自己的 / 白名单共享脚本的；`{once:true}` 的旧记录不再重放 | 不能无差别派发（会把上一页的监听在新 DOM 上再跑一遍 → 报错 + 请求风暴）。once 就是 once：它的原生调用已经在文档真实的 DOMContentLoaded 上发生过；需要“每次换页重做”的共享运行时请订阅 `bo:spa:content`（实例：`main-merchant-visibility.js`） |
+| 12 | 再绘制一次外壳，派发 `bo:spa:content`（内容替换前已派发 `bo:spa:before`） | 目标页脚本可能重建了 tab 行。`bo:spa:before` 是页面关闭自己临时浮层/滚动锁的最后时机——它们放在 `body` 上，而 `body` 不参与换页 |
 
 **关于“脚本跑不跑”的两条规则**（第 10 步的细节）：
 
 - **页面私有脚本（只有这一页加载）→ 每次进入都重跑**。因为整页加载就是这样：`promotion-workspace.js` 结尾直接调用 `load()`、**没有 `DOMContentLoaded`**，若按“本会话执行过就不再跑”，切回来的页面就不会再渲染数据（曾报“从 Promotion Log 切回 Promotion Bonus 数据不完整”）。
 - **共享脚本（当前页也加载，如 `auth.js` / `reports.js` / `bo-topbar.js`）→ 不重跑**。它们的作用是全局的（定时器、document 监听、注入容器），重跑就是重复副作用。
 - **一个文件服务两页时（被 2–3 页加载的“页面私有脚本”）→ 在 `<script>` 上加 `data-bo-spa-rerun`**。否则它在“另一页也加载”这条规则下被判成共享而跳过，目标页的启动代码 **一行都不跑**（实例：`site-customize.js` 同时被 `site-customize.html` / `layout-section.html` 加载，从 Site Customize 切到 Layout Section 后布局编辑器整块失效——菜单、保存/重载、查找、CodeMirror 全部没了，刷新才恢复；反方向则是 Site Customize 的卡片不渲染）。
-- **共享运行时如果负责“把目标页的 DOM 建出来”→ 让它订阅 `bo:spa:content` 重绘一次，而不是用 `data-bo-spa-rerun` 重跑整个文件**。这类文件的副作用是文档级的（`window.fetch` 包装、document 监听、定时器），重跑就是每跳叠一层。实例：`main-currency-runtime.js` 被 ~158 页加载，负责渲染各报表页的 CURRENCY 行；换页时它被判成共享、一行不跑，目标页就停在静态骨架 `<span class="mre-cur-loading">…</span>` 上（**“切到 win/loss report，currency 要刷新才出来”，provider report 同样**）。实测 `main-win-lose-report.html → main_provider_report.html → 切回`：币种按钮 `3 → 0 → 0`、`skeleton: PRESENT`、`navlog phase:"ok"`、0 报错，`BO_SPA.debug.scriptTimes()` 两跳里都没有该文件；订阅 `bo:spa:content` 后 `3 → 3 → 3`，`click` 没多一层、`bo:spa:content` 监听数恒为 2（不随跳数增长）。**document 活得比内容帧久**，所以第一次加载注册的那一个 document 监听就够，不需要每页各写一份。当前用这个钩子的：`main-sidebar-account.js`、`member-transaction-page.js`、`main-currency-runtime.js`。
+- **共享运行时如果负责“把目标页的 DOM 建出来”→ 让它订阅 `bo:spa:content` 重绘一次，而不是用 `data-bo-spa-rerun` 重跑整个文件**。这类文件的副作用是文档级的（`window.fetch` 包装、document 监听、定时器），重跑就是每跳叠一层。实例：`main-currency-runtime.js` 被 ~158 页加载，负责渲染各报表页的 CURRENCY 行；换页时它被判成共享、一行不跑，目标页就停在静态骨架 `<span class="mre-cur-loading">…</span>` 上（**“切到 win/loss report，currency 要刷新才出来”，provider report 同样**）。实测 `main-win-lose-report.html → main_provider_report.html → 切回`：币种按钮 `3 → 0 → 0`、`skeleton: PRESENT`、`navlog phase:"ok"`、0 报错，`BO_SPA.debug.scriptTimes()` 两跳里都没有该文件；订阅 `bo:spa:content` 后 `3 → 3 → 3`，`click` 没多一层、`bo:spa:content` 监听数恒为 2（不随跳数增长）。**document 活得比内容帧久**，所以第一次加载注册的那一个 document 监听就够，不需要每页各写一份。当前用这个钩子的：`main-sidebar-account.js`、`member-transaction-page.js`、`main-currency-runtime.js`、`main-merchant-visibility.js`。
 
 **导入映射（import map）**：`<head>` 里的 `<script type="importmap">` 属于“页面环境”，换页时和第 3 步的样式表一样会被带进当前文档（在跑目标页脚本之前）。声明它的页面（目前只有 `layout-section.html`）用 `import()` 加载 ES 模块，裸模块名只能靠这张表解析，而表里每个包只映射到一个 esm.sh URL——这正是 CodeMirror 只存在**一个** `@codemirror/state` 实例的原因（两个实例会让所有扩展失效）。不带过去就是 `Failed to resolve module specifier '@codemirror/view'`，编辑器静默退回纯 textarea。
 

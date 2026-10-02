@@ -1,4 +1,11 @@
 (function(){
+  /* A swap re-runs this file: the three document delegations below were added again on each
+     entry, so N entries meant N input/click copies (each one able to re-render or re-open a
+     status menu twice). Release the previous run's bindings first. */
+  if(window.__boVleUnbind) window.__boVleUnbind();
+  const unbinds=[];
+  const listen=(target,type,fn,opt)=>{ target.addEventListener(type,fn,opt); unbinds.push(()=>target.removeEventListener(type,fn,opt)); };
+  window.__boVleUnbind=()=>{ unbinds.forEach(fn=>fn()); unbinds.length=0; };
   const $=s=>document.querySelector(s);
   let stepRows=[], listCount=0;
   const url=k=>API_CONFIG.BASE_URL+API_CONFIG.ENDPOINTS[k];
@@ -222,14 +229,14 @@
     renderSteps();
   }
 
-  document.addEventListener('input',e=>{
+  listen(document,'input',e=>{
     const row=e.target.closest('[data-step-row]');
     if(row&&e.target.matches('[data-step-field]')){readSteps();renderStepSummaryOnly();}
   });
   $('#vipEnabled')?.addEventListener('change',syncPageChrome);
   $('#vipDescription')?.addEventListener('input',autosizeDescription);
 
-  document.addEventListener('click',e=>{
+  listen(document,'click',e=>{
     const toggle=e.target.closest('[data-step-status-toggle]');
     if(toggle){
       e.preventDefault();e.stopPropagation();
@@ -264,7 +271,7 @@
     });
   });
 
-  document.addEventListener('click',async e=>{
+  listen(document,'click',async e=>{
     if(e.target.closest('#vipChooseImage'))$('#vipImageFile')?.click();
     const stepUpload=e.target.closest('[data-step-image-upload]');
     if(stepUpload){

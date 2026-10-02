@@ -443,13 +443,17 @@
   function waitForLink(el) {
     return new Promise(function (resolve) {
       var settled = false;
-      function done() { if (settled) return; settled = true; resolve(); }
-      el.addEventListener('load', done);
-      el.addEventListener('error', done);
+      /* Resolves with true (loaded), false (definitely failed) or null (still pending when
+         the cap fired). The caller uses that: a failed sheet has to be retried on the next
+         visit, a pending one must NOT be re-added - the tag may still arrive and would then
+         double-load. */
+      function done(outcome) { if (settled) return; settled = true; resolve(outcome); }
+      el.addEventListener('load', function () { done(true); });
+      el.addEventListener('error', function () { done(false); });
       // Cap the wait hard: a sheet that is slow or blocked (dead CDN path, no response)
       // must not hold up interaction for seconds. The swap proceeds and the sheet lands
       // whenever it does - the same behaviour as a late stylesheet on a real page load.
-      setTimeout(done, 1200);
+      setTimeout(function () { done(null); }, 1200);
     });
   }
 
@@ -474,7 +478,13 @@
       el.setAttribute('data-bo-spa-sheet', key);
       DOC.head.appendChild(el);
       SHEETS.push({ el: el, key: key });
-      pending.push(waitForLink(el));
+      pending.push(waitForLink(el).then(function (outcome) {
+        /* CSS_SEEN is set before the load so a double navigation cannot append the same sheet
+           twice. A definitive failure clears it again: without that, one dead request in a
+           session marked the sheet as "already in this document" forever and every later page
+           silently ran without it. */
+        if (outcome === false) delete CSS_SEEN[key];
+      }));
     });
     each(doc.querySelectorAll('head style'), function (s) {
       var text = s.textContent || '';
@@ -640,21 +650,26 @@
       }
       var settled = false;
       var t0 = Date.now();
-      function finish() {
+      function finish(failed) {
         if (settled) return;
         settled = true;
+        /* A script that 404s must be retried on a later visit - collectScripts marked it as
+           executed before it ran, so without this the file is skipped for the rest of the
+           session and the page stays half-wired. A timeout keeps the mark: the tag may still
+           be loading and would then execute, and re-adding it later would run it twice. */
+        if (failed === true && item.key) delete EXECUTED[item.key];
         scriptTimes.push({ src: String(item.src || 'inline').split('/').pop(), ms: Date.now() - t0 });
         drop();
         next();
       }
       el.src = item.src;
       el.async = false;
-      el.onload = finish;
-      el.onerror = finish;
+      el.onload = function () { finish(false); };
+      el.onerror = function () { finish(true); };
       DOC.body.appendChild(el);
       // Cap the wait hard (see waitForLink): a script that 404s or stalls must not hold the
       // swap, and with it every subsequent click, for seconds.
-      setTimeout(finish, 3000);
+      setTimeout(function () { finish(null); }, 3000);
     })();
   }
 
@@ -721,6 +736,13 @@
     for (var i = 0; i < reg.length; i++) {
       var rec = reg[i];
       var fire = rec.e === epoch || SHARED_REPLAY[rec.s] || (rec.s && own[rec.s]);
+      /* A listener registered with {once:true} in an earlier navigation already had its one
+         native call (the real DOMContentLoaded). Replaying it is duplicate work - the "one
+         entry, one more observer" shape the wrapper records `o` to prevent. A listener
+         registered DURING this navigation is different: the document is already complete, so
+         its native call will never come and the replay is its only trigger. Per-content
+         re-application belongs on `bo:spa:content`, the hook the frame's replacement fires. */
+      if (rec.o && rec.e !== epoch) fire = false;
       if (!fire) continue;
       try { rec.f.call(rec.t); }
       catch (err) {
@@ -890,6 +912,15 @@
     return out;
   }
 
+  function sameAttributes(a, b) {
+    if (!a || !b || a.attributes.length !== b.attributes.length) return false;
+    for (var i = 0; i < a.attributes.length; i++) {
+      var attr = a.attributes[i];
+      if (b.getAttribute(attr.name) !== attr.value) return false;
+    }
+    return true;
+  }
+
   /* Page-owned <body> classes, applied as a DELTA. Assigning className wholesale replaced
      the whole token list with the fetched document's, which threw away everything the live
      shell had put on the body at runtime: the rail's collapsed state (`sidebar-mini`), the
@@ -959,20 +990,47 @@
     return head.wait.then(function () {
       var timings = window.__boLastTimings || {};
       timings.css = Date.now() - navStart;
+      /* URL first: page scripts and the access check read location.search/pathname, and a
+         drill-down page that never sees its own query string renders as if it had none.
+         `current` and the history entry move before the access check, so a refusal is judged
+         against the destination exactly as a full load of it would be. */
+      if (push) history.pushState({ boSpa: 1 }, '', u.href);
+      current = u.pathname + u.search;
+      /* The page-level permission check runs BEFORE the frame is replaced, and a refusal
+         aborts the swap: the target's markup must not appear at all (it used to render and
+         run its scripts, and only then did the redirect fire). The check lives inside
+         auth.js's own boot, which a swap never re-runs, so it is called here for every
+         navigation; it receives the destination's file, because several aliases also read
+         location.search. On a refusal the check schedules its own redirect (which replaces
+         the history entry pushed above), so the router only stops - it must not fall back to
+         a full load of the denied page. */
+      if (window.BO_AUTH && BO_AUTH.enforcePageAccess) {
+        var access = true;
+        try { access = BO_AUTH.enforcePageAccess(BO_AUTH.user(), u.pathname); } catch (e) {}
+        if (access === false) {
+          note('denied', { reason: 'page access refused' });
+          return 'denied';
+        }
+      }
       /* The section tab row lives inside the content frame (auth.js renderModuleTabs
          inserts it at .report-content:first-child), so replacing the children deletes
          it. Rebuilding it afterwards is both the fix for that and the reason the row is
          correct when the target page belongs to a different module: it is derived from
          location.pathname, which pushState has just updated. */
-      /* When both pages agree on what the frame is (the usual case - both are .report-content
-         sections), only the children move: that keeps the element the live page's scripts may
+      /* When both pages agree on the frame tag and every declared attribute (the usual case -
+         both are equivalent .report-content sections), only the children move: that keeps the element the live page's scripts may
          already hold a reference to. When they disagree - a legacy page keeps its content in
          its own section (currency-management's .cur-page, main-dashboard's #mainExec) - the
          children alone are not enough: pouring the legacy markup into the standard frame keeps
          the standard frame's class-driven padding, so the page ends up looking different from
          a direct load (measured: 18px against 24px). The element itself is replaced then, and
          the two paths become identical. */
-      if (from.tagName === to.tagName && from.className === to.className) {
+      /* The last moment at which the page being left is still whole: transient UI it owns
+         (an open preview, a pending approval popup, a scroll lock) can close itself here.
+         The frame's replacement is a cut, and nothing the previous page put on `body` leaves
+         with it - see the lock sweep below. */
+      try { DOC.dispatchEvent(new CustomEvent('bo:spa:before', { detail: { url: u.href } })); } catch (e) {}
+      if (from.tagName === to.tagName && sameAttributes(from, to)) {
         from.replaceChildren.apply(from, clone(to.childNodes));
       } else {
         var fresh = to.cloneNode(true);
@@ -996,25 +1054,22 @@
       each(DOC.querySelectorAll('#crudPatternBody > .crud-modal-form-card'), function (el) {
         if (el.parentNode) el.parentNode.removeChild(el);
       });
+      /* Transient scroll locks (`modal-open`, `crud-modal-open`, `bulk-modal-open`, ...) are
+         set when a modal opens and removed when it closes. A swap takes the modal away -
+         inside the frame or as a body extra - but the class lives on `body`, which is never
+         swapped, so a modal open at the moment of navigation left the target page unable to
+         scroll. A freshly loaded document never carries one, so every *-modal-open token
+         surviving the swap is stale by definition. */
+      if (DOC.body) {
+        var locks = [].slice.call(DOC.body.classList).filter(function (c) {
+          return c === 'modal-open' || /-modal-open$/.test(c);
+        });
+        for (var lockIndex = 0; lockIndex < locks.length; lockIndex++) DOC.body.classList.remove(locks[lockIndex]);
+      }
       note('content');
-
-      // URL first: page scripts re-read location.search/pathname, and a drill-down page
-      // that never sees its own query string renders as if it had none.
-      if (push) history.pushState({ boSpa: 1 }, '', u.href);
-      current = u.pathname + u.search;
 
       if (window.BO_AUTH && BO_AUTH.renderModuleTabs) {
         try { BO_AUTH.renderModuleTabs(BO_AUTH.user()); } catch (e) {}
-      }
-
-      /* The page-level permission check lives inside auth.js's own boot, which a swap never
-         re-runs - auth.js is already in the executed map. Without this, a swappable link was
-         a way to open a page the account's menu permissions do not include: the shell
-         rendered, the page's API calls failed, but the user was on it. Found while measuring
-         the swapped-into state of a page that is not in the test account's menus. Calling it
-         here keeps the rule in force for every navigation, exactly as a full load would. */
-      if (window.BO_AUTH && BO_AUTH.enforcePageAccess) {
-        try { BO_AUTH.enforcePageAccess(BO_AUTH.user()); } catch (e) {}
       }
 
       /* Everything that is visible right now - the shell title and icon, which tab is lit,
@@ -1151,6 +1206,9 @@
      reported - which is how the first attempt at this file looked "dead" instead of broken. */
   function commitOf(doc, u, push, href) {
     return apply(doc, u, push).then(function (ok) {
+      /* 'denied' is not a failure: the access check refused the destination and scheduled its
+         own redirect. A full load here would open the very page that was refused. */
+      if (ok === 'denied') return ok;
       if (!ok) fallback(href, 'no content frame');
       return ok;
     }, function (e) {
@@ -1160,6 +1218,7 @@
   }
 
   var pendingNav = null;
+  var pendingPop = 0;   // a Back/Forward that arrived while a swap was in flight
   var navStart = 0;
   var navWatchdog = 0;
 
@@ -1185,6 +1244,7 @@
       var stuckAt = currentRec ? currentRec.phase : 'n/a';
       note('timeout', { stuckAt: stuckAt });
       pendingNav = null;
+      pendingPop = 0;
       settle();
       fallback(href, 'swap did not settle within 8s (stuck at ' + stuckAt + ')');
     }, 8000);
@@ -1197,6 +1257,9 @@
      longer interleave (the interleaving is what the hold-busy rule prevents), and the queue
      means the click is honoured, just delayed by however long the current swap takes. */
   function drainNav() {
+    /* A history navigation outranks anything queued behind it: the address bar has already
+       moved, so it has to be honoured before (or instead of) a queued click. */
+    if (pendingPop) { pendingPop = 0; handlePop(); return; }
     if (!pendingNav) return;
     var n = pendingNav;
     pendingNav = null;
@@ -1208,6 +1271,8 @@
       // Same URL already on its way (the rail and the module-tab row can both point at it)
       // is the only thing dropped; everything else is queued, newest wins.
       if (pendingNav && pendingNav.u.href === href) return;
+      // A click after a queued Back/Forward is the newer intent: the pop is superseded.
+      pendingPop = 0;
       pendingNav = { href: href, u: u, push: push };
       log('queued ' + href + ' (busy with ' + (currentRec ? currentRec.to : '?') + ')');
       return;
@@ -1286,8 +1351,11 @@
     go(a.href, href_of(a), true);
   });
 
-  window.addEventListener('popstate', function () {
-    if (busy) return;
+  /* One popstate handler, callable when the router is idle and replayed from the queue when
+     it is not: Back/Forward used to be DROPPED while a swap was in flight (the address
+     changed, the content did not), which is the one navigation the browser has already
+     committed to and the user can see in the address bar. */
+  function handlePop() {
     var u = new URL(location.href);
     if (!/\.html$/.test(u.pathname)) { location.reload(); return; }
     nav(u.href, 'popstate');
@@ -1301,10 +1369,21 @@
       // Same hold-busy rule as go(): the swap, the script run and the boot replay must all
       // finish before the router accepts the next navigation.
       commitOf(doc, u, false, u.href).then(function (ok) {
-        if (ok && typeof restore === 'number') scrollTo(restore);
+        if (ok === true && typeof restore === 'number') scrollTo(restore);
         settle();
       }, function () { settle(); location.reload(); });
     })['catch'](function () { settle(); location.reload(); });
+  }
+
+  window.addEventListener('popstate', function () {
+    if (busy) {
+      // Queue it: the newest intent wins, exactly like a click queued in go().
+      pendingPop = 1;
+      pendingNav = null;
+      log('queued popstate (busy with ' + (currentRec ? currentRec.to : '?') + ')');
+      return;
+    }
+    handlePop();
   });
 
   /* Warm the pages the rail and the tab row can reach, so the first click on each is

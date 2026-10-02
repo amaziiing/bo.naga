@@ -34,9 +34,32 @@
 
   function visibleText(el){
     if(!el) return '';
-    const clone=el.cloneNode(true);
-    clone.querySelectorAll?.('i,svg,img,.spinner,.badge').forEach(n=>n.remove());
-    return String(clone.textContent||el.value||'').replace(/\s+/g,' ').trim();
+    /* Walk, do not clone. This runs for every button and every filter control on every
+       scan, and cloning each one (cloneNode(true), then removing the icon subtrees from the
+       copy) was the most expensive single thing in that scan: measured on a Game-tab swap,
+       685 clones per click against 330 label measurements. The walk keeps exactly the text
+       the clone kept - everything outside `i,svg,img,.spinner,.badge` - in document order. */
+    let text='';
+    (function walk(node){
+      for(let n=node.firstChild;n;n=n.nextSibling){
+        if(n.nodeType===3){text+=n.nodeValue;continue;}
+        if(n.nodeType!==1) continue;
+        if(n.matches?.('i,svg,img,.spinner,.badge')) continue;
+        walk(n);
+      }
+    })(el);
+    return String(text||el.value||'').replace(/\s+/g,' ').trim();
+  }
+
+  /* Cheap fingerprint of the text a control is sized from. The observer at the bottom hears
+     EVERY insertion a page makes, so the same select is reached again and again while a page
+     builds itself; measuring is the costly half (a getComputedStyle plus a canvas measure per
+     label) and re-measuring an unchanged label list cannot change the width it produces. */
+  function labelSig(labels){
+    const s=labels.join('\u0001');
+    let h=5381;
+    for(let i=0;i<s.length;i++) h=((h<<5)+h)^s.charCodeAt(i);
+    return (h>>>0).toString(36)+':'+labels.length;
   }
 
   function measureText(text,reference){
@@ -69,10 +92,12 @@
     return getComputedStyle(el).display!=='none';
   }
 
-  function classifyItem(item){
-    item.classList.remove('bo-filter-item','bo-filter-input-item','bo-filter-select-item','bo-filter-range-item','bo-filter-actions-item','bo-filter-hidden-item');
-    item.classList.add('bo-filter-item');
-
+  /* Facts first, classes after. `getComputedStyle` is the expensive call in this file (it
+     forces the browser to recalculate styles), and the old body wrote a class and then asked
+     for a computed style, per item - so every item paid its own recalculation. Measured on a
+     Game-tab swap: ~330 items, 417ms of self time in classifyItem, the single largest cost of
+     the whole navigation. Nothing here changes what is decided, only when it is read. */
+  function itemFacts(item){
     const isHidden=item.hidden || getComputedStyle(item).display==='none';
     const hasRange=item.matches('.bo-range-field,.ref-date-field,.bo-date-range-field,.dash-date-field,[data-bo-date-range]') || !!item.querySelector('.bo-range-trigger,.ref-range-trigger');
     const hasSelect=item.matches('select') || !!item.querySelector('select,.rounded-select-wrap');
@@ -80,26 +105,48 @@
     const hasInput=inputs.some(isVisibleControl);
     const buttons=item.matches('button')?[item]:Array.from(item.querySelectorAll(':scope>button,:scope>.filter-action-row>button,:scope>.filter-actions>button,:scope>.category-filter-actions>button,:scope>.game-filter-actions>button,:scope>.debug-filter-actions>button'));
     const isActionWrapper=item.matches('.user-filter-actions,.ref-filter-actions,.wallet-filter-actions,.tx-filter-actions,.filter-action-row,.filter-actions,.category-filter-actions,.game-filter-actions,.debug-filter-actions') || buttons.length>0;
+    return {isHidden,hasRange,hasSelect,hasInput,buttons,isActionWrapper};
+  }
 
-    if(isHidden && !hasRange){item.classList.add('bo-filter-hidden-item');return;}
-    if(hasRange){item.classList.add('bo-filter-range-item');return;}
-    if(isActionWrapper && !hasInput && !hasSelect){
+  function classifyItem(item,facts){
+    const f=facts||itemFacts(item);
+    item.classList.remove('bo-filter-item','bo-filter-input-item','bo-filter-select-item','bo-filter-range-item','bo-filter-actions-item','bo-filter-hidden-item');
+    item.classList.add('bo-filter-item');
+
+    if(f.isHidden && !f.hasRange){item.classList.add('bo-filter-hidden-item');return;}
+    if(f.hasRange){item.classList.add('bo-filter-range-item');return;}
+    if(f.isActionWrapper && !f.hasInput && !f.hasSelect){
       item.classList.add('bo-filter-actions-item');
-      buttons.forEach(styleFilterButton);
+      f.buttons.forEach(styleFilterButton);
       return;
     }
-    if(hasSelect){item.classList.add('bo-filter-select-item');return;}
-    if(hasInput){item.classList.add('bo-filter-input-item');return;}
+    if(f.hasSelect){item.classList.add('bo-filter-select-item');return;}
+    if(f.hasInput){item.classList.add('bo-filter-input-item');return;}
     if(item.matches('button')){item.classList.add('bo-filter-actions-item');styleFilterButton(item);}
   }
 
-  function prepareRow(row){
-    if(!row || row.closest(DATE_PICKER_SELECTOR)) return;
+  /* A row's facts, read only - `null` when the row belongs to a date picker, which is the
+     one row family this file leaves alone (its own CSS owns those widths). */
+  function readRowFacts(row){
+    if(!row || row.closest(DATE_PICKER_SELECTOR)) return null;
+    return Array.from(row.children).map(itemFacts);
+  }
+
+  /* The writes that follow a read. `row.children` is re-read here rather than travelled in
+     from the read phase: nothing between the two mutates the tree (classifyItem only writes
+     classes), and a child list that changed in between would invalidate the facts anyway. */
+  function applyRow(row,facts){
+    if(!row || !facts) return;
+    const items=Array.from(row.children);
+    items.forEach((item,i)=>classifyItem(item,facts[i]));
     row.classList.add('bo-filter-row');
-    Array.from(row.children).forEach(classifyItem);
     row.querySelectorAll('button').forEach(button=>{
       if(!button.closest(DATE_PICKER_SELECTOR)) styleFilterButton(button);
     });
+  }
+
+  function prepareRow(row){
+    applyRow(row,readRowFacts(row));
   }
 
   function sizeNativeSelect(select){
@@ -108,16 +155,22 @@
     if(!item) return;
     const listingFixed={depositStatus:150,withdrawStatus:150,dbgStatus:150};
     if(document.body.classList.contains('bo-wallet-tx') && listingFixed[select.id]!=null){
+      const fixedSig='fixed:'+listingFixed[select.id];
+      if(select.dataset.boContentSig===fixedSig) return;
       item.style.setProperty('--bo-select-width',listingFixed[select.id]+'px');
       select.dataset.boContentSized='1';
+      select.dataset.boContentSig=fixedSig;
       return;
     }
     const labels=Array.from(select.options||[]).map(o=>(o.textContent||o.label||'').trim()).filter(Boolean);
+    const sig=labelSig(labels);
+    if(select.dataset.boContentSized==='1' && select.dataset.boContentSig===sig) return;
     const widest=Math.max(0,...labels.map(label=>measureText(label,select)));
     /* 12px left + 32px arrow side + requested 10px additional room. */
     const width=Math.max(80,widest+54);
     item.style.setProperty('--bo-select-width',width+'px');
     select.dataset.boContentSized='1';
+    select.dataset.boContentSig=sig;
   }
 
   function sizeRoundedSelect(wrap){
@@ -128,15 +181,21 @@
     if(!item || !button) return;
     const listingFixed={depositStatus:150,withdrawStatus:150,dbgStatus:150};
     if(document.body.classList.contains('bo-wallet-tx') && select && listingFixed[select.id]!=null){
+      const fixedSig='fixed:'+listingFixed[select.id];
+      if(wrap.dataset.boContentSig===fixedSig) return;
       item.style.setProperty('--bo-select-width',listingFixed[select.id]+'px');
       wrap.dataset.boContentSized='1';
+      wrap.dataset.boContentSig=fixedSig;
       return;
     }
     const labels=[visibleText(button),...Array.from(wrap.querySelectorAll('.rounded-select-option')).map(visibleText)].filter(Boolean);
+    const sig=labelSig(labels);
+    if(wrap.dataset.boContentSized==='1' && wrap.dataset.boContentSig===sig) return;
     const widest=Math.max(0,...labels.map(label=>measureText(label,button)));
     const width=Math.max(80,widest+54);
     item.style.setProperty('--bo-select-width',width+'px');
     wrap.dataset.boContentSized='1';
+    wrap.dataset.boContentSig=sig;
   }
 
   function sizeDropdowns(root){
@@ -147,10 +206,16 @@
     scope.querySelectorAll?.('.bo-filter-row .rounded-select-wrap').forEach(sizeRoundedSelect);
   }
 
+  /* Every row in the scope is read before any of them is written, so the whole scope costs
+     one style recalculation instead of one per item (see itemFacts). */
   function prepareFilters(root){
     const scope=root||document;
-    if(scope.matches?.(FILTER_ROW_SELECTOR)) prepareRow(scope);
-    scope.querySelectorAll?.(FILTER_ROW_SELECTOR).forEach(prepareRow);
+    const rows=new Set();
+    if(scope.matches?.(FILTER_ROW_SELECTOR)) rows.add(scope);
+    scope.querySelectorAll?.(FILTER_ROW_SELECTOR).forEach(r=>rows.add(r));
+    const list=[...rows];
+    const facts=list.map(readRowFacts);
+    list.forEach((row,i)=>applyRow(row,facts[i]));
     sizeDropdowns(scope);
   }
 
@@ -315,13 +380,60 @@
 
     let queued=false;
     const pending=new Set();
+    /* Only what was ADDED, and only the top-most of it.
+
+       The observer used to collect `record.target` as well and then run a full
+       prepareFilters + scanButtons + normalizePagination for EVERY pending node. When a whole
+       page is inserted at once - which is what a swap does - the target of each record is the
+       container, so one inserted page produced one scan of the whole page per inserted child,
+       and each scan writes classes and then reads computed styles. Measured on the Game tab
+       (a page with a filter card, a form and a list): 393 prepareFilters / 416 scanButtons /
+       2053 styleFilterButton / 685 visibleText calls for ONE click, 451ms + 427ms long tasks,
+       and the same click with the observers silenced took 45ms.
+
+       A childList change matters for the nodes that arrived (a removal needs no class work),
+       and the row a node landed in is still reached through closest() in flush(). A subtree
+       scan from a pending node already covers its descendants, so an ancestor in the same
+       batch makes the descendant's entry pure duplication. Nodes detached again before the
+       frame runs (a page that renders and re-renders in the same frame) are dropped - there
+       is nothing left to standardize in them. */
+    const topMost=()=>{
+      const keep=[];
+      pending.forEach(node=>{
+        if(!node || node.nodeType!==1 || !node.isConnected) return;
+        for(const other of pending){
+          if(other===node || !other || other.nodeType!==1) continue;
+          if(other.contains(node)) return;   // an ancestor is already in this batch
+        }
+        keep.push(node);
+      });
+      return keep;
+    };
     const flush=()=>{
       queued=false;
-      pending.forEach(node=>{
-        if(!node || node.nodeType!==1) return;
+      const nodes=topMost();
+      /* One read phase for the whole batch, then one write phase - the same rule as inside a
+         row, one level up: the rows of all pending nodes are collected first, every item's
+         facts are read, and only then does anything get a class. */
+      const rows=new Set();
+      nodes.forEach(node=>{
         const row=node.matches?.(FILTER_ROW_SELECTOR)?node:node.closest?.(FILTER_ROW_SELECTOR);
-        if(row) prepareRow(row);
-        prepareFilters(node);
+        if(row) rows.add(row);
+        node.querySelectorAll?.(FILTER_ROW_SELECTOR).forEach(r=>rows.add(r));
+      });
+      const list=[...rows];
+      const facts=list.map(readRowFacts);
+      list.forEach((row,i)=>applyRow(row,facts[i]));
+      /* The dropdowns are sized from the ROW, not from the node that happened to be inserted:
+         `sizeDropdowns` looks for `.bo-filter-row select` INSIDE its scope, and a select that
+         received an <option> (the way a page fills its filters) arrives with the row outside
+         that scope. The old code got this right only because the row itself was a pending node
+         when a child of it changed; the row is now collected explicitly, so it is sized
+         explicitly. Measured on the Game tab's swap path: 3 filter selects lost their
+         measured width without this. */
+      list.forEach(row=>sizeDropdowns(row));
+      nodes.forEach(node=>{
+        sizeDropdowns(node);
         scanButtons(node);
         normalizePagination(node);
         const select=node.matches?.('select')?node:node.closest?.('select');
@@ -331,7 +443,6 @@
     };
     const observer=new MutationObserver(records=>{
       records.forEach(record=>{
-        if(record.target?.nodeType===1) pending.add(record.target);
         record.addedNodes.forEach(node=>{if(node.nodeType===1)pending.add(node);});
       });
       if(pending.size&&!queued){queued=true;requestAnimationFrame(flush);}

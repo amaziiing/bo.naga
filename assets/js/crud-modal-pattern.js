@@ -173,6 +173,31 @@
       ensureTitleActions(titlebar);
     });
   }
+  /* One binding per DOCUMENT, resolving the card at CLICK time.
+
+     It used to be bound from init(), i.e. once per page that lifts a card, and it closed over
+     that page's card: after a swap the modal could be titled from - and wired to - the page
+     before this one. A document-level listener survives the content frame, so it is bound once
+     here and asks for the current card when it is actually needed. */
+  function bindEditDelegation(){
+    if(window.__crudEditDelegated) return;
+    window.__crudEditDelegated = 1;
+    document.addEventListener('click', function(e){
+      var btn = e.target.closest('button, a');
+      if(!btn) return;
+      if(btn.classList.contains('crud-add-btn')) return;
+      if(btn.closest('#crudPatternModal')) return;
+      var label = text(btn).toLowerCase();
+      if(label.includes('delete') || label.includes('view') || label.includes('refresh')) return;
+      if(label.includes('edit') || btn.matches('[data-edit], [data-action="edit"], .edit-btn, .btn-edit')){
+        setTimeout(function(){
+          var card = findFormCard();
+          openModal((card ? text(card.querySelector('h1,h2,h3,h4,h5')) : '') || ('Edit ' + pageLabel()));
+        }, 120);
+      }
+    }, true);
+  }
+
   function init(){
     installAutoCloseAfterSave();
     standardizeAllTitlebars();
@@ -187,6 +212,12 @@
     formCard.classList.add('crud-modal-form-card');
     var modal = ensureModal();
     var body = modal.querySelector('#crudPatternBody');
+    var dialog = modal.querySelector('.crud-pattern-dialog');
+    /* The footer this file builds is page-owned (the Game form's Save row is moved there so it
+       stays reachable while the translation panel is long). The dialog itself is a document-
+       level container, so without this the modal opened from another page still carried THAT
+       page's buttons - with `form="gameForm"` pointing at a form this page does not have. */
+    if(dialog) Array.from(dialog.querySelectorAll(':scope > .crud-pattern-fixed-actions')).forEach(function(el){ el.remove(); });
     body.appendChild(formCard);
 
     // Game creation contains a long translation panel. Keep Save/Reset permanently
@@ -194,7 +225,6 @@
     var gameForm = formCard.querySelector('#gameForm');
     if(gameForm){
       var gameActions = gameForm.querySelector('.slider-form-actions');
-      var dialog = modal.querySelector('.crud-pattern-dialog');
       if(gameActions && dialog && !dialog.querySelector('.crud-pattern-fixed-actions')){
         gameActions.classList.add('crud-pattern-fixed-actions');
         Array.from(gameActions.querySelectorAll('button')).forEach(function(button){
@@ -207,18 +237,6 @@
     addToolbarButton(listCard, formCard);
     watchSuccessClose(formCard);
 
-    document.addEventListener('click', function(e){
-      var btn = e.target.closest('button, a');
-      if(!btn) return;
-      if(btn.classList.contains('crud-add-btn')) return;
-      if(btn.closest('#crudPatternModal')) return;
-      var label = text(btn).toLowerCase();
-      if(label.includes('delete') || label.includes('view') || label.includes('refresh')) return;
-      if(label.includes('edit') || btn.matches('[data-edit], [data-action="edit"], .edit-btn, .btn-edit')){
-        setTimeout(function(){ openModal(text(formCard.querySelector('h1,h2,h3,h4,h5')) || ('Edit ' + pageLabel())); }, 120);
-      }
-    }, true);
-
     var cancelLike = formCard.querySelectorAll('button');
     cancelLike.forEach(function(b){
       var label = text(b).toLowerCase();
@@ -230,4 +248,20 @@
   }
   window.CrudModalPattern = { open: openModal, close: closeModal };
   ready(init);
+  bindEditDelegation();
+
+  /* Redo this file's work for the page that just arrived.
+
+     The card it lifts into the modal is page-owned, so a swap takes it away with the content
+     frame (bo-spa drops the card the previous page lifted and clears the body mark before the
+     target's scripts run). Re-running the FILE on every entry is not the fix - its side effects
+     are document-level (the window.fetch wrapper, the listeners, the timers) and every hop would
+     stack another layer; the route's DOMContentLoaded replay cannot do it either, because a
+     script that runs while the document is already complete never registers that listener
+     (ready() calls straight through), so the replay had nothing to call. The document is the
+     one thing that outlives the frame, so the frame's own event is what redoes the lift.
+     Measured before this: arriving at game.html from game-category.html left
+     cardParent=manage-page-grid (the card sitting in the grid) with #crudPatternBody empty, and
+     "Add Game" opened nothing. */
+  document.addEventListener('bo:spa:content', function(){ init(); });
 })();

@@ -272,5 +272,11 @@
      Measured before this: arriving at game.html from game-category.html left
      cardParent=manage-page-grid (the card sitting in the grid) with #crudPatternBody empty, and
      "Add Game" opened nothing. */
+  /* bo:spa:content-mounted fires synchronously with the frame's replacement; bo:spa:content
+     only after the target's scripts. The lift has to run under the first of the two: the raw
+     markup shows the form card in the grid (and the modal empty) until it does - measured
+     ~0.45s of visible flash at 250ms RTT, captured live on the Game tab. The content event
+     stays as a safety net; init() is guarded by the body mark, so its second call is a no-op. */
+  document.addEventListener('bo:spa:content-mounted', function(){ init(); });
   document.addEventListener('bo:spa:content', function(){ init(); });
 })();

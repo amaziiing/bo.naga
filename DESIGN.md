@@ -387,7 +387,7 @@ Sidebar **3. Transaction** pages use listing chrome: filter/select = surface `#F
 **Module navigation, not a sidebar submenu (locked):** a module whose pages are peers of one workspace lists them as page-level tabs under the page header, on the content container's left edge, and the sidebar keeps a single row that merely carries the module's active state — clicking it never opens a floating submenu over the content. Nine groups use this today — **Transaction** (`Deposit Approval · Win/Lose Adjustment · Bonus Adjustment · Bank Deposit Usage`), **Member** (`User Management · Member Wallet · Wallet Ledger · Referral Network`), **Promotion**, **VIP**, **Agent**, **Report**, **Game Management**, **Design** and **Setting**; `MODULE_TABS` in `auth.js` is the authoritative list of both the modules and the pages each row carries. **Membership carries two contracts** — a page listed there must link `assets/css/bo-module-tabs.css`, and every sidebar row of the group must be listed there — see *A module's pages must be registered and must load its row sheet* at the end of this file. Sections come from the admin's own assigned menus, so a section the role cannot open never appears, and one section alone renders no row. A database group counts as a module's group only when it holds at least two of that module's pages **and owns the module's anchor page** (`MODULE_ANCHORS` holds one anchor page per module) — without the anchor test a group that merely shares two files (a Wallet group holding Member Wallet + Wallet Ledger) would lose its own submenu to this feature. A section that is two pages (Bulk Adjustment) hands the page's own authored pair to the row instead of showing one entry. Styles `bo-module-tabs.css` (text-only tabs, active = dark text + 2px amber underline), logic in `auth.js` (`MODULE_TABS` / `MODULE_ANCHORS` / `renderModuleTabs`). **Every tab also carries its own Dashboard pin** — the same control and the same store as the sidebar rows, because a module's rail row is one direct link and its pages therefore have no row of their own to pin; the row stays text at rest and only the tab's label makes room for its own pin — see *The module row's per-tab Dashboard pin* at the end of this file.
 
 
-**Payment Method Config** (`payment-method.html`): same Transaction listing table/pager · Edit/Delete `.bo-tx-action-btn` wells · amber QR View link · form-well modal. **Bank Deposit Usage** twin: Active/Suspend/All pills · View QR + mad-pager · no Config link. **Bulk Adjustment / Bulk Bonus:** Manual split **60% / 40%** (Select Members · Configure) · panel pill scrollbars on member picker + selected table — light chocolate `#8B6B4A` / hover `#5C4A30` · dark `#F59E0B` / `#D97706` · **`6px`** · no arrows (not cool slate). **Wallet Ledger:** `bo-wallet-tx` · split **`.bo-tx-table-head` (fixed)** + **`.bo-tx-table-body`** (`#ledgerTableScroll` · only vertical scroller · panel pill chocolate · **`6px`**) · wrap `overflow:hidden` · type menu same pill · **specimen** for 36px filter geometry · **Created/Posted Time** = date `DD/MM/YYYY` in cell · cream pill tip `HH:MM:SS` · **no arrow** · footer **Show N entries** = same as Deposit (`-` · `10` · `20` · `50` · `100` · `All` · Role select chrome · `#ledgerSize` hidden). Full notes: `.interface-design/system.md` → Bulk / Wallet Ledger / Panel pill scrollbar / Listing filter controls / Date time tips.
+**Payment Method Config** (`payment-method.html`): same Transaction listing table/pager · Edit/Delete `.bo-tx-action-btn` wells · amber QR View link · form-well modal. **Bank Deposit Usage** twin: Active/Suspend/All pills · View QR + mad-pager · no Config link. **Bulk Adjustment / Bulk Bonus:** Manual split **60% / 40%** (Select Members · Configure) · panel pill scrollbars on member picker + selected table — light chocolate `#8B6B4A` / hover `#5C4A30` · dark `#F59E0B` / `#D97706` · **`6px`** · no arrows (not cool slate). **Wallet Ledger:** `bo-wallet-tx` · split **`.bo-tx-table-head` (fixed)** + **`.bo-tx-table-body`** (`#ledgerTableScroll` · scroller on **both** axes · panel pill chocolate · **`6px`** · head declares the same 6px bar it reserves) · wrap `overflow:hidden` · **colgroup px widths** (sum **2056**) so nothing truncates · type menu same pill · **specimen** for 36px filter geometry · **one** Search field (`#ledgerKeyword` · digits = `memberId`, else `providerCode` uppercased) · **Created/Posted Time** = date `DD/MM/YYYY` in cell · cream pill tip `HH:MM:SS` · **no arrow** · footer **Show N entries** = same as Deposit (`-` · `10` · `20` · `50` · `100` · `All` · Role select chrome · `#ledgerSize` hidden). Full notes: `.interface-design/system.md` → Bulk / Wallet Ledger / Panel pill scrollbar / Listing filter controls / Date time tips.
 
 **Responsive (1920→375):** ≤1456 DATE day-only + hover full time · ≤1280 bank cards = horizontal snap strip (never multi-row stack that starves the table) · toolbar tabs-then-filters · table body scrolls · mid/small hide Processed / Remark / Reference as needed · never page horizontal overflow. CSS: `bo-wallet-transaction-amber.css`. Full notes: `.interface-design/system.md` → Layout → Transaction family (+ Deposit/Withdraw chrome & responsive tables).
 
@@ -1913,9 +1913,29 @@ sheet: OS grey with up/down arrows → 6px chocolate pill, no arrows, no track l
 hidden — that was an owner decision, not drift — and the six pages that load neither `reports.css`
 nor `bo-ui-standard.css` keep an OS-width sidebar scrollbar, which is a *visibility* difference, not
 a colour one; the new layer colours it but does not hide it.
+（粗细的那一半见下一节。）
 
+
+### 表格横向滚动条的粗细：同一组件两种高度（2026-10-02, owner: “这个页面的 table 的 overflow-x 的设计好像有点跟其他的有点粗啊”）
+
+**颜色统一了，粗细没有。** 上面那次 sweep 是 colour-only，并且把 `.table-wrap::-webkit-scrollbar{height:9px}` 记成
+“the family's locked 9/10px horizontal bars”放过了。全站实测（156 页逐一渲染，每页把 `<table>` 强制撑到比视口宽，再读容器 `::-webkit-scrollbar` 的**生效**高度和它实际占掉的 gutter）：49 页出现横向表格条 —— **43 页 6px，6 页 9px**。
+
+| 值 | 页面 | gutter |
+| --- | --- | --- |
+| 9px | `account-lock` · `bank-deposit-usage` · `menu-management` · `payment-gateway` · `payment-gateway-transactions` · `wbet-bet-limit` | 11px（9px 条 + 两条 1px 边框） |
+| 6px | 其余 43 页（report 家族、`index`、`online-users` …） | 8px（6px pill + 两条 1px 边框） |
+
+分母不是 152：`.table-wrap` 在页面不存在或者表格本来就装得下时没有横条（107 页实测无横条），所以“只有这 6 页看着粗”正是 owner 看到的样子。这 6 页没有更强的家族覆盖，拿到的就是 `assets/css/reports.css` 里那条 `height:9px`；而量到 6px 的页面（`index.html`、报表家族）是自己表里一条 `!important` 的 6px 赢了它 —— **同一个 `.table-wrap`，粗细取决于哪一页**，形状与调色板那次完全一样，只是轴不同。
+
+**改法沿用调色板那次的就地替换**：`reports.css` 与 `reports-dashboard-original.css`（3 页：`index` / `member-detail` / `online-users`，是同一份 `.table-wrap` 规则的副本）里的 `height:9px` → `height:6px`，thumb/track 规则不动（本来就是 house pair）。
+
+**改后重测**：49/49 页 6px、**0 条 off-pill**；light thumb `rgb(139,107,74)`、dark `rgb(245,158,11)`、gutter 8px。目检图（同页同切片，只差这条声明）：`.tmp-verify/scrollbar-compare.png`。
+
+**没动的一处**：`vip-management.css` 的 `.vip-step-list::-webkit-scrollbar{height:10px}` —— 那是横向步骤条（stepper），不是表格；有 owner 决定再改。
 
 ### 8.1–8.11 viewport-locked — the table header now stays put (2026-09-22)
+
 
 Owner: “我的report 8.1 至 8.11 的页面所有设计 需要做到像图二那样 而且我table scroll down的时候
 table header要定死 只能scroll里面的数据”. 图二 is the User Management listing (`index.html`).
@@ -6064,3 +6084,65 @@ The page is the only consumer of the script.
 Pins: `promotion-form-sections.js` `2d50f881 → 91f9a0ba`, restamped in `promotion-edit.html` (the only page that
 references it). Guards: shell-drift OK (2616 baseline declarations untouched) · check-asset-pins 0 stale ·
 check-global-collisions 0 · spa-readiness exit 0 · pin-spa 0 pages re-pinned.
+
+### Wallet Ledger: the 15-column table could not fit the card — one search bar, and `?memberId=` still honoured (2026-10-02)
+
+Owner: “这个页面的table需要统一设计标准与其他页面一样能看完整table”, then “那两个搜索框能不能merge成一个”.
+
+**The table was truncating 9 of 15 headings and 11 of 15 cells, and it was doing it on purpose.** The page
+carried `table-layout:fixed` + `width:100%` + nth-child percentages (7/7/7/5/8/5/5/5/5/6/6/7/10/12/5),
+`overflow-x:hidden/clip` on `.bo-tx-table-body`, and a `lockLedgerNoHScroll()` that clamped `scrollLeft`
+back to 0 on every scroll — with a 2035px natural table in a 1240px host, ellipsis was the only outcome.
+Measured on the rendered page (1568×900): headings `CREATED TIME … APPROVED BY … REASON CODE … STATUS`
+clipped; MEMBER `011252...`, AMOUNT `50...`, PROVIDER `LIVE22` (clipped), REMARK
+`Manual deposit adjustment for member 011`. The two search boxes were 140px inputs whose placeholders
+(“Optional”, “LIVE22”) never said which was which.
+
+**Fixed with the Member Wallet recipe — the sibling page in the same module row.** px column widths
+authored as `colgroup` classes on **both** tables (`col.wl-col-*`, each value the rendered
+`max(heading, widest data)` at the real fonts, sum **2056**), `width:max(100%,2056px)` / `min-width:2056px`,
+`.bo-tx-table-body{overflow-x:auto}` with the 6px panel pill on both axes, the head declaring the same 6px
+bar it reserves via `scrollbar-gutter` (the drift Transaction Report measured at 1904), the body→head
+`scrollLeft` mirror, and Member Wallet's drag-to-pan on body **and** head. Headings are `overflow:visible`
+(Member Wallet rule); body cells ellipsis only where a column is deliberately capped — Related ID `240px`,
+Remark `340px`, both now carrying `title` with the full value.
+
+**The two search boxes became one, with the house classifier — and the value the user can see is searched for real.**
+A single `240px` `#ledgerKeyword` (`Member ID / Provider`) routed like `provider-wallet-transaction.js`
+and `provider-bet-report.js`: all digits → `memberId`, anything else → `providerCode` **uppercased**
+— typing `live22` used to travel verbatim (`providerCode=live22`) and could never match a backend that
+stores `LIVE22`. Crucially, the MEMBER column renders the member's **`username`**, while the ledger
+endpoint filters on the internal **`memberId`** — the owner's report (“用户没有搜索到他想要的数据”) was
+exactly that: the operator typed the number they could see, and `memberId=0112523899` matches no id.
+The typed value is now resolved through the Member Wallet listing’s own keyword search (“Username /
+name / mobile / referrer”, the sibling tab’s user-facing field); an **exact** username / mobile /
+memberId match turns into the internal id *before* the ledger request leaves, cached per value, and any
+failure (no permission, offline, no match) falls back to the classifier above unchanged. A `?memberId=`
+drill-down link (Member Wallet / User Management / Dashboard cells and the Ledger action) still pins
+`memberId` even when the value is not all digits and skips the lookup, so
+`wallet-ledger.html?memberId=…&type=ADJUSTMENT&scope=all` still sends `memberId=0112523899&types=ADJUSTMENT`
+with no dates.
+
+| probe — real page, fixture rows | before | after |
+| --- | --- | --- |
+| clipped headings (1568) | **9 / 15** | **0** |
+| clipped cells (1568) | **11 / 15** | 2 (the two capped free-text columns, `title` reveals them) |
+| head/body table width | 1240 (forced to the card) | 2056 / 2056.5, H-scroll inside the body |
+| per-column head↔body delta | 0 (both squeezed) | **0** at 1280/1568/1920/2560, both themes |
+| head `scrollLeft` after body `scrollLeft=300` | 0 (clamped) | **300**; drag pans the body to 300 |
+| Show `20` (40 rows) | — | `headCw == bodyCw == 1240` with the V bar present |
+| Show `-` | no V bar | no V bar (contract kept), H bar 6px chocolate `#8B6B4A` |
+| wide viewport (2560) | table still 1240 | table fills 2232, **no H-scroll**, columns grow equally |
+| type `0112523899` (the MEMBER cell value) | `memberId=0112523899`, 0 rows | resolves → `memberId=112523899` |
+| type `112523899` (internal id) | `memberId=112523899` | resolves → `memberId=112523899` |
+| type `999999999` (no member match) | `memberId=999999999` | `memberId=999999999` (fallback kept) |
+| type `live22` | `providerCode=live22` | `providerCode=LIVE22` |
+| `?memberId=0112523899&type=ADJUSTMENT&scope=all` | `memberId=0112523899&types=ADJUSTMENT` | same, **no resolver call** |
+
+**Verified** headless with the real page: 1568/1280/1920/2560 and both themes — 0 clipped headings, 0
+column deltas, the scroll mirror and drag, the fixed-size gutter parity, the `-` contract, the empty state
+(`No ledger records found.` with its colspan cell), and the drill-down query above. Guards after the change:
+`check-shell-drift` OK (2616 baseline declarations untouched) · `check-search-standard` 0 findings ·
+`check-asset-pins` 0 stale · `check-global-collisions` 0 · `check-spa-readiness` exit 0 · `check-control-height`
+OK. Pins: `bo-wallet-transaction-amber.css` → `e28632a2`, `wallet-ledger.js` → `af102dd7`, restamped on the
+11 pages that link either file.

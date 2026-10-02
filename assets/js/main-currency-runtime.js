@@ -184,6 +184,28 @@
     setCurrency(sel.value,true);
   });
 
+  /* SPA swap (bo-spa.js): ~158 pages load this file, so the router owns it as a SHARED script and
+     never runs it again on a hop - it is absent from BO_SPA's __boScriptTimes for a swap and
+     present for a fresh load. The target page's CURRENCY row therefore kept its
+     <span class="mre-cur-loading">…</span> skeleton: measured on
+     main-win-lose-report.html -> main_provider_report.html and back, 3 buttons -> 0 buttons ->
+     0 buttons, `skeleton: PRESENT` both times, `navlog phase:"ok"`, 0 JS errors - "切过去 currency
+     要刷新才出来".
+
+     The document outlives a swap even though the content frame does not, so one document-level
+     listener registered on the first load is enough: re-render into whatever markup the router
+     has just put in the document. Re-running this file instead (data-bo-spa-rerun) would stack a
+     fresh window.fetch wrapper on every hop and re-register the click/change listeners below on
+     a shared runtime - the reason the router skips it in the first place. */
+  if(!window.__boMainCurrencySwapHook){
+    window.__boMainCurrencySwapHook=1;
+    document.addEventListener('bo:spa:content',()=>{
+      if(!state.ready){ensureConfig().then(()=>{renderCurrencyGroups();updateLabels();});return;}
+      renderCurrencyGroups();
+      updateLabels();
+    });
+  }
+
   // MAIN pages initialize immediately. Other pages initialize only for MAIN/ROOT account context.
   if(pageIsMain())ensureConfig();
   else document.addEventListener('DOMContentLoaded',()=>{if(pageIsMain())ensureConfig();});

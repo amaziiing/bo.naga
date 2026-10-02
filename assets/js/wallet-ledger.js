@@ -24,15 +24,54 @@
     return document.querySelector('.table-card .bo-tx-table-head')
       || document.querySelector('.bo-tx-table-head');
   }
-  /* Columns already fit — pin H-axis closed so a V-bar never opens a phantom H-scrollbar. */
-  function lockLedgerNoHScroll(){
+  /* The 15-column ledger cannot fit the card: the H axis is live (Member Wallet recipe).
+     The body scrolls, the head mirrors it, and both can be dragged sideways. There is no
+     scrollLeft clamp any more — clamping here is why the head could never follow. */
+  function syncLedgerHScroll(){
     const body=tableBodyScroll();
-    if(!body) return;
-    body.style.setProperty('overflow-x','hidden','important');
-    body.style.setProperty('overflow-y','auto','important');
-    if(body.scrollLeft) body.scrollLeft=0;
     const head=tableHeadScroll();
-    if(head&&head.scrollLeft) head.scrollLeft=0;
+    if(!body||!head) return;
+    if(head.scrollLeft!==body.scrollLeft) head.scrollLeft=body.scrollLeft;
+  }
+  /* Drag-to-scroll — same helper as member-wallet.js. A mouse can pan the wide table
+     without reaching for the 6px bar. */
+  function bindLedgerDragScroll(scrollEl, grabEls){
+    if(!scrollEl || scrollEl._boLedgerHDrag) return;
+    scrollEl._boLedgerHDrag = true;
+    let down=false, moved=false, startX=0, startLeft=0;
+    const interactive='a,button,input,select,textarea,label,.bo-tx-action-btn';
+    const onDown=(e)=>{
+      if(e.button!=null && e.button!==0) return;
+      if(e.target.closest(interactive)) return;
+      down=true; moved=false; startX=e.clientX; startLeft=scrollEl.scrollLeft;
+      try{ e.currentTarget.setPointerCapture?.(e.pointerId); }catch(_){}
+      grabEls.forEach(el=>el.classList.add('is-hdrag'));
+    };
+    const onMove=(e)=>{
+      if(!down) return;
+      const dx=e.clientX-startX;
+      if(Math.abs(dx)>4) moved=true;
+      scrollEl.scrollLeft=startLeft-dx;
+      e.preventDefault();
+    };
+    const onUp=()=>{
+      if(!down) return;
+      down=false;
+      grabEls.forEach(el=>el.classList.remove('is-hdrag'));
+    };
+    grabEls.forEach(el=>{
+      el.addEventListener('pointerdown', onDown);
+      el.addEventListener('pointermove', onMove);
+      el.addEventListener('pointerup', onUp);
+      el.addEventListener('pointercancel', onUp);
+      el.addEventListener('lostpointercapture', onUp);
+    });
+    scrollEl.addEventListener('click', e=>{
+      if(!moved) return;
+      e.preventDefault();
+      e.stopPropagation();
+      moved=false;
+    }, true);
   }
   function scrollBodyAvail(scroll){
     /* Head lives outside the scroller — full clientHeight is row room. */
@@ -372,9 +411,61 @@
     if(from&&!from.value) from.value=today;
     if(to&&!to.value) to.value=today;
   }
+  let urlMemberId='';
+  function keywordInput(){ return document.getElementById('ledgerKeyword'); }
+  function keywordValue(){ return keywordInput()?.value.trim() || ''; }
+  /* One search bar, the house route (provider-wallet-transaction.js / provider-bet-report.js):
+     digits = memberId, anything else = providerCode. The code is uppercased before it leaves,
+     as the sibling pages do — typing `live22` used to travel verbatim and match nothing when
+     the backend stores provider codes uppercase. */
+  function applyKeyword(p, raw){
+    const kw=String(raw||'').trim();
+    if(!kw) return;
+    if(/^\d+$/.test(kw)){ p.set('memberId', kw); return; }
+    p.set('providerCode', kw.toUpperCase());
+  }
+  /* The MEMBER column shows the member's `username` while the ledger endpoint filters on the
+     internal `memberId` — so a support user who types the value they can actually see ("用户
+     没有搜索到他想要的数据", 2026-10-02) searched for a number the ledger never matches. The
+     value is resolved through the Member Wallet listing, whose keyword search IS the sibling
+     page's user-facing "Username / name / mobile / referrer" field; a match turns into the
+     internal id before the ledger request leaves. Cache per typed value; on any failure the
+     house classifier above applies unchanged. */
+  const resolvedMemberIds=new Map();
+  async function resolveLedgerMemberId(value){
+    const key=String(value||'').trim().toLowerCase();
+    if(!key) return null;
+    if(resolvedMemberIds.has(key)) return resolvedMemberIds.get(key);
+    let found=null;
+    try{
+      const p=new URLSearchParams({keyword:String(value).trim(), page:'1', size:'10'});
+      const res=await fetch(url('MEMBER_WALLET_LIST')+'?'+p.toString(), {headers:{...BO_AUTH.authHeader()}});
+      const json=await res.json().catch(()=>({}));
+      if(res.ok && json.status!=='error'){
+        const data=json.data||{};
+        const rows=Array.isArray(data)?data:(Array.isArray(data.content)?data.content:[]);
+        const exact=rows.find(r=>{
+          if(!r) return false;
+          return [r.username,r.mobile,r.memberUsername].some(v=>String(v==null?'':v).trim().toLowerCase()===key)
+            || String(r.memberId==null?'':r.memberId).trim()===String(value).trim();
+        });
+        if(exact && exact.memberId!=null && String(exact.memberId).trim()) found=String(exact.memberId).trim();
+      }
+    }catch(e){ found=null; }
+    resolvedMemberIds.set(key, found);
+    return found;
+  }
   function setFromUrl(){
     const sp = new URLSearchParams(location.search);
-    if(sp.get('memberId')) document.getElementById('ledgerMemberId').value = sp.get('memberId');
+    const mid = sp.get('memberId') || '';
+    if(mid){
+      /* A `?memberId=` link (Member Wallet / User Management / Dashboard) pins the value as a
+         memberId even when it is not all digits — only a typed value is classified. */
+      urlMemberId = mid;
+      if(keywordInput()) keywordInput().value = mid;
+    } else if(sp.get('keyword')){
+      if(keywordInput()) keywordInput().value = sp.get('keyword');
+    }
     const rawTypes = sp.get('types') || sp.get('type') || '';
     if(rawTypes) setSelectedTypes(rawTypes.split(','));
     if(sp.get('scope') === 'all'){
@@ -385,16 +476,16 @@
       if(to) to.value = '';
     }
   }
-  function params(){
+  function params(resolvedMemberId){
     const p = new URLSearchParams();
-    const memberId = document.getElementById('ledgerMemberId')?.value.trim();
-    const provider = document.getElementById('ledgerProviderCode')?.value.trim();
+    const keyword = keywordValue();
     const types = selectedTypeList();
     const from = document.getElementById('ledgerFrom')?.value;
     const to = document.getElementById('ledgerTo')?.value;
     pageSize = resolvePageSize(document.getElementById('ledgerSize')?.value);
-    if(memberId) p.set('memberId', memberId);
-    if(provider) p.set('providerCode', provider);
+    if(keyword && keyword === urlMemberId) p.set('memberId', urlMemberId);
+    else if(keyword && resolvedMemberId) p.set('memberId', resolvedMemberId);
+    else applyKeyword(p, keyword);
     p.set('types', effectiveTypeList().join(','));
     if(from) p.set('from', from);
     if(to) p.set('to', to);
@@ -431,8 +522,8 @@
         <td>${esc(r.createdBy || r.adjustedBy || '-')}</td>
         <td>${esc(r.approvedBy || r.reviewedBy || '-')}</td>
         <td>${esc(r.reasonCode || r.reason || '-')}</td>
-        <td>${esc(r.relatedId || r.referenceNo || r.depositId || r.withdrawalId || r.bonusId || r.rebateId || '-')}</td>
-        <td>${esc(r.remark || '-')}</td>
+        <td title="${esc(r.relatedId || r.referenceNo || r.depositId || r.withdrawalId || r.bonusId || r.rebateId || '-')}">${esc(r.relatedId || r.referenceNo || r.depositId || r.withdrawalId || r.bonusId || r.rebateId || '-')}</td>
+        <td title="${esc(r.remark || '-')}">${esc(r.remark || '-')}</td>
         <td><span class="status-pill ${statusCls}">${esc(status)}</span></td>
       </tr>`;
     }).join('');
@@ -442,7 +533,7 @@
     document.getElementById('ledgerPrevBtn').disabled = page <= 1;
     document.getElementById('ledgerNextBtn').disabled = page >= totalPages;
     scheduleEvenFill();
-    lockLedgerNoHScroll();
+    syncLedgerHScroll();
   }
   async function load(){
     const body=document.getElementById('walletLedgerBody');
@@ -452,7 +543,12 @@
        This prevents the table flashing to a Loading row and back (the visible "jump"). */
     if(body && !hasRenderedRows) body.innerHTML='<tr><td colspan="15">Loading ledger...</td></tr>';
     try{
-      const requestParams=params();
+      /* Resolve the typed value to the internal member id before the ledger request; a
+         provider code / raw id falls through unchanged when no member matches. */
+      const typedKeyword=keywordValue();
+      const resolved=(typedKeyword && typedKeyword!==urlMemberId) ? await resolveLedgerMemberId(typedKeyword) : null;
+      if(generation!==loadGeneration) return;
+      const requestParams=params(resolved);
       const json = await api(url('WALLET_LEDGER_LIST') + '?' + requestParams);
       /* A newer filter/page/autofit request owns the table. Never let an older,
          slower response overwrite newer data. */
@@ -470,22 +566,22 @@
     bindTimeTips();
     ensureDefaultDates();
     setFromUrl();
-    lockLedgerNoHScroll();
+    syncLedgerHScroll();
     const bodyScroll=tableBodyScroll();
     const headScroll=tableHeadScroll();
     if(bodyScroll){
       bodyScroll.addEventListener('scroll', ()=>{
-        if(bodyScroll.scrollLeft) bodyScroll.scrollLeft=0;
         if(headScroll) headScroll.scrollLeft=bodyScroll.scrollLeft;
       }, {passive:true});
+      if(headScroll) bindLedgerDragScroll(bodyScroll,[bodyScroll,headScroll]);
       if(typeof ResizeObserver!=='undefined'){
-        new ResizeObserver(()=>lockLedgerNoHScroll()).observe(bodyScroll);
+        new ResizeObserver(()=>syncLedgerHScroll()).observe(bodyScroll);
       }
     }
-    window.addEventListener('resize', lockLedgerNoHScroll);
+    window.addEventListener('resize', syncLedgerHScroll);
     const runSearch=()=>{ page=1; clearLockedAutoSize(); syncAutofitMode(); load(); };
     document.getElementById('ledgerSearchBtn')?.addEventListener('click', runSearch);
-    ['ledgerMemberId','ledgerProviderCode'].forEach(id=>document.getElementById(id)?.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); runSearch(); } }));
+    document.getElementById('ledgerKeyword')?.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); runSearch(); } });
     ['ledgerFrom','ledgerTo'].forEach(id=>document.getElementById(id)?.addEventListener('change', runSearch));
     // Footer "Show N entries" mirrors #ledgerSize (Deposit/Withdraw / MD contract)
     syncAutofitMode();
@@ -498,7 +594,8 @@
       load();
     });
     document.getElementById('ledgerResetBtn')?.addEventListener('click', ()=>{
-      ['ledgerMemberId','ledgerProviderCode'].forEach(id=>document.getElementById(id).value='');
+      if(keywordInput()) keywordInput().value='';
+      urlMemberId='';
       setSelectedTypes([]);
       const sizeEl=document.getElementById('ledgerSize');
       if(sizeEl) sizeEl.value='-';

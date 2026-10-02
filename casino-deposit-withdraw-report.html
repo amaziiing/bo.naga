@@ -10,10 +10,10 @@
 <title>Deposit / Withdraw Report</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
-<link href="assets/css/reports.css?v=c5c39452" rel="stylesheet"/>
+<link href="assets/css/reports.css?v=bd926796" rel="stylesheet"/>
 <link href="assets/css/table-pagination-horizontal.css?v=e0d02694" rel="stylesheet"/>
 <link href="assets/css/bo-ui-standard.css?v=817727e7" rel="stylesheet">
-<link href="assets/css/bo-targeted-fixes.css?v=5ad3de3e" rel="stylesheet"/>
+<link href="assets/css/bo-targeted-fixes.css?v=3147d00a" rel="stylesheet"/>
 <link href="assets/css/bo-account-chip.css?v=c8730135" rel="stylesheet" />
 <link href="assets/css/bo-charcoal-shell.css?v=b43bfd5f" rel="stylesheet" />
 <link href="assets/css/bo-charcoal-legacy.css?v=8ed5566f" rel="stylesheet" />
@@ -32,6 +32,22 @@
 <header class="report-topbar" data-bo-topbar data-bo-title="Deposit / Withdraw Report" data-bo-icon="bi-arrow-left-right"></header>
 <script src="assets/js/bo-topbar.js?v=a7466d81"></script>
 <section class="report-content">
+<!-- The page's own KPI strip: the same four `.quick-stats > .metric` tiles the Overview report
+     leads with, so it is one row of four on every screen the family supports (the strip drops to
+     2 columns under 1024px on its own). Strip first, then the filter card, then the table card is
+     the order every other listing in this family uses (win-lose-report, member-deposit): the
+     family's §19 join makes the date row the table panel's own head band with the thead flush
+     under it, instead of a separate card of its own. The icons are written here on purpose:
+     reports.js derives a glyph from the tile's label text and its deposit/withdraw rules would
+     give Approved and Pending the same one.
+     Values are summed from the same daily rows the table below renders —
+     see renderDepositWithdrawStats() in casino-report.js. -->
+<div class="quick-stats">
+<div class="metric"><div class="bo-summary-icon"><i class="bi bi-wallet2"></i></div><span>Deposit Approved</span><strong id="dwDepositApproved">0.00</strong></div>
+<div class="metric"><div class="bo-summary-icon"><i class="bi bi-arrow-left-right"></i></div><span>Withdraw Approved</span><strong id="dwWithdrawApproved">0.00</strong></div>
+<div class="metric"><div class="bo-summary-icon"><i class="bi bi-hourglass-split"></i></div><span>Pending Deposit</span><strong id="dwDepositPending">0.00</strong></div>
+<div class="metric"><div class="bo-summary-icon"><i class="bi bi-hourglass-split"></i></div><span>Pending Withdraw</span><strong id="dwWithdrawPending">0.00</strong></div>
+</div>
 <div class="filter-card">
 <div class="mad-filter-bar">
 <div class="mad-filters user-search-grid bo-filter-row">
@@ -64,12 +80,12 @@
 </div>
 <script src="assets/js/config.js?v=e7312672"></script>
 <script src="assets/js/brand-context.js?v=27360386"></script>
-<script src="assets/js/main-currency-runtime.js?v=7a2c0062"></script>
+<script src="assets/js/main-currency-runtime.js?v=4060eb86"></script>
 <script src="assets/js/currency-runtime.js?v=b63c89fb"></script>
 <script src="assets/js/auth.js?v=9f29bfe8"></script>
 <script src="assets/js/reports.js?v=3200d0bd"></script>
-<script src="assets/js/bo-date-range.js?v=ab116fda"></script>
-<script src="assets/js/casino-report.js?v=37c17082"></script>
+<script src="assets/js/bo-date-range.js?v=523169ae"></script>
+<script src="assets/js/casino-report.js?v=97bb3260"></script>
 <!-- Global live-chat listener: keeps the custom MP3 notification active throughout the BO. -->
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
@@ -86,5 +102,5 @@
 <link href="assets/css/bo-control-height.css?v=ff703846" rel="stylesheet">
 <link href="assets/css/bo-field-standard.css?v=6673ed98" rel="stylesheet">
 <link href="assets/css/bo-module-tabs.css?v=0c2b4ebb" rel="stylesheet"/>
-<link href="assets/css/bo-shell.css?v=04140969" rel="stylesheet" />
+<link href="assets/css/bo-shell.css?v=37894b58" rel="stylesheet" />
 <link href="assets/css/bo-global-quicknav.css?v=7bad56b7" rel="stylesheet" data-bo-quicknav-css="1"/></head></html>

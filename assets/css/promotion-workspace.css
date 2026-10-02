@@ -354,3 +354,52 @@ body.promotion-workspace-page .bonus-title-table-row.is-synthetic .category-thum
 body.promotion-workspace-page .bonus-title-table-row.is-synthetic .category-copy b{
   font-style: italic;
 }
+
+/* ------------------------------------------------------------------ bottom band
+   The pagination band has to sit ON the card's bottom edge, the way it does on every
+   sibling page - measured with the band's top border as the ruler, against the viewport
+   bottom: Promotion Log 81px, User Management 82px, Game 78px. This page measured 113px
+   for two reasons, both below the footer and inside `.manage-list-card`, whose children
+   are the filter row, this box, the table wrap (which grows) and the footer:
+
+   1. `#promoWorkspaceStatusBox` was the card's LAST child. `.upload-status` carries
+      `min-height:22px` (reports.css), so an empty box reserved 22px of band below the
+      footer and lifted the "Show entries" divider with it. It is now the second child
+      (above the table) and takes no space while it has nothing to say - a message pushes
+      the TABLE down, never the band.
+   2. `.manage-list-card.promotion-modern-page` carried `padding: 14px 0 10px`, another
+      10px below the footer. With the band flush against the card's border the page lands
+      at 81px, i.e. where its siblings already are - and 13px above the sidebar's Logout
+      separator, the same 10-14px every sibling page shows.
+   Colours only elsewhere in this file; these are spacing, and they are page-scoped
+   (`body.promotion-workspace-page`), so the shell drift guard has nothing to refuse. */
+body.promotion-workspace-page .manage-list-card > .upload-status:empty{
+  display: none;
+}
+
+/* The filter row's action group is ONE line of two buttons, and it has no slack at all:
+   its width is exactly the two buttons plus the 10px gap (177.4 + 10 + 178.8 = 366.3px on
+   the reported page). Anything that takes that width away - or hands the group 100% of
+   the filter row, which `reports.css` does to `.section-title.crud-list-titlebar` (the
+   class crud-modal-pattern.js adds to this very element) - re-lays it as a wrapped
+   column: measured on the owner's report, "Add Bonus Category" stretched to the group's
+   full 367px and "Add Promotion Bonus" dropped onto the table head band. Pinned as a
+   property of the page rather than of the cascade order a SPA swap happens to leave
+   behind (the same order that flips this page's content inset - see bo-shell.css 0c).
+   The id-guard is the shell sheets' idiom, and it is deliberately below
+   bo-charcoal-cms.css's own promotion block: that sheet still owns the group's size,
+   radius and colours; this only says "one row, buttons keep their own width". */
+html:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body.promotion-workspace-page
+  .report-main .promotion-filter-card > .promotion-toolbar-actions,
+html:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body.promotion-workspace-page
+  .report-main .promotion-filter-card > .promotion-toolbar-actions > .crud-title-actions{
+  flex-flow: row nowrap !important;
+}
+
+html:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body.promotion-workspace-page
+  .report-main .promotion-filter-card > .promotion-toolbar-actions .clean-btn{
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  white-space: nowrap !important;
+}

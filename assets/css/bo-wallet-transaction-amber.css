@@ -4311,11 +4311,12 @@ html body:not(#bo-filter-standard-off):not(#bo-filter-standard-legacy).bo-wallet
   margin:0!important;
 }
 html body:not(#bo-filter-standard-off):not(#bo-filter-standard-legacy).bo-wallet-tx.wallet-ledger-page .report-main .table-card > .filter-card.wallet-inline-filter .bo-filter-row > .bo-filter-input-item,
-html body:not(#bo-filter-standard-off):not(#bo-filter-standard-legacy).bo-wallet-tx.wallet-ledger-page .report-main .table-card > .filter-card.wallet-inline-filter .bo-filter-row > .field.bo-filter-input-item{
-  width:140px!important;
-  min-width:120px!important;
-  max-width:140px!important;
-  flex:0 0 140px!important;
+html body:not(#bo-filter-standard-off):not(#bo-filter-standard-legacy).bo-wallet-tx.wallet-ledger-page .report-main .table-card > .filter-card.wallet-inline-filter .bo-filter-row > .field.bo-filter-input-item,
+html body:not(#bo-filter-standard-off):not(#bo-filter-standard-legacy).bo-wallet-tx.wallet-ledger-page .report-main .table-card > .filter-card.wallet-inline-filter .bo-filter-row > .field:has(#ledgerKeyword){
+  width:240px!important;
+  min-width:220px!important;
+  max-width:240px!important;
+  flex:0 0 240px!important;
 }
 html body:not(#bo-filter-standard-off):not(#bo-filter-standard-legacy).bo-wallet-tx.member-wallet-page .report-main .table-card > .filter-card.wallet-inline-filter .bo-filter-row > .bo-filter-input-item,
 html body:not(#bo-filter-standard-off):not(#bo-filter-standard-legacy).bo-wallet-tx.member-wallet-page .report-main .table-card > .filter-card.wallet-inline-filter .bo-filter-row > .field.bo-filter-input-item,
@@ -4441,7 +4442,9 @@ html body:not(#bo-filter-standard-off):not(#bo-filter-standard-legacy).bo-wallet
 }
 
 /* trimmed: mojibake bloat removed */
-/* Wallet Ledger — fixed head + body-only scroll (Deposit / Member Wallet frame) */
+/* Wallet Ledger — fixed head + body scroll, BOTH axes (Member Wallet recipe, 2026-10-02).
+   The 15-column ledger is 2056px wide; the card is ~1246px, so the H axis has to be live,
+   the head follows the body's scrollLeft and both are drag-pannable (wallet-ledger.js). */
 html body.bo-wallet-tx.wallet-ledger-page .table-card > .table-wrap,
 body.bo-wallet-tx.wallet-ledger-page .table-card > .table-wrap{
   overflow:hidden!important;
@@ -4450,8 +4453,7 @@ html body.bo-wallet-tx.wallet-ledger-page .table-card > .table-wrap > .bo-tx-tab
 body.bo-wallet-tx.wallet-ledger-page .table-card > .table-wrap > .bo-tx-table-body,
 html body.bo-wallet-tx.wallet-ledger-page .bo-tx-table-body,
 body.bo-wallet-tx.wallet-ledger-page .bo-tx-table-body{
-  overflow-x:hidden!important;
-  overflow-x:clip!important;
+  overflow-x:auto!important;
   overflow-y:auto!important;
 }
 /* Show `-` (auto-fit): no vertical scrollbar — Deposit / MD contract */
@@ -4631,11 +4633,7 @@ html[data-bo-theme="dark"] body.bo-wallet-tx.standardized-listing-page.member-wa
 }
 body.bo-wallet-tx.wallet-ledger-page .table-card > .table-wrap > .bo-tx-table-body::-webkit-scrollbar{
   width:6px!important;
-  height:0!important;
-}
-body.bo-wallet-tx.wallet-ledger-page .table-card > .table-wrap > .bo-tx-table-body::-webkit-scrollbar:horizontal{
-  height:0!important;
-  display:none!important;
+  height:6px!important;
 }
 body.bo-wallet-tx.wallet-ledger-page .table-card > .table-wrap > .bo-tx-table-body::-webkit-scrollbar-button{
   display:none!important;

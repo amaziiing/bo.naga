@@ -1,4 +1,12 @@
 (()=>{'use strict';
+/* A swap re-runs this file: every date picker added its own outside-click, bind() its two
+   delegations, and the sync label its interval - once more per entry. Release the previous
+   run's bindings (and its interval) first. */
+if(window.__boMpslUnbind) window.__boMpslUnbind();
+if(window.__boMpslTimer){clearInterval(window.__boMpslTimer);window.__boMpslTimer=null;}
+const unbinds=[];
+const listen=(target,type,fn,opt)=>{ target.addEventListener(type,fn,opt); unbinds.push(()=>target.removeEventListener(type,fn,opt)); };
+window.__boMpslUnbind=()=>{ unbinds.forEach(fn=>fn()); unbinds.length=0; };
 const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const money=v=>Number(v||0).toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2});
 
@@ -147,7 +155,7 @@ function setupPscMonthPicker(){
       $('pscMonthTrigger').setAttribute('aria-expanded','true');
     }else closePscMonthPicker();
   });
-  document.addEventListener('click',e=>{if(!e.target.closest('.psc-month-field'))closePscMonthPicker()});
+  listen(document,'click',e=>{if(!e.target.closest('.psc-month-field'))closePscMonthPicker()});
   $('pscCalPrev')?.addEventListener('click',e=>{e.stopPropagation();if(pscMonthState.mode==='years')pscMonthState.yearPageStart-=12;else pscMonthState.view=new Date(pscMonthState.view.getFullYear()-1,pscMonthState.view.getMonth(),1);renderPscMonthPicker()});
   $('pscCalNext')?.addEventListener('click',e=>{e.stopPropagation();if(pscMonthState.mode==='years')pscMonthState.yearPageStart+=12;else pscMonthState.view=new Date(pscMonthState.view.getFullYear()+1,pscMonthState.view.getMonth(),1);renderPscMonthPicker()});
   $('pscCalMonth')?.addEventListener('click',e=>{e.stopPropagation();pscMonthState.mode='months';renderPscMonthPicker()});
@@ -196,7 +204,7 @@ function setupPayDatePicker(){
   if(payDateState.bound||!$('settlementPaymentDateTrigger'))return;
   payDateState.bound=true;
   $('settlementPaymentDateTrigger').addEventListener('click',e=>{e.preventDefault();e.stopPropagation();const p=$('settlementPaymentDatePicker');const open=!p?.classList.contains('show');if(open){payDateState.mode='days';const cur=$('settlementPaymentDate')?.value;if(cur)payDateState.view=new Date(cur+'T00:00:00');renderPayDateCalendar();p.classList.add('show');$('settlementPaymentDateTrigger').setAttribute('aria-expanded','true')}else closePayDatePicker()});
-  document.addEventListener('click',e=>{if(!e.target.closest('.msr-pay-date-field'))closePayDatePicker()});
+  listen(document,'click',e=>{if(!e.target.closest('.msr-pay-date-field'))closePayDatePicker()});
   $('msrPayCalPrev')?.addEventListener('click',e=>{e.stopPropagation();if(payDateState.mode==='years')payDateState.yearPageStart-=12;else payDateState.view=new Date(payDateState.view.getFullYear(),payDateState.view.getMonth()-1,1);renderPayDateCalendar()});
   $('msrPayCalNext')?.addEventListener('click',e=>{e.stopPropagation();if(payDateState.mode==='years')payDateState.yearPageStart+=12;else payDateState.view=new Date(payDateState.view.getFullYear(),payDateState.view.getMonth()+1,1);renderPayDateCalendar()});
   $('msrPayCalMonth')?.addEventListener('click',e=>{e.stopPropagation();payDateState.mode=payDateState.mode==='months'?'days':'months';renderPayDateCalendar()});
@@ -326,7 +334,7 @@ function setupDatePicker(){
   setRange(a,b,'today');
   if($('settlementMonth')) $('settlementMonth').value=monthFromDate(a);
   $('reportDateTrigger').addEventListener('click',e=>{e.stopPropagation();$('reportRangePicker').classList.toggle('show');pickerState.mode='days';pickerState.hover='';renderCalendar();});
-  document.addEventListener('click',e=>{if(!e.target.closest('.ref-range-wrap')) $('reportRangePicker')?.classList.remove('show');});
+  listen(document,'click',e=>{if(!e.target.closest('.ref-range-wrap')) $('reportRangePicker')?.classList.remove('show');});
   document.querySelectorAll('[data-report-preset]').forEach(btn=>btn.addEventListener('click',e=>{
     e.stopPropagation();
     const key=btn.dataset.reportPreset,[aa,bb]=presetRange(key);
@@ -389,7 +397,7 @@ function bind(){
   document.querySelectorAll('[data-msr-history-close]').forEach(b=>b.addEventListener('click',()=>closeMsrModal('settlementHistoryModal')));
   $('settlementPaymentModal')?.addEventListener('click',e=>{if(e.target===$('settlementPaymentModal'))closeMsrModal('settlementPaymentModal')});
   $('settlementHistoryModal')?.addEventListener('click',e=>{if(e.target===$('settlementHistoryModal'))closeMsrModal('settlementHistoryModal')});
-  document.addEventListener('click',e=>{
+  listen(document,'click',e=>{
     const p=e.target.closest('[data-payment-id]');
     if(p&&!p.disabled){openPayment(p);return}
     const h=e.target.closest('[data-history-id]');
@@ -404,6 +412,11 @@ document.addEventListener('DOMContentLoaded',()=>{
   bind();
   ensureDirectory().catch(console.warn);
   loadSettlements();
-  setInterval(updateSyncLabel,30000);
+  /* Poll only while this page's own date trigger is on screen: a swap replaces the document, and
+     the interval the previous entry left behind would report a label that is no longer visible. */
+  window.__boMpslTimer=setInterval(()=>{
+    if(!document.getElementById('reportDateTrigger')){clearInterval(window.__boMpslTimer);window.__boMpslTimer=null;return;}
+    updateSyncLabel();
+  },30000);
 });
 })();

@@ -1,5 +1,11 @@
 (()=>{
   'use strict';
+  /* A swap re-runs this file: the float-tip window listeners, the autofit observer and the
+     resize handler below were added again on every entry. Release the previous run's first. */
+  if(window.__boOpsUnbind) window.__boOpsUnbind();
+  const unbinds=[];
+  const listen=(target,type,fn,opt)=>{ target.addEventListener(type,fn,opt); unbinds.push(()=>target.removeEventListener(type,fn,opt)); };
+  window.__boOpsUnbind=()=>{ unbinds.forEach(fn=>fn()); unbinds.length=0; };
   const base=(window.API_BASE_URL||window.API_BASE||'').replace(/\/$/,'');
   const localToday=()=>window.BO_FORMAT?.today?BO_FORMAT.today():(()=>{const d=new Date(),pad=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;})();
   const today=localToday();
@@ -93,8 +99,8 @@
     bodyEl.addEventListener('mouseout',e=>{const el=e.target.closest?.('.tr-dt[data-tip],.tr-remark[data-tip]');if(!el)return;const next=e.relatedTarget;if(next&&el.contains(next))return;hideFloatTip();});
     bodyEl.addEventListener('focusin',e=>{const el=e.target.closest?.('.tr-dt[data-tip],.tr-remark[data-tip]');if(el)placeFloatTip(el);});
     bodyEl.addEventListener('focusout',e=>{const el=e.target.closest?.('.tr-dt[data-tip],.tr-remark[data-tip]');if(!el)return;const next=e.relatedTarget;if(next&&el.contains(next))return;hideFloatTip();});
-    window.addEventListener('scroll',hideFloatTip,true);
-    window.addEventListener('resize',hideFloatTip);
+    listen(window,'scroll',hideFloatTip,true);
+    listen(window,'resize',hideFloatTip);
   }
   const cols=window.OP_REPORT_KIND==='promotion-report'
     ?[['name','Promotion'],['promotionCode','Code'],['claimCount','Claims'],['uniqueClaimers','Unique Claimers'],['repeatedClaimCount','Repeated Claims'],['payoutAmount','Payouts']]
@@ -327,7 +333,7 @@
   }
   function bindAutofitResizeObserver(){
     if(!tableBodyEl||tableBodyEl._boAutofitObs||typeof ResizeObserver==='undefined')return;
-    tableBodyEl._boAutofitObs=new ResizeObserver(()=>{
+    const obs=new ResizeObserver(()=>{
       if(!isAutofit())return;
       /* A notification this soon after our own fit write is that write, not a panel change. */
       if(Date.now()-fitWroteAt<400)return;
@@ -336,7 +342,9 @@
       clearTimeout(tableBodyEl._boAutofitTimer);
       tableBodyEl._boAutofitTimer=setTimeout(()=>{lockedAutoSize=null;render();},120);
     });
-    tableBodyEl._boAutofitObs.observe(tableBodyEl);
+    obs.observe(tableBodyEl);
+    tableBodyEl._boAutofitObs=obs;
+    unbinds.push(()=>obs.disconnect());
   }
   function render(){
     syncAutofitClass();
@@ -458,7 +466,7 @@
   pageSizeEl?.addEventListener('change',()=>{lockedAutoSize=null;page=1;render();});
   pagerEl?.addEventListener('click',e=>{const b=e.target.closest('[data-page]');if(!b||b.disabled)return;page=Number(b.dataset.page)||1;render();});
   let resizeTimer=0;
-  window.addEventListener('resize',()=>{
+  listen(window,'resize',()=>{
     if(!isAutofit())return;
     clearTimeout(resizeTimer);
     resizeTimer=setTimeout(()=>{lockedAutoSize=null;render();},120);

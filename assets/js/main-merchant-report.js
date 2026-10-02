@@ -1,4 +1,11 @@
 (()=>{'use strict';
+/* A swap re-runs this file: the view delegation, the range picker's outside-click and the sync
+   label's interval were added once more per entry. Release the previous run's first. */
+if(window.__boMmrUnbind) window.__boMmrUnbind();
+if(window.__boMmrTimer){clearInterval(window.__boMmrTimer);window.__boMmrTimer=null;}
+const unbinds=[];
+const listen=(target,type,fn,opt)=>{ target.addEventListener(type,fn,opt); unbinds.push(()=>target.removeEventListener(type,fn,opt)); };
+window.__boMmrUnbind=()=>{ unbinds.forEach(fn=>fn()); unbinds.length=0; };
 const $=id=>document.getElementById(id), esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const money=v=>Number(v||0).toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2});
 const num=v=>Number(v||0).toLocaleString('en-MY');
@@ -346,7 +353,7 @@ function setupFilters(){
   });
   $('reportExport')?.addEventListener('click',exportCsv);
   $('reportSyncLabel')?.addEventListener('click',()=>{load();});
-  document.addEventListener('click',e=>{
+  listen(document,'click',e=>{
     const view=e.target.closest('[data-mmr-view]');
     if(view){
       const id=view.getAttribute('data-mmr-view');
@@ -437,7 +444,7 @@ function setupDatePicker(){
   pickerState.view=new Date(a+'T00:00:00');
   setRange(a,b,'today');
   $('reportDateTrigger').addEventListener('click',e=>{e.stopPropagation();$('reportRangePicker').classList.toggle('show');pickerState.mode='days';pickerState.hover='';renderCalendar();});
-  document.addEventListener('click',e=>{const rp=$('reportRangePicker');if(rp&&e.target&&e.target.closest&&!e.target.closest('.ref-range-wrap')) rp.classList.remove('show');});
+  listen(document,'click',e=>{const rp=$('reportRangePicker');if(rp&&e.target&&e.target.closest&&!e.target.closest('.ref-range-wrap')) rp.classList.remove('show');});
   document.querySelectorAll('[data-report-preset]').forEach(btn=>btn.addEventListener('click',e=>{
     e.stopPropagation();
     const key=btn.dataset.reportPreset,[aa,bb]=presetRange(key);
@@ -489,6 +496,11 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   updateCurrencyLabels();
   load();
-  setInterval(updateSyncLabel,30000);
+  /* Poll only while this page's own date trigger is on screen; the interval a previous entry
+     left behind would keep reporting a label for a page that is no longer displayed. */
+  window.__boMmrTimer=setInterval(()=>{
+    if(!document.getElementById('reportDateTrigger')){clearInterval(window.__boMmrTimer);window.__boMmrTimer=null;return;}
+    updateSyncLabel();
+  },30000);
 });
 })();

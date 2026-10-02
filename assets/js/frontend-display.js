@@ -671,6 +671,54 @@
       applyMarqueeBackground(marqueeBgValue);
     }).observe(document.documentElement,{attributes:true,attributeFilter:['data-bo-theme']});
   }
+  /* The board is this page's scroll container and the save bar is pinned under it, so a menu that
+     reaches past the board's bottom edge is cut off there — measured at 1560x500 with the brand
+     list: 234px of room below its row against a 280px list, so its last two options could not be
+     reached at all. The room the board actually has is written into --fd-menu-room (the sheet caps
+     the list with it) and .fd-menu-up flips the list above its trigger when that side is the
+     larger one. reports.js adds `.show` inside its own click handler and stops propagation, so the
+     placement runs one frame after the click; a board scroll re-runs it, because the room below a
+     row changes with the scroll while the list stays anchored to the row. */
+  const fdMenuBoard=document.querySelector('.fd-board');
+  const FD_MENU_CEILING=280;   /* the shared sheet's own default cap */
+  const FD_MENU_FLOOR=132;     /* ~3 options: below this a list stops being a list */
+  const FD_MENU_GAP=6;         /* the gap the sheet already puts between control and list */
+  const FD_MENU_EDGE=8;        /* keeps the list off the board's own bottom edge */
+  function placeFdMenus(){
+    if(!fdMenuBoard||!fdMenuBoard.isConnected) return;
+    const boardBox=fdMenuBoard.getBoundingClientRect();
+    fdMenuBoard.querySelectorAll('.rounded-select-wrap').forEach(function(wrap){
+      const menu=wrap.querySelector(':scope > .rounded-select-menu.show');
+      const btn=wrap.querySelector(':scope > .rounded-select-btn');
+      if(!menu||!btn){
+        wrap.classList.remove('fd-menu-up');
+        wrap.style.removeProperty('--fd-menu-room');
+        return;
+      }
+      const box=btn.getBoundingClientRect();
+      const below=Math.round(boardBox.bottom-FD_MENU_EDGE-FD_MENU_GAP-box.bottom);
+      const above=Math.round(box.top-boardBox.top-FD_MENU_EDGE-FD_MENU_GAP);
+      const up=above>below;
+      wrap.classList.toggle('fd-menu-up',up);
+      wrap.style.setProperty('--fd-menu-room',Math.max(FD_MENU_FLOOR,Math.min(FD_MENU_CEILING,up?above:below))+'px');
+    });
+  }
+  function reflowFdMenus(){
+    if(fdMenuBoard&&fdMenuBoard.querySelector('.rounded-select-menu.show')) placeFdMenus();
+  }
+  if(fdMenuBoard){
+    fdMenuBoard.addEventListener('scroll',reflowFdMenus,{passive:true});
+    /* A `document` listener survives a SPA swap while this script re-runs on every entry, so the
+       previous handler is dropped by reference rather than left to accumulate. */
+    if(window.__fdMenuPlace) document.removeEventListener('click',window.__fdMenuPlace,true);
+    window.__fdMenuPlace=function(e){
+      const t=e.target;
+      if(!t||!t.closest||!t.closest('.fd-panel .rounded-select-btn')) return;
+      requestAnimationFrame(placeFdMenus);
+    };
+    document.addEventListener('click',window.__fdMenuPlace,true);
+  }
+
   chooseInstallAppLogo?.addEventListener('click',()=>installAppLogoFile?.click());
   installAppLogoFile?.addEventListener('change',async e=>{
     const file=e.target.files&&e.target.files[0];

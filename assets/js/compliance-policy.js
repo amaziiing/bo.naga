@@ -1,4 +1,11 @@
 (function () {
+  /* A swap re-runs this file and the router replays its DOMContentLoaded block, so the Escape
+     keydown and the resize handler inside it were added once more per entry. Release the
+     previous run's bindings first. */
+  if (window.__boCpUnbind) window.__boCpUnbind();
+  const unbinds = [];
+  const listen = (target, type, fn, opt) => { target.addEventListener(type, fn, opt); unbinds.push(() => target.removeEventListener(type, fn, opt)); };
+  window.__boCpUnbind = () => { unbinds.forEach(fn => fn()); unbinds.length = 0; };
   const $ = (id) => document.getElementById(id);
   const state = { items: [], currentPage: 1 };
   const pageSizeEl = $('policyPageSize');
@@ -224,7 +231,7 @@
     $('policyModal').addEventListener('click', (e) => {
       if (e.target === $('policyModal')) closeModal();
     });
-    document.addEventListener('keydown', (e) => {
+    listen(document, 'keydown', (e) => {
       if (e.key === 'Escape' && $('policyModal')?.classList.contains('show')) closeModal();
     });
     // Per-field Save buttons are hidden; persist translation on blur via the existing DT save handlers.
@@ -249,7 +256,7 @@
     });
     pageSizeEl?.addEventListener('change', () => render(true));
     let resizeTimer = 0;
-    window.addEventListener('resize', () => {
+    listen(window, 'resize', () => {
       if (!isAutoPageSize()) return;
       clearTimeout(resizeTimer);
       resizeTimer = setTimeout(() => render(false), 120);

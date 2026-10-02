@@ -1,4 +1,10 @@
 (function(){
+/* A swap re-runs this file and the router replays its DOMContentLoaded block, so the resize
+   handler below was added once more per entry. Release the previous run's bindings first. */
+if(window.__boWlrUnbind) window.__boWlrUnbind();
+const unbinds=[];
+const listen=(target,type,fn,opt)=>{ target.addEventListener(type,fn,opt); unbinds.push(()=>target.removeEventListener(type,fn,opt)); };
+window.__boWlrUnbind=()=>{ unbinds.forEach(fn=>fn()); unbinds.length=0; };
 let page=1,totalPages=1,totalElements=0,pageSize=20,pageSizeLock=null,autoRefined=false,providers=[],vipLevels=[];
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const num=v=>Number(v||0)||0, money=v=>num(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -71,5 +77,5 @@ wlCategory.addEventListener('change',()=>{fillProviders();reload()});wlProvider.
 /* In auto mode the fit follows the panel: the family's other pages re-fit on resize
    (casino-report.js, player-game-ranking.js), so a window resize that changes how many
    rows fit re-requests that many instead of leaving the panel short or over-filled. */
-let fitT=0;window.addEventListener('resize',()=>{if(!isAutoPageSize())return;clearTimeout(fitT);fitT=setTimeout(()=>{const prev=pageSizeLock;pageSizeLock=null;const next=currentPageSize();if(next!==prev){autoRefined=true;page=1;load()}else pageSizeLock=prev},250)});});
+let fitT=0;listen(window,'resize',()=>{if(!isAutoPageSize())return;clearTimeout(fitT);fitT=setTimeout(()=>{const prev=pageSizeLock;pageSizeLock=null;const next=currentPageSize();if(next!==prev){autoRefined=true;page=1;load()}else pageSizeLock=prev},250)});});
 })();

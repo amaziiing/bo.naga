@@ -1,5 +1,11 @@
 (() => {
   'use strict';
+  /* A swap re-runs this file against a fresh frame, so every window/document binding below was
+     added again on each entry. Release the previous run's bindings first. */
+  if(window.__boMdashUnbind) window.__boMdashUnbind();
+  const unbinds=[];
+  const listen=(target,type,fn,opt)=>{ target.addEventListener(type,fn,opt); unbinds.push(()=>target.removeEventListener(type,fn,opt)); };
+  window.__boMdashUnbind=()=>{ unbinds.forEach(fn=>fn()); unbinds.length=0; };
   const $ = id => document.getElementById(id);
   const money = v => Number(v || 0).toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const nearZero = v => Math.abs(Number(v || 0)) < 0.005;
@@ -597,7 +603,7 @@
       pickerState.mode = 'days';
       renderCalendar();
     });
-    document.addEventListener('click', e => {
+    listen(document,'click', e => {
       if (!e.target.closest('.main-exec-date-field')) picker.classList.remove('show');
     });
     document.querySelectorAll('[data-range-preset]').forEach(btn => btn.addEventListener('click', e => {
@@ -802,8 +808,8 @@
         enhanceAmberTopbarProfile();
       });
     };
-    new MutationObserver(run).observe(host, { childList: true });
-    document.addEventListener('bo:profile-updated', run);
+    const profileObs=new MutationObserver(run); profileObs.observe(host, { childList: true }); unbinds.push(()=>profileObs.disconnect());
+    listen(document,'bo:profile-updated', run);
     setTimeout(enhanceAmberTopbarProfile, 80);
     setTimeout(enhanceAmberTopbarProfile, 400);
   }
@@ -821,7 +827,7 @@
     };
 
     // Soft path: currency runtime updates chrome + dispatches event; we only refetch metrics.
-    window.addEventListener('bo:main-currency-change', (e) => {
+    listen(window,'bo:main-currency-change', (e) => {
       const next = String((e.detail && e.detail.currency) || '').toUpperCase();
       if (!next || next === currency) {
         updateCurrencyLabels();
@@ -831,10 +837,10 @@
       updateCurrencyLabels();
       load();
     });
-    window.addEventListener('bo:main-currency-ready', syncFromRuntime);
+    listen(window,'bo:main-currency-ready', syncFromRuntime);
 
     // Fallback if runtime is absent: toggle + load without page refresh.
-    document.addEventListener('click', (e) => {
+    listen(document,'click', (e) => {
       if (window.BO_MAIN_CURRENCY) return;
       const btn = e.target.closest && e.target.closest('.np-currency-seg [data-currency], .mre-currency-seg [data-currency]');
       if (!btn) return;

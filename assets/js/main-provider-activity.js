@@ -1,4 +1,11 @@
 (()=>{'use strict';
+/* A swap re-runs this file against a fresh frame; the bindings both IIFEs below put on
+   window/document are recorded here so the next run releases them before adding its own. */
+if(window.__boMpaUnbind) window.__boMpaUnbind();
+window.__boMpaUnbinds=[];
+window.__boMpaUnbind=()=>{ window.__boMpaUnbinds.forEach(fn=>fn()); window.__boMpaUnbinds.length=0; };
+const unbinds=window.__boMpaUnbinds;
+const listen=(target,type,fn,opt)=>{ target.addEventListener(type,fn,opt); unbinds.push(()=>target.removeEventListener(type,fn,opt)); };
 const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let page=0,totalPages=0,pageSize=20,autoPageSize=null,resizeTimer=null;
 const PAGE=20;
@@ -208,7 +215,7 @@ function setupDatePicker(){
   pickerState.view=new Date(a+'T00:00:00');
   setRange(a,b,'today');
   $('reportDateTrigger').addEventListener('click',e=>{e.stopPropagation();$('reportRangePicker').classList.toggle('show');pickerState.mode='days';pickerState.hover='';renderCalendar();});
-  document.addEventListener('click',e=>{if(!e.target.closest('.ref-range-wrap')) $('reportRangePicker')?.classList.remove('show');});
+  listen(document,'click',e=>{if(!e.target.closest('.ref-range-wrap')) $('reportRangePicker')?.classList.remove('show');});
   document.querySelectorAll('[data-report-preset]').forEach(btn=>btn.addEventListener('click',e=>{
     e.stopPropagation();
     const key=btn.dataset.reportPreset,[aa,bb]=presetRange(key);
@@ -262,7 +269,7 @@ $('mpaRefresh')?.addEventListener('click',()=>{page=0;load()});
 $('mpaActor')?.addEventListener('change',()=>{page=0;load()});
 $('mpaPager')?.addEventListener('click',e=>{const b=e.target.closest('[data-page]');if(!b||b.disabled)return;const p=Number(b.dataset.page)-1;if(!Number.isFinite(p)||p===page)return;page=p;load()});
 pageSizeEl?.addEventListener('change',()=>{autoPageSize=null;page=0;load()});
-window.addEventListener('resize',()=>{
+listen(window,'resize',()=>{
   if(!pageSizeEl||!isAutoPageSize(pageSizeEl.value)) return;
   clearTimeout(resizeTimer);
   resizeTimer=setTimeout(()=>{autoPageSize=null;page=0;load()},120);
@@ -278,6 +285,9 @@ window.addEventListener('resize',()=>{
    of the date picker for the same reason, and a shared driver is the eventual cleanup. */
 (function(){
   'use strict';
+  /* Both IIFEs in this file share one registry per run; see the note at the top of the file. */
+  var unbinds=(window.__boMpaUnbinds=window.__boMpaUnbinds||[]);
+  var listen=function(target,type,fn,opt){ target.addEventListener(type,fn,opt); unbinds.push(function(){target.removeEventListener(type,fn,opt);}); };
   var tip = null, host = null;
   function box(){
     if(!tip || !tip.isConnected){
@@ -305,16 +315,16 @@ window.addEventListener('resize',()=>{
     t.style.left = Math.round(left) + 'px';
     t.style.top = Math.round(below ? r.bottom + 10 : above) + 'px';
   }
-  document.addEventListener('mouseover', function(e){
+  listen(document,'mouseover', function(e){
     var el = e.target && e.target.closest ? e.target.closest('.mad-time-tip') : null;
     if(el){ if(el !== host) place(el); return; }
     if(host) hide();
   });
-  document.addEventListener('focusin', function(e){
+  listen(document,'focusin', function(e){
     var el = e.target && e.target.closest ? e.target.closest('.mad-time-tip') : null;
     if(el) place(el);
   });
-  document.addEventListener('focusout', hide);
-  window.addEventListener('scroll', hide, true);
-  window.addEventListener('resize', hide);
+  listen(document,'focusout', hide);
+  listen(window,'scroll', hide, true);
+  listen(window,'resize', hide);
 })();

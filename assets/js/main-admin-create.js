@@ -1,6 +1,13 @@
 (function(){
   'use strict';
 
+  /* A swap re-runs this file against a fresh frame, so the document bindings below were added
+     again on each entry. Release the previous run's bindings first. */
+  if(window.__boMacUnbind) window.__boMacUnbind();
+  const unbinds=[];
+  const listen=(target,type,fn,opt)=>{ target.addEventListener(type,fn,opt); unbinds.push(()=>target.removeEventListener(type,fn,opt)); };
+  window.__boMacUnbind=()=>{ unbinds.forEach(fn=>fn()); unbinds.length=0; };
+
   const form = document.getElementById('madCreateForm');
   const statusEl = document.getElementById('madCreateStatus');
   const submitBtn = document.getElementById('madCreateSubmit');
@@ -316,7 +323,7 @@
     setStatus('Strong password generated. Copy it before leaving this page.', 'success');
   });
 
-  document.addEventListener('click', function(e){
+  listen(document,'click', function(e){
     const toggle = e.target.closest && e.target.closest('[data-toggle-password]');
     if(!toggle) return;
     const id = toggle.getAttribute('data-toggle-password');
@@ -338,12 +345,12 @@
     selectRole(opt.getAttribute('data-role-id'));
   });
 
-  document.addEventListener('click', function(e){
+  listen(document,'click', function(e){
     if(!roleMenuOpen) return;
     if(e.target.closest && (e.target.closest('#madRoleMenu') || e.target.closest('#madRolePickBtn') || e.target.closest('.mac-role-dd'))) return;
     setRoleMenuOpen(false);
   });
-  document.addEventListener('keydown', function(e){
+  listen(document,'keydown', function(e){
     if(e.key === 'Escape' && roleMenuOpen) setRoleMenuOpen(false);
   });
 

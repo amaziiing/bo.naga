@@ -171,7 +171,10 @@ const manifestBody =
   'window.__BO_SPA_PAGES={' + manifestPages.map((f) => JSON.stringify(f) + ':1').join(',') + '};\n';
 const manifestPath = path.join(ROOT, 'assets/js/bo-spa-manifest.js');
 const manifestOld = fs.existsSync(manifestPath) ? fs.readFileSync(manifestPath, 'utf8') : '';
-const manifestFresh = manifestOld === manifestBody;
+/* A Windows checkout writes CRLF into the working copy (core.autocrlf) while the generated
+   body is LF; comparing the raw strings made every Windows run report STALE and rewrite a
+   file that was already current. Compare with line endings normalised, as the pin guards do. */
+const manifestFresh = manifestOld.replace(/\r\n/g, '\n') === manifestBody;
 
 if (writeManifest) {
   if (!manifestFresh) {

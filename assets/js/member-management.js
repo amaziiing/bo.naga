@@ -1,4 +1,13 @@
 (function(){
+  /* A swap re-runs this file against a fresh frame, so the window/document bindings below were
+     added again on each entry: N entries meant N click/resize handlers and N online-presence
+     timers polling every 5s. Release the previous run's bindings first; the handlers then
+     always close over the frame on screen. */
+  if(window.__boMmUnbind) window.__boMmUnbind();
+  const unbinds=[];
+  const listen=(target,type,fn,opt)=>{ target.addEventListener(type,fn,opt); unbinds.push(()=>target.removeEventListener(type,fn,opt)); };
+  window.__boMmUnbind=()=>{ unbinds.forEach(fn=>fn()); unbinds.length=0; };
+
   let allMembers = [];
   let selectedWalletMember = null;
   let selectedWalletBalance = 0;
@@ -165,6 +174,7 @@
       scroll._boEvenFillTimer=setTimeout(evenFillRowHeights,32);
     });
     scroll._boEvenFillObs.observe(scroll);
+    return scroll._boEvenFillObs;
   }
 
   function memberPageButtons(current,total){
@@ -275,8 +285,8 @@
       if(next&&el.contains(next)) return;
       hideTimeTip();
     });
-    window.addEventListener('scroll',hideTimeTip,true);
-    window.addEventListener('resize',hideTimeTip);
+    listen(window,'scroll',hideTimeTip,true);
+    listen(window,'resize',hideTimeTip);
   }
   function signedAmount(type, amount){
     const n = num(amount);
@@ -572,7 +582,18 @@
     const label=on?'Online':'Offline';
     return `<span class="member-web-status ${on?'is-online':'is-offline'}" data-web-status="${esc(id)}" title="${label}" aria-label="${label}"><i class="member-web-status-dot" aria-hidden="true"></i><span class="member-web-status-label">${label}</span></span>`;
   }
-  function startOnlinePresence(){ if(onlinePresenceTimer)clearInterval(onlinePresenceTimer); loadOnlinePresence(); onlinePresenceTimer=setInterval(loadOnlinePresence,5000); document.addEventListener('visibilitychange',()=>{if(!document.hidden)loadOnlinePresence();}); window.addEventListener('focus',loadOnlinePresence); }
+  function startOnlinePresence(){
+    /* The page's own search field is the sentinel: once a swap removes it the timer stops
+       itself instead of polling a page that is no longer on screen. */
+    const alive=()=>!!document.getElementById('memberSearchQ');
+    if(onlinePresenceTimer)clearInterval(onlinePresenceTimer);
+    if(!alive())return;
+    loadOnlinePresence();
+    onlinePresenceTimer=setInterval(()=>{ if(!alive()){ clearInterval(onlinePresenceTimer); onlinePresenceTimer=null; return; } loadOnlinePresence(); },5000);
+    unbinds.push(()=>{ if(onlinePresenceTimer){ clearInterval(onlinePresenceTimer); onlinePresenceTimer=null; } });
+    listen(document,'visibilitychange',()=>{ if(!document.hidden&&alive())loadOnlinePresence(); });
+    listen(window,'focus',()=>{ if(alive())loadOnlinePresence(); });
+  }
 
   function updateStats(rows){
     const total = rows.length;
@@ -749,7 +770,7 @@
       buildColumnsMenu();
       applySearch();
     });
-    document.addEventListener('click', ()=>{ if(menu) menu.hidden = true; });
+    listen(document,'click', ()=>{ if(menu) menu.hidden = true; });
   }
   function currentFilteredMembers(){ return allMembers.filter(memberMatches); }
   function downloadCsv(filename, rows){
@@ -1009,9 +1030,10 @@
       });
     }
     document.getElementById('memberPager')?.addEventListener('click',e=>{const b=e.target.closest('[data-member-page]'); if(!b||b.disabled)return; memberCurrentPage=Number(b.dataset.memberPage)||1; applySearch(false);});
-    bindEvenFillObserver();
+    const evenFillObs=bindEvenFillObserver();
+    if(evenFillObs) unbinds.push(()=>evenFillObs.disconnect());
     let resizeTimer=0;
-    window.addEventListener('resize',()=>{
+    listen(window,'resize',()=>{
       if(!isAutoPageSize(document.getElementById('memberPageSize')?.value)) return;
       clearTimeout(resizeTimer);
       resizeTimer=setTimeout(()=>{
@@ -1176,7 +1198,7 @@
     document.getElementById('bulkWalletModal')?.addEventListener('click',e=>{if(e.target.id==='bulkWalletModal')closeBulkWalletModal();});
     document.getElementById('bulkWalletSubmit')?.addEventListener('click',submitBulkWalletAdjustment);
     document.getElementById('bulkAdjustmentAmount')?.addEventListener('input',updateBulkPreview);document.getElementById('bulkAdjustmentType')?.addEventListener('change',updateBulkPreview);
-    document.addEventListener('change',e=>{
+    listen(document,'change',e=>{
       if(e.target.id==='memberSelectPage'){
         const shouldSelect=Boolean(e.target.checked);
         const ids=memberFilteredRows.slice((memberCurrentPage-1)*memberPageSize,memberCurrentPage*memberPageSize).map(m=>String(first(m,['id','memberId','userId'],''))).filter(Boolean);
@@ -1192,7 +1214,7 @@
         updateBulkSelectionUi();
       }
     });
-    document.addEventListener('click',e=>{const rm=e.target.closest('[data-bulk-remove]');if(!rm)return;bulkSelectedMemberIds.delete(String(rm.dataset.bulkRemove));updateBulkSelectionUi();updateBulkPreview();});
+    listen(document,'click',e=>{const rm=e.target.closest('[data-bulk-remove]');if(!rm)return;bulkSelectedMemberIds.delete(String(rm.dataset.bulkRemove));updateBulkSelectionUi();updateBulkPreview();});
   }
 
   function createMemberStatus(message,type){
@@ -1262,7 +1284,7 @@
     document.getElementById('memberFilterResetBtn')?.addEventListener('click', resetSearch);
   }
 
-  document.addEventListener('click',async e=>{
+  listen(document,'click',async e=>{
     const wb=e.target.closest('[data-member-wallet]');
     if(wb){
       const member = allMembers.find(m => String(first(m,['id','memberId','userId'], '')) === String(wb.dataset.memberWallet));

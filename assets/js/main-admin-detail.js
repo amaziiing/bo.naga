@@ -1,6 +1,15 @@
 (function(){
   'use strict';
 
+  /* A swap re-runs this file against a fresh frame, so every document/window binding below was
+     added again on each entry: N entries meant N keydown/click/resize handlers and N tooltip
+     handlers, and the sync-label interval started another timer on every visit. Release the
+     previous run's bindings first; the handlers then always close over the frame on screen. */
+  if(window.__boMadUnbind) window.__boMadUnbind();
+  const unbinds=[];
+  const listen=(target,type,fn,opt)=>{ target.addEventListener(type,fn,opt); unbinds.push(()=>target.removeEventListener(type,fn,opt)); };
+  window.__boMadUnbind=()=>{ unbinds.forEach(fn=>fn()); unbinds.length=0; };
+
   function pageButtons(current, total){
     total = Math.max(1, Number(total) || 1);
     current = Math.max(1, Math.min(Number(current) || 1, total));
@@ -676,7 +685,7 @@
       if(submit) submit.disabled = false;
     }
   });
-  document.addEventListener('keydown', function(e){
+  listen(document,'keydown', function(e){
     if(e.key !== 'Escape') return;
     if(adjustModal && adjustModal.classList.contains('show')) closeCreditAdjust();
   });
@@ -722,7 +731,7 @@
       if(applyBtn) applyBtn.disabled = false;
     }
   });
-  document.addEventListener('keydown', function(e){
+  listen(document,'keydown', function(e){
     if(!resetPassModal || !resetPassModal.classList.contains('show')) return;
     if(e.key === 'Escape'){
       e.preventDefault();
@@ -808,7 +817,7 @@
     deleteAdminsByIds([...selectedAdminIds]);
   });
 
-  document.addEventListener('click', function(e){
+  listen(document,'click', function(e){
     const more = e.target.closest && e.target.closest('.mad-more-btn');
     if(more){
       const tr = more.closest('tr.mad-row');
@@ -924,7 +933,7 @@
   });
 
   let pageSizeResizeTimer = null;
-  window.addEventListener('resize', () => {
+  listen(window,'resize', () => {
     if(!pageSizeEl || !isAutoPageSize(pageSizeEl.value)) return;
     clearTimeout(pageSizeResizeTimer);
     pageSizeResizeTimer = setTimeout(() => {
@@ -955,7 +964,8 @@
     setTimeout(() => URL.revokeObjectURL(a.href), 500);
   });
 
-  setInterval(updateSyncLabel, 15000);
+  const syncLabelTimer = setInterval(updateSyncLabel, 15000);
+  unbinds.push(() => clearInterval(syncLabelTimer));
 
   function measureLabelWidth(text, reference){
     const canvas = measureLabelWidth._c || (measureLabelWidth._c = document.createElement('canvas'));
@@ -1011,6 +1021,7 @@
   if(filtersRoot && typeof MutationObserver !== 'undefined'){
     const mo = new MutationObserver(function(){ sizeAdminFilterSelects(); });
     mo.observe(filtersRoot, { childList: true, subtree: true });
+    unbinds.push(() => mo.disconnect());
   }
 
   if(pageNoEl) pageNoEl.innerHTML = pageButtons(1, 1);
@@ -1049,27 +1060,27 @@
       tip.style.top = top + 'px';
       tip.style.setProperty('--mad-tip-arrow-x', Math.max(10, Math.min(tw - 10, r.left + r.width / 2 - left)) + 'px');
     }
-    document.addEventListener('pointerover', function(e){
+    listen(document,'pointerover', function(e){
       const btn = e.target && e.target.closest && e.target.closest('.mad-icon-btn[data-tip]');
       if(btn) place(btn);
     });
-    document.addEventListener('pointerout', function(e){
+    listen(document,'pointerout', function(e){
       const btn = e.target && e.target.closest && e.target.closest('.mad-icon-btn[data-tip]');
       if(!btn) return;
       const next = e.relatedTarget;
       if(next && (btn.contains(next) || (next.closest && next.closest('.mad-icon-btn[data-tip]')))) return;
       hide();
     });
-    document.addEventListener('focusin', function(e){
+    listen(document,'focusin', function(e){
       const btn = e.target && e.target.closest && e.target.closest('.mad-icon-btn[data-tip]');
       if(btn) place(btn);
     });
-    document.addEventListener('focusout', function(e){
+    listen(document,'focusout', function(e){
       const btn = e.target && e.target.closest && e.target.closest('.mad-icon-btn[data-tip]');
       if(btn) hide();
     });
-    window.addEventListener('scroll', function(){ if(activeBtn) hide(); }, true);
-    window.addEventListener('resize', hide);
+    listen(window,'scroll', function(){ if(activeBtn) hide(); }, true);
+    listen(window,'resize', hide);
   })();
 
   function viewerRoleLabel(user){
@@ -1168,8 +1179,10 @@
       });
     };
     // Only watch structural reinjects from auth — not text tweaks (avoids killing clicks)
-    new MutationObserver(run).observe(host, { childList: true });
-    document.addEventListener('bo:profile-updated', run);
+    const profileObs=new MutationObserver(run);
+    profileObs.observe(host, { childList: true });
+    unbinds.push(()=>profileObs.disconnect());
+    listen(document,'bo:profile-updated', run);
     setTimeout(enhanceAmberTopbarProfile, 80);
     setTimeout(enhanceAmberTopbarProfile, 400);
   }

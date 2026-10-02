@@ -29,4 +29,13 @@
   }
   window.BO_PERMISSION_TABS={apply:apply};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply);else apply();
+  /* Shared by fourteen Main-panel pages, so a swap inside that panel keeps the already-executed
+     copy and runs only registered listeners - while the [data-permission-url] elements it
+     filters belong to the page markup a swap replaces. Same hole as the date pickers and the
+     agent tabs: a first run during a swap (readyState complete -> apply() directly) registers
+     nothing, so every later page kept its tab row unfiltered until a reload. apply() reads the
+     live menus and is a no-op on pages without those elements. One slot per document. */
+  if(window.__boPermissionTabsSpaBound)document.removeEventListener('bo:spa:content',window.__boPermissionTabsSpaBound);
+  window.__boPermissionTabsSpaBound=apply;
+  document.addEventListener('bo:spa:content',window.__boPermissionTabsSpaBound);
 })();

@@ -62,6 +62,20 @@ for (const f of RANGE_FILES) {
   RANGE_PAIRS[f] = [...body.matchAll(/\['([A-Za-z0-9_]+)','([A-Za-z0-9_]+)'\]/g)].map((m) => [m[1], m[2]]);
 }
 
+/* Shared runtimes that own per-entry DOM work and park their per-entry listener in a window
+   slot. A page that loads one of these files but has no slot after the swap means that runtime
+   never ran for this document - measured as: agent tabs with no cards and no rows, unfiltered
+   Main permission tabs, unwired listings, raw dd/mm/yyyy inputs. Data-independent, so it holds
+   even when the seeded API returns nothing. */
+const PER_ENTRY_SLOTS = {
+  'agent-admin-management.js': '__boAgentAdminSpaBound',
+  'permission-tabs.js': '__boPermissionTabsSpaBound',
+  'access-control-listing.js': '__boAcListingSpaBound',
+  'bo-date-range.js': '__boDateRangeSpaBound',
+  'bo-date-range-promotion.js': '__boDateRangePromotionSpaBound',
+  'bo-date-range-bank-usage.js': '__boDateRangeBankUsageSpaBound'
+};
+
 const manifestSrc = fs.readFileSync(path.join(ROOT, 'assets/js/bo-spa-manifest.js'), 'utf8');
 const manifest = manifestSrc.match(/window\.__BO_SPA_PAGES=\{(.*)\};/s)[1]
   .split(',').map((s) => s.split(':')[0].replace(/"/g, '')).filter(Boolean);
@@ -162,6 +176,12 @@ const STEP = (target, start, twice) => `(async () => {
       if (A.offsetParent !== null || B.offsetParent !== null) rangeRaw.push(p[0] + '/' + p[1]);
     }
   }
+  // Per-entry runtimes must be armed for this document (their window slot exists).
+  const slotsWanted = ${JSON.stringify(PER_ENTRY_SLOTS)};
+  const slotsMissing = [];
+  for (const f in slotsWanted) {
+    if (html.includes('assets/js/' + f) && !window[slotsWanted[f]]) slotsMissing.push(f);
+  }
   return JSON.stringify({
     page: t,
     declared: { frameIds: want.frameIds.length, extras: want.extraIds.length, sheets: want.sheets.length, title: want.title },
@@ -177,6 +197,7 @@ const STEP = (target, start, twice) => `(async () => {
     extrasMissing: want.extraIds.filter(x => live.extraIds.indexOf(x) < 0).slice(0, 6),
     title: live.h1,
     rangeRaw,
+    slotsMissing,
     errs: errs.filter(e => !${NOISE}.test(e)).slice(0, 5)
   });
 })()`;
@@ -222,7 +243,7 @@ const STEP = (target, start, twice) => `(async () => {
       else { try { f = JSON.parse(raw); } catch (e) { f = { page, contextDied: String(raw) }; } }
       f.bad = !!(f.harnessError || f.contextDied || f.swapped === false || f.landed !== '/' + page || f.frameKids === 0 ||
         f.idsMissing.length || f.sheetsMissing.length || f.sheetsExtra.length || f.extrasMissing.length || f.errs.length ||
-        (f.rangeRaw && f.rangeRaw.length));
+        (f.rangeRaw && f.rangeRaw.length) || (f.slotsMissing && f.slotsMissing.length));
       if (f.bad) {
         bad++;
         const why = [];
@@ -237,6 +258,7 @@ const STEP = (target, start, twice) => `(async () => {
         if (f.extrasMissing && f.extrasMissing.length) why.push('page markup outside the shell missing: ' + f.extrasMissing.join(', '));
         if (f.errs && f.errs.length) why.push('script errors: ' + f.errs.join(' | '));
         if (f.rangeRaw && f.rangeRaw.length) why.push('date pickers not built: ' + f.rangeRaw.join(', '));
+        if (f.slotsMissing && f.slotsMissing.length) why.push('per-entry runtime not armed: ' + f.slotsMissing.join(', '));
         console.log('BAD  ' + page.padEnd(34) + why.join(' ; '));
       } else if (process.env.VERBOSE) {
         console.log('ok   ' + page);

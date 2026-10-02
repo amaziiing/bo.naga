@@ -136,6 +136,19 @@
     return String(raw || '').split('#')[0].split('?')[0].split('/').pop();
   }
 
+  /* assetKey plus the `?v=` cache key. Stylesheets are browser cache entries under the FULL
+     url, so a deploy that re-pins a sheet (scripts/stamp-asset-pins.py) has to arrive as a
+     NEW sheet. Keyed by file name alone the router counted it as "already in this document"
+     and skipped it: measured on the served game.html, a link rewritten to
+     `bo-shell.css?v=deadbeef99` was never requested and the live document kept listing
+     `?v=37894b58` - i.e. the rest of the session ran the previous revision, which is exactly
+     the "I fixed that already" the pin exists to prevent (SPA.md). */
+  function sheetKey(raw) {
+    var s = String(raw || '');
+    var q = s.indexOf('?');
+    return assetKey(s) + (q < 0 ? '' : s.slice(q));
+  }
+
   /* Cheap content fingerprint for inline <style> de-duplication. The text itself would
      work as an object key but runs to several KB on the pages that carry a big block. */
   function fp(s) {
@@ -174,7 +187,7 @@
       if (text.trim()) EXECUTED['inline:' + fp(text)] = 1;
     });
     each(DOC.querySelectorAll('link[rel="stylesheet"]'), function (l) {
-      CSS_SEEN[assetKey(l.getAttribute('href'))] = 1;
+      CSS_SEEN[sheetKey(l.getAttribute('href'))] = 1;
       /* Deliberately NOT marked as ours. A page links the sheets it needs, and some of those are
          what the SHELL renders with - the module tab row lives on bo-module-tabs.css, the pinned
          quicknav on bo-global-quicknav.css, the whole charcoal theme on bo-charcoal-shell.css -
@@ -357,19 +370,28 @@
      oldest is dropped when the map grows past the cap; re-entering an evicted page costs one
      fetch, which is what the pointer prefetch below exists to hide. */
   var CACHE_MAX = 16;
+  /* ... and the age at which an entry stops being an answer. The cached entry is the fetched
+     document, and nothing ever re-validated it: an edit to the page on the server (the normal
+     case on a dev server, and every deploy) stayed invisible on the swap path for the rest of
+     the session - measured: the served game.html was changed, the next swap re-entered the
+     page WITHOUT issuing a single document request and kept the old title. Reuse is now timed
+     from the fetch: the hover prefetch and a double click still hit the cache (which is what
+     it is for), anything older re-fetches. */
+  var CACHE_TTL = 5000;
+  var CACHE_AT = {};   // href -> Date.now() of the fetch that produced CACHE[href]
 
   function getDoc(href) {
-    if (!CACHE[href]) {
-      CACHE[href] = fetch(href, { credentials: 'same-origin' }).then(function (r) {
-        if (!r.ok) throw new Error('http ' + r.status);
-        return r.text();
-      }).then(function (html) { return new DOMParser().parseFromString(html, 'text/html'); })
-        ['catch'](function (e) { delete CACHE[href]; throw e; });
-      var keys = Object.keys(CACHE);
-      if (keys.length > CACHE_MAX) {
-        // From the front: the newest entries are the ones being navigated to right now.
-        for (var i = 0; i < keys.length - CACHE_MAX; i++) delete CACHE[keys[i]];
-      }
+    if (CACHE[href] && (Date.now() - (CACHE_AT[href] || 0)) < CACHE_TTL) return CACHE[href];
+    CACHE[href] = fetch(href, { credentials: 'same-origin' }).then(function (r) {
+      if (!r.ok) throw new Error('http ' + r.status);
+      return r.text();
+    }).then(function (html) { return new DOMParser().parseFromString(html, 'text/html'); })
+      ['catch'](function (e) { delete CACHE[href]; delete CACHE_AT[href]; throw e; });
+    CACHE_AT[href] = Date.now();
+    var keys = Object.keys(CACHE);
+    if (keys.length > CACHE_MAX) {
+      // From the front: the newest entries are the ones being navigated to right now.
+      for (var i = 0; i < keys.length - CACHE_MAX; i++) { delete CACHE[keys[i]]; delete CACHE_AT[keys[i]]; }
     }
     return CACHE[href];
   }
@@ -430,7 +452,7 @@
     var want = { css: {}, style: {} };
     each(doc.querySelectorAll('link[rel="stylesheet"]'), function (l) {
       var raw = l.getAttribute('href') || '';
-      var key = assetKey(raw);
+      var key = sheetKey(raw);
       if (!raw || !key) return;
       want.css[key] = 1;
       if (CSS_SEEN[key]) return;

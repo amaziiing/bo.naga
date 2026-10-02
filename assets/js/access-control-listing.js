@@ -487,4 +487,12 @@ window.boAc = {
   } else {
     init();
   }
+  /* Six pages share this file and a swap replaces the listing roots it wires, so it has to run
+     per entry - not only when this file happens to be executed. Same hole as the date pickers
+     and the agent tabs: a first run during a swap registers nothing for the replay to call.
+     init() is guarded per root (data-ac-ready) and a no-op on pages without a listing.
+     One slot per document. */
+  if (window.__boAcListingSpaBound) document.removeEventListener('bo:spa:content', window.__boAcListingSpaBound);
+  window.__boAcListingSpaBound = init;
+  document.addEventListener('bo:spa:content', window.__boAcListingSpaBound);
 })();

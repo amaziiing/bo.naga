@@ -423,6 +423,23 @@ async function promotionPage(){
   await render(true);
 }
 
-async function init(){BO_AUTH.requireLogin();await BO_AUTH.refreshMe();stabilizeAgentAdminDropdowns();const p=currentPage();try{if(p==='agent-management.html')await agentsPage();else if(p==='agent-commission-admin.html')await commissionPage();else if(p==='agent-settlement-admin.html')await settlementPage();else if(p==='agent-reimbursement-admin.html')await claimPage();else if(p==='agent-payout-admin.html')await payoutPage();else if(p==='agent-promotion-admin.html')await promotionPage();}catch(e){console.error(e);window.BO_DIALOG?.alert?.(e.message,{title:'Agent Management',type:'error'});}finally{stabilizeAgentAdminDropdowns();}}
+const AGENT_ADMIN_PAGES={'agent-management.html':1,'agent-commission-admin.html':1,'agent-payout-admin.html':1,'agent-settlement-admin.html':1,'agent-reimbursement-admin.html':1,'agent-promotion-admin.html':1};
+async function init(){
+  /* Shared by six pages, so a swap between two of them keeps the already-executed copy and runs
+     only its registered listeners - and the listener below fires on EVERY swap, including into
+     pages that are not ours. Leave before any DOM work when the document that just arrived is
+     not one of the six. */
+  if(!AGENT_ADMIN_PAGES[currentPage()])return;
+  BO_AUTH.requireLogin();await BO_AUTH.refreshMe();stabilizeAgentAdminDropdowns();const p=currentPage();try{if(p==='agent-management.html')await agentsPage();else if(p==='agent-commission-admin.html')await commissionPage();else if(p==='agent-settlement-admin.html')await settlementPage();else if(p==='agent-reimbursement-admin.html')await claimPage();else if(p==='agent-payout-admin.html')await payoutPage();else if(p==='agent-promotion-admin.html')await promotionPage();}catch(e){console.error(e);window.BO_DIALOG?.alert?.(e.message,{title:'Agent Management',type:'error'});}finally{stabilizeAgentAdminDropdowns();}}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+/* Every entry, not only the first. Measured from promotion.html -> Agents -> its tabs: the FIRST
+   tab rendered, and every later one showed no cards and no rows until a reload. This file had
+   first run during that first swap - readyState was already complete, so it registered no
+   DOMContentLoaded listener - and the next swaps skipped it as "shared on both pages" with
+   nothing in the registry to replay. `bo:spa:content` fires once per swap after the target's
+   scripts, so init() runs for every entry; one slot per document and a fresh execution of this
+   file replaces the previous closure's listener instead of stacking another one. */
+if(window.__boAgentAdminSpaBound)document.removeEventListener('bo:spa:content',window.__boAgentAdminSpaBound);
+window.__boAgentAdminSpaBound=init;
+document.addEventListener('bo:spa:content',window.__boAgentAdminSpaBound);
 })();

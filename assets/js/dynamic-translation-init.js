@@ -21,5 +21,17 @@
     if(cfg && cfg.assetPanel) window.DynamicTranslation.attachAssetPanel(cfg);
     else if(cfg) window.DynamicTranslation.attach(cfg);
   }
+  /* SPA: this boot is per-PAGE (it reads location) and the file is shared by seven pages, so a
+     swap usually skips it - and a fresh execution during a swap registers no DOMContentLoaded
+     listener (readyState is already complete), which left nothing to re-run for the NEXT page:
+     promotion.html -> game.html arrived without its translation panel and with the legacy
+     Chinese fields still in place (measured; a direct load replaces them). Re-run the boot on
+     the frame's replacement hook - fired in the SAME task as the swap, so the panel is up
+     before the first paint, exactly like a direct load. init() is idempotent per element
+     (attach / attachAssetPanel mark what they have attached). */
+  if(!window.__boDtInitBound){
+    window.__boDtInitBound = 1;
+    document.addEventListener('bo:spa:content-mounted', init);
+  }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();

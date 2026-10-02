@@ -686,8 +686,9 @@
        in the swap path (it runs while the document is already complete, so ready() calls init()
        straight through) this entry replayed nothing while the card stayed in the grid and the
        modal stayed empty - measured arriving at game.html from game-category.html. The file
-       now redoes that work on `bo:spa:content`, the document-level hook the frame's replacement
-       fires, which is also the shape SPA.md prescribes for a document-level runtime. */
+       now redoes that work on `bo:spa:content-mounted`, the document-level hook the frame's
+       replacement fires in the SAME task, so the lift lands before the first paint and no raw
+       form is ever shown mid-swap; the late `bo:spa:content` stays as a guarded safety net. */
     'bo-date-range.js': 1,
     'pagination-standardizer.js': 1,
     'report-table-split.js': 1,
@@ -1066,6 +1067,13 @@
         });
         for (var lockIndex = 0; lockIndex < locks.length; lockIndex++) DOC.body.classList.remove(locks[lockIndex]);
       }
+      /* The frame is in place and the previous page is gone, but the target's own scripts have
+         not run yet. A correction that must be finished before the FIRST paint belongs here -
+         lifting the crud pattern's form card into its modal is the case that motivated it. On
+         bo:spa:content (fired only after those scripts) the raw markup - the form card sitting
+         in the grid, the modal empty - stays on screen for the whole script window; at 250ms
+         RTT that measured ~0.45s of visible flash, captured live on the Game tab. */
+      try { DOC.dispatchEvent(new CustomEvent('bo:spa:content-mounted', { detail: { url: u.href } })); } catch (e) {}
       note('content');
 
       if (window.BO_AUTH && BO_AUTH.renderModuleTabs) {

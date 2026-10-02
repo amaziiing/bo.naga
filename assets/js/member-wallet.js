@@ -1,4 +1,11 @@
 (function(){
+  /* A swap re-runs this file against a fresh frame, so the window binding and the even-fill
+     observer below were added again on each entry: N entries meant N resize handlers, and the
+     autofit one issues a request. Release the previous run's bindings first. */
+  if(window.__boMwUnbind) window.__boMwUnbind();
+  const unbinds=[];
+  const listen=(target,type,fn,opt)=>{ target.addEventListener(type,fn,opt); unbinds.push(()=>target.removeEventListener(type,fn,opt)); };
+  window.__boMwUnbind=()=>{ unbinds.forEach(fn=>fn()); unbinds.length=0; };
   let page = 1;
   let totalPages = 1;
   let pageSize = 20;
@@ -208,6 +215,7 @@
       },48);
     });
     scroll._boEvenFillObs.observe(scroll);
+    return scroll._boEvenFillObs;
   }
   function publishPagerMeta(pagination,size){
     const card=document.querySelector('.table-card');
@@ -555,9 +563,10 @@
     if(tableBody&&tableHead){
       tableBody.addEventListener('scroll',()=>{tableHead.scrollLeft=tableBody.scrollLeft;},{passive:true});
     }
-    bindEvenFillObserver();
+    const evenFillObs=bindEvenFillObserver();
+    if(evenFillObs) unbinds.push(()=>evenFillObs.disconnect());
     let resizeTimer=0;
-    window.addEventListener('resize',()=>{
+    listen(window,'resize',()=>{
       if(!isAutoPageSize(document.getElementById('walletSize')?.value)) return;
       clearTimeout(resizeTimer);
       resizeTimer=setTimeout(()=>{

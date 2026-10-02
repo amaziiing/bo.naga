@@ -1,4 +1,11 @@
 (function(){'use strict';
+ /* A swap re-runs this file against a fresh frame, so the document/window bindings below were
+    added again on each entry: N entries meant N resize / password-toggle / Escape handlers.
+    Release the previous run's bindings first; they close over the frame on screen. */
+ if(window.__boMmdUnbind) window.__boMmdUnbind();
+ const unbinds=[];
+ const listen=(target,type,fn,opt)=>{ target.addEventListener(type,fn,opt); unbinds.push(()=>target.removeEventListener(type,fn,opt)); };
+ window.__boMmdUnbind=()=>{ unbinds.forEach(fn=>fn()); unbinds.length=0; };
  const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),money=v=>Number(v||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
  const body=$('madTableBody'),search=$('madSearchInput'),roleFilter=$('madRoleFilter'),currencyFilter=$('madCurrencyFilter'),editWorkspace=$('madEditWorkspace'),listWorkspace=$('madListWorkspace'),form=$('madEditForm');
  const tableWrap=document.querySelector('.mad-table-wrap');
@@ -1209,7 +1216,7 @@
   page=1;
   render();
  });
- window.addEventListener('resize',()=>{
+ listen(window,'resize',()=>{
   if(!pageSizeEl||!isAutoPageSize(pageSizeEl.value)) return;
   autoPageSize=null;
   render();
@@ -1293,7 +1300,7 @@
   setStatus('madResetPassStatus','Strong password generated. Copy it before applying.','success');
  });
  $('madResetPassApply')?.addEventListener('click',applyResetPassword);
- document.addEventListener('click',e=>{
+ listen(document,'click',e=>{
   const toggle=e.target.closest&&e.target.closest('[data-toggle-password]');
   if(!toggle) return;
   const id=toggle.getAttribute('data-toggle-password');
@@ -1311,7 +1318,7 @@
   // Open eye = password visible; closed eye = password hidden.
   if(icon) icon.className=visible?'bi bi-eye':'bi bi-eye-slash';
  });
- document.addEventListener('keydown',e=>{
+ listen(document,'keydown',e=>{
   if(e.key!=='Escape') return;
   if($('madCurrencyModal')?.classList.contains('show')){ closeCurrencyModal(); return; }
   if($('madResetPasswordModal')?.classList.contains('show')) closeResetPassword();

@@ -1,4 +1,10 @@
 (function(){
+ /* A swap re-runs this file against a fresh frame; the document/window bindings and the
+    even-fill observer below were added again on each entry. Release the previous run's. */
+ if(window.__boVipExpUnbind) window.__boVipExpUnbind();
+ const unbinds=[];
+ const listen=(target,type,fn,opt)=>{ target.addEventListener(type,fn,opt); unbinds.push(()=>target.removeEventListener(type,fn,opt)); };
+ window.__boVipExpUnbind=()=>{ unbinds.forEach(fn=>fn()); unbinds.length=0; };
  const $=s=>document.querySelector(s), esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  let page=1,totalPages=1,totalElements=0,pageSize=20,lockedAutoSize=null,autofitReloading=false,autofitSettled=false;
  const endpoint=k=>API_CONFIG.BASE_URL+API_CONFIG.ENDPOINTS[k];
@@ -199,6 +205,7 @@
    },32);
   });
   scroll._boEvenFillObs.observe(scroll);
+  return scroll._boEvenFillObs;
  }
  function bindHeadBodyScrollSync(){
   const body=tableBodyScroll();
@@ -280,14 +287,14 @@
   document.body.classList.toggle('vip-modal-open',show||document.querySelector('#vipModal.show'));
   if(show) setTimeout(()=>$('#vipAdjustMemberId')?.focus(),40);
  }
- document.addEventListener('click',e=>{
+ listen(document,'click',e=>{
   if(e.target.closest('#vipAdjustOpen'))modal(true);
   if(e.target.closest('[data-close-adjust]'))modal(false);
   const b=e.target.closest('[data-log-page]');
   if(b&&!b.disabled)load(Number(b.dataset.logPage));
   if(e.target===$('#vipAdjustModal'))modal(false);
  });
- document.addEventListener('keydown',e=>{
+ listen(document,'keydown',e=>{
   if(e.key==='Escape' && $('#vipAdjustModal')?.classList.contains('show')) modal(false);
   if(e.key==='Enter' && e.target && e.target.id==='vipLogKeyword'){e.preventDefault();reloadForFilterChange(1);}
  });
@@ -325,9 +332,10 @@
  });
 
  bindHeadBodyScrollSync();
- bindEvenFillObserver();
+ const evenFillObs=bindEvenFillObserver();
+ if(evenFillObs) unbinds.push(()=>evenFillObs.disconnect());
  let resizeTimer=0;
- window.addEventListener('resize',()=>{
+ listen(window,'resize',()=>{
   if(!isAutoPageSize($('#vipLogPageSize')?.value)) return;
   clearTimeout(resizeTimer);
   resizeTimer=setTimeout(()=>{

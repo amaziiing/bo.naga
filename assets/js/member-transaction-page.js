@@ -99,7 +99,7 @@
   document.addEventListener('bo:spa:content',onContent);
 
   if(tab==='withdraw'){
-    ensureModule('BO_MEMBER_WITHDRAW_PAGE','assets/js/member-withdraw.js?v=23aea870');
+    ensureModule('BO_MEMBER_WITHDRAW_PAGE','assets/js/member-withdraw.js?v=ec24ec08');
     return;
   }
 
@@ -108,13 +108,13 @@
        asks them for a row action, and `BO_TX_VIEW='all'` keeps them from painting a table or a bank
        strip of their own beside it. They are reused rather than reloaded, so a document that has
        already run one of them does not end up with two copies of its document-level handlers. */
-    ensureModule('BO_MEMBER_DEPOSIT_PAGE','assets/js/member-deposit.js?v=19941edc');
-    ensureModule('BO_MEMBER_WITHDRAW_PAGE','assets/js/member-withdraw.js?v=23aea870');
+    ensureModule('BO_MEMBER_DEPOSIT_PAGE','assets/js/member-deposit.js?v=9c42e4de');
+    ensureModule('BO_MEMBER_WITHDRAW_PAGE','assets/js/member-withdraw.js?v=ec24ec08');
     ensureModule('BO_MEMBER_TX_ALL_PAGE','assets/js/member-transaction-tab-switcher.js?v=34501a9e');
     return;
   }
 
   // Deposit owns the page exclusively. Other transaction types are reached through their own tab,
   // and every view keeps exactly one data loader and one state.
-  ensureModule('BO_MEMBER_DEPOSIT_PAGE','assets/js/member-deposit.js?v=19941edc');
+  ensureModule('BO_MEMBER_DEPOSIT_PAGE','assets/js/member-deposit.js?v=9c42e4de');
 })();

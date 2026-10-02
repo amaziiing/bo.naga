@@ -94,7 +94,7 @@
       const bankSelect=wrap.querySelector('[data-bank]');const bankDetail=wrap.querySelector('[data-bank-detail]');
       const refreshBankDetail=()=>{const m=options.methods.find(x=>String(x.id)===String(bankSelect.value));bankDetail.innerHTML=fundingBankDetail(m,options.amount);};
       bankSelect.addEventListener('change',refreshBankDetail);refreshBankDetail();
-      const finish=v=>{wrap.remove();resolve(v);};wrap.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>finish(null));wrap.querySelector('[data-confirm]').onclick=()=>{const bankId=bankSelect.value;if(!bankId){BO_DIALOG.alert('Please select the casino funding bank before approval.',{title:'Funding Bank Required',type:'error'});return;}const selected=options.methods.find(m=>String(m.id)===String(bankId));if(selected&&Number(selected.status)!==1){BO_DIALOG.alert('The selected bank/payment method is inactive. Please select an active bank.',{title:'Inactive Funding Bank',type:'error'});return;}const usage=num(selected?.bankUsage),withdraw=num(options.amount);if(usage<=0){BO_DIALOG.alert('This bank has 0.00 available Bank Usage and cannot fund a withdrawal. Please select another bank.',{title:'No Bank Usage Available',type:'error'});return;}if(withdraw>usage){BO_DIALOG.alert(`This bank only has MYR ${money(usage)} available Bank Usage, which is not enough for this MYR ${money(withdraw)} withdrawal.`,{title:'Insufficient Bank Usage',type:'error'});return;}finish({paymentMethodId:Number(bankId),paymentMethodLabel:selected?bankLabel(selected):'',bankUsage:usage,remainingUsage:usage-withdraw,adminRemark:wrap.querySelector('[data-remark]').value.trim()});};
+      const finish=v=>{if(window.__boWithdrawApprovalCancel===cancel)window.__boWithdrawApprovalCancel=null;wrap.remove();resolve(v);};const cancel=()=>finish(null);window.__boWithdrawApprovalCancel=cancel;wrap.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>finish(null));wrap.querySelector('[data-confirm]').onclick=()=>{const bankId=bankSelect.value;if(!bankId){BO_DIALOG.alert('Please select the casino funding bank before approval.',{title:'Funding Bank Required',type:'error'});return;}const selected=options.methods.find(m=>String(m.id)===String(bankId));if(selected&&Number(selected.status)!==1){BO_DIALOG.alert('The selected bank/payment method is inactive. Please select an active bank.',{title:'Inactive Funding Bank',type:'error'});return;}const usage=num(selected?.bankUsage),withdraw=num(options.amount);if(usage<=0){BO_DIALOG.alert('This bank has 0.00 available Bank Usage and cannot fund a withdrawal. Please select another bank.',{title:'No Bank Usage Available',type:'error'});return;}if(withdraw>usage){BO_DIALOG.alert(`This bank only has MYR ${money(usage)} available Bank Usage, which is not enough for this MYR ${money(withdraw)} withdrawal.`,{title:'Insufficient Bank Usage',type:'error'});return;}finish({paymentMethodId:Number(bankId),paymentMethodLabel:selected?bankLabel(selected):'',bankUsage:usage,remainingUsage:usage-withdraw,adminRemark:wrap.querySelector('[data-remark]').value.trim()});};
     });
   }
   function tableBodyScroll(root){return root?.querySelector?.('.bo-tx-table-body')||document.getElementById('withdrawTableScroll')||document.querySelector('.table-card .bo-tx-table-body')||document.querySelector('.table-card .table-wrap')||document.querySelector('.table-wrap');}
@@ -467,6 +467,13 @@
   });
   /* Reached by the dispatcher and by the router instead of a second copy of this file - see the
      guard at the top. */
+  /* SPA: an approval popup open at the moment of a swap is a body-level child, so it must
+     close itself before the frame is replaced (and resolve its promise as a cancel). */
+  if(window.__boWithdrawSpaCleanup) document.removeEventListener('bo:spa:before',window.__boWithdrawSpaCleanup);
+  window.__boWithdrawSpaCleanup=function(){
+    if(window.__boWithdrawApprovalCancel){try{window.__boWithdrawApprovalCancel();}catch(e){}}
+  };
+  document.addEventListener('bo:spa:before',window.__boWithdrawSpaCleanup);
   window.BO_MEMBER_WITHDRAW_PAGE={reinit:initWithdrawPage};
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',initWithdrawPage,{once:true});
   else initWithdrawPage();

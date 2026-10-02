@@ -958,6 +958,9 @@ document.addEventListener('DOMContentLoaded', () => {
   window.alert=function(text){
     ensure(); const c=classify(text); modal.dataset.type=c.type; titleEl.textContent=c.title; iconEl.className='bi '+c.icon; messageEl.textContent=String(text??''); modal.classList.add('show'); modal.setAttribute('aria-hidden','false'); setTimeout(()=>okButton.focus(),0);
   };
+  /* SPA: the notice is a body-level container; a frame swap must not leave it over the page
+     that arrives. */
+  document.addEventListener('bo:spa:before', function(){ if(modal){ modal.classList.remove('show'); modal.setAttribute('aria-hidden','true'); } });
 })();
 
 
@@ -1004,6 +1007,14 @@ document.addEventListener('DOMContentLoaded', () => {
     confirm(message,options){return open(Object.assign({message:message,input:false},options||{}));},
     prompt(message,defaultValue,options){return open(Object.assign({message:message,input:true,defaultValue:defaultValue||''},options||{}));}
   };
+  /* SPA: an unanswered confirm/prompt at swap time resolves as a cancel - its asker's page is
+     gone, and leaving it open kept the pending promise (and the old page's continuation) alive
+     over the new content. */
+  document.addEventListener('bo:spa:before', function(){
+    if(!modal || !modal.classList.contains('show')) return;
+    modal.classList.remove('show'); modal.setAttribute('aria-hidden','true');
+    var r=resolver; resolver=null; if(r) r(inputWrap && inputWrap.classList.contains('show')?null:false);
+  });
 })();
 
 

@@ -250,6 +250,15 @@
   ready(init);
   bindEditDelegation();
 
+  /* SPA: a modal open when the frame is replaced keeps showing over the page that arrives - and
+     its body is worse than cosmetic: the swap drops the card this file lifted, so the target's
+     own card would be poured into the still-open dialog (previous page's title, next page's
+     form). The modal is a document-level container, so its close is one too. */
+  if(!window.__crudModalSpaBound){
+    window.__crudModalSpaBound = 1;
+    document.addEventListener('bo:spa:before', function(){ closeModal(); });
+  }
+
   /* Redo this file's work for the page that just arrived.
 
      The card it lifts into the modal is page-owned, so a swap takes it away with the content

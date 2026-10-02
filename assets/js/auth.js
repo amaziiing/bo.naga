@@ -472,8 +472,12 @@
       const isMain = roleType === 'MAIN' || (user && user.mainAdmin === true) || Number(user && user.mainAdmin) === 1;
       return menus.length ? menus[0].url : (isMain ? 'main-profile.html' : 'profile.html');
     },
-    enforcePageAccess: function(user){
+    enforcePageAccess: function(user, target){
       user = user || this.user();
+      /* The SPA passes the destination's path: it has to decide BEFORE the frame is replaced,
+         while location still names the page being left (a full load passes nothing). */
+      const targetFile = target ? String(target).split('?')[0].split('/').pop().toLowerCase() : '';
+      const currentFile = function(){ return targetFile || pageName(); };
       // Production portal isolation mirrors the backend login rule. This also
       // prevents a token/session copied from the other subdomain from rendering
       // the wrong portal. Local/dev hosts keep the existing behavior unchanged.
@@ -497,7 +501,7 @@
       // but never expose the other portal's settings page.
       const accountRoleType = String((user && user.roleType) || '').toUpperCase();
       const isMainAccount = accountRoleType === 'MAIN' || (user && user.mainAdmin === true) || Number(user && user.mainAdmin) === 1;
-      const requestedAccountPage = pageName();
+      const requestedAccountPage = currentFile();
       if(isMainAccount && requestedAccountPage === 'profile.html'){
         window.location.replace('main-profile.html' + (location.hash || ''));
         return false;
@@ -513,7 +517,7 @@
       // authorization already treats ROOT as unrestricted as well.
       const roleType = String((user && user.roleType) || '').toUpperCase();
       if((user && user.rootAdmin === true) || roleType === 'ROOT') return true;
-      let current = pageName();
+      let current = currentFile();
       // Agent detail inherits Agents access. Agent Management sub-pages keep their
       // own permission so a Master can be granted Commission/Settlement/etc.
       // independently. Legacy agent_management permission remains a fallback below.
@@ -597,10 +601,10 @@
         'agent-commission-admin.html','agent-settlement-admin.html','agent-reimbursement-admin.html',
         'agent-payout-admin.html','agent-promotion-admin.html'
       ]);
-      const requestedAgentChild = agentChildPages.has(pageName());
-      const requestedMainAdminDetail = pageName() === 'main-admin-detail.html' || pageName() === 'main-admin-create.html' || pageName() === 'main-admin-edit.html';
-      const requestedMainMerchantDetail = pageName() === 'main-merchant-detail.html' || pageName() === 'main-merchant-create.html' || pageName() === 'main-merchant-credit.html' || pageName() === 'main-merchant-security.html' || pageName() === 'main-merchant-roles.html' || pageName() === 'main-merchant-role-create.html' || pageName() === 'main-merchant-profit.html' || pageName() === 'main-merchant-profit-record.html' || pageName() === 'main-merchant-repayments.html' || pageName() === 'main-merchant-settlement.html' || pageName() === 'merchant-profit.html';
-      const requestedMainProviderDetail = pageName() === 'main-provider-detail.html' || pageName() === 'main-provider-create.html' || pageName() === 'main-provider-endpoints.html' || pageName() === 'main-provider-credentials.html' || pageName() === 'main-provider-health.html';
+      const requestedAgentChild = agentChildPages.has(currentFile());
+      const requestedMainAdminDetail = currentFile() === 'main-admin-detail.html' || currentFile() === 'main-admin-create.html' || currentFile() === 'main-admin-edit.html';
+      const requestedMainMerchantDetail = currentFile() === 'main-merchant-detail.html' || currentFile() === 'main-merchant-create.html' || currentFile() === 'main-merchant-credit.html' || currentFile() === 'main-merchant-security.html' || currentFile() === 'main-merchant-roles.html' || currentFile() === 'main-merchant-role-create.html' || currentFile() === 'main-merchant-profit.html' || currentFile() === 'main-merchant-profit-record.html' || currentFile() === 'main-merchant-repayments.html' || currentFile() === 'main-merchant-settlement.html' || currentFile() === 'merchant-profit.html';
+      const requestedMainProviderDetail = currentFile() === 'main-provider-detail.html' || currentFile() === 'main-provider-create.html' || currentFile() === 'main-provider-endpoints.html' || currentFile() === 'main-provider-credentials.html' || currentFile() === 'main-provider-health.html';
       if(current === 'main-stat-detail.html'){
         let source = '';
         try { source = String(new URLSearchParams(location.search || '').get('source') || 'overview').toLowerCase(); } catch(e) {}
@@ -621,7 +625,7 @@
       let allowed = menus.some(function(m){ return pageFile(m.url || '') === current; });
       // Bonus Category Item may be assigned as its own menu row, or only opened via
       // Manage Items from the merged Promotion Bonus page. Allow either permission.
-      if(!allowed && pageName() === 'bonus-category-item.html'){
+      if(!allowed && currentFile() === 'bonus-category-item.html'){
         allowed = menus.some(function(m){
           const file = pageFile(m.url || '');
           return file === 'bonus-category-item.html' || file === 'bonus-category-title.html' || file === 'promotion.html';
@@ -658,7 +662,7 @@
       // Win/Lose Report and Provider Report are sibling tabs of one Report workspace.
       // A role configured with either entry may open both tabs, so changing the DB menu
       // URL between the two does not make the other tab disappear or redirect away.
-      if(!allowed && (pageName() === 'main-win-lose-report.html' || pageName() === 'win-lose-report.html' || pageName() === 'main_provider_report.html')){
+      if(!allowed && (currentFile() === 'main-win-lose-report.html' || currentFile() === 'win-lose-report.html' || currentFile() === 'main_provider_report.html')){
         allowed = menus.some(function(m){
           const file = String(m.url || '').split('/').pop().split('?')[0].toLowerCase();
           const key = String(m.menuKey || '').toLowerCase();

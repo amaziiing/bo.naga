@@ -6551,6 +6551,23 @@ body.modal-open{overflow:hidden!important}
   z-index:1;
   margin:auto!important;
 }
+/* A panel's content is often wrapped in a <form> (rebate rule modal, main-admin-detail's adjust
+   / credit modals, payment-method, social...). The wrapper has to stay transparent to the
+   panel's flex chain: left as a plain block it cannot shrink (`min-height:auto` + `overflow:
+   visible`), so a panel capped by `max-height` clips its own body AND its footer, with nothing
+   to scroll - the overlay does not scroll either, because the cap is what keeps the panel
+   inside it. Measured on rebate-management.html #ruleModal at 1560x720 (light): panel 680px,
+   form 812px, footer 69px below the panel's bottom edge, body scroll range 0, no scrollbar
+   anywhere. `.role-create-form` in this same sheet already declares the shape; this makes it
+   unconditional, so a new page does not have to know. Inert where the panel is not a
+   height-capped flex column, which is why the modals that are short today are unaffected. */
+.modal-clean-panel > form{
+  display:flex;
+  flex-direction:column;
+  flex:1 1 auto;
+  min-height:0;
+  min-width:0;
+}
 @media(max-width:767.98px){
   .modal-clean{padding:10px!important}
 }

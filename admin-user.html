@@ -10,7 +10,7 @@
 <title>Admin Management</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
-<link href="assets/css/reports.css?v=bd926796" rel="stylesheet"/>
+<link href="assets/css/reports.css?v=31e784eb" rel="stylesheet"/>
 <style>
     .report-topbar h1 {
       font-size: 22px;
@@ -61,10 +61,12 @@
 <div class="field">
 <label class="bo-search-control"><i class="bi bi-search" aria-hidden="true"></i><input id="adminSearchInput" aria-label="Search username or display name" placeholder="Search username or display name"/></label>
 </div>
-<div class="field">
-<label>Role</label>
-<select id="adminRoleFilter"><option value="">All Roles</option></select>
-</div>
+<!-- The Role filter is gone (owner, 2026-10-02). Its options were never loaded on this page:
+     loadRoles() runs only from loadBrandOptions(), and that returns at its first line here
+     because #newAdminBrand / #editAdminBrand exist on admin-user-create.html, not here. The
+     control therefore opened onto a one-item panel reading "All Roles" - a second box that
+     looked like a duplicate of the button above it. The status pills and the search field
+     are the strip's controls now. -->
 </div>
 <div class="user-toolbar-actions"><a class="clean-btn primary" id="openCreateAdminBtn" href="admin-user-create.html"><i class="bi bi-person-plus"></i> Add Admin</a><button class="clean-btn" id="exportAdminBtn" type="button"><i class="bi bi-download"></i> Export</button></div>
 </div>
@@ -106,8 +108,8 @@
 <script src="assets/js/main-currency-runtime.js?v=4060eb86"></script>
 <script src="assets/js/currency-runtime.js?v=b63c89fb"></script>
 <script src="assets/js/reports.js?v=f5cb7d42"></script>
-<script src="assets/js/auth.js?v=becad1fa"></script>
-<script src="assets/js/admin-user.js?v=30fbe3bd"></script>
+<script src="assets/js/auth.js?v=d732a06b"></script>
+<script src="assets/js/admin-user.js?v=0c8b56ec"></script>
 <script src="assets/js/bo-seg-bounce.js?v=a1e9563f"></script>
 <script src="assets/js/access-control-listing.js?v=e28123d1"></script>
 <!-- Global live-chat listener: keeps the custom MP3 notification active throughout the BO. -->
@@ -121,6 +123,6 @@
 <script src="assets/js/report-table-sort.js?v=b1114968"></script>
 <script src="assets/js/bo-theme.js?v=d78603d9"></script>
 <script src="assets/js/bo-account-chip.js?v=94cb2c63"></script>
-<script src="assets/js/bo-spa-manifest.js?v=afa9dfeb"></script><script src="assets/js/bo-spa.js?v=ad7d4784"></script>
+<script src="assets/js/bo-spa-manifest.js?v=df570cb9"></script><script src="assets/js/bo-spa.js?v=ad7d4784"></script>
 </body>
 </html>

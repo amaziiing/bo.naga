@@ -114,6 +114,13 @@
     // (bonus-category-title.html), so the sidebar must highlight that row.
     if(p==='bonus-category-title.html') return 'promotion.html';
     if(p==='vip-level-edit.html') return 'vip-management.html';
+    // Create/Edit Rebate Rule is a drill-down of the rebate list it was opened from
+    // (Rebate Management, or Rebate Setting when the link carried ?from=setting).
+    if(p==='rebate-rule-edit.html'){
+      let rrSource='';
+      try{ rrSource=String(new URLSearchParams(location.search||'').get('from')||'').toLowerCase(); }catch(e){}
+      return rrSource==='setting' ? 'daily-rebate-setting.html' : 'rebate-management.html';
+    }
     // Game Category create/edit is a drill-down of Game Category Management.
     if(p==='game-category-edit.html') return 'game-category.html';
     // Game Sub Category create/edit is a drill-down of Game Sub Category Management.
@@ -551,6 +558,14 @@
       if(current === 'payment-gateway-transactions.html') current = 'payment-gateway.html';
       // Rebate Detail is a drill-down of Manual Rebate Approval.
       if(current === 'manual-rebate-detail.html') current = 'manual-rebate-approval.html';
+      // Create/Edit Rebate Rule is a drill-down page with no sidebar row of its own: it
+      // inherits the permission of the list it was opened from, so a role that holds Rebate
+      // Setting (and not Rebate Management) is not bounced to its landing page.
+      if(current === 'rebate-rule-edit.html'){
+        let rrSource = '';
+        try { rrSource = String(new URLSearchParams(location.search || '').get('from') || '').toLowerCase(); } catch(e) {}
+        current = rrSource === 'setting' ? 'daily-rebate-setting.html' : 'rebate-management.html';
+      }
       // Create/Edit Payment Method is a drill-down page, not a standalone sidebar menu.
       // Inherit the page the admin opened it from so Bank Deposit Usage users are not
       // incorrectly redirected to their landing page, while Payment Method Config keeps

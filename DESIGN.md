@@ -6146,3 +6146,52 @@ column deltas, the scroll mirror and drag, the fixed-size gutter parity, the `-`
 `check-asset-pins` 0 stale · `check-global-collisions` 0 · `check-spa-readiness` exit 0 · `check-control-height`
 OK. Pins: `bo-wallet-transaction-amber.css` → `e28632a2`, `wallet-ledger.js` → `af102dd7`, restamped on the
 11 pages that link either file.
+
+### Add / Edit Rebate Rule becomes a page, with the house Back control (2026-10-02, owner 「那不行 应该要像其他页
+面做成一页 然后还有一个同款统一标准的back to list」)
+
+Owner, with a screenshot of the modal: **"Add Rebate Rule 看不完整"**. Measured on the modal at 1560×720 (light):
+panel `max-height:calc(100dvh - 40px)` = 680px, the `form#ruleForm` between the panel and `.modal-clean-body`
+812px (a plain block: `min-height:auto` + `overflow:visible` cannot shrink), body scroll range **0**, the
+`.modal-clean-foot` (Cancel / Save Rule) **69px below the panel's bottom edge** — the panel clipped its own footer
+and nothing scrolled, on either axis. The audit-detail modal on the same page carries no `<form>` wrapper, which is
+why it was unaffected; the shared fix for that trap (`reports.css`: `.modal-clean-panel > form` joins the flex
+chain) is in the same change, and the owner's answer was to retire the modal instead of relying on it.
+
+**The form is now a page.** `rebate-rule-edit.html` (create) / `?id=<rule id>` (edit) — one form in two modes,
+because the modal was already both. `rebate-management.html` and `daily-rebate-setting.html` lose the `#ruleModal`
+markup and their `#addRule` becomes a link (`?from=setting` on the setting list); a row's pencil is an anchor to the
+same page. `auth.js` gains the two drill-down mappings (sidebar highlight + permission inheritance, `from`-aware) so
+neither list needs a new menu row.
+
+**The datetime picker and `ruleBody()` moved verbatim** — `assets/js/rebate-management.js` went 583 → 152 lines,
+432 lines of them the rule form (its `loadRuleMetadata` was never called, which is the "No levels configured" the
+owner's screenshot shows; the page calls it, so the VIP select is populated by VIP Order for the first time). The
+form ladder and the picker CSS moved out of `rebate-management-craft.css` (1450 → 856 lines) into
+`assets/css/rebate-rule-edit.css`, re-scoped `#ruleModal` → `#rreForm`; nothing was re-designed.
+
+**Back to list** is the house recipe, measured on the five pages that already carry one (manual-rebate-detail
+`#detailBack`, vip-level-edit `.vle-back-list`, payment-method-create `#pmBackLink`, game-category-edit
+`.banner-edit-back`, agent-detail `#backAgentList`): **36px · radius 8 · pad 0 14px · 12.5px/700 · three-stop cream
+`#FFFCF7→#F5EBDC 55%→#EDE4D4` · border `#DCC9A8` · ink `#18191C`** (dark `#4A4C58→#383A46 48%→#2C2E38` ·
+`rgba(255,255,255,.12)` · `#F5F5F4`). It is the last child of the first card's head row and takes `margin-left:auto`
+— measured `gapToRowRight 0` against the row's right edge, in both themes and at 1560×720 / 1560×560.
+
+**Two dark-mode defects the modal had hidden**, because the rules describing them were written inside
+`html:not([data-bo-theme="dark"])` (the modal only ever rendered them in light): the card head's `display:flex`
+(dark fell back to `block`, so the control sat beside the title — `gapToRowRight` 1015 vs 0) and the datetime
+shell's 36px box. The third was the native `<input type="datetime-local">` behind the trigger: **every**
+colour/opacity statement loses to `bo-field-standard.css`'s 32-id guard (`background-color:var(--bo-field-fill)`,
+`color:var(--bo-field-ink)`) and to `reports.css`'s `opacity:1!important` on `.report-content input` — measured
+cascade on `#rrStartAt`: opacity computed **1**, colour the field ink, so the browser's own control painted its
+value *and its calendar glyph* under the trigger (a 78px shell in dark). `display` has no other owner, so the ready
+fix is `display:none` on the value holder, which is all the input ever was (the picker reads and writes `.value`).
+Geometry is now stated once, theme-neutrally; colour stays split light/dark.
+
+**Verified** headless, light and dark, 1560×720 and 1560×560, create and `?id=` edit: fields filled from the rule
+(`SLOT` / VIP 2 / 0.5% / 2026-10-01 10:00), the picker opens, flips up when it would not fit, Clear closes it, an
+outside click closes it, a picked day lands in the field and its label, the page scrolls and the last field stays
+above the action bar, both list pages still open the audit modal (delegated handler) and no page throws.
+`audit-spa-swaps --twice` on all three pages: 0 flagged. Guards: `check-shell-drift` OK · `check-global-collisions`
+0 · `check-spa-readiness` 136 complete / 0 short · `pin-spa` 0 · `check-asset-pins` 0 stale (157 pages, 4893
+references).

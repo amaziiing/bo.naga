@@ -14,7 +14,11 @@ html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page .rebat
 .rebate-page .rebate-summary-card strong{font-size:22px;margin:2px 0 0}
 
 /* ---- Schedule shell ---- */
-.rebate-page .rebate-worker-card.rebate-schedule{border-radius:12px}
+/* A stacking context of its own so an open dropdown paints over the workbench card below it: the
+   Weekly "Day" menu is 7 options tall and reached into the table, where `tbody#rebateRows` won
+   the hit test (the menu's own z-index:3000 only competes inside this context; the chrome card
+   is a later sibling of the schedule card). */
+.rebate-page .rebate-worker-card.rebate-schedule{border-radius:12px;position:relative;z-index:2}
 .rebate-schedule-bar{
   display:flex;align-items:center;gap:12px;
   padding:10px 14px;min-height:56px;
@@ -65,11 +69,15 @@ html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page .rebat
 .rebate-cycle-card{
   display:flex;flex-direction:column;gap:0;
   background:#FFF8EB;border:1px solid #EADCC8;border-radius:10px;
-  padding:0;overflow:hidden;min-height:0;
+  /* NOT `overflow:hidden`: it used to clip the header's square corners, and it also clipped the
+     Status/Day dropdown menus that reports.js opens below their trigger - measured with the
+     card's own children: the menu's option was hit-tested onto the tab row / table underneath,
+     i.e. the option could not be clicked at all. The header carries the top radius instead. */
+  padding:0;overflow:visible;min-height:0;
 }
 .rebate-cycle-card header{
   display:flex;align-items:center;gap:8px;
-  margin:0;padding:8px 12px;
+  margin:0;padding:8px 12px;border-radius:9px 9px 0 0;
   font-size:13px;font-weight:800;color:#18191C;
   background:#F5EBDC;border-bottom:1px solid #EADCC8;
 }
@@ -131,6 +139,102 @@ html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page .rebat
 .rebate-schedule-master select:focus,
 .rebate-cycle-fields input:focus,
 .rebate-cycle-fields select:focus{
+  border-color:#D97706!important;box-shadow:0 0 0 3px rgba(217,119,6,.14)!important;outline:none!important;
+}
+/* reports.js rewrites every `<select>` into `.rounded-select-wrap > .rounded-select-btn` (the
+   native one is hidden and left at 1px) and writes a content-width inline width onto the
+   wrapper. The recipe above only names `input, select`, so the control the user actually sees
+   kept the global chrome - 13.5px, width shrunk to its own text (measured 128px for "Enabled")
+   - and came out narrower than the input beside it instead of filling the field. The footer's
+   Show-N select was patched on its own (`.entries-control .rounded-select-wrap`); this is the
+   same recipe for the settlement schedule. `data-bo-auto-width="0"` on those four selects is
+   what keeps the wrapper at 100% instead of reports.js pinning it to the text width. */
+.rebate-schedule-master .rounded-select-wrap,
+.rebate-cycle-fields .rounded-select-wrap{
+  position:relative!important;display:flex!important;
+  width:100%!important;min-width:0!important;max-width:100%!important;
+  height:36px!important;min-height:36px!important;max-height:36px!important;
+  margin:0!important;padding:0!important;
+}
+.rebate-schedule-master .rounded-select-wrap > select,
+.rebate-cycle-fields .rounded-select-wrap > select{
+  position:absolute!important;inset:0!important;
+  width:1px!important;height:1px!important;margin:0!important;padding:0!important;border:0!important;
+  opacity:0!important;pointer-events:none!important;overflow:hidden!important;
+}
+.rebate-schedule-master .rounded-select-wrap > .rounded-select-btn,
+.rebate-cycle-fields .rounded-select-wrap > .rounded-select-btn{
+  box-sizing:border-box!important;
+  display:inline-flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important;
+  width:100%!important;min-width:0!important;max-width:none!important;
+  height:36px!important;min-height:36px!important;max-height:36px!important;
+  padding:0 12px!important;border:1px solid #EADCC8!important;border-radius:8px!important;
+  background:#FFF8EB!important;background-color:#FFF8EB!important;background-image:none!important;
+  color:#18191C!important;font-size:13px!important;font-weight:600!important;line-height:normal!important;
+  box-shadow:none!important;cursor:pointer!important;text-align:left!important;
+}
+.rebate-schedule-master .rounded-select-wrap > .rounded-select-btn > span,
+.rebate-cycle-fields .rounded-select-wrap > .rounded-select-btn > span{
+  min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.rebate-schedule-master .rounded-select-wrap > .rounded-select-btn > i,
+.rebate-cycle-fields .rounded-select-wrap > .rounded-select-btn > i{
+  flex:0 0 auto;font-size:12px;line-height:1;color:#57534E;
+}
+.rebate-schedule-master .rounded-select-wrap > .rounded-select-btn:hover,
+.rebate-cycle-fields .rounded-select-wrap > .rounded-select-btn:hover{
+  border-color:#D97706!important;
+}
+.rebate-schedule-master .rounded-select-wrap > .rounded-select-btn.open,
+.rebate-schedule-master .rounded-select-wrap > .rounded-select-btn:focus,
+.rebate-cycle-fields .rounded-select-wrap > .rounded-select-btn.open,
+.rebate-cycle-fields .rounded-select-wrap > .rounded-select-btn:focus{
+  border-color:#D97706!important;box-shadow:0 0 0 3px rgba(217,119,6,.14)!important;outline:none!important;
+}
+.rebate-schedule-master .rounded-select-menu,
+.rebate-cycle-fields .rounded-select-menu{
+  left:0!important;right:auto!important;top:calc(100% + 6px)!important;
+  padding:6px!important;border:1px solid #EADCC8!important;border-radius:8px!important;
+  background:#FFF8EB!important;box-shadow:0 12px 28px rgba(92,74,48,.12)!important;
+  max-height:min(260px,50vh)!important;overflow-x:hidden!important;overflow-y:auto!important;box-sizing:border-box!important;
+}
+.rebate-schedule-master .rounded-select-option,
+.rebate-cycle-fields .rounded-select-option{
+  display:flex!important;align-items:center!important;
+  width:100%!important;min-height:34px!important;padding:6px 10px!important;margin:0!important;
+  border-radius:8px!important;text-align:left!important;
+  font-size:13px!important;font-weight:600!important;line-height:1.2!important;
+  background:transparent!important;color:#18191C!important;cursor:pointer!important;
+  overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;
+}
+.rebate-schedule-master .rounded-select-option:hover,
+.rebate-schedule-master .rounded-select-option.active,
+.rebate-schedule-master .rounded-select-option.is-active,
+.rebate-cycle-fields .rounded-select-option:hover,
+.rebate-cycle-fields .rounded-select-option.active,
+.rebate-cycle-fields .rounded-select-option.is-active{
+  background:rgba(217,119,6,.12)!important;color:#B45309!important;
+}
+/* One level stronger. bo-charcoal-primitives.css states `.rounded-select-btn` (13.5px, 40px)
+   at (0,4,2) - a plain `.rebate-schedule-master …` chain cannot outrank it, so the recipe above
+   only reached the parts primitives leaves alone (wrap, menu position, chevron). The sibling
+   sheets answer with this exact `html body.report-body.bo-charcoal` prefix; the same here, for
+   the four properties the field recipe owns: 36px, 13px/600, cream fill, 8px radius. */
+html body.report-body.bo-charcoal.rebate-page .rebate-schedule-master .rounded-select-wrap > .rounded-select-btn,
+html body.report-body.bo-charcoal.rebate-page .rebate-cycle-fields .rounded-select-wrap > .rounded-select-btn{
+  height:36px!important;min-height:36px!important;max-height:36px!important;
+  padding:0 12px!important;border:1px solid #EADCC8!important;border-radius:8px!important;
+  background:#FFF8EB!important;background-color:#FFF8EB!important;background-image:none!important;
+  color:#18191C!important;font-size:13px!important;font-weight:600!important;
+}
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page .rebate-schedule-master .rounded-select-wrap > .rounded-select-btn:hover,
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page .rebate-cycle-fields .rounded-select-wrap > .rounded-select-btn:hover{
+  border-color:#D97706!important;
+}
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page .rebate-schedule-master .rounded-select-wrap > .rounded-select-btn.open,
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page .rebate-schedule-master .rounded-select-wrap > .rounded-select-btn:focus,
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page .rebate-cycle-fields .rounded-select-wrap > .rounded-select-btn.open,
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page .rebate-cycle-fields .rounded-select-wrap > .rounded-select-btn:focus{
   border-color:#D97706!important;box-shadow:0 0 0 3px rgba(217,119,6,.14)!important;outline:none!important;
 }
 .rebate-run-pill{
@@ -394,6 +498,45 @@ html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page .rebat
 .rebate-page [data-panel="rules"] .standard-data-table tbody td:nth-child(8){width:90px}
 .rebate-page [data-panel="rules"] .standard-data-table thead th:nth-child(9),
 .rebate-page [data-panel="rules"] .standard-data-table tbody td:nth-child(9){width:88px}
+/* Audit and Reconciliation carried no column sync at all, so with `table-layout:fixed` every
+   column took an equal share of the panel: DETAIL (a sentence) got the same 125px as MEMBER and
+   the two EXPECTED headers truncated into "EXPECTED BO...". Same nth-child recipe as
+   rules/batches above - the date is 8 characters now, the sentence column gets the rest. */
+.rebate-page [data-panel="reconciliation"] .standard-data-table{min-width:1140px}
+.rebate-page [data-panel="reconciliation"] .standard-data-table thead th:nth-child(1),
+.rebate-page [data-panel="reconciliation"] .standard-data-table tbody td:nth-child(1){width:120px}
+.rebate-page [data-panel="reconciliation"] .standard-data-table thead th:nth-child(2),
+.rebate-page [data-panel="reconciliation"] .standard-data-table tbody td:nth-child(2){width:80px}
+.rebate-page [data-panel="reconciliation"] .standard-data-table thead th:nth-child(3),
+.rebate-page [data-panel="reconciliation"] .standard-data-table tbody td:nth-child(3){width:80px}
+.rebate-page [data-panel="reconciliation"] .standard-data-table thead th:nth-child(4),
+.rebate-page [data-panel="reconciliation"] .standard-data-table tbody td:nth-child(4){width:132px}
+.rebate-page [data-panel="reconciliation"] .standard-data-table thead th:nth-child(5),
+.rebate-page [data-panel="reconciliation"] .standard-data-table tbody td:nth-child(5){width:124px}
+.rebate-page [data-panel="reconciliation"] .standard-data-table thead th:nth-child(6),
+.rebate-page [data-panel="reconciliation"] .standard-data-table tbody td:nth-child(6){width:132px}
+.rebate-page [data-panel="reconciliation"] .standard-data-table thead th:nth-child(7),
+.rebate-page [data-panel="reconciliation"] .standard-data-table tbody td:nth-child(7){width:96px}
+.rebate-page [data-panel="reconciliation"] .standard-data-table thead th:nth-child(8),
+.rebate-page [data-panel="reconciliation"] .standard-data-table tbody td:nth-child(8){width:116px}
+.rebate-page [data-panel="reconciliation"] .standard-data-table thead th:nth-child(9),
+.rebate-page [data-panel="reconciliation"] .standard-data-table tbody td:nth-child(9){width:128px}
+
+.rebate-page [data-panel="audit"] .standard-data-table{min-width:1080px}
+.rebate-page [data-panel="audit"] .standard-data-table thead th:nth-child(1),
+.rebate-page [data-panel="audit"] .standard-data-table tbody td:nth-child(1){width:120px}
+.rebate-page [data-panel="audit"] .standard-data-table thead th:nth-child(2),
+.rebate-page [data-panel="audit"] .standard-data-table tbody td:nth-child(2){width:150px}
+.rebate-page [data-panel="audit"] .standard-data-table thead th:nth-child(3),
+.rebate-page [data-panel="audit"] .standard-data-table tbody td:nth-child(3){width:72px}
+.rebate-page [data-panel="audit"] .standard-data-table thead th:nth-child(4),
+.rebate-page [data-panel="audit"] .standard-data-table tbody td:nth-child(4){width:128px}
+.rebate-page [data-panel="audit"] .standard-data-table thead th:nth-child(5),
+.rebate-page [data-panel="audit"] .standard-data-table tbody td:nth-child(5){width:120px}
+.rebate-page [data-panel="audit"] .standard-data-table thead th:nth-child(6),
+.rebate-page [data-panel="audit"] .standard-data-table tbody td:nth-child(6){width:116px}
+.rebate-page [data-panel="audit"] .standard-data-table thead th:nth-child(8),
+.rebate-page [data-panel="audit"] .standard-data-table tbody td:nth-child(8){width:80px}
 .rebate-panel .standard-data-table tbody::-webkit-scrollbar{
   width:6px!important;height:6px!important;background:transparent!important;
 }
@@ -519,6 +662,14 @@ html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page .stand
 }
 html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page .standard-data-table .table-primary{
   color:#18191C!important;font-weight:800!important;
+}
+/* Timestamps: the date in the cell, the time on the hover tip - the member listing / Wallet
+   Ledger recipe this page's tables were missing. The tip element and its styles are the global
+   `.um-time-tip` (bo-charcoal-legacy.css, a sheet this page links), so all this carries is the
+   cell's own affordance: the same four properties the member listing and Wallet Ledger use. */
+.rebate-page .standard-data-table .bo-tx-datetime{
+  display:inline-block;white-space:nowrap;cursor:help;
+  font-variant-numeric:tabular-nums;
 }
 
 html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page .standard-data-table thead th{
@@ -784,6 +935,51 @@ html[data-bo-theme="dark"] .rebate-schedule-master select,
 html[data-bo-theme="dark"] .rebate-cycle-fields input,
 html[data-bo-theme="dark"] .rebate-cycle-fields select{
   background:#2A2C36!important;border-color:rgba(255,255,255,.12)!important;color:#F5F5F4!important;
+}
+html[data-bo-theme="dark"] .rebate-schedule-master .rounded-select-btn,
+html[data-bo-theme="dark"] .rebate-cycle-fields .rounded-select-btn{
+  background:#2A2C36!important;background-color:#2A2C36!important;background-image:none!important;
+  border-color:rgba(255,255,255,.12)!important;color:#F5F5F4!important;
+}
+html[data-bo-theme="dark"] .rebate-schedule-master .rounded-select-btn > i,
+html[data-bo-theme="dark"] .rebate-cycle-fields .rounded-select-btn > i{color:#D4D4D8}
+html[data-bo-theme="dark"] .rebate-schedule-master .rounded-select-btn.open,
+html[data-bo-theme="dark"] .rebate-schedule-master .rounded-select-btn:focus,
+html[data-bo-theme="dark"] .rebate-cycle-fields .rounded-select-btn.open,
+html[data-bo-theme="dark"] .rebate-cycle-fields .rounded-select-btn:focus{
+  border-color:#F59E0B!important;box-shadow:0 0 0 3px rgba(245,158,11,.18)!important;outline:none!important;
+}
+html[data-bo-theme="dark"] .rebate-schedule-master .rounded-select-menu,
+html[data-bo-theme="dark"] .rebate-cycle-fields .rounded-select-menu{
+  background:#383A46!important;border-color:rgba(255,255,255,.14)!important;
+}
+html[data-bo-theme="dark"] .rebate-schedule-master .rounded-select-option,
+html[data-bo-theme="dark"] .rebate-cycle-fields .rounded-select-option{color:#E7E5E4!important}
+html[data-bo-theme="dark"] .rebate-schedule-master .rounded-select-option:hover,
+html[data-bo-theme="dark"] .rebate-schedule-master .rounded-select-option.active,
+html[data-bo-theme="dark"] .rebate-schedule-master .rounded-select-option.is-active,
+html[data-bo-theme="dark"] .rebate-cycle-fields .rounded-select-option:hover,
+html[data-bo-theme="dark"] .rebate-cycle-fields .rounded-select-option.active,
+html[data-bo-theme="dark"] .rebate-cycle-fields .rounded-select-option.active{
+  background:rgba(245,158,11,.14)!important;color:#FBBF24!important;
+}
+/* Same reason as the light pair: primitives owns `.rounded-select-btn` at (0,4,1) here. */
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page .rebate-schedule-master .rounded-select-wrap > .rounded-select-btn,
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page .rebate-cycle-fields .rounded-select-wrap > .rounded-select-btn{
+  height:36px!important;min-height:36px!important;max-height:36px!important;
+  padding:0 12px!important;border:1px solid rgba(255,255,255,.12)!important;border-radius:8px!important;
+  background:#2A2C36!important;background-color:#2A2C36!important;background-image:none!important;
+  color:#F5F5F4!important;font-size:13px!important;font-weight:600!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page .rebate-schedule-master .rounded-select-wrap > .rounded-select-btn > i,
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page .rebate-cycle-fields .rounded-select-wrap > .rounded-select-btn > i{
+  color:#D4D4D8!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page .rebate-schedule-master .rounded-select-wrap > .rounded-select-btn.open,
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page .rebate-schedule-master .rounded-select-wrap > .rounded-select-btn:focus,
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page .rebate-cycle-fields .rounded-select-wrap > .rounded-select-btn.open,
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.rebate-page .rebate-cycle-fields .rounded-select-wrap > .rounded-select-btn:focus{
+  border-color:#F59E0B!important;box-shadow:0 0 0 3px rgba(245,158,11,.18)!important;outline:none!important;
 }
 html[data-bo-theme="dark"] .rebate-cycle-last{
   background:#1F2128;border-color:rgba(255,255,255,.12);

@@ -19,7 +19,7 @@
 <link href="assets/css/bo-charcoal-primitives.css?v=ff214d1a" rel="stylesheet" />
 <link href="assets/css/bo-input-fill.css?v=1ab80f49" rel="stylesheet" />
 <link href="assets/css/rebate-pages.css?v=9731491c" rel="stylesheet"/>
-<link href="assets/css/rebate-management-craft.css?v=d50bde80" rel="stylesheet"/>
+<link href="assets/css/rebate-management-craft.css?v=d4687fc1" rel="stylesheet"/>
 <link href="assets/css/bo-scrollbar.css?v=39f413e5" rel="stylesheet"/>
 <link href="assets/css/bo-control-height.css?v=ff703846" rel="stylesheet">
 <link href="assets/css/bo-field-standard.css?v=6673ed98" rel="stylesheet">
@@ -52,7 +52,7 @@
       <small id="schedulePeek">Set daily / weekly auto settlement</small>
     </span>
     <div class="rebate-schedule-master">
-      <label class="rebate-schedule-field"><select id="rwAutomaticEnabled" aria-label="Automatic settlement"><option value="1">Enabled</option><option value="0">Disabled</option></select></label>
+      <label class="rebate-schedule-field"><select id="rwAutomaticEnabled" data-bo-auto-width="0" aria-label="Automatic settlement"><option value="1">Enabled</option><option value="0">Disabled</option></select></label>
       <label class="rebate-schedule-field"><input id="rwTimeZone" list="rebateTimezoneList" placeholder="Asia/Kuala_Lumpur" aria-label="Timezone"/><datalist id="rebateTimezoneList"><option value="Asia/Kuala_Lumpur"></option><option value="Asia/Singapore"></option><option value="Asia/Manila"></option><option value="Asia/Bangkok"></option><option value="Asia/Jakarta"></option><option value="UTC"></option></datalist></label>
     </div>
     <button type="button" class="clean-btn primary" id="saveRebateWorker"><i class="bi bi-save"></i> Save schedule</button>
@@ -66,7 +66,7 @@
           <em class="rebate-cycle-badge" id="rwDailyBadge">On</em>
         </header>
         <div class="rebate-cycle-fields">
-          <label><span>Status</span><select id="rwDailyEnabled"><option value="1">Enabled</option><option value="0">Disabled</option></select></label>
+          <label><span>Status</span><select id="rwDailyEnabled" data-bo-auto-width="0"><option value="1">Enabled</option><option value="0">Disabled</option></select></label>
           <label><span>Run at</span><input id="rwDailyTime" type="time" step="60"/></label>
           <div class="rebate-cycle-last">
             <span>Last run</span>
@@ -83,8 +83,8 @@
           <em class="rebate-cycle-badge is-off" id="rwWeeklyBadge">Off</em>
         </header>
         <div class="rebate-cycle-fields">
-          <label><span>Status</span><select id="rwWeeklyEnabled"><option value="1">Enabled</option><option value="0">Disabled</option></select></label>
-          <label><span>Day</span><select id="rwWeeklyDay"><option value="1">Monday</option><option value="2">Tuesday</option><option value="3">Wednesday</option><option value="4">Thursday</option><option value="5">Friday</option><option value="6">Saturday</option><option value="7">Sunday</option></select></label>
+          <label><span>Status</span><select id="rwWeeklyEnabled" data-bo-auto-width="0"><option value="1">Enabled</option><option value="0">Disabled</option></select></label>
+          <label><span>Day</span><select id="rwWeeklyDay" data-bo-auto-width="0"><option value="1">Monday</option><option value="2">Tuesday</option><option value="3">Wednesday</option><option value="4">Thursday</option><option value="5">Friday</option><option value="6">Saturday</option><option value="7">Sunday</option></select></label>
           <label><span>Run at</span><input id="rwWeeklyTime" type="time" step="60"/></label>
           <div class="rebate-cycle-last">
             <span>Last run</span>
@@ -175,15 +175,15 @@
 <div aria-hidden="true" class="modal-clean audit-detail-modal" id="auditDetailModal"><div aria-hidden="true" class="modal-clean-panel"><div aria-hidden="true" class="modal-clean-head"><div><h3>Audit Detail</h3><p>Immutable before/after snapshots and execution details.</p></div><button class="modal-clean-close" id="closeAuditDetail" type="button"><i class="bi bi-x-lg"></i></button></div><div aria-hidden="true" class="modal-clean-body"><div class="audit-detail-content" id="auditDetailContent"></div></div><div aria-hidden="true" class="modal-clean-foot"><button class="clean-btn primary" id="closeAuditDetailBottom" type="button">Close</button></div></div></div>
 <script src="assets/js/config.js?v=e7312672"></script>
 <script src="assets/js/brand-context.js?v=27360386"></script>
-<script src="assets/js/main-currency-runtime.js?v=4060eb86"></script>
-<script src="assets/js/currency-runtime.js?v=b63c89fb"></script><script src="assets/js/auth.js?v=d732a06b"></script><script src="assets/js/reports.js?v=f5cb7d42"></script><script src="assets/js/rebate-management.js?v=860c233a" data-bo-spa-rerun></script><script src="assets/js/pagination-standardizer.js?v=9eb44c56"></script><script src="assets/js/operation-global-notification.js?v=efe72819"></script>
-<script src="assets/js/bo-ui-standard.js?v=83c736eb"></script>
+<script src="assets/js/main-currency-runtime.js?v=2b28e860"></script>
+<script src="assets/js/currency-runtime.js?v=b63c89fb"></script><script src="assets/js/auth.js?v=d732a06b"></script><script src="assets/js/reports.js?v=61324e04"></script><script src="assets/js/rebate-management.js?v=6b2ef0a9" data-bo-spa-rerun></script><script src="assets/js/pagination-standardizer.js?v=9eb44c56"></script><script src="assets/js/operation-global-notification.js?v=efe72819"></script>
+<script src="assets/js/bo-ui-standard.js?v=a77a4f6b"></script>
 <!-- Global live-chat unread reminder: sounds across BO until admin unread count reaches 0. -->
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 <script src="assets/js/firebase-config.js?v=c41fc3b0"></script>
 <script src="assets/js/livechat-global-notification.js?v=d7f4667a"></script>
 <script src="assets/js/bo-theme.js?v=d78603d9"></script>
-<script src="assets/js/bo-account-chip.js?v=94cb2c63"></script>
-<script src="assets/js/bo-spa-manifest.js?v=df570cb9"></script><script src="assets/js/bo-spa.js?v=ad7d4784"></script>
+<script src="assets/js/bo-account-chip.js?v=57839162"></script>
+<script src="assets/js/bo-spa-manifest.js?v=df570cb9"></script><script src="assets/js/bo-spa.js?v=a458ab39"></script>
 </body></html>

@@ -18,8 +18,8 @@
 <link href="assets/css/bo-charcoal-legacy.css?v=8ed5566f" rel="stylesheet" />
 <link href="assets/css/bo-charcoal-primitives.css?v=ff214d1a" rel="stylesheet" />
 <link href="assets/css/bo-input-fill.css?v=1ab80f49" rel="stylesheet" />
-<link href="assets/css/rebate-pages.css?v=9731491c" rel="stylesheet"/>
-<link href="assets/css/rebate-management-craft.css?v=d4687fc1" rel="stylesheet"/>
+<link href="assets/css/rebate-pages.css?v=5b8545a7" rel="stylesheet"/>
+<link href="assets/css/rebate-management-craft.css?v=ccb5d818" rel="stylesheet"/>
 <link href="assets/css/bo-scrollbar.css?v=39f413e5" rel="stylesheet"/>
 <link href="assets/css/bo-control-height.css?v=ff703846" rel="stylesheet">
 <link href="assets/css/bo-field-standard.css?v=6673ed98" rel="stylesheet">
@@ -117,7 +117,10 @@
   <div class="rebate-chrome-action-set" data-actions="batches" hidden>
     <button class="clean-btn" id="refreshBatches" type="button"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
   </div>
-  <div class="rebate-chrome-action-set" data-actions="audit" hidden>
+  <div class="rebate-chrome-action-set audit-filters" data-actions="audit" hidden>
+    <label class="rebate-audit-filter" aria-label="Entity"><select id="auditEntity"><option value="">All Entities</option></select></label>
+    <label class="rebate-audit-filter" aria-label="Action"><select id="auditAction"><option value="">All Actions</option></select></label>
+    <label class="rebate-audit-filter" aria-label="Actor"><select id="auditActor"><option value="">All Actors</option></select></label>
     <button class="clean-btn" id="refreshAudit" type="button"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
   </div>
   <div class="rebate-chrome-action-set" data-actions="reconciliation" hidden>
@@ -149,7 +152,6 @@
 </section>
 <section class="rebate-tab-panel" data-panel="audit">
 <div class="rebate-panel">
-<div class="standard-filter-grid audit-filters bo-filter-row"><label><span>Entity</span><input id="auditEntity" placeholder="PROMOTION / REBATE_RULE"/></label><label><span>Action</span><input id="auditAction" placeholder="CREATE / CLAIM / RECONCILE"/></label><label><span>Actor</span><input id="auditActor" placeholder="Admin username / SYSTEM"/></label><button class="clean-btn primary" id="searchAudit" type="button"><i class="bi bi-search"></i> Search</button></div>
 <div class="standard-table-wrap"><table class="standard-data-table">
 <colgroup>
 <col style="width:150px"/><col style="width:14%"/><col style="width:90px"/><col style="width:110px"/><col style="width:110px"/><col style="width:100px"/><col style="width:22%"/><col style="width:70px"/>
@@ -176,7 +178,7 @@
 <script src="assets/js/config.js?v=e7312672"></script>
 <script src="assets/js/brand-context.js?v=27360386"></script>
 <script src="assets/js/main-currency-runtime.js?v=2b28e860"></script>
-<script src="assets/js/currency-runtime.js?v=b63c89fb"></script><script src="assets/js/auth.js?v=d732a06b"></script><script src="assets/js/reports.js?v=61324e04"></script><script src="assets/js/rebate-management.js?v=6b2ef0a9" data-bo-spa-rerun></script><script src="assets/js/pagination-standardizer.js?v=9eb44c56"></script><script src="assets/js/operation-global-notification.js?v=efe72819"></script>
+<script src="assets/js/currency-runtime.js?v=b63c89fb"></script><script src="assets/js/auth.js?v=d732a06b"></script><script src="assets/js/reports.js?v=61324e04"></script><script src="assets/js/rebate-management.js?v=c14cb7fc" data-bo-spa-rerun></script><script src="assets/js/pagination-standardizer.js?v=9eb44c56"></script><script src="assets/js/operation-global-notification.js?v=efe72819"></script>
 <script src="assets/js/bo-ui-standard.js?v=a77a4f6b"></script>
 <!-- Global live-chat unread reminder: sounds across BO until admin unread count reaches 0. -->
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>

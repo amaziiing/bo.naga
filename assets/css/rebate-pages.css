@@ -465,6 +465,79 @@
   box-shadow:0 0 0 3px rgba(217,119,6,.14);
 }
 .standard-filter-grid input::placeholder{color:#78716C}
+/* The Audit filters are pickers, and reports.js renders a `<select>` as
+   `.rounded-select-wrap > .rounded-select-btn` - so the control the user clicks is the BUTTON,
+   not the `<select>` the rule above styles. Same recipe on the button, and the wrapper carries
+   the caption's 6px gap. The `html body.report-body.bo-charcoal` prefix is what out-ranks
+   bo-charcoal-primitives.css's `.rounded-select-btn` (13.5px / 40px), the same way the sibling
+   sheets answer it. */
+html body.report-body.bo-charcoal .rebate-audit-filter .rounded-select-wrap{
+  position:relative;display:flex;box-sizing:border-box;
+  width:100%;height:36px;min-height:36px;margin-top:6px;
+}
+html body.report-body.bo-charcoal .rebate-audit-filter .rounded-select-wrap > select{
+  position:absolute;inset:0;width:1px;height:1px;margin:0;padding:0;border:0;
+  opacity:0;pointer-events:none;overflow:hidden;
+}
+/* `!important` is required, not stylistic: bo-charcoal-primitives.css states the same properties
+   with it, and an important declaration beats any selector that does not carry one. */
+html body.report-body.bo-charcoal .rebate-audit-filter .rounded-select-wrap > .rounded-select-btn{
+  box-sizing:border-box!important;
+  display:inline-flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important;
+  width:100%!important;min-width:0!important;max-width:none!important;
+  height:36px!important;min-height:36px!important;max-height:36px!important;margin:0!important;
+  padding:0 12px!important;border:1px solid #EADCC8!important;border-radius:8px!important;
+  background:#FFF8EB!important;background-color:#FFF8EB!important;background-image:none!important;
+  color:#18191C!important;font-size:12px!important;font-weight:700!important;line-height:normal!important;
+  box-shadow:none!important;text-align:left!important;cursor:pointer!important;
+}
+html body.report-body.bo-charcoal .rebate-audit-filter .rounded-select-wrap > .rounded-select-btn > span{
+  min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+/* The filter-row recipe reserves 32px on the right for the caret, the way a native `<select>`
+   draws it. reports.js renders the caret as an `<i>` element instead, and as a flex child it
+   competed with the label for that space - measured: "All Actors" (62px) inside a 117px button
+   with 12/32 padding came out as "All A…". Pinning it into the reserved strip gives the label the
+   whole box, which is what the 32px was for. */
+html body.report-body.bo-charcoal .rebate-audit-filter .rounded-select-wrap > .rounded-select-btn{
+  position:relative!important;
+}
+html body.report-body.bo-charcoal .rebate-audit-filter .rounded-select-wrap > .rounded-select-btn > i{
+  position:absolute!important;right:12px!important;top:50%!important;transform:translateY(-50%)!important;
+  flex:0 0 auto;font-size:12px;line-height:1;color:#57534E;pointer-events:none;
+}
+html body.report-body.bo-charcoal .rebate-audit-filter .rounded-select-wrap > .rounded-select-btn:hover{
+  border-color:#D97706!important;
+}
+html body.report-body.bo-charcoal .rebate-audit-filter .rounded-select-wrap > .rounded-select-btn.open,
+html body.report-body.bo-charcoal .rebate-audit-filter .rounded-select-wrap > .rounded-select-btn:focus{
+  outline:none!important;border-color:#D97706!important;box-shadow:0 0 0 3px rgba(217,119,6,.14)!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal .rebate-audit-filter .rounded-select-wrap > .rounded-select-btn{
+  background:#2A2C36!important;background-color:#2A2C36!important;background-image:none!important;
+  border-color:rgba(255,255,255,.12)!important;color:#F5F5F4!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal .rebate-audit-filter .rounded-select-wrap > .rounded-select-btn > i{
+  color:#D4D4D8;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal .rebate-audit-filter .rounded-select-wrap > .rounded-select-btn.open,
+html[data-bo-theme="dark"] body.report-body.bo-charcoal .rebate-audit-filter .rounded-select-wrap > .rounded-select-btn:focus{
+  border-color:#F59E0B!important;box-shadow:0 0 0 3px rgba(245,158,11,.18)!important;
+}
+/* Where the pickers sit decides their width, and the `html body.report-body.bo-charcoal` prefix is
+   repeated so these two out-rank the shared block above. In the legacy grid
+   (daily-rebate-setting.html) they keep the caption's 6px gap and fill the column, exactly like
+   the input they replaced; in the chrome bar (rebate-management.html) they sit on the pills' own
+   line and size to their content, which is what reports.js's own measurement would give them. */
+html body.report-body.bo-charcoal .standard-filter-grid .rebate-audit-filter .rounded-select-wrap{
+  width:100%;margin-top:6px;
+}
+html body.report-body.bo-charcoal .rebate-chrome-actions .rebate-audit-filter{
+  display:inline-flex;align-items:center;flex:0 0 auto;min-width:0;
+}
+html body.report-body.bo-charcoal .rebate-chrome-actions .rebate-audit-filter .rounded-select-wrap{
+  width:auto;min-width:0;max-width:none;margin-top:0;
+}
 .audit-filters{grid-template-columns:repeat(3,minmax(180px,1fr)) auto}
 .standard-filter-grid .clean-btn:hover{transform:none}
 

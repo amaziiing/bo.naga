@@ -168,8 +168,38 @@ async function loadBatches(){try{state.batches=await request(base+'/api/admin/re
 function renderBatches(){const size=pageSize('batchPageSize'),d=clientPage(state.batches,state.batchPage,size);state.batchPage=d.page;$('batchRows').innerHTML=d.rows.length?d.rows.map(x=>'<tr><td>#'+esc(x.id)+'</td><td>'+esc(x.settlementDate||'-')+'</td><td>'+statusBadge(x.status)+'</td><td>'+Number(x.processedCount||0).toLocaleString('en-US')+'</td><td>'+Number(x.successCount||0).toLocaleString('en-US')+'</td><td>'+Number(x.failedCount||0).toLocaleString('en-US')+'</td><td><b>'+money(x.totalRebate)+'</b></td><td>'+dateCell(x.startedAt)+'</td><td>'+dateCell(x.completedAt)+'</td><td>'+esc(x.createdBy||'SYSTEM')+'</td></tr>').join(''):'<tr><td colspan="10" class="table-empty">No settlement batches found.</td></tr>';const from=d.total?d.start+1:0,to=Math.min(d.start+size,d.total);$('batchShowing').textContent='Showing '+from+' to '+to+' of '+d.total+' entries';pager('batchPager',d.page,d.pages,p=>{state.batchPage=p;renderBatches();});}
 $('batchPageSize').onchange=()=>{state.batchPage=0;renderBatches();};$('refreshBatches').onclick=loadBatches;
 
-async function loadAudit(){const size=pageSize('auditPageSize'),q=new URLSearchParams({page:state.auditPage,size});if($('auditEntity').value.trim())q.set('entityType',$('auditEntity').value.trim());if($('auditAction').value.trim())q.set('action',$('auditAction').value.trim());if($('auditActor').value.trim())q.set('actor',$('auditActor').value.trim());try{const d=await request(base+'/api/admin/rebate/audit?'+q)||{},rows=d.content||[];state.auditLast=Math.max(0,(d.totalPages||0)-1);$('auditRows').innerHTML=rows.length?rows.map(x=>'<tr><td>'+dateCell(x.createdAt)+'</td><td><div class="table-primary">'+esc(x.entityType||'-')+'</div></td><td>'+esc(x.entityId||'-')+'</td><td>'+statusBadge(x.action||'-')+'</td><td>'+esc(x.actor||'SYSTEM')+'</td><td>'+esc(x.ipAddress||'-')+'</td><td class="detail-cell" title="'+esc(x.detail||'-')+'">'+esc(x.detail||'-')+'</td><td><button class="icon-action-btn view" data-audit-id="'+x.id+'"><i class="bi bi-eye"></i></button></td></tr>').join(''):'<tr><td colspan="8" class="table-empty">No audit records found.</td></tr>';$('auditRows').dataset.rows=JSON.stringify(rows);const from=d.numberOfElements?d.number*size+1:0,to=d.number*size+(d.numberOfElements||0);$('auditShowing').textContent='Showing '+from+' to '+to+' of '+(d.totalElements||0)+' entries';pager('auditPager',d.number||0,d.totalPages||0,p=>{state.auditPage=p;loadAudit();});}catch(e){$('auditRows').innerHTML='<tr><td colspan="8" class="table-empty">'+esc(e.message)+'</td></tr>';}}
-$('auditPageSize').onchange=()=>{state.auditPage=0;loadAudit();};$('searchAudit').onclick=()=>{state.auditPage=0;loadAudit();};$('refreshAudit').onclick=loadAudit;
+/* The audit filters are pickers now. The endpoint matches exactly and says nothing when it
+   matches nothing, so a typed value that was nearly right came back as an empty table with no
+   hint why (placeholder offered "PROMOTION / REBATE_RULE"). The options are the values this feed
+   actually carries, collected as pages load rather than guessed: it is the shared admin operation
+   log, so its vocabulary keeps growing (MANUAL_REBATE_APPROVAL and ADMIN_OPERATION on one page).
+   "All …" is the unfiltered query, and a value already picked stays listed after a reload even
+   when the filtered page no longer contains it. reports.js re-syncs the visible button/menu from
+   the select's own MutationObserver, so rewriting the options is enough to keep the control in
+   step - no BOSelectSync call needed. */
+const auditFacets={entityType:new Set(),action:new Set(),actor:new Set()};
+function fillAuditFacet(id,key,allLabel,rows){
+  const el=$(id);if(!el)return;
+  const picked=el.value;   /* read BEFORE any rewrite: setting innerHTML resets the selection */
+  (rows||[]).forEach(x=>{if(x[key])auditFacets[key].add(String(x[key]));});
+  const values=Array.from(auditFacets[key]).sort((a,b)=>a.localeCompare(b));
+  const stamp=allLabel+'|'+values.join(', ');
+  if(el.dataset.boFacets!==stamp){
+    el.innerHTML='<option value="">'+esc(allLabel)+'</option>'+values.map(v=>'<option value="'+esc(v)+'">'+esc(v)+'</option>').join('');
+    el.dataset.boFacets=stamp;
+  }
+  el.value=picked;
+  if(el.value!==picked)el.value='';
+}
+function fillAuditFacets(rows){
+  fillAuditFacet('auditEntity','entityType','All Entities',rows);
+  fillAuditFacet('auditAction','action','All Actions',rows);
+  fillAuditFacet('auditActor','actor','All Actors',rows);
+}
+['auditEntity','auditAction','auditActor'].forEach(id=>{const el=$(id);if(el)el.addEventListener('change',()=>{state.auditPage=0;loadAudit();});});
+
+async function loadAudit(){const size=pageSize('auditPageSize'),q=new URLSearchParams({page:state.auditPage,size});if($('auditEntity').value.trim())q.set('entityType',$('auditEntity').value.trim());if($('auditAction').value.trim())q.set('action',$('auditAction').value.trim());if($('auditActor').value.trim())q.set('actor',$('auditActor').value.trim());try{const d=await request(base+'/api/admin/rebate/audit?'+q)||{},rows=d.content||[];fillAuditFacets(rows);state.auditLast=Math.max(0,(d.totalPages||0)-1);$('auditRows').innerHTML=rows.length?rows.map(x=>'<tr><td>'+dateCell(x.createdAt)+'</td><td><div class="table-primary">'+esc(x.entityType||'-')+'</div></td><td>'+esc(x.entityId||'-')+'</td><td>'+statusBadge(x.action||'-')+'</td><td>'+esc(x.actor||'SYSTEM')+'</td><td>'+esc(x.ipAddress||'-')+'</td><td class="detail-cell" title="'+esc(x.detail||'-')+'">'+esc(x.detail||'-')+'</td><td><button class="icon-action-btn view" data-audit-id="'+x.id+'"><i class="bi bi-eye"></i></button></td></tr>').join(''):'<tr><td colspan="8" class="table-empty">No audit records found.</td></tr>';$('auditRows').dataset.rows=JSON.stringify(rows);const from=d.numberOfElements?d.number*size+1:0,to=d.number*size+(d.numberOfElements||0);$('auditShowing').textContent='Showing '+from+' to '+to+' of '+(d.totalElements||0)+' entries';pager('auditPager',d.number||0,d.totalPages||0,p=>{state.auditPage=p;loadAudit();});}catch(e){$('auditRows').innerHTML='<tr><td colspan="8" class="table-empty">'+esc(e.message)+'</td></tr>';}}
+$('auditPageSize').onchange=()=>{state.auditPage=0;loadAudit();};/* No Search button: the pickers apply themselves, the way every other filter row in the BO does. The guard keeps the legacy twin page (daily-rebate-setting.html), which still has one, working. */const searchAuditBtn=$('searchAudit');if(searchAuditBtn)searchAuditBtn.onclick=()=>{state.auditPage=0;loadAudit();};$('refreshAudit').onclick=loadAudit;
 $('auditRows').onclick=e=>{const b=e.target.closest('[data-audit-id]');if(!b)return;const rows=JSON.parse($('auditRows').dataset.rows||'[]'),x=rows.find(r=>String(r.id)===b.dataset.auditId);if(!x)return;$('auditDetailContent').innerHTML='<dl><dt>Date</dt><dd>'+date(x.createdAt)+'</dd><dt>Entity</dt><dd>'+esc(x.entityType)+' #'+esc(x.entityId)+'</dd><dt>Action</dt><dd>'+esc(x.action)+'</dd><dt>Actor / IP</dt><dd>'+esc(x.actor||'SYSTEM')+' / '+esc(x.ipAddress||'-')+'</dd><dt>Detail</dt><dd>'+esc(x.detail||'-')+'</dd></dl><h5>Before</h5><pre>'+esc(formatJson(x.beforeJson))+'</pre><h5>After</h5><pre>'+esc(formatJson(x.afterJson))+'</pre>';setModal('auditDetailModal',true);};
 function formatJson(v){if(!v)return'-';try{return JSON.stringify(JSON.parse(v),null,2);}catch(e){return String(v);}}
 $('closeAuditDetail').onclick=$('closeAuditDetailBottom').onclick=()=>setModal('auditDetailModal',false);

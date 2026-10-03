@@ -17,8 +17,10 @@ html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page .rebat
 /* A stacking context of its own so an open dropdown paints over the workbench card below it: the
    Weekly "Day" menu is 7 options tall and reached into the table, where `tbody#rebateRows` won
    the hit test (the menu's own z-index:3000 only competes inside this context; the chrome card
-   is a later sibling of the schedule card). */
-.rebate-page .rebate-worker-card.rebate-schedule{border-radius:12px;position:relative;z-index:2}
+   is a later sibling of the schedule card). It has to sit ABOVE the chrome bar (z-index:3, which
+   the Audit pickers' own menus need so they clear the table): at 2 the bar band covered the
+   Daily card's Status menu instead - measured, "Disabled" was under the tab row. */
+.rebate-page .rebate-worker-card.rebate-schedule{border-radius:12px;position:relative;z-index:4}
 .rebate-schedule-bar{
   display:flex;align-items:center;gap:12px;
   padding:10px 14px;min-height:56px;

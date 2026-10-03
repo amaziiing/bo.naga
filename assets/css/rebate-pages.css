@@ -513,6 +513,38 @@ html body.report-body.bo-charcoal .rebate-audit-filter .rounded-select-wrap > .r
 html body.report-body.bo-charcoal .rebate-audit-filter .rounded-select-wrap > .rounded-select-btn:focus{
   outline:none!important;border-color:#D97706!important;box-shadow:0 0 0 3px rgba(217,119,6,.14)!important;
 }
+/* The menu the pickers open. Deliberately not the `.bo-filter-row` recipe: that marker is what
+   makes bo-ui-standard.js size them, and it arrives with `.report-main .bo-filter-row{display:flex
+   !important}` — which beats the `hidden` attribute and put these three on every tab. The page
+   sizes them itself (rebate-management.js) and states their look here. */
+html body.report-body.bo-charcoal .rebate-audit-filter .rounded-select-menu{
+  left:0!important;right:auto!important;top:calc(100% + 6px)!important;
+  padding:6px!important;border:1px solid #EADCC8!important;border-radius:8px!important;
+  background:#FFF8EB!important;box-shadow:0 12px 28px rgba(92,74,48,.12)!important;
+  max-height:min(260px,50vh)!important;overflow-x:hidden!important;overflow-y:auto!important;box-sizing:border-box!important;
+}
+html body.report-body.bo-charcoal .rebate-audit-filter .rounded-select-option{
+  display:flex!important;align-items:center!important;
+  width:100%!important;min-height:34px!important;padding:6px 10px!important;margin:0!important;
+  border-radius:8px!important;text-align:left!important;
+  font-size:12px!important;font-weight:700!important;line-height:1.2!important;
+  background:transparent!important;color:#18191C!important;cursor:pointer!important;
+  overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;
+}
+html body.report-body.bo-charcoal .rebate-audit-filter .rounded-select-option:hover,
+html body.report-body.bo-charcoal .rebate-audit-filter .rounded-select-option.active,
+html body.report-body.bo-charcoal .rebate-audit-filter .rounded-select-option.is-active{
+  background:rgba(217,119,6,.12)!important;color:#B45309!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal .rebate-audit-filter .rounded-select-menu{
+  background:#383A46!important;border-color:rgba(255,255,255,.14)!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal .rebate-audit-filter .rounded-select-option{color:#E7E5E4!important}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal .rebate-audit-filter .rounded-select-option:hover,
+html[data-bo-theme="dark"] body.report-body.bo-charcoal .rebate-audit-filter .rounded-select-option.active,
+html[data-bo-theme="dark"] body.report-body.bo-charcoal .rebate-audit-filter .rounded-select-option.is-active{
+  background:rgba(245,158,11,.14)!important;color:#FBBF24!important;
+}
 html[data-bo-theme="dark"] body.report-body.bo-charcoal .rebate-audit-filter .rounded-select-wrap > .rounded-select-btn{
   background:#2A2C36!important;background-color:#2A2C36!important;background-image:none!important;
   border-color:rgba(255,255,255,.12)!important;color:#F5F5F4!important;
@@ -536,7 +568,11 @@ html body.report-body.bo-charcoal .rebate-chrome-actions .rebate-audit-filter{
   display:inline-flex;align-items:center;flex:0 0 auto;min-width:0;
 }
 html body.report-body.bo-charcoal .rebate-chrome-actions .rebate-audit-filter .rounded-select-wrap{
-  width:auto;min-width:0;max-width:none;margin-top:0;
+  /* 100% of the label, never `auto`: the label's width is set to widest-option + 54px (see
+     rebate-management.js), and reports.js sizes the opened menu from the BUTTON's box - with an
+     auto wrapper the button shrank to the current label's text (measured 83px inside a 112px
+     label) and every longer option came out cut in the menu. */
+  width:100%;min-width:0;max-width:100%;margin-top:0;
 }
 .audit-filters{grid-template-columns:repeat(3,minmax(180px,1fr)) auto}
 .standard-filter-grid .clean-btn:hover{transform:none}

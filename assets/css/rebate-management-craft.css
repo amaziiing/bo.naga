@@ -353,6 +353,12 @@ html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page .rebat
 .rebate-chrome-action-set{
   display:none;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;
 }
+/* `!important` on the hidden state, because this row also carries `audit-filters`: that marker
+   is what makes bo-ui-standard.js size the Audit pickers, and it brings
+   `.report-main .bo-filter-row{display:flex!important}` with it - an author `display` beats the
+   `hidden` attribute's UA `display:none`, so the three pickers appeared on Rules, Batches and
+   Reconciliation too. The tab logic (switchTab) sets `hidden`, so that is the state to trust. */
+.rebate-chrome-action-set[hidden]{display:none!important}
 .rebate-chrome-action-set.is-active{display:inline-flex}
 .rebate-page .rebate-chrome .rebate-tab-panel{display:none;min-width:0}
 .rebate-page .rebate-chrome .rebate-tab-panel.active{
@@ -437,6 +443,19 @@ html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page .rebat
   overflow-x:auto;overflow-y:hidden;
 }
 
+/* Prose columns wrap instead of ellipsizing. The identifiers beside them (ENTITY, ACTION, IP on
+   Audit; PROVIDER, STATUS on Reconciliation) need their width to be readable at all, and the
+   detail sentence is the one cell whose full text matters more than a uniform row height - it was
+   the only column with room to give. `overflow-wrap:anywhere` is for the long single tokens the
+   feed carries (UPDATE_GAME_CATEGORY), which would otherwise overflow the cell. */
+.rebate-page [data-panel="audit"] .standard-data-table tbody td.detail-cell,
+.rebate-page [data-panel="reconciliation"] .standard-data-table tbody td.detail-cell{
+  white-space:normal!important;overflow-wrap:anywhere!important;vertical-align:middle!important;
+}
+.rebate-page [data-panel="audit"] .standard-data-table tbody td.detail-cell::selection{
+  background:transparent!important;color:inherit!important;
+}
+
 /* Table body scroll — tbody fills leftover height and scrolls */
 .rebate-panel .standard-data-table{
   display:flex;flex-direction:column;
@@ -502,42 +521,45 @@ html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.rebate-page .rebat
 /* Audit and Reconciliation carried no column sync at all, so with `table-layout:fixed` every
    column took an equal share of the panel: DETAIL (a sentence) got the same 125px as MEMBER and
    the two EXPECTED headers truncated into "EXPECTED BO...". Same nth-child recipe as
-   rules/batches above - the date is 8 characters now, the sentence column gets the rest. */
+   rules/batches above. The Audit widths are the ones its own content needs, measured on the live
+   vocabulary: ENTITY 190 for MANUAL_REBATE_APPROVAL, ACTION 248 for the UPDATE GAME CATEGORY pill,
+   IP 132, VIEW 84. The prose DETAIL column ellipsizes and carries its full text in a title, the
+   way every long-text cell in this back office does. */
 .rebate-page [data-panel="reconciliation"] .standard-data-table{min-width:1140px}
 .rebate-page [data-panel="reconciliation"] .standard-data-table thead th:nth-child(1),
 .rebate-page [data-panel="reconciliation"] .standard-data-table tbody td:nth-child(1){width:120px}
 .rebate-page [data-panel="reconciliation"] .standard-data-table thead th:nth-child(2),
-.rebate-page [data-panel="reconciliation"] .standard-data-table tbody td:nth-child(2){width:80px}
+.rebate-page [data-panel="reconciliation"] .standard-data-table tbody td:nth-child(2){width:76px}
 .rebate-page [data-panel="reconciliation"] .standard-data-table thead th:nth-child(3),
-.rebate-page [data-panel="reconciliation"] .standard-data-table tbody td:nth-child(3){width:80px}
+.rebate-page [data-panel="reconciliation"] .standard-data-table tbody td:nth-child(3){width:76px}
 .rebate-page [data-panel="reconciliation"] .standard-data-table thead th:nth-child(4),
-.rebate-page [data-panel="reconciliation"] .standard-data-table tbody td:nth-child(4){width:132px}
+.rebate-page [data-panel="reconciliation"] .standard-data-table tbody td:nth-child(4){width:142px}
 .rebate-page [data-panel="reconciliation"] .standard-data-table thead th:nth-child(5),
-.rebate-page [data-panel="reconciliation"] .standard-data-table tbody td:nth-child(5){width:124px}
+.rebate-page [data-panel="reconciliation"] .standard-data-table tbody td:nth-child(5){width:130px}
 .rebate-page [data-panel="reconciliation"] .standard-data-table thead th:nth-child(6),
-.rebate-page [data-panel="reconciliation"] .standard-data-table tbody td:nth-child(6){width:132px}
+.rebate-page [data-panel="reconciliation"] .standard-data-table tbody td:nth-child(6){width:158px}
 .rebate-page [data-panel="reconciliation"] .standard-data-table thead th:nth-child(7),
-.rebate-page [data-panel="reconciliation"] .standard-data-table tbody td:nth-child(7){width:96px}
+.rebate-page [data-panel="reconciliation"] .standard-data-table tbody td:nth-child(7){width:88px}
 .rebate-page [data-panel="reconciliation"] .standard-data-table thead th:nth-child(8),
-.rebate-page [data-panel="reconciliation"] .standard-data-table tbody td:nth-child(8){width:116px}
+.rebate-page [data-panel="reconciliation"] .standard-data-table tbody td:nth-child(8){width:122px}
 .rebate-page [data-panel="reconciliation"] .standard-data-table thead th:nth-child(9),
-.rebate-page [data-panel="reconciliation"] .standard-data-table tbody td:nth-child(9){width:128px}
+.rebate-page [data-panel="reconciliation"] .standard-data-table tbody td:nth-child(9){width:152px}
 
 .rebate-page [data-panel="audit"] .standard-data-table{min-width:1080px}
 .rebate-page [data-panel="audit"] .standard-data-table thead th:nth-child(1),
 .rebate-page [data-panel="audit"] .standard-data-table tbody td:nth-child(1){width:120px}
 .rebate-page [data-panel="audit"] .standard-data-table thead th:nth-child(2),
-.rebate-page [data-panel="audit"] .standard-data-table tbody td:nth-child(2){width:150px}
+.rebate-page [data-panel="audit"] .standard-data-table tbody td:nth-child(2){width:216px}
 .rebate-page [data-panel="audit"] .standard-data-table thead th:nth-child(3),
 .rebate-page [data-panel="audit"] .standard-data-table tbody td:nth-child(3){width:72px}
 .rebate-page [data-panel="audit"] .standard-data-table thead th:nth-child(4),
-.rebate-page [data-panel="audit"] .standard-data-table tbody td:nth-child(4){width:128px}
+.rebate-page [data-panel="audit"] .standard-data-table tbody td:nth-child(4){width:272px}
 .rebate-page [data-panel="audit"] .standard-data-table thead th:nth-child(5),
-.rebate-page [data-panel="audit"] .standard-data-table tbody td:nth-child(5){width:120px}
+.rebate-page [data-panel="audit"] .standard-data-table tbody td:nth-child(5){width:112px}
 .rebate-page [data-panel="audit"] .standard-data-table thead th:nth-child(6),
-.rebate-page [data-panel="audit"] .standard-data-table tbody td:nth-child(6){width:116px}
+.rebate-page [data-panel="audit"] .standard-data-table tbody td:nth-child(6){width:150px}
 .rebate-page [data-panel="audit"] .standard-data-table thead th:nth-child(8),
-.rebate-page [data-panel="audit"] .standard-data-table tbody td:nth-child(8){width:80px}
+.rebate-page [data-panel="audit"] .standard-data-table tbody td:nth-child(8){width:88px}
 .rebate-panel .standard-data-table tbody::-webkit-scrollbar{
   width:6px!important;height:6px!important;background:transparent!important;
 }

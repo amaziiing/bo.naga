@@ -405,6 +405,15 @@ const API_CUSTOMIZE_MAIN_LAYOUT_URL =
     // when no custom section has been saved yet. CSS and JS intentionally stay empty,
     // so the frontend continues using assets/css/style.css and its existing shell logic.
     const DEFAULT_SECTION_HTML = {
+        'home-referral-panel': `<section class="tx-referral-card" aria-label="Referrer Bonus">
+        <div class="tx-referral-heading"><img class="promo-img" src="assets/custom/images/referral.png" alt="Referrer Bonus" decoding="async" loading="eager"></div>
+        <div class="action-grid">
+          <button class="image-action-btn share-trigger" type="button"><img class="copy-image" src="assets/custom/images/share.png" alt="Share" decoding="async" loading="eager"></button>
+          <a class="image-action-btn" href="downline.html"><img class="copy-image" src="assets/custom/images/downline.png" alt="Downline" decoding="async" loading="eager"></a>
+          <button class="image-action-btn copy-trigger" type="button"><img class="copy-image" src="assets/custom/images/copylink.png" alt="Copy Link" decoding="async" loading="eager"></button>
+        </div>
+        <div class="dynamic-social-image-links" data-social-links hidden></div>
+      </section>`,
         'live-transaction': `<section class="live-transaction-widget" data-live-transaction-widget hidden aria-live="polite">
   <div class="live-transaction-title"><span>LIVE TRANSACTION</span><b>LIVE <i></i></b></div>
   <div class="live-transaction-table">
@@ -478,6 +487,22 @@ const API_CUSTOMIZE_MAIN_LAYOUT_URL =
     };
 
     const DEFAULT_SECTION_CSS = {
+        'home-referral-panel': `/* Referral card: BO-managed image assets and API-managed social links. */
+.left-sidebar .tx-referral-card,.mobile-bottom-area .tx-referral-card{box-sizing:border-box;width:100%;padding:14px;border-radius:18px;background:linear-gradient(135deg,#edfaff,#c7e9fa);box-shadow:0 5px 18px #265c8420;display:flex;flex-direction:column;gap:10px;overflow:hidden}
+.tx-referral-card .tx-referral-heading{width:100%;border-radius:13px;overflow:hidden;background:linear-gradient(110deg,#fff,#b9e5fc)}
+.tx-referral-card .tx-referral-heading .promo-img{display:block!important;width:100%!important;height:auto!important;max-width:100%!important;margin:0!important;object-fit:contain!important;border:0!important}
+.tx-referral-card .action-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;width:100%!important;margin:0!important;padding:0!important}
+.tx-referral-card .action-grid>.image-action-btn{box-sizing:border-box!important;min-width:0!important;width:100%!important;min-height:42px!important;height:auto!important;display:flex!important;align-items:center;justify-content:center;background:linear-gradient(#fff,#f4fbff)!important;border:1px solid #a9d7eb!important;border-radius:9px!important;box-shadow:0 2px 4px #164a6c1a!important;padding:5px!important}
+.tx-referral-card .action-grid>.image-action-btn:nth-child(3){grid-column:1/-1}
+.tx-referral-card .action-grid>.image-action-btn img{display:block!important;max-width:100%!important;width:auto!important;height:auto!important;max-height:34px!important;object-fit:contain!important;margin:auto!important}
+.tx-referral-card .dynamic-social-image-links{display:flex!important;flex-direction:column!important;gap:8px!important;width:100%!important;margin:0!important;padding:0!important}
+.tx-referral-card .dynamic-social-image-links[hidden]{display:none!important}
+.tx-referral-card .tx-social-row{box-sizing:border-box;display:flex!important;align-items:center;gap:10px;width:100%!important;min-height:46px;padding:7px 12px;background:linear-gradient(#fff,#f8fcff);border:1px solid #a9d7eb;border-radius:9px;box-shadow:0 2px 4px #164a6c1a;text-decoration:none;color:#123d70;font-size:14px;font-weight:800}
+.tx-referral-card .tx-social-icon{width:26px;height:26px;flex:0 0 26px;display:flex;align-items:center;justify-content:center}
+.tx-referral-card .tx-social-icon img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain}
+.tx-referral-card .tx-social-title{flex:1;min-width:0;overflow-wrap:anywhere}
+.tx-referral-card .tx-social-arrow{font-size:25px;font-weight:400;color:#1887c3;line-height:1}
+`,
         'live-transaction': `.live-transaction-widget{width:100%;margin:12px 0 14px;font-family:Arial,sans-serif;color:#071f55;background:#f7f9fc;border-radius:7px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.12)}
 .live-transaction-widget[hidden]{display:none!important}
 .live-transaction-title{height:30px;display:flex;align-items:center;justify-content:space-between;padding:0 5px;background:#eef2f8;color:#0647aa;font-size:12px;font-weight:900;letter-spacing:.1px}

@@ -29,6 +29,17 @@
  const overrideByCode=new Map();
  const enabledCurrencies=new Set(['MYR']);
  const listFilterCurrencies=new Set();
+ const currencyListStorageKey='bo.merchant.currency.list.v1';
+ function saveListCurrencySelection(){
+  try{localStorage.setItem(currencyListStorageKey,JSON.stringify([...listFilterCurrencies]));}catch(e){}
+ }
+ function restoreListCurrencySelection(){
+  try{
+   const saved=JSON.parse(localStorage.getItem(currencyListStorageKey)||'null');
+   if(Array.isArray(saved)) saved.forEach(code=>{const normalized=normalizeCurrencyCode(code);if(normalized)listFilterCurrencies.add(normalized);});
+  }catch(e){}
+ }
+ restoreListCurrencySelection();
  let currencyModalContext='edit';
  const currencyModalDraft=new Set(['MYR']);
  const currencyModalSelected=new Set();
@@ -826,7 +837,7 @@
   const alreadyAdded=!alreadyAvailable && activeCurrencyRows().some(x=>String(x.currencyCode||'').toUpperCase()===typedCode);
   if(alreadyAdded){ setCurrencyModalStatus(typedCode+' is already in Added. Move it to Available for the dropdown.', 'error'); input?.focus(); return; }
   ensureCurrencyOption(typedCode, currencyRowByCode(typedCode)?.displayName || typedCode);
-  // Typed Add always lands in Added (left). Move right to Available to include in dropdown.
+  // Newly typed codes appear in Added; move them right before applying.
   currencyModalDraft.delete(typedCode);
   currencyModalSelected.clear();
   currencyModalSelected.add(typedCode+'|added');
@@ -888,6 +899,7 @@
     listFilterCurrencies.add(key);
    });
    if(!listFilterCurrencies.size) listFilterCurrencies.add('MYR');
+   saveListCurrencySelection();
    syncFilterOptions();
    apply();
    closeCurrencyModal();

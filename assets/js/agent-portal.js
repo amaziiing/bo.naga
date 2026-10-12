@@ -2,8 +2,6 @@
 const $=id=>document.getElementById(id),base=()=>API_CONFIG.BASE_URL,token=()=>localStorage.getItem('agent_token')||'',esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),money=v=>Number(v||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}),num=v=>Number(v||0).toLocaleString();
 async function api(path,opt={}){opt.headers=Object.assign({},opt.headers||{},token()?{Authorization:'Bearer '+token()}:{});const r=await fetch(base()+path,opt),j=await r.json().catch(()=>({}));if(!r.ok||j.status==='error')throw Error(j.message||'Request failed');return j.data??j;}
 const dialog={alert:(m,o)=>window.BO_DIALOG?BO_DIALOG.alert(m,o):Promise.resolve(alert(m)),confirm:(m,o)=>window.BO_DIALOG?BO_DIALOG.confirm(m,o):Promise.resolve(confirm(m))};
-const loginForm=$('agentLoginForm');if(loginForm){loginForm.onsubmit=async e=>{e.preventDefault();const msg=$('agentLoginMsg');msg.textContent='Signing in...';msg.className='upload-status';try{const r=await fetch(base()+'/agent/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:$('agentLoginUser').value,password:$('agentLoginPass').value})}),j=await r.json().catch(()=>({}));if(!r.ok||j.status==='error'||!j.token)throw Error(j.message||'Login failed');localStorage.setItem('agent_token',j.token);const menus=j.data?.portalMenuKeys||['dashboard'];location.href=landingFor(menus);}catch(x){msg.textContent=x.message;msg.className='upload-status error';}};return;}
-const page=document.body.dataset.agentPage;if(!page)return;if(!token()){location.href='agent-login.html';return;}
 const MENU=[['dashboard','Dashboard','bi-grid','agent-dashboard.html'],['products','Products','bi-box-seam','agent-products.html'],['reports','Reports','bi-graph-up-arrow','agent-bet-report.html'],['bonus','Promotion','bi-megaphone','agent-bonus.html']];
 const UTILITY=new Set(['profile','password']);
 /* Pages the portal no longer carries because they exist only to show customers. A menu key that
@@ -14,6 +12,14 @@ const PERM_ALIAS={products:'bet_report',provider_detail:'bet_report',reports:'be
 function permissionKey(k){return PERM_ALIAS[k]||k}
 function menuHref(k){const row=MENU.find(x=>x[0]===k);if(row)return row[3];if(k==='bet_report')return 'agent-bet-report.html';if(k==='settlement')return 'agent-withdraw.html';if(k==='wallet')return 'agent-wallet.html';return 'agent-dashboard.html'}
 function landingFor(keys){for(const k of (keys||[])){const h=menuHref(k);if(h!=='agent-dashboard.html'||k==='dashboard')return h}return 'agent-profile.html'}
+/* Login page: bound BELOW MENU/menuHref/landingFor on purpose, and ABOVE the data-agent-page guard.
+   agent-login.html declares no data-agent-page, so it never gets past that guard - a handler bound under it
+   is never installed at all. Bound above MENU instead (where it used to sit) it fires on submit and reaches
+   landingFor() -> menuHref() -> `const MENU`, which on this page was never initialized: every sign-in died
+   with "Cannot access 'MENU' before initialization", the token was stored, and the page never navigated.
+   Keep this block between the MENU declaration and the guard. */
+const loginForm=$('agentLoginForm');if(loginForm){loginForm.onsubmit=async e=>{e.preventDefault();const msg=$('agentLoginMsg');msg.textContent='Signing in...';msg.className='upload-status';try{const r=await fetch(base()+'/agent/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:$('agentLoginUser').value,password:$('agentLoginPass').value})}),j=await r.json().catch(()=>({}));if(!r.ok||j.status==='error'||!j.token)throw Error(j.message||'Login failed');localStorage.setItem('agent_token',j.token);const menus=j.data?.portalMenuKeys||['dashboard'];location.href=landingFor(menus);}catch(x){msg.textContent=x.message;msg.className='upload-status error';}};return;}
+const page=document.body.dataset.agentPage;if(!page)return;if(!token()){location.href='agent-login.html';return;}
 let profile=null,lastSettlementReport=null,playersCache=[],walletCache=[],settlementsCache=[];
 function initials(name){return String(name||'A').trim().split(/\s+/).map(x=>x[0]||'').join('').slice(0,2).toUpperCase()||'A'}
 function agentProfileHtml(){

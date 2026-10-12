@@ -521,6 +521,125 @@ html[data-bo-theme="dark"] .report-shell .report-main .report-topbar[data-bo-top
   display:none!important;
 }
 
+/* 2e. The rail's account card. The account block leaves the header and takes the "Backoffice"
+   title's place at the top of the rail, left of the rail toggle - where the Main panel keeps it
+   (main-sidebar-account.css: `[avatar] name / role`, avatar 34px radius 10 #D97706 carrying a 16px
+   white glyph, name 14px/800, role 11px/600 tracked). Owner: "bo右上角的名字和icon要跟main的一样",
+   then, pointing at the rail's own toggle, "位置不是在sidebar 的收起的按键的左边 与main的页面一样？".
+   The scope is every BO body (`body.report-body`), not `bo-charcoal`: the wallet theme's pages
+   (member-deposit, member-wallet, wallet-ledger, payment-method, bank-deposit-usage, bulk-adjustment
+   ...) carry `bo-wallet-tx` instead of `bo-charcoal` and are BO pages too - scoped to `bo-charcoal`
+   the audit showed the card arriving with reports.css's base avatar (30px circle) and the brand
+   row's own 15px/800 text. The extra `.report-sidebar` in every selector is what out-specifies the
+   chip's own unscoped numbers in bo-charcoal-shell.css (`body.report-body.bo-charcoal
+   .report-avatar` and the two text classes, 0,3,1 with !important), which were written for the
+   header's chip and still match the moved node.
+   The card takes the brand row's free space, which is what keeps the rail toggle in its right-hand
+   slot; collapsed it travels above Logout as the avatar alone, because reports.css hides every
+   `.report-brand > div:not(.logo)` at 72px. Colours stay this shell's own: the Main rail's name
+   colour (#6B360C) is tuned for that rail, not this one. */
+body.report-body .report-sidebar .bo-rail-account{
+  display:flex!important;
+  align-items:center!important;
+  min-width:0!important;
+  max-width:100%!important;
+  flex:1 1 auto!important;
+}
+body.report-body .report-sidebar .bo-rail-account .bo-account-link,
+body.report-body .report-sidebar .bo-rail-account .bo-account-link:hover,
+body.report-body .report-sidebar .bo-rail-account .bo-account-link:focus,
+body.report-body .report-sidebar .bo-rail-account .bo-account-link:focus-visible,
+body.report-body .report-sidebar .bo-rail-account .bo-account-link:active{
+  /* `display:flex` is load-bearing, not decoration: `order` below only applies to flex/grid items,
+     and outside the header's host the chip's own stylesheet does not set it - without this the link
+     is a block box, the two orders are ignored, and the block renders in DOM order (avatar on the
+     RIGHT, measured x=104 against the meta at x=14). */
+  display:flex!important;
+  flex-direction:row!important;
+  min-width:0!important;
+  height:auto!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  gap:10px!important;
+  align-items:center!important;
+  /* The rail's own link rules are `a` rules: without this the whole block inherits the rail's
+     decoration and colour instead of the chip's (owner's screenshot: "JK Master Admin" underlined). */
+  text-decoration:none!important;
+  color:inherit!important;
+}
+body.report-body .report-sidebar .bo-rail-account .bo-account-meta{
+  /* Stated here rather than inherited from the header's chip: that rule is scoped to the topbar
+     host, so in the rail the stack fell back to a row and the name and role sat side by side
+     (owner's screenshot). Everything the block needs is declared in this sheet. */
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:center!important;
+  gap:2px!important;
+  line-height:1.15!important;
+  order:2!important;
+  align-items:flex-start!important;
+  text-align:left!important;
+  /* The label can be longer than the slot ("Master Admin", "Brand Owner"): the stack has to be able
+     to shrink and ellipsize rather than spill under the avatar - measured cramped on a real
+     account whose role label is longer than the one the stub carries. */
+  min-width:0!important;
+  overflow:hidden!important;
+}
+body.report-body .report-sidebar .bo-rail-account .bo-account-link .report-avatar{
+  order:1!important;
+  width:34px!important;height:34px!important;min-width:34px!important;flex:0 0 34px!important;
+  border-radius:10px!important;
+  background:#D97706!important;
+  color:#FFFFFF!important;
+}
+body.report-body .report-sidebar .bo-rail-account .bo-account-link .report-avatar i,
+body.report-body .report-sidebar .bo-rail-account .bo-account-link .report-avatar::before{
+  font-size:16px!important;
+  color:#FFFFFF!important;
+}
+body.report-body .report-sidebar .bo-rail-account .bo-account-name{
+  max-width:100%!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  font-size:14px!important;
+  font-weight:800!important;
+  letter-spacing:0!important;
+  color:#18191C!important;
+}
+body.report-body .report-sidebar .bo-rail-account .bo-account-role{
+  max-width:100%!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  font-family:inherit!important;
+  font-size:11px!important;
+  font-weight:600!important;
+  letter-spacing:.02em!important;
+  color:#78716C!important;
+}
+html[data-bo-theme="dark"] body.report-body .report-sidebar .bo-rail-account .bo-account-name{
+  color:#F5F5F4!important;
+}
+html[data-bo-theme="dark"] body.report-body .report-sidebar .bo-rail-account .bo-account-role{
+  color:#D4D4D8!important;
+}
+
+/* Collapsed rail: the brand row is the toggle's alone, so the card sits above Logout as the avatar
+   only - the same two homes the Main panel's card has. */
+body.report-body.sidebar-mini .report-sidebar .bo-rail-account{
+  justify-content:center!important;
+  flex:0 0 auto!important;
+  padding:10px 0!important;
+}
+body.report-body.sidebar-mini .report-sidebar .bo-rail-account .bo-account-meta{
+  display:none!important;
+}
+body.report-body.sidebar-mini .report-sidebar .bo-rail-account .bo-account-link{
+  justify-content:center!important;
+}
+
 /* 2d. Counter icon slot: every counter carries a 1px outline in its own hue, and the
    fill is the same hue a step lighter. Only the wallet theme shipped the outline, so on
    the other pages the three icon squares looked flat - that is the "边框" difference.

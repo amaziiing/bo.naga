@@ -30,12 +30,6 @@
     if(!res.ok || json.status === 'error') throw new Error(json.message || 'Request failed');
     return json;
   }
-  function backToListFallback(){
-    const menus=(window.BO_AUTH&&BO_AUTH.allowedMenus?BO_AUTH.allowedMenus():[]).map(function(m){ return String((m&&m.url)||'').split('/').pop().split('?')[0].toLowerCase(); });
-    const qs=(LINK_FROM&&LINK_TO)?('?from='+encodeURIComponent(LINK_FROM)+'&to='+encodeURIComponent(LINK_TO)):'';
-    const boReport=menus.indexOf('casino-overview-report.html')!==-1||menus.indexOf('casino-provider-winloss-report.html')!==-1;
-    return (boReport?'casino-overview-report.html':'main-win-lose-report.html')+qs;
-  }
   function params(opts){
     const p = new URLSearchParams();
     const from = document.getElementById('casinoFrom')?.value || '';
@@ -67,7 +61,7 @@
      row that claims a different colspan tears the table apart. */
   const COLS = {
     crBreakdownBody: 12,
-    crProviderBody: 9,
+    crProviderBody: 10,
     crStatusBody: 14,
     crDepositStatusBody: 8,
     crWithdrawStatusBody: 8,
@@ -238,10 +232,25 @@
       <td class="${num(r.companyWinLoss)<0?'text-danger':'text-success'}"><b>${money(r.companyWinLoss)}</b></td>
     </tr>`), 'No data.');
   }
+  /* The eye leaves the list for one provider's transactions (casino-provider-transactions.html reads
+     `providerCode` plus a range from the URL). It carries the range the report is showing, not the
+     row's single day: the owner asked for "一个 provider 的所有流水交易", so every transaction that
+     provider had in the period on screen, alongside that page's totals for the same period. `back`
+     returns to this exact view, filters and all - the drill page builds its Back control from it. */
+  function providerDrillUrl(code){
+    const u = new URL('casino-provider-transactions.html', location.href);
+    u.searchParams.set('providerCode', String(code || '').trim().toUpperCase());
+    const from = (document.getElementById('casinoFrom') || {}).value || '';
+    const to = (document.getElementById('casinoTo') || {}).value || '';
+    if(from) u.searchParams.set('from', from);
+    if(to) u.searchParams.set('to', to);
+    u.searchParams.set('back', location.pathname + location.search);
+    return u.toString();
+  }
   function renderProvider(rows){
     rows = (rows || []).filter(function(r){ return hasAnyData(r, ['activeMembers','betCount','betAmount','validBetAmount','payout','memberWinLoss','companyWinLoss']); });
     if(LINK_PROVIDER) rows = rows.filter(function(r){ return String(r.providerCode || '').toUpperCase() === LINK_PROVIDER; });
-    mountRows('crProviderBody', rows.map(r=>`<tr><td><b>${esc(r.date || '-')}</b></td><td><b>${esc(r.providerCode)}</b></td><td>${whole(r.activeMembers)}</td><td>${whole(r.betCount)}</td><td>${money(r.betAmount)}</td><td>${money(r.validBetAmount)}</td><td>${money(r.payout)}</td><td class="${num(r.memberWinLoss)<0?'text-danger':'text-success'}">${money(r.memberWinLoss)}</td><td class="${num(r.companyWinLoss)<0?'text-danger':'text-success'}"><b>${money(r.companyWinLoss)}</b></td></tr>`), 'No provider bet records.');
+    mountRows('crProviderBody', rows.map(r=>`<tr><td><b>${esc(r.date || '-')}</b></td><td><b>${esc(r.providerCode)}</b></td><td>${whole(r.activeMembers)}</td><td>${whole(r.betCount)}</td><td>${money(r.betAmount)}</td><td>${money(r.validBetAmount)}</td><td>${money(r.payout)}</td><td class="${num(r.memberWinLoss)<0?'text-danger':'text-success'}">${money(r.memberWinLoss)}</td><td class="${num(r.companyWinLoss)<0?'text-danger':'text-success'}"><b>${money(r.companyWinLoss)}</b></td><td><a class="icon-action view icon-action-btn" href="${esc(providerDrillUrl(r.providerCode))}" title="View transactions" aria-label="View ${esc(r.providerCode)} transactions"><i class="bi bi-eye" aria-hidden="true"></i></a></td></tr>`), 'No provider bet records.');
   }
   /* The deposit/withdraw row set, in one place: the table below and the KPI strip above it have to
      agree on which rows count, so they share this list rather than each spelling it out. */
@@ -384,14 +393,19 @@
     // 全去除"). The date range auto-applies as soon as a complete range is chosen — see
     // autoLoadSelectedRange below — so the row needs no trigger at all.
 
-    /* `Back to list`. It is the page the link came from (`back`, sent by the Win/Lose merchant
-       page's provider rows); opened from a menu instead, it is the list that account actually
-       has - the BO report module's Overview, or the Main report workspace's Win/Lose list - so
-       the control is always there and never points at a page the account cannot open. Relative
+    /* `Back to list`, and only when the link came from somewhere: `back=<path+query>` is what the
+       Win/Lose merchant page's provider rows send (and what this report's own row action sends), and
+       it decides the target - one step back, with that page's own state. Opened from the module's tab
+       instead there is nothing to go back to, and the owner called the control out there:
+       "不对 为什么这个tab页面会有back to list?".
+       This reverses e290feef, which made it unconditional the other way round: an owner report of
+       "没有back to list 按键" on a drill-down URL from an older build (one without `back`), answered by
+       falling back to a page the account's menus hold. Every drill-down link sends `back` now, so that
+       fallback only ever fired on tab entries - the case the owner has since called wrong. Relative
        page targets only. */
     const backParam=LINK_PARAMS.get('back')||'';
-    const backTarget=/^\/?[a-z0-9._-]+\.html(\?|#|$)/i.test(backParam)?backParam:backToListFallback();
-    if(!document.querySelector('.bo-report-back')){
+    const backTarget=/^\/?[a-z0-9._-]+\.html(\?|#|$)/i.test(backParam)?backParam:'';
+    if(backTarget && !document.querySelector('.bo-report-back')){
       const row=document.querySelector('.report-main .bo-filter-row');
       if(row){
         const a=document.createElement('a');

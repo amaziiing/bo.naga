@@ -1,0 +1,23 @@
+/* Provider Transactions - the page the Provider Win/Loss report's row action opens
+   (casino-provider-transactions.html).
+
+   The provider name sits in the family's filter row, on the date pill's midline, at the size this
+   family uses for text in a row (the table cells and the pill are 13px; the name is one step up at
+   14px because it is the subject). No icon, no heading tier of its own.
+
+   Content only: the shell's own metrics stay in bo-shell.css, which is what
+   scripts/check-shell-drift.js enforces. The date control is bo-date-range.js's pill. */
+
+/* Centring the name on the pill's midline. The row (`.user-search-grid`) is `align-items:end`,
+   which put the name 11px below the pill's centre (measured), and bo-ui-standard.css states
+   `align-self:auto!important` on every filter-row child - so the declaration has to out-specify that
+   rule and carry `!important` itself, the same shape bo-charcoal-cms.css uses to centre a toolbar in
+   this row. */
+body.bo-report-family .report-main .bo-filter-row > .cpt-provider{align-self:center!important}
+.cpt-provider{display:flex;align-items:center;min-width:0}
+.cpt-provider b{
+  color:#18191C;font-size:14px;font-weight:800;line-height:1;
+  letter-spacing:0;white-space:nowrap
+}
+
+html[data-bo-theme="dark"] .cpt-provider b{color:#F5F5F4}

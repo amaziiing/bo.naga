@@ -29,6 +29,17 @@
  const overrideByCode=new Map();
  const enabledCurrencies=new Set(['MYR']);
  const listFilterCurrencies=new Set();
+ const currencyListStorageKey='bo.merchant.currency.list.v1';
+ function saveListCurrencySelection(){
+  try{localStorage.setItem(currencyListStorageKey,JSON.stringify([...listFilterCurrencies]));}catch(e){}
+ }
+ function restoreListCurrencySelection(){
+  try{
+   const saved=JSON.parse(localStorage.getItem(currencyListStorageKey)||'null');
+   if(Array.isArray(saved)) saved.forEach(code=>{const normalized=normalizeCurrencyCode(code);if(normalized)listFilterCurrencies.add(normalized);});
+  }catch(e){}
+ }
+ restoreListCurrencySelection();
  let currencyModalContext='edit';
  const currencyModalDraft=new Set(['MYR']);
  const currencyModalSelected=new Set();
@@ -364,7 +375,7 @@
   }
  }
  function ensureListCurrencyPool(){
-  if(listFilterCurrencies.size) return;
+  if(listFilterCurrencies.size){mergeSharedCurrencyCatalog();return;}
   rows.forEach(x=>{
    const code=normalizeCurrencyCode(x.currency||'MYR');
    if(code) listFilterCurrencies.add(code);
@@ -737,6 +748,18 @@
   currencyOptions.push({currencyCode:key,displayName:name||key,rateFromBase:1,decimalPlaces:2,status:1,_local:true});
   return key;
  }
+
+ const sharedCurrencyKey='bo.merchant.currency.list.v1';
+ function sharedCurrencyCodes(){
+  try{const raw=JSON.parse(localStorage.getItem(sharedCurrencyKey)||'null');return Array.isArray(raw)?[...new Set(raw.map(normalizeCurrencyCode).filter(Boolean))]:null;}catch(e){return null;}
+ }
+ function saveSharedCurrencyCodes(codes){
+  try{localStorage.setItem(sharedCurrencyKey,JSON.stringify([...new Set([...codes].map(normalizeCurrencyCode).filter(Boolean))]));}catch(e){}
+ }
+ function mergeSharedCurrencyCatalog(){
+  const shared=sharedCurrencyCodes();
+  if(shared) shared.forEach(code=>ensureCurrencyOption(code,code));
+ }
  function syncEnabledWithPrimary(){
   const primary=primaryCurrency();
   if(primary) enabledCurrencies.add(primary);
@@ -826,7 +849,7 @@
   const alreadyAdded=!alreadyAvailable && activeCurrencyRows().some(x=>String(x.currencyCode||'').toUpperCase()===typedCode);
   if(alreadyAdded){ setCurrencyModalStatus(typedCode+' is already in Added. Move it to Available for the dropdown.', 'error'); input?.focus(); return; }
   ensureCurrencyOption(typedCode, currencyRowByCode(typedCode)?.displayName || typedCode);
-  // Typed Add always lands in Added (left). Move right to Available to include in dropdown.
+  // Newly typed codes appear in Added; move them right before applying.
   currencyModalDraft.delete(typedCode);
   currencyModalSelected.clear();
   currencyModalSelected.add(typedCode+'|added');
@@ -888,6 +911,8 @@
     listFilterCurrencies.add(key);
    });
    if(!listFilterCurrencies.size) listFilterCurrencies.add('MYR');
+   saveListCurrencySelection();
+   saveSharedCurrencyCodes(listFilterCurrencies);
    syncFilterOptions();
    apply();
    closeCurrencyModal();
@@ -901,6 +926,7 @@
    ensureCurrencyOption(key, currencyRowByCode(key)?.displayName || key);
    enabledCurrencies.add(key);
   });
+  saveSharedCurrencyCodes(enabledCurrencies);
   renderCurrencyOptions(primaryCurrency());
   closeCurrencyModal();
  }
@@ -935,10 +961,12 @@
     const code=String(row.currencyCode||'').toUpperCase();
     if(code && !currencyOptions.some(x=>String(x.currencyCode||'').toUpperCase()===code)) currencyOptions.push(row);
    });
+   mergeSharedCurrencyCatalog();
    if(!enabledCurrencies.size) enabledCurrencies.add(String(d.baseCurrency||'MYR').toUpperCase());
    renderCurrencyOptions();
   }catch(e){
    currencyOptions=[{currencyCode:'MYR',displayName:'Malaysian Ringgit',rateFromBase:1,status:1}];
+   mergeSharedCurrencyCatalog();
    if(!enabledCurrencies.size){ enabledCurrencies.clear(); enabledCurrencies.add('MYR'); }
    renderCurrencyOptions();
   }

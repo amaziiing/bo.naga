@@ -53,6 +53,18 @@
   });
   return key;
  }
+
+ const sharedCurrencyKey='bo.merchant.currency.list.v1';
+ function sharedCurrencyCodes(){
+  try{const raw=JSON.parse(localStorage.getItem(sharedCurrencyKey)||'null');return Array.isArray(raw)?[...new Set(raw.map(normalizeCurrencyCode).filter(Boolean))]:null;}catch(e){return null;}
+ }
+ function saveSharedCurrencyCodes(codes){
+  try{localStorage.setItem(sharedCurrencyKey,JSON.stringify([...new Set([...codes].map(normalizeCurrencyCode).filter(Boolean))]));}catch(e){}
+ }
+ function mergeSharedCurrencyCatalog(){
+  const shared=sharedCurrencyCodes();
+  if(shared) shared.forEach(code=>ensureCurrencyOption(code,code));
+ }
  function syncEnabledWithPrimary(){
   const primary=primaryCurrency();
   if(primary) enabledCurrencies.add(primary);
@@ -195,6 +207,7 @@
    ensureCurrencyOption(key, currencyRowByCode(key)?.displayName || key);
    enabledCurrencies.add(key);
   });
+  saveSharedCurrencyCodes(enabledCurrencies);
   renderCurrencyOptions();
   closeCurrencyModal();
  }
@@ -236,9 +249,12 @@
       enabledCurrencies.clear();
       enabledCurrencies.add(base);
     }
+    mergeSharedCurrencyCatalog();
+    const shared=sharedCurrencyCodes();
+    if(shared&&shared.length){enabledCurrencies.clear();shared.forEach(code=>enabledCurrencies.add(code));}
     renderCurrencyOptions();
   }
-  catch(e){currencyOptions=[{currencyCode:'MYR',displayName:'Malaysian Ringgit',rateFromBase:1,status:1}];enabledCurrencies.clear();enabledCurrencies.add('MYR');renderCurrencyOptions();}
+  catch(e){currencyOptions=[{currencyCode:'MYR',displayName:'Malaysian Ringgit',rateFromBase:1,status:1}];enabledCurrencies.clear();enabledCurrencies.add('MYR');mergeSharedCurrencyCatalog();const shared=sharedCurrencyCodes();if(shared&&shared.length){enabledCurrencies.clear();shared.forEach(code=>enabledCurrencies.add(code));}renderCurrencyOptions();}
  }
  function syncCurrencyUnits(){
   const cur=primaryCurrency()||'—';

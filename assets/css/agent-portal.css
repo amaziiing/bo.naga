@@ -3103,3 +3103,132 @@ html:not(#bo-charcoal-off) body.report-body.agent-report-body.agent-modern .repo
 html:not(#bo-charcoal-off) body.report-body.agent-report-body.agent-modern .report-sidebar .report-nav .agent-nav-parent, html:not(#bo-charcoal-off) body.report-body.agent-report-body.agent-modern .report-sidebar .report-nav .agent-nav-parent:hover{border-radius:10px!important;}
 html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .report-sidebar .report-nav > a, html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .report-sidebar .report-nav > a span, html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .report-sidebar .report-nav .report-nav-item span, html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .report-sidebar .report-nav .agent-nav-parent, html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .report-sidebar .report-nav .agent-nav-parent span, html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .report-sidebar .report-nav .agent-nav-subitem, html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .report-sidebar .report-nav .agent-nav-subitem span, html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .report-sidebar .agent-sidebar-utils a span{letter-spacing:normal!important;}
 html body.report-body .report-shell .report-sidebar .report-nav > a, html body.report-body .report-shell .report-sidebar .report-nav > a span, html body.report-body .report-shell .report-sidebar .report-nav .nav-group-btn, html body.report-body .report-shell .report-sidebar .report-nav .nav-group-btn span, html body.report-body .report-shell .report-sidebar .report-nav .report-sub, html body.report-body .report-shell .report-sidebar .report-nav .report-sub span, html body.report-body .report-shell .report-sidebar .bo-sidebar-logout, html body.report-body .report-shell .report-sidebar .bo-sidebar-logout span{font-family:Inter, ui-sans-serif, "Segoe UI", system-ui, sans-serif!important;}
+/* Finance - Wallet, brought onto the language the other agent pages use (and that BO/Main show):
+   - the filter row carried visible field titles (Date Range / Type / Search) because the rule that hides them
+     lives in bo-filter-standard.css, which this page does not load;
+   - the card inside a card: `.table-card` draws the frame and `.table-wrap` drew a second one;
+   - the row's Reset and Search buttons are gone - the controls apply themselves, as everywhere else here. */
+html:not(#bo-charcoal-off) body[data-agent-page="finance"] .agent-filter-card .field > label{
+  display:none!important;
+}
+html:not(#bo-charcoal-off) body[data-agent-page="finance"] .filter-card .bo-filter-row,
+html:not(#bo-charcoal-off) body[data-agent-page="finance"] .filter-card .referral-filter-grid{
+  align-items:center!important;
+}
+html:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card > .table-wrap{
+  border:0!important;border-radius:0!important;
+}
+html:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card{
+  padding:0!important;
+}
+html:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card > .user-toolbar{
+  border:0!important;border-bottom:1px solid #EADCC8!important;border-radius:0!important;margin:0!important;
+  padding:12px 16px!important;
+}
+
+/* The card titles were cream pills (`.user-badge`, the BO's member-page badge) sitting inside a full-width
+   header band - a sticker in a band. As a plain icon + bold title on the band they match the strips the other
+   agent pages use and the BO's own card headings. Form labels inside the cards are untouched. */
+html:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card > .user-toolbar .user-badge{
+  background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;
+  padding:0!important;height:auto!important;min-height:0!important;
+  font-size:14px!important;font-weight:800!important;color:#18191C!important;gap:8px!important;
+}
+html:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card > .user-toolbar .user-badge i{
+  font-size:15px!important;color:#A9743F!important;
+}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card > .user-toolbar .user-badge{
+  color:#F5F5F4!important;
+}
+
+/* ------------------------------------------------------------------------------------------------
+   Finance - Wallet: a craft pass, scoped to this page so the shared components other pages use are not
+   touched. House palette and the shared sheets stay the source of truth; what changes is hierarchy,
+   density, states and number typography - the four things that read as "designed" or not.
+
+   Hierarchy   the metrics row holds one focal value (Available Balance) at 22px/600 with the label
+               demoted to 11px/500 muted; supporting cards sit a tier below it.
+   Numbers     every money figure gets tabular-nums so columns and counters do not shift.
+   States      table empty states get a calm centred treatment instead of a bare sentence; inputs get a
+               focus ring in the house amber; the primary action gets press feedback.
+   Density     4px base: 12px inside controls, 16px inside cards, 24px between blocks.
+   ------------------------------------------------------------------------------------------------ */
+
+/* 1. metrics: three tiers - label / value / note.
+   These carry the same chain as the rule they answer (agent-portal.css:1619, which renders the value in a <b> and
+   out-ranks a shorter selector) plus the page attribute, so the tiers actually land:
+     11px/500 muted label · 22px/600 tabular value (28px on the focal card) · 11px muted note. */
+html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-player-stat-card > div > span{
+  font-size:11px!important;font-weight:500!important;color:#78716C!important;letter-spacing:.02em!important;
+}
+html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-player-stat-card > div > b,
+html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-player-stat-card > div > strong,
+html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-player-stat-card strong{
+  font-size:22px!important;font-weight:600!important;color:#18191C!important;line-height:1.25!important;
+  font-variant-numeric:tabular-nums!important;letter-spacing:-.01em!important;
+}
+html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-player-stat-card > div > small{
+  font-size:11px!important;color:#A8A29E!important;font-weight:400!important;
+}
+html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-player-stat-card{
+  min-height:96px!important;padding:16px!important;gap:14px!important;
+}
+html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-player-stat-card:first-child{
+  min-height:112px!important;padding:18px 20px!important;
+}
+html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-player-stat-card:first-child > div > b,
+html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-player-stat-card:first-child > div > strong{
+  font-size:28px!important;letter-spacing:-.02em!important;
+}
+/* 2. money columns and any figure aligned to the right read as numbers, not text */
+html:not(#bo-charcoal-off) body[data-agent-page="finance"] .report-table td{
+  font-variant-numeric:tabular-nums!important;
+  padding-top:11px!important;padding-bottom:11px!important;
+}
+
+/* 3. empty states: centred, quiet, with room to breathe */
+html:not(#bo-charcoal-off) body[data-agent-page="finance"] .report-table td.table-empty{
+  height:150px!important;text-align:center!important;vertical-align:middle!important;
+  color:#78716C!important;font-size:13px!important;font-weight:400!important;background:transparent!important;
+}
+
+/* 4. form: the amount is the payload, so it reads as one control with the currency inside it */
+html:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card label,
+html:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card > div > label{
+  font-size:11px!important;font-weight:500!important;color:#78716C!important;letter-spacing:.02em!important;
+  margin-bottom:6px!important;
+}
+html:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card input[type="text"],
+html:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card input[type="number"],
+html:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card textarea,
+html:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card select{
+  font-variant-numeric:tabular-nums!important;font-size:13px!important;
+}
+html:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card input:focus,
+html:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card textarea:focus,
+html:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card select:focus{
+  outline:0!important;border-color:#D97706!important;
+  box-shadow:0 0 0 3px rgba(217,119,6,.14)!important;
+}
+
+/* 5. the single primary action: press feedback, nothing else animated */
+html:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card .btn-primary-clean,
+html:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card button[id*="Submit"],
+html:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card #agentReimburseSubmit{
+  transition:transform .12s cubic-bezier(.23,1,.32,1),background-color .12s ease!important;
+}
+html:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card .btn-primary-clean:active,
+html:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card button[id*="Submit"]:active,
+html:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card #agentReimburseSubmit:active{
+  transform:scale(.98)!important;
+}
+@media (prefers-reduced-motion: reduce){
+  html:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card button{transition:none!important}
+}
+
+/* The lower row held two panels side by side; the customer-facing one is gone, so the one that is
+   left takes the row instead of sitting in a half-empty column. Scoped to this page - the shell
+   metric rules belong to bo-shell.css, and `grid-template-columns` is not a shell metric anyway. */
+html:not(#bo-charcoal-off) body[data-agent-page="dashboard"].agent-report-body.agent-modern .agent-dashboard-lower{
+  grid-template-columns:1fr!important;
+}

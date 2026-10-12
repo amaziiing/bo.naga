@@ -8045,3 +8045,96 @@ are layout metrics the drift guard polices on shell selectors.
 Verified by rendering the collapsed rail: light computes `linear-gradient(135deg,#FFF8EF…)`, `#9A3412`, radius
 10px, the inset ring plus shadow and a 3px `#FBBF24 -> #D97706` bar; dark computes the `.20 -> .10` amber gradient
 with `#FBBF24` and the same bar. Screenshot: `.pi-tmp-wl-eye/mini-light.png`.
+
+
+### Finance - Wallet: the same language as the rest (2026-10)
+
+`agent-wallet.html` (runtime `data-agent-page="finance"`) was the last agent page still built its own way:
+
+- **the filter row showed its field titles** (Date Range / Type / Search, 13px each) because the rule hiding them
+  lives in `bo-filter-standard.css`, which no agent page loads. Titles hidden, so the row is one 66px line
+  (it measured 86px with them).
+- **it filtered through Reset / Search buttons.** Every other page here - and the owner's own instruction for the
+  Promotion page - has the controls apply themselves: selects and dates on `change`, the keyword after a 400ms
+  pause or on Enter, and clearing a control is the reset. The two buttons are gone and the wiring now matches.
+  Verified: 1 request on load, 1 per select change, 1 after the keyword pause.
+- **each card drew two frames** (`.table-card` plus the `.table-wrap` inside it, radius 8 inside radius 14). One
+  frame now, like the drill-down pages.
+- **the card titles were cream `.user-badge` pills** sitting on a full-width header band - a sticker in a band.
+  They are plain icon + bold title with a hairline under the band now, the shape the drill-down strips use. Form
+  labels inside the cards are untouched (they are a form, not a filter row).
+
+
+### Finance - Wallet craft pass (2026-10) - interface-design skill
+
+Applied the `interface-design` skill to this page (dashboards/admin panels is its scope). The working brief:
+
+    Domain      wallet, ledger, payout, commission, claim, receipt, deduction, settlement
+    Color world the house's own book-keeping palette - cream #FFF8EB, line #EADCC8, ink #18191C,
+                secondary #78716C, amber stamp #D97706 (all taken from the existing sheets, none invented)
+    Signature   the balance -> withdrawable -> fee -> payout relationship as one ledger equation
+    Rejecting   4 equal KPI cards -> a focal value with supporting metrics a tier below
+                a bare "no records" sentence -> a calm centred empty state
+                a flat stacked form -> the amount as the payload with one amber action
+    Direction   keep the house palette and the shared components; fix hierarchy, density, states and numbers
+
+What landed, all scoped to `body[data-agent-page="finance"]` so the shared components other pages use are untouched:
+
+- **metrics in three tiers**: label 11px/500 `#78716C` tracked, value 22px/600 ink with `tabular-nums`, note 11px
+  muted - and the focal card (Available Balance) at **28px** with more room, so the figure leads by size and space
+  rather than by colour. Measured: focal `11px/500 … 28px/600 … 11px/400`, supporting `11px/500 … 22px/600 …`.
+  The chain had to carry `agent-report-body.agent-modern` because agent-portal.css:1619 (which renders the value
+  in a `<b>`) out-ranks a shorter selector - and the value *is* a `<b>`, not a `<strong>`.
+- **numbers**: `font-variant-numeric: tabular-nums` on the metric values and every table cell, so figures and
+  columns stop shifting.
+- **states**: table empty states get a calm centred 150px treatment in the house muted colour (`#A8A29E` was a
+  3:1 wash); inputs and selects get a focus ring in the house amber; the primary action has press feedback
+  (`scale(.98)`, 120ms, `cubic-bezier(.23,1,.32,1)`) and nothing else animates. `prefers-reduced-motion` turns it
+  off.
+- **density**: 4px base, 12px inside controls, 16px inside cards, 24px between blocks; card titles are plain
+  icon + 14px/800 title with a hairline band; one frame per card.
+
+
+### Reports: no Player ID, no contact number (owner request)
+
+`agent-bet-report.html` no longer shows a Player ID column, and the player-name cell no longer carries its
+second line. That second line was `username` - for these accounts the `username` **is the contact number**
+(the phone), while `fullName` is the name, so the summary table shows one identity per player: the name. The
+empty state's colspan follows (9 -> 8). The same mistake sat in the game drill-down's headline, which used
+`d.player.username`; it now prefers `fullName`.
+
+The search hint became "Search player name..." because an ID the report does not display should not be what
+the hint advertises; the field label stays "Player" and the parameter is unchanged, so searching by ID still
+works.
+
+`report-table-sort.js` sorts by column index and reads alignment from the first body row, so dropping a
+column needs no change there.
+
+
+### Customer data out of the agent portal (owner rule)
+
+Owner: "在sidebar的 My Players可以去除了 因为有关客户的数据一律不能出现" then, choosing the scope, "清掉两处客户
+列表" + "客户页直连也挡掉".
+
+The rule is about **identifying** a customer, not about the agent's own numbers: an agent may see
+aggregates (12 players, RM 1,200 bet, player counts per provider) and the per-player figures of the report it
+is built around, but no customer ID, no contact number, and no list of customers.
+
+| Surface | What it showed | Now |
+| --- | --- | --- |
+| rail -> My Players | a customer listing page | the `players` row is out of `MENU` |
+| Dashboard -> Recent Player Activity | one row per customer, PLAYER = `username` (the phone) or `memberId` | panel removed; the aggregate Player Overview panel (Total / Active / New / Inactive) stays |
+| Dashboard -> Quick Access | a My Players tile | tile removed; 5 tiles remain |
+| Dashboard -> Player Overview "View All" | a door to the listing | link removed |
+| Products -> Action (eye) | opened the provider's customers | column removed (8 -> 7), button and binding gone |
+| Reports -> Provider Report -> Players | the count was a button into the customer list | plain count, button and binding gone |
+| Provider detail page | one row per customer, `username` | the table is removed; the page is retired |
+| Customer pages by URL | `agent-players.html`, `agent-player-detail.html`, `agent-provider-detail.html` opened if the account held the key | `RETIRED_PAGES` in the guard refuses the page itself and redirects |
+
+`landingFor(keys)` (see the previous entry) is what makes a retired key safe as a redirect target: it takes
+the first key that still resolves to a real page, and falls back to the profile when none does.
+
+Verified in headless Chrome: the dashboard renders Player Overview / Performance / Commission Trend /
+Recent Transactions / Quick Access - no customer panel, no `#agentRecentPlayers`, no link to a customer page
+anywhere in the portal; the Products table is 7 columns with no eye; the Provider Report's Players cell is a
+plain `12`; and each of the three retired URLs navigates exactly once, to a page the account may open.

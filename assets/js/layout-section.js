@@ -61,13 +61,39 @@ function isDark() {
   return document.documentElement.getAttribute('data-bo-theme') === 'dark';
 }
 
-/** Full-document scan via indexOf — does not depend on viewport DOM. */
-function collectMatches(state, query) {
+/* The counter is a position readout, not a report: "1/50001" is not information the user can act
+   on, and an uncapped list is what made the array itself, the index scan in currentMatchIndex() and
+   Next/Prev all grow with the document. Typing one letter into the 830KB CSS pane built 50k objects
+   per keystroke (measured, 16.8ms synchronous). The list is capped and the counter says so ("5000+"). */
+const MATCH_LIMIT = 5000;
+
+/* Lowercased copy of a document, cached on the Text object it came from. The find bar re-scanned
+   every pane on every run, and doc.toString() + toLowerCase() over ~800KB was a measurable slice of
+   each of those scans. A Text is immutable and replaced on every edit, so an entry can never be
+   stale - which is also why this is a plain Map with a small cap rather than a WeakMap: CodeMirror's
+   undo history keeps the old Text objects alive, so a WeakMap would retain one lowercased copy per
+   undo step (100 of them by default). Three panes, current revision, six entries is the whole
+   working set; overflow just means one more toLowerCase. */
+const LOWER_CACHE_MAX = 6;
+const lowerTextCache = new Map();
+function lowerText(doc) {
+  let text = lowerTextCache.get(doc);
+  if (text === undefined) {
+    text = doc.toString().toLowerCase();
+    if (lowerTextCache.size >= LOWER_CACHE_MAX) lowerTextCache.clear();
+    lowerTextCache.set(doc, text);
+  }
+  return text;
+}
+
+/** Full-document scan via indexOf — does not depend on viewport DOM. Sets `matches.capped`. */
+function collectMatches(state, query, limit) {
+  const cap = limit == null ? MATCH_LIMIT : limit;
   const matches = [];
   const needleRaw = query && query.search != null ? String(query.search) : '';
-  if (!needleRaw) return matches;
+  if (!needleRaw || cap <= 0) return matches;
   const caseSensitive = !!(query && query.caseSensitive);
-  const hay = caseSensitive ? state.doc.toString() : state.doc.toString().toLowerCase();
+  const hay = caseSensitive ? state.doc.toString() : lowerText(state.doc);
   const needle = caseSensitive ? needleRaw : needleRaw.toLowerCase();
   if (!needle) return matches;
   let from = 0;
@@ -76,7 +102,12 @@ function collectMatches(state, query) {
     if (at < 0) break;
     matches.push({ from: at, to: at + needleRaw.length });
     from = at + Math.max(1, needle.length);
-    if (matches.length > 50000) break;
+    if (matches.length >= cap) {
+      /* Truncated - but one more indexOf says whether "capped" is true or the document simply ended
+         exactly on the cap, so the counter never claims "+" it cannot back up. */
+      matches.capped = hay.indexOf(needle, from) >= 0;
+      return matches;
+    }
   }
   return matches;
 }
@@ -492,18 +523,35 @@ export function mountLayoutCodeEditors(textareas) {
     return [views.html, views.css, views.js].filter(Boolean);
   }
 
-  function setFindCount(current, total) {
+  /* The counter keeps the three spans the sheet styles (.layout-find-cur / -sep / -tot) and the
+     data-empty="1" + :empty contract that hides it. The markup used to be rebuilt with innerHTML on
+     every keystroke - a parse and three new elements per key; the spans are built once now and only
+     their text changes. `showZero` is the difference between "no query" (hidden) and "0/0", which
+     is how a query with no hits is meant to read. */
+  let findCountParts = null;
+  function setFindCount(current, total, capped, showZero) {
     if (!findCount) return;
-    if (!total && !current) {
-      findCount.innerHTML = '';
+    if (!total && !current && !showZero) {
+      findCountParts = null;
+      findCount.textContent = '';
       findCount.dataset.empty = '1';
       return;
     }
     findCount.dataset.empty = total ? '0' : '1';
-    findCount.innerHTML =
-      `<span class="layout-find-cur">${current}</span>` +
-      `<span class="layout-find-sep">/</span>` +
-      `<span class="layout-find-tot">${total}</span>`;
+    if (!findCountParts) {
+      const cur = document.createElement('span');
+      cur.className = 'layout-find-cur';
+      const sep = document.createElement('span');
+      sep.className = 'layout-find-sep';
+      sep.textContent = '/';
+      const tot = document.createElement('span');
+      tot.className = 'layout-find-tot';
+      findCount.textContent = '';
+      findCount.append(cur, sep, tot);
+      findCountParts = { cur, tot };
+    }
+    findCountParts.cur.textContent = String(current);
+    findCountParts.tot.textContent = capped ? `${total}+` : String(total);
   }
 
   function applyQueryToAll(q) {
@@ -512,27 +560,49 @@ export function mountLayoutCodeEditors(textareas) {
     });
   }
 
-  /** Collect matches across every editor pane. */
+  /** Collect matches across every editor pane, capped at MATCH_LIMIT overall. */
   function collectAllMatches(q) {
     const out = [];
     if (!q || !q.search) return out;
-    orderedViews().forEach((view) => {
-      collectMatches(view.state, q).forEach((m) => {
-        out.push({ view, from: m.from, to: m.to });
-      });
-    });
+    const views = orderedViews();
+    for (let i = 0; i < views.length; i += 1) {
+      const found = collectMatches(views[i].state, q, MATCH_LIMIT - out.length);
+      for (let j = 0; j < found.length; j += 1) {
+        out.push({ view: views[i], from: found[j].from, to: found[j].to });
+      }
+      if (found.capped || out.length >= MATCH_LIMIT) {
+        out.capped = true;
+        break;
+      }
+    }
     return out;
   }
 
+  /* Which match the bar is currently sitting on, remembered instead of re-derived from the carets.
+
+     Every pane keeps its own selection, and two matches in different panes can share offsets
+     ("alpha" at 23-28 in the CSS pane and 6-11 in the JS pane of the harness), so identifying the
+     current match by offsets alone resolved to a match in the WRONG pane. Measured on the shipped
+     code, typing "alpha" and pressing Next: 1/5 -> 2/5 -> 3/5 -> 4/5 -> 4/5 -> 4/5 -> 4/5, the CSS
+     pane's third match shadowing the JS pane's first one, so the fifth match was unreachable and
+     Prev from there skipped a match (4/5 -> 2/5). The remembered index is confirmed against the
+     match's own pane selection first, so an edit or a section reload between two presses cannot
+     leave Next pointing at a match that no longer exists. */
+  let findMatchIdx = -1;
+
   function currentMatchIndex(matches) {
     if (!matches.length) return -1;
+    if (findMatchIdx >= 0 && findMatchIdx < matches.length) {
+      const m = matches[findMatchIdx];
+      const sel = m.view.state.selection.main;
+      if (sel.from === m.from && sel.to === m.to) return findMatchIdx;
+    }
     for (let i = 0; i < matches.length; i += 1) {
       const m = matches[i];
       const sel = m.view.state.selection.main;
       if (sel.from === m.from && sel.to === m.to) return i;
-      if (sel.from >= m.from && sel.from < m.to) return i;
     }
-    /* Prefer continuing from last-focused pane */
+    /* Nothing of this bar's is selected - the caret moved by hand. Continue from it, in its pane. */
     const focusView = lastFocusedView || pickSearchView(document.activeElement);
     if (focusView) {
       const head = focusView.state.selection.main.from;
@@ -544,8 +614,10 @@ export function mountLayoutCodeEditors(textareas) {
     return 0;
   }
 
-  function goToMatch(match, keepFindFocus) {
+  function goToMatch(matches, idx, keepFindFocus) {
+    const match = matches[idx];
     if (!match) return;
+    findMatchIdx = idx;
     lastFocusedView = match.view;
     selectMatch(match.view, match, !keepFindFocus);
   }
@@ -555,16 +627,9 @@ export function mountLayoutCodeEditors(textareas) {
     const q = makeQuery(findInput.value);
     applyQueryToAll(q);
     const matches = collectAllMatches(q);
-    if (!q.search) {
-      setFindCount(0, 0);
-      return matches;
-    }
-    if (!matches.length) {
-      findCount.dataset.empty = '1';
-      findCount.innerHTML =
-        `<span class="layout-find-cur">0</span>` +
-        `<span class="layout-find-sep">/</span>` +
-        `<span class="layout-find-tot">0</span>`;
+    if (!q.search || !matches.length) {
+      findMatchIdx = -1;
+      setFindCount(0, 0, false, !!q.search);
       return matches;
     }
     const queryChanged = q.search !== lastFindQuery;
@@ -572,31 +637,32 @@ export function mountLayoutCodeEditors(textareas) {
     let idx = queryChanged ? 0 : currentMatchIndex(matches);
     if (idx < 0) idx = 0;
     if (jumpToMatch) {
-      const keepFindFocus = document.activeElement === findInput;
-      goToMatch(matches[idx], keepFindFocus);
+      goToMatch(matches, idx, document.activeElement === findInput);
     }
-    setFindCount(idx + 1, matches.length);
+    setFindCount(idx + 1, matches.length, matches.capped);
     return matches;
   }
 
   function jumpFind(delta) {
+    cancelScheduledFind();
     const q = makeQuery(findInput?.value || '');
     applyQueryToAll(q);
     const matches = collectAllMatches(q);
     if (!matches.length) {
-      setFindCount(0, 0);
-      findCount.dataset.empty = '1';
-      findCount.innerHTML =
-        `<span class="layout-find-cur">0</span>` +
-        `<span class="layout-find-sep">/</span>` +
-        `<span class="layout-find-tot">0</span>`;
+      findMatchIdx = -1;
+      setFindCount(0, 0, false, true);
       return;
     }
-    let idx = currentMatchIndex(matches);
+    /* A query the settled run has not seen yet - typed, then Next pressed inside the settle window -
+       has no current match to step from: it starts at the first one, which is where the settled run
+       would have put it a moment later. Without this, Next inside that window stepped from whatever
+       the PREVIOUS query had selected. */
+    let idx = q.search !== lastFindQuery ? 0 : currentMatchIndex(matches);
+    lastFindQuery = q.search;
     if (idx < 0) idx = 0;
     else idx = (idx + delta + matches.length) % matches.length;
-    goToMatch(matches[idx], document.activeElement === findInput);
-    setFindCount(idx + 1, matches.length);
+    goToMatch(matches, idx, document.activeElement === findInput);
+    setFindCount(idx + 1, matches.length, matches.capped);
   }
 
   function focusFindBar() {
@@ -612,7 +678,56 @@ export function mountLayoutCodeEditors(textareas) {
      (measured). The caret rule still applies while the query is unchanged: Ctrl+F with the same text, Next,
      Prev and F3 all keep continuing from where the user was. */
   let lastFindQuery = null;
-  findInput?.addEventListener('input', () => { lastFindQuery = null; refreshFind(true); });
+
+  /* The heavy half of a find - the full-document scan of all three panes, the counter and the jump
+     to the first match - is coalesced to one run per typing burst. What it costs, measured with the
+     CPU profiler in this repo's headless harness while typing "padding" into the CSS pane:
+
+       CSS 830KB   sync 13.5ms median per keystroke (max 18.9) - collectMatches 3-5ms, and the rest
+                   CodeMirror work reached through goToMatch()'s dispatch: readSelectionRange -> eq,
+                   then coordsAt/getClientRects under scrollIntoView in the measure pass.
+       CSS 73KB    sync  8.7ms median per keystroke (max 13.3) - collectMatches is down to noise, so
+                   the CM6 half does not shrink with the document: it is the per-keystroke selection
+                   dispatch and the scroll it asks for, not the scan, that makes the bar feel heavy.
+
+     The query itself is still applied on every keystroke: it is a 0.06ms dispatch (measured) and it
+     is what makes the matches light up while you type. Only the scan+counter+jump waits for the
+     typing to pause, which is also when the user is actually looking at where match 1 landed.
+
+     Measured after, same harness and same page, one session apart: 0.6ms median / 1.0ms max (830KB)
+     and 1.0ms / 4.3ms (73KB) on the real page, and in the isolated harness a three-point curve of
+     1.0 / 0.4 / 0.4ms median (5KB / 73KB / 830KB) against 2.6 / 2.5 / 5.3ms before, worst keystroke
+     10.2ms -> 1.4ms. The counter lands on the same value it always did (1/10, 1/188, 1/857). */
+  const FIND_SETTLE_MS = 140;
+  let findSettleTimer = 0;
+
+  function cancelScheduledFind() {
+    if (findSettleTimer) {
+      clearTimeout(findSettleTimer);
+      findSettleTimer = 0;
+    }
+  }
+
+  function scheduleFind() {
+    cancelScheduledFind();
+    findSettleTimer = setTimeout(() => {
+      findSettleTimer = 0;
+      refreshFind(true);
+    }, FIND_SETTLE_MS);
+  }
+
+  findInput?.addEventListener('input', () => {
+    lastFindQuery = null;
+    const text = findInput.value;
+    if (!text) {
+      /* Clearing the query is cheap and must read as instant: no matches, counter hidden. */
+      cancelScheduledFind();
+      refreshFind(false);
+      return;
+    }
+    applyQueryToAll(makeQuery(text));
+    scheduleFind();
+  });
   findNextBtn?.addEventListener('click', () => jumpFind(1));
   findPrev?.addEventListener('click', () => jumpFind(-1));
   findInput?.addEventListener('keydown', (event) => {
@@ -636,6 +751,7 @@ export function mountLayoutCodeEditors(textareas) {
     event.preventDefault();
     event.stopPropagation();
     if (typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
+    cancelScheduledFind();
     focusFindBar();
     if (findInput && findInput.value) refreshFind(true);
   };
@@ -646,6 +762,7 @@ export function mountLayoutCodeEditors(textareas) {
     if (event.key !== 'F3') return;
     if (!document.body.classList.contains('layout-section-page')) return;
     event.preventDefault();
+    cancelScheduledFind();
     jumpFind(event.shiftKey ? -1 : 1);
   };
   document.addEventListener('keydown', onDocF3, true);
@@ -685,6 +802,7 @@ export function mountLayoutCodeEditors(textareas) {
     setJs: (v) => set('js', v),
     refreshTheme: () => applyTheme(list),
     destroy: () => {
+      cancelScheduledFind();
       document.removeEventListener('keydown', onDocFind, true);
       window.removeEventListener('keydown', onDocFind, true);
       document.removeEventListener('keydown', onDocF3, true);

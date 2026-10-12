@@ -3225,3 +3225,10 @@ html:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card #agentRei
 @media (prefers-reduced-motion: reduce){
   html:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card button{transition:none!important}
 }
+
+/* The lower row held two panels side by side; the customer-facing one is gone, so the one that is
+   left takes the row instead of sitting in a half-empty column. Scoped to this page - the shell
+   metric rules belong to bo-shell.css, and `grid-template-columns` is not a shell metric anyway. */
+html:not(#bo-charcoal-off) body[data-agent-page="dashboard"].agent-report-body.agent-modern .agent-dashboard-lower{
+  grid-template-columns:1fr!important;
+}

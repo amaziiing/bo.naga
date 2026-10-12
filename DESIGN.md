@@ -8109,3 +8109,32 @@ works.
 
 `report-table-sort.js` sorts by column index and reads alignment from the first body row, so dropping a
 column needs no change there.
+
+
+### Customer data out of the agent portal (owner rule)
+
+Owner: "在sidebar的 My Players可以去除了 因为有关客户的数据一律不能出现" then, choosing the scope, "清掉两处客户
+列表" + "客户页直连也挡掉".
+
+The rule is about **identifying** a customer, not about the agent's own numbers: an agent may see
+aggregates (12 players, RM 1,200 bet, player counts per provider) and the per-player figures of the report it
+is built around, but no customer ID, no contact number, and no list of customers.
+
+| Surface | What it showed | Now |
+| --- | --- | --- |
+| rail -> My Players | a customer listing page | the `players` row is out of `MENU` |
+| Dashboard -> Recent Player Activity | one row per customer, PLAYER = `username` (the phone) or `memberId` | panel removed; the aggregate Player Overview panel (Total / Active / New / Inactive) stays |
+| Dashboard -> Quick Access | a My Players tile | tile removed; 5 tiles remain |
+| Dashboard -> Player Overview "View All" | a door to the listing | link removed |
+| Products -> Action (eye) | opened the provider's customers | column removed (8 -> 7), button and binding gone |
+| Reports -> Provider Report -> Players | the count was a button into the customer list | plain count, button and binding gone |
+| Provider detail page | one row per customer, `username` | the table is removed; the page is retired |
+| Customer pages by URL | `agent-players.html`, `agent-player-detail.html`, `agent-provider-detail.html` opened if the account held the key | `RETIRED_PAGES` in the guard refuses the page itself and redirects |
+
+`landingFor(keys)` (see the previous entry) is what makes a retired key safe as a redirect target: it takes
+the first key that still resolves to a real page, and falls back to the profile when none does.
+
+Verified in headless Chrome: the dashboard renders Player Overview / Performance / Commission Trend /
+Recent Transactions / Quick Access - no customer panel, no `#agentRecentPlayers`, no link to a customer page
+anywhere in the portal; the Products table is 7 columns with no eye; the Provider Report's Players cell is a
+plain `12`; and each of the three retired URLs navigates exactly once, to a page the account may open.

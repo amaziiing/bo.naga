@@ -8093,3 +8093,19 @@ What landed, all scoped to `body[data-agent-page="finance"]` so the shared compo
   off.
 - **density**: 4px base, 12px inside controls, 16px inside cards, 24px between blocks; card titles are plain
   icon + 14px/800 title with a hairline band; one frame per card.
+
+
+### Reports: no Player ID, no contact number (owner request)
+
+`agent-bet-report.html` no longer shows a Player ID column, and the player-name cell no longer carries its
+second line. That second line was `username` - for these accounts the `username` **is the contact number**
+(the phone), while `fullName` is the name, so the summary table shows one identity per player: the name. The
+empty state's colspan follows (9 -> 8). The same mistake sat in the game drill-down's headline, which used
+`d.player.username`; it now prefers `fullName`.
+
+The search hint became "Search player name..." because an ID the report does not display should not be what
+the hint advertises; the field label stays "Player" and the parameter is unchanged, so searching by ID still
+works.
+
+`report-table-sort.js` sorts by column index and reads alignment from the first body row, so dropping a
+column needs no change there.

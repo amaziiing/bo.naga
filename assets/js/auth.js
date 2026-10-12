@@ -199,6 +199,11 @@
       {label:'Bonus Adjustment',href:'bulk-adjustment.html?tab=bonus'}
     ]},
     'bank-deposit-usage.html':{label:'Bank Deposit Usage',order:3,module:'transaction'},
+    // Payment Gateway is the Transaction workspace's payment-configuration page. It keeps its
+    // own sidebar row wherever Menu Management puts it, but its tab lives here: a page
+    // registered under a module shows that module's row (see payment-gateway.html, which links
+    // bo-module-tabs.css for it).
+    'payment-gateway.html':{label:'Payment Gateway',order:4,module:'transaction'},
     // 4. Member
     'index.html':{label:'User Management',order:1,module:'member'},
     'member-wallet.html':{label:'Member Wallet',order:2,module:'member'},

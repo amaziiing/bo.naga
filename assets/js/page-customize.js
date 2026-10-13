@@ -65,8 +65,15 @@ function pcToggleExpand(field,open){
   if(open){
     if(typeof field.showPopover==='function'&&!field.hasAttribute('popover')) field.setAttribute('popover','manual');
     if(typeof field.showPopover==='function'){ try{ field.showPopover(); }catch(e){} }
-  }else if(typeof field.hidePopover==='function'){
-    try{ if(field.matches(':popover-open')) field.hidePopover(); }catch(e){}
+  }else{
+    if(typeof field.hidePopover==='function'){
+      try{ if(field.matches(':popover-open')) field.hidePopover(); }catch(e){}
+    }
+    /* The attribute has to go with the state: an element that carries `popover` while it is closed is
+       `display:none` by the UA's own rule, so every box that had been opened and closed stayed hidden -
+       after two of them the section showed only the box that had never been opened (owner: "有bug 我关闭后
+       其他的container会消失"). */
+    if(field.hasAttribute('popover')) field.removeAttribute('popover');
   }
   document.body.classList.toggle('pc-code-expanded',!!document.querySelector('.pc-field.is-expanded'));
   const btn=field.querySelector('.pc-expand');

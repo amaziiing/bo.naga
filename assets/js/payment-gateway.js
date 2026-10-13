@@ -93,6 +93,17 @@
      8.6 screens inside a modal. `selected` decides what the two dependent tabs can do - without a
      saved gateway there is nothing to attach an endpoint or a channel to, so those panels say so
      instead of rendering empty forms. */
+  /* A section that can fold does it from its own head: the head already carries the title, so a second bar
+     saying the same thing inside was pure repetition (owner: "既然标题与展开的container标题都一样了 不就改成由标题
+     展开就好了嘛"). */
+  function pgBindFolds(){
+    document.querySelectorAll('#pgGatewayModal .pg-section[data-pg-fold]').forEach(function(sec){
+      const head=sec.querySelector(':scope > .pg-section-head');
+      if(!head||head.dataset.pgFoldBound==='1') return;
+      head.dataset.pgFoldBound='1';
+      head.addEventListener('click',function(){ sec.classList.toggle('is-folded'); });
+    });
+  }
   function pgTabState(){
     const has=!!selected;
     document.querySelectorAll('#pgGatewayModal [data-pg-tab]').forEach(function(b){
@@ -343,6 +354,7 @@
     window.addEventListener('popstate',()=>{ load().then(pgSyncFromUrl).catch(()=>pgSyncFromUrl()); });
     load().then(pgMountSegs).then(pgSyncFromUrl).catch(e=>notify(e.message,'error'));
     pgMountSegs();
+    pgBindFolds();
     /* A router swap replaces the frame's markup, so the editor's visibility and the list's are re-derived
        on the page's own mount signal rather than assumed to have survived. */
     if(window.__boPgSpaViewBound) document.removeEventListener('bo:spa:content-mounted',window.__boPgSpaViewBound);

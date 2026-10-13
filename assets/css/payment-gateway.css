@@ -82,21 +82,7 @@ html[data-bo-theme="dark"] .pg-panel-note{background:#2C2E38;border-color:#4A4C5
    so without it the whole callback section was laid out as one cell - a quarter of the row - while the rest of
    the card sat empty. It is a section of its own, so it spans the row and drops the box. */
 .pg-advanced{grid-column:1/-1;margin:0;border:0;border-radius:0;background:transparent;overflow:visible}
-/* It has to look openable, not like another line of description: the label takes the amber this editor uses for
-   things you can act on, and the chevron sits in a 24px disc of the same amber at 10% - the token the section
-   icons use - which deepens on hover and turns over when the block is open. */
-/* A control, not a caption: the row is a filled bar in the same amber family the section icons use (6% fill,
-   1px edge at 18%, the cards' 8px corners) so it cannot be mistaken for another line of description. It is a
-   control and not a container, which is why a fill is right here where a box around cards was not. Opening
-   deepens it and squares its bottom corners so it joins the fields below. */
-.pg-advanced>summary{display:flex;align-items:center;gap:10px;padding:12px 16px;font-size:13px;font-weight:700;color:#B45309;background:rgba(217,119,6,.06);border:1px solid rgba(217,119,6,.18);border-radius:8px;cursor:pointer;list-style:none;user-select:none;transition:background .16s ease,border-color .16s ease}
-.pg-advanced>summary:hover{background:rgba(217,119,6,.12);border-color:rgba(217,119,6,.3);color:#92400E}
-.pg-advanced>summary::-webkit-details-marker{display:none}
-.pg-advanced>summary::after{margin-left:auto;content:"\F282";font-family:"bootstrap-icons";font-size:14px;line-height:1;display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:rgba(217,119,6,.1);color:#D97706;transition:transform .18s ease,background .18s ease}
-.pg-advanced>summary:hover::after{background:rgba(217,119,6,.2)}
-.pg-advanced[open]>summary::after{transform:rotate(180deg)}
-.pg-advanced[open]>summary{background:rgba(217,119,6,.1);border-color:rgba(217,119,6,.26);border-bottom-left-radius:0;border-bottom-right-radius:0}
-.pg-advanced-fields{padding:18px 0 0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 18px}
+
 .pg-advanced-fields .pg-field.full{grid-column:1/-1}
 html[data-bo-theme="dark"] .pg-advanced{background:#2C2E38;border-color:#3A3A38}
 html[data-bo-theme="dark"] .pg-advanced>summary{border-color:#3A3A38;color:#F59E0B}
@@ -326,3 +312,13 @@ body.bo-wallet-tx .report-main .gateway-list-card > .table-footer.bo-pagination-
    `.pg-editor-section` with enough weight to beat `[hidden]` - the same trap the list card fell into. The state
    is stated once, here, so switching a tab cannot leave two panels on screen. */
 .pg-editor-section[hidden]{display:none!important}
+
+/* A foldable section toggles from its own head, marked with a chevron that turns when it is closed. */
+.pg-section[data-pg-fold] > .pg-section-head{cursor:pointer;user-select:none}
+.pg-section[data-pg-fold] > .pg-section-head::after{margin-left:auto;content:"\F282";font-family:"bootstrap-icons";
+  font-size:14px;line-height:1;display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;
+  border-radius:50%;background:rgba(217,119,6,.1);color:#D97706;transition:transform .18s ease,background .18s ease}
+.pg-section[data-pg-fold] > .pg-section-head:hover::after{background:rgba(217,119,6,.2)}
+.pg-section[data-pg-fold].is-folded > .pg-section-head::after{transform:rotate(-90deg)}
+.pg-section[data-pg-fold].is-folded > .pg-section-head{margin-bottom:0;padding-bottom:0;border-bottom:0}
+.pg-section[data-pg-fold].is-folded > .pg-form-grid{display:none}

@@ -94,8 +94,19 @@ function pcBuildExpanders(){
     btn.title='Expand';
     btn.setAttribute('aria-label','Expand the '+name+' editor');
     btn.innerHTML='<i class="bi bi-arrows-angle-expand" aria-hidden="true"></i>';
-    if(label&&label.parentNode===field) field.insertBefore(btn,label.nextSibling);
-    else field.appendChild(btn);
+    /* Beside the name, not floating at the far right of the box (owner: "设计在名字右手边 不用太明显
+      也不用太大个 跟名字的大小就行了"): a small row that carries the label and the control together,
+       so the eye finds it where the field is named. The label keeps its own semantics - it is the same
+       element, only re-parented, and a button inside a <label> would fire both. */
+    if(label&&label.parentNode===field){
+      const head=document.createElement('div');
+      head.className='pc-field-head';
+      field.insertBefore(head,label);
+      head.appendChild(label);
+      head.appendChild(btn);
+    }else{
+      field.appendChild(btn);
+    }
   });
 }
 listen(document,'click',function(e){

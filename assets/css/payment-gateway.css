@@ -73,9 +73,14 @@ html[data-bo-theme="dark"] .pg-panel-note{background:#2C2E38;border-color:#4A4C5
 html[data-bo-theme="dark"] .pg-advanced{background:#2C2E38;border-color:#3A3A38}
 html[data-bo-theme="dark"] .pg-advanced>summary{border-color:#3A3A38;color:#F59E0B}
 @media(max-width:991px){.pg-advanced-fields{grid-template-columns:1fr}.pg-advanced-fields .pg-field.full{grid-column:auto}}
-.pg-endpoint-details{/* Rows, not boxes: this rule was painting each endpoint as a pale rounded panel, and the bottom border
-   added elsewhere did not remove the box. */
-margin:0;border:0;border-bottom:1px solid #EADCC8;border-radius:0;background:transparent;overflow:hidden}
+/* Each action is a card: the `details` element carries the card, its `summary` is the head (`1. DEPOSIT` +
+   the pill + the chevron) and the form inside is the card's content. Collapsed it is a one-line card;
+   opened, the same card with its fields - so there is never a card inside a card. The number comes from a
+   counter, which leaves the script's markup untouched. */
+#pgEndpointForms{counter-reset:pgEp}
+#pgEndpointForms .pg-endpoint-details{position:relative;counter-increment:pgEp;background:#FFFCF7;border:1px solid #DCC9A8;border-radius:8px;padding:20px 22px 22px;margin:0 0 16px}
+#pgEndpointForms .pg-endpoint-details::before{content:"";position:absolute;left:0;top:12px;width:3px;height:calc(100% - 24px);background:#D97706;border-radius:0 3px 3px 0}
+#pgEndpointForms .pg-endpoint-details:last-child{margin-bottom:0}
 .pg-endpoint-details:first-child{margin-top:0}
 .pg-endpoint-details>summary{display:flex;align-items:center;gap:10px;padding:12px 14px;font-size:13px;cursor:pointer;list-style:none}
 .pg-endpoint-details>summary::-webkit-details-marker{display:none}
@@ -232,16 +237,17 @@ body.bo-wallet-tx.pg-editing .pg-editor-actions{position:static;flex:0 0 auto}
    is the card's own content, not a box inside a box. */
 #pgEndpointForms .pg-endpoint-details{border-bottom:1px solid #EADCC8}
 #pgEndpointForms .pg-endpoint-details:last-child{border-bottom:0}
-#pgEndpointForms summary{display:flex;align-items:center;gap:10px;padding:14px 0;cursor:pointer;list-style:none}
+#pgEndpointForms summary{display:flex;align-items:center;gap:12px;padding:0 0 14px;margin:0;border-bottom:1px solid #EADCC8;cursor:pointer;list-style:none}
+#pgEndpointForms .pg-endpoint-details[open]>summary{margin-bottom:18px}
 #pgEndpointForms summary::-webkit-details-marker{display:none}
-#pgEndpointForms summary b{font-size:13px;font-weight:700;color:var(--bo-text-secondary,#3F3F46)}
+#pgEndpointForms summary b{font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#B45309}
+#pgEndpointForms summary b::before{content:counter(pgEp) ". "}
 #pgEndpointForms form.pg-endpoint{border:0;border-radius:0;background:transparent;padding:0 0 18px;margin-top:0}
 /* The endpoint form is a compact sub-form, so its fields run two across rather than four: `HTTP Method` and
    `Content Type` are half-width each instead of a quarter, which left half the row empty beside them. */
 #pgEndpointForms form.pg-endpoint .pg-form-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 18px}
 /* The open row says so: its name takes the amber the rest of the editor uses for an active thing. */
-#pgEndpointForms .pg-endpoint-details[open]>summary b{color:#B45309}
-#pgEndpointForms form.pg-endpoint{padding:6px 0 20px}
+#pgEndpointForms form.pg-endpoint{padding:0}
 /* JSON editors get a working height instead of the rows=5/6 the script asks for - five of them stacked made the
    form taller than the screen. They keep the standard textarea look and stay resizable by hand. */
 #pgEndpointForms form.pg-endpoint textarea{height:120px;min-height:120px}
@@ -253,4 +259,4 @@ body.bo-wallet-tx.pg-editing .pg-editor-actions{position:static;flex:0 0 auto}
 /* Every grid inside the editor is the same grid - the panels' own and the one the endpoint form is built with
    at runtime, which was still on the old 2-column / 14px numbers. */
 .pg-editor-body .pg-form-grid,.pg-section .pg-form-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px 18px}
-.pg-panel-note{font-size:12px;font-weight:500;color:#71717A}
+.pg-panel-note{margin:0 0 14px;font-size:12px;font-weight:500;color:#71717A}

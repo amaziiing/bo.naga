@@ -137,3 +137,7 @@ html body.bo-wallet-tx .report-content .report-table.pg-tx-table th{white-space:
 .pg-editor-title{display:flex;align-items:center;gap:10px}
 .pg-editor-title h3{margin:0}
 .pg-actions-secondary{display:flex;justify-content:flex-end;gap:8px;margin-top:4px}
+
+/* Focus mode: while a gateway is being edited the module's tab row is not shown - it belongs to the list's
+   context and only offers a way out of the editor. The rail and the topbar stay, so leaving is deliberate. */
+body.pg-editing .bo-module-tabs{display:none!important}

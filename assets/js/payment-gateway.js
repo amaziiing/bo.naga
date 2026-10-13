@@ -164,6 +164,10 @@
     const v=$('pgGatewayModal');
     v.hidden=false;v.classList.add('show');v.setAttribute('aria-hidden','false');
     const list=document.querySelector('.gateway-list-card'); if(list) list.hidden=true;
+    /* Editing is a room of its own: the module's tab row above belongs to the list's context and reads as a
+       way out of the editor, so it is hidden while one is open. Owner: "用户点入编辑页面后 上面的tab页面切换
+       就不用出现 ... 编辑页面就是让用户专注编辑gateway的东西". */
+    document.body.classList.add('pg-editing');
     pgBindTabs();pgPanelsForCurrent();pgTab('gateway');pgMountSegs();
     window.scrollTo(0,0);
     if(!fromUrl) pgWriteUrl(selected&&selected.id?selected.id:'new');
@@ -172,6 +176,7 @@
     const v=$('pgGatewayModal');
     v.hidden=true;v.classList.remove('show');v.setAttribute('aria-hidden','true');
     const list=document.querySelector('.gateway-list-card'); if(list) list.hidden=false;
+    document.body.classList.remove('pg-editing');
     window.scrollTo(0,0);
     if(fromUrl===true) return;
     /* Closing goes back the way the editor was entered: the list entry pushed it, so the history step is

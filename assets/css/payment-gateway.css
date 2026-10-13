@@ -16,12 +16,8 @@
 .pg-editor-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:16px 20px;border-bottom:1px solid #EADCC8}
 .pg-editor-head h3{margin:0;font-size:17px;font-weight:800;color:#D97706}
 .pg-editor-head small{display:block;margin-top:3px;font-size:12px;color:#57534E}
-.pg-editor-tabs{display:flex;flex-wrap:wrap;gap:8px;padding:12px 20px 0}
-.pg-tab{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border:1px solid #EADCC8;border-radius:999px;background:#FFF8EB;color:#57534E;font-size:13px;font-weight:700;cursor:pointer;transition:background .15s ease,color .15s ease,border-color .15s ease}
-.pg-tab:hover:not(:disabled){background:#FDE9C8;color:#18191C}
-.pg-tab.is-active{background:#D97706;border-color:#D97706;color:#fff}
-.pg-tab.is-dim,.pg-tab:disabled{opacity:.5;cursor:not-allowed}
-.pg-tab-count{font-weight:600;opacity:.8}
+.pg-editor-tabs{padding:12px 20px 0}
+
 .pg-editor-body{background:#F5EBDC}
 .pg-editor-section{padding:16px 20px}
 .pg-editor-actions{position:sticky;bottom:0;display:flex;justify-content:flex-end;gap:10px;padding:12px 20px;border-top:1px solid #EADCC8;background:#FFF8EB}
@@ -34,8 +30,8 @@ html[data-bo-theme="dark"] .pg-editor-card,html[data-bo-theme="dark"] .pg-editor
 html[data-bo-theme="dark"] .pg-editor-head{border-color:#3A3A38}
 html[data-bo-theme="dark"] .pg-editor-body{background:#22232A}
 html[data-bo-theme="dark"] .pg-editor-section{background:#2C2E38;border-color:#3A3A38}
-html[data-bo-theme="dark"] .pg-tab{background:#2C2E38;border-color:#4A4C58;color:#D6D3D1}
-html[data-bo-theme="dark"] .pg-tab.is-active{background:#D97706;border-color:#D97706;color:#fff}
+html[data-bo-theme="dark"] 
+html[data-bo-theme="dark"] 
 html[data-bo-theme="dark"] .pg-editor-head h3{color:#F59E0B}
 html[data-bo-theme="dark"] .pg-editor-head small,html[data-bo-theme="dark"] .pg-panel-note{color:#D6D3D1}
 html[data-bo-theme="dark"] .pg-panel-note{background:#2C2E38;border-color:#4A4C58}
@@ -69,8 +65,5 @@ html[data-bo-theme="dark"] .pg-endpoint-details>summary{border-color:#3A3A38}
 /* List toolbar, in the shape the module's other tables use: the status filter with its counts on the
    left, the search and the actions on the right. The pills are the same .pg-tab component the editor's
    tabs use, so the page has one kind of segmented control rather than two. */
-.pg-list-toolbar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:16px}
-.pg-tabs{display:flex;flex-wrap:wrap;gap:8px}
-.pg-list-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
-.pg-list-actions .bo-search-control{min-width:220px}
-@media(max-width:575px){.pg-list-toolbar{align-items:flex-start;flex-direction:column}.pg-list-actions{width:100%}.pg-list-actions .bo-search-control{width:100%}}
+
+@media(max-width:575px){}

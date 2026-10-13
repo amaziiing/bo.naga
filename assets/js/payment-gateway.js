@@ -26,9 +26,11 @@
   }
   function pgSetCounts(base){
     const on=base.filter(g=>Number(g.status)===1).length;
-    if($('pgCountAll')) $('pgCountAll').textContent='('+base.length+')';
-    if($('pgCountEnabled')) $('pgCountEnabled').textContent='('+on+')';
-    if($('pgCountDisabled')) $('pgCountDisabled').textContent='('+(base.length-on)+')';
+    /* The module's own component draws the parentheses (.bo-tx-tab-count::before/:after), so only the
+       number goes in - writing '('+n+')' here showed as ((23)). */
+    if($('pgCountAll')) $('pgCountAll').textContent=String(base.length);
+    if($('pgCountEnabled')) $('pgCountEnabled').textContent=String(on);
+    if($('pgCountDisabled')) $('pgCountDisabled').textContent=String(base.length-on);
   }
   function pgAutoRows(){
     const head=document.querySelector('.gateway-main-table thead');
@@ -135,6 +137,15 @@
     v.hidden=false;v.classList.add('show');v.setAttribute('aria-hidden','false');
     const list=document.querySelector('.gateway-list-card'); if(list) list.hidden=true;
     pgBindTabs();pgPanelsForCurrent();pgTab('gateway');
+    /* The module's segmented control owns its own bounce animation (bo-seg-bounce.js): mount it on both
+       tab rows, exactly as the sibling pages mount it on theirs. */
+    if(window.BO_SEG_BOUNCE){
+      document.querySelectorAll('#pgGatewayModal .bo-tx-tabs, .pg-editor-tabs, .bo-tx-toolbar .bo-tx-tabs').forEach(function(track){
+        if(track.dataset.pgSegMounted==='1') return;
+        track.dataset.pgSegMounted='1';
+        window.BO_SEG_BOUNCE.mount(track,{button:':scope > .bo-tx-tab',anim:'bounce'});
+      });
+    }
     window.scrollTo(0,0);
   }
   function closeGatewayModal(){

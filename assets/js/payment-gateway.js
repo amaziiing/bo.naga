@@ -10,10 +10,45 @@
   async function uploadGatewayLogo(file){if(!file)return;const allowed=['image/png','image/jpeg','image/webp','image/gif'];if(!allowed.includes(file.type))throw new Error('Logo must be PNG, JPG, WEBP or GIF.');const fd=new FormData();fd.append('image',file);const res=await fetch(ep('UPLOAD_IMAGE'),{method:'POST',headers:{...BO_AUTH.authHeader(),'X-Admin-Username':String(BO_AUTH.user()?.username||'ADMIN')},body:fd});const j=await res.json().catch(()=>({}));if(!res.ok||j.status==='error'||!j.data?.url)throw new Error(j.message||'Logo upload failed');$('pgLogoUrl').value=j.data.url;renderLogoPreview(j.data.url);}
   function selectedId(){return selected&&selected.id;}
   async function load(){const j=await api(ep('PAYMENT_GATEWAY_LIST'));gateways=(j.data&&j.data.content)||[];renderList();if(selected){selected=gateways.find(g=>String(g.id)===String(selected.id))||null;if(selected){fillGateway(selected);renderConfig();renderChannels();pgPanelsForCurrent();}}}
+  /* ---- the listing footer its siblings carry -----------------------------------------------------
+     Same three slots as every other table in this module (`table-footer bo-pagination-standard`:
+     Show / Showing / ladder) and the same `-` in the size list, which here means "as many rows as the
+     panel can hold" and is measured rather than guessed. */
+  let pgPage=1;
+  function pgAutoRows(){
+    const head=document.querySelector('.gateway-main-table thead');
+    const foot=document.querySelector('.gateway-list-card .table-footer');
+    const row=$('pgGatewayList')&&$('pgGatewayList').querySelector('tr');
+    if(!head||!foot) return 10;
+    const rowH=(row&&row.getBoundingClientRect().height)||52;
+    const fit=Math.floor((foot.getBoundingClientRect().top-head.getBoundingClientRect().bottom)/rowH);
+    return Math.max(5,Math.min(100,fit||10));
+  }
+  function pgPageSize(){
+    const v=String(($('pgPageSize')||{}).value||'-');
+    if(v==='All') return Infinity;
+    const n=Number(v);
+    return Number.isFinite(n)&&n>0?n:pgAutoRows();
+  }
+  function pgSyncFooter(total,from,to){
+    if($('pgShowing')) $('pgShowing').textContent='Showing '+(total?from:0)+' to '+(total?to:0)+' of '+total+' entries';
+    const pager=$('pgPager'); if(!pager) return;
+    const size=pgPageSize(),pages=Number.isFinite(size)?Math.max(1,Math.ceil(total/size)):1;
+    if(pages<2){pager.innerHTML='';return;}
+    let html='<button type="button" class="page-btn" data-pg-page="'+Math.max(1,pgPage-1)+'"'+(pgPage<=1?' disabled':'')+' aria-label="Previous page"><i class="bi bi-chevron-left"></i></button>';
+    for(let i=1;i<=pages;i++) html+='<button type="button" class="page-btn'+(i===pgPage?' active':'')+'" data-pg-page="'+i+'"'+(i===pgPage?' aria-current="page"':'')+'>'+i+'</button>';
+    html+='<button type="button" class="page-btn" data-pg-page="'+Math.min(pages,pgPage+1)+'"'+(pgPage>=pages?' disabled':'')+' aria-label="Next page"><i class="bi bi-chevron-right"></i></button>';
+    pager.innerHTML=html;
+  }
   function renderList(){
     const box=$('pgGatewayList');
-    if(!gateways.length){box.innerHTML='<tr><td colspan="6" class="pg-empty">No gateway configured.</td></tr>';return;}
-    box.innerHTML=gateways.map(g=>{
+    if(!gateways.length){box.innerHTML='<tr><td colspan="6" class="pg-empty">No gateway configured.</td></tr>';pgSyncFooter(0,0,0);return;}
+    const size=pgPageSize();
+    const pages=Number.isFinite(size)?Math.max(1,Math.ceil(gateways.length/size)):1;
+    if(pgPage>pages) pgPage=pages;
+    const start=Number.isFinite(size)?(pgPage-1)*size:0;
+    const shown=Number.isFinite(size)?gateways.slice(start,start+size):gateways;
+    box.innerHTML=shown.map(g=>{
       const logo=String(g.logoUrl||'').trim();
       const deposit=Number(g.supportsDeposit)===1, withdraw=Number(g.supportsWithdraw)===1;
       return `<tr>
@@ -25,6 +60,7 @@
         <td><div class="gateway-action-wrap"><button class="gateway-action-btn" type="button" data-edit-gateway="${g.id}" title="Edit Gateway"><i class="bi bi-pencil-square"></i></button></div></td>
       </tr>`;
     }).join('');
+    pgSyncFooter(gateways.length,start+1,start+shown.length);
   }
   /* ---- the editor is a view, not a dialog --------------------------------------------------------
      Owner's call ("这个页面需要优化统一设计 并且所有编辑弹窗和添加弹窗都要做成一页也并且统一设计"): New and Edit
@@ -139,6 +175,13 @@
     $('pgLogoUrl').addEventListener('input',e=>renderLogoPreview(e.target.value));
     $('pgChannelForm').addEventListener('submit',saveChannel);
     $('pgRefresh').addEventListener('click',()=>load().catch(e=>notify(e.message,'error')));
+    if($('pgPageSize')) $('pgPageSize').addEventListener('change',()=>{pgPage=1;renderList();});
+    if($('pgPager')) $('pgPager').addEventListener('click',e=>{const b=e.target.closest('[data-pg-page]');if(!b)return;pgPage=Number(b.dataset.pgPage)||1;renderList();});
+    /* `-` is a measurement, so a resize can change it. One slot on window: this file re-runs on every
+       router entry and a second listener would page twice per resize. */
+    if(window.__boPgResize) window.removeEventListener('resize',window.__boPgResize);
+    window.__boPgResize=()=>{if(String(($('pgPageSize')||{}).value||'-')==='-'){pgPage=1;renderList();}};
+    window.addEventListener('resize',window.__boPgResize);
     $('pgNewGateway').addEventListener('click',()=>{resetGateway();openGatewayModal();});
     $('pgResetGateway').addEventListener('click',resetGateway);
     $('pgS1PayTemplate').addEventListener('click',loadS1PayTemplate);

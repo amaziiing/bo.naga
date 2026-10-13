@@ -713,6 +713,9 @@ html[data-bo-theme="dark"] body.page-customize-page.report-body.bo-charcoal:not(
    hover, and the same affordance on all three boxes. Kept in this sheet's own `!important` idiom so it
    beats the label/box rules above, and mirrored per theme. */
 html body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-field.has-expand{position:relative!important}
+/* The name row is the control's height, so a 32px control lands inside that row instead of hanging
+   over the code box's corner (owner, zoomed in on the full-screen button: "位置需要再调整"). */
+html body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-field.has-expand > label{display:flex!important;align-items:center!important;min-height:32px!important}
 html body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-expand{position:absolute!important;top:0!important;right:0!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;width:32px!important;height:32px!important;padding:0!important;border:1px solid #EADCC8!important;border-radius:8px!important;background:#FFF8EB!important;box-shadow:0 1px 2px rgba(24,25,28,.06)!important;color:#57534E!important;opacity:1;font-size:14px!important;line-height:1!important;cursor:pointer;transition:background .15s ease,border-color .15s ease,color .15s ease,box-shadow .15s ease}
 html body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-expand i{font-size:14px!important;line-height:1!important}
 html body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-expand:hover,html body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-expand:focus-visible{background:#EAF2FF!important;border-color:#BFDBFE!important;color:#1D4ED8!important;box-shadow:0 2px 6px rgba(37,99,235,.18)!important}
@@ -726,7 +729,7 @@ html[data-bo-theme="dark"] body.page-customize-page.report-body.bo-charcoal:not(
    no second control (owner: "为什么有两个 exit full screen的按键 把打叉按键删除即可"). */
 html body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-field.is-expanded{position:fixed;inset:18px;z-index:1090;display:flex;flex-direction:column;gap:10px;margin:0;width:auto;height:auto;max-width:none;max-height:none;overflow:hidden;padding:16px 18px;border:1px solid #FFF1DC;border-radius:14px;background:#FFF8EB;box-shadow:0 24px 60px rgba(24,25,28,.30)}
 html[data-bo-theme="dark"] body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-field.is-expanded{border-color:#3A3A38;background:#2C2E38}
-html body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-field.is-expanded .pc-expand{top:12px!important;right:12px!important}
+html body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-field.is-expanded .pc-expand{top:16px!important;right:18px!important}
 html body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-field.is-expanded label{cursor:default}
 html body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-field.is-expanded textarea.pc-code{flex:1 1 auto;min-height:0!important;height:auto!important;resize:none!important;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-size:13px!important;line-height:1.6}
 html body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-field.is-expanded::backdrop{background:rgba(24,25,28,.38)}

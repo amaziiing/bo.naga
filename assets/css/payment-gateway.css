@@ -242,6 +242,9 @@ body.bo-wallet-tx.pg-editing .pg-editor-actions{position:static;flex:0 0 auto}
 /* The open row says so: its name takes the amber the rest of the editor uses for an active thing. */
 #pgEndpointForms .pg-endpoint-details[open]>summary b{color:#B45309}
 #pgEndpointForms form.pg-endpoint{padding:6px 0 20px}
+/* JSON editors get a working height instead of the rows=5/6 the script asks for - five of them stacked made the
+   form taller than the screen. They keep the standard textarea look and stay resizable by hand. */
+#pgEndpointForms form.pg-endpoint textarea{height:120px;min-height:120px}
 .pg-editor-title{display:none}
 
 /* The capabilities pair is two checkboxes on one line; give them the row's own height so the grid stays even. */

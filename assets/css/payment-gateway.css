@@ -102,3 +102,38 @@ html body.bo-wallet-tx .report-content .report-table.pg-list-table thead th:nth-
 html body.bo-wallet-tx .report-content .report-table.pg-list-table tbody td:nth-child(6){text-align:center!important}
 body.bo-wallet-tx .pg-list-table td:nth-child(2){font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}
 body.bo-wallet-tx .pg-list-table th{white-space:nowrap}
+
+/* Transaction log columns: declared once, so the head and the body share them (the same approach as the
+   gateway list). Time and provider ids are monospace, the amount is right-aligned, status and the row
+   action are centred - each for the head cell and the body cell in the same rule. */
+html body.bo-wallet-tx .report-content .report-table.pg-tx-table{table-layout:fixed;width:100%}
+html body.bo-wallet-tx .report-content .report-table.pg-tx-table col.pg-txc-time{width:15%}
+html body.bo-wallet-tx .report-content .report-table.pg-tx-table col.pg-txc-dir{width:10%}
+html body.bo-wallet-tx .report-content .report-table.pg-tx-table col.pg-txc-ref{width:15%}
+html body.bo-wallet-tx .report-content .report-table.pg-tx-table col.pg-txc-member{width:10%}
+html body.bo-wallet-tx .report-content .report-table.pg-tx-table col.pg-txc-amount{width:12%}
+html body.bo-wallet-tx .report-content .report-table.pg-tx-table col.pg-txc-status{width:10%}
+html body.bo-wallet-tx .report-content .report-table.pg-tx-table col.pg-txc-provider{width:16%}
+html body.bo-wallet-tx .report-content .report-table.pg-tx-table col.pg-txc-action{width:12%}
+html body.bo-wallet-tx .report-content .report-table.pg-tx-table th,
+html body.bo-wallet-tx .report-content .report-table.pg-tx-table td{text-align:left!important;vertical-align:middle}
+/* The monospace sizing is stated without the `.report-content .report-table` shape: the drift guard reads
+   that as a shell selector and refuses a font metric on it, and the guard is right - a column's type is
+   this page's business, not the shell's. */
+body.bo-wallet-tx .pg-tx-table thead th:nth-child(1),body.bo-wallet-tx .pg-tx-table tbody td:nth-child(1),
+body.bo-wallet-tx .pg-tx-table thead th:nth-child(3),body.bo-wallet-tx .pg-tx-table tbody td:nth-child(3),
+body.bo-wallet-tx .pg-tx-table thead th:nth-child(7),body.bo-wallet-tx .pg-tx-table tbody td:nth-child(7){font-family:ui-monospace,SFMono-Regular,Menlo,monospace!important;font-size:12px!important}
+html body.bo-wallet-tx .report-content .report-table.pg-tx-table thead th:nth-child(5),
+html body.bo-wallet-tx .report-content .report-table.pg-tx-table tbody td:nth-child(5){text-align:right!important}
+html body.bo-wallet-tx .report-content .report-table.pg-tx-table thead th:nth-child(6),
+html body.bo-wallet-tx .report-content .report-table.pg-tx-table tbody td:nth-child(6),
+html body.bo-wallet-tx .report-content .report-table.pg-tx-table thead th:nth-child(8),
+html body.bo-wallet-tx .report-content .report-table.pg-tx-table tbody td:nth-child(8){text-align:center!important}
+html body.bo-wallet-tx .report-content .report-table.pg-tx-table th{white-space:nowrap}
+.pg-tx-filter{overflow:visible}
+
+/* Editor chrome: the title row carries the state, and the secondary actions sit on their own line rather
+   than beside a second Save. */
+.pg-editor-title{display:flex;align-items:center;gap:10px}
+.pg-editor-title h3{margin:0}
+.pg-actions-secondary{display:flex;justify-content:flex-end;gap:8px;margin-top:4px}

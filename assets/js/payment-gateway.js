@@ -144,18 +144,36 @@
     }
     pgTabState();
   }
-  function openGatewayModal(){
+  /* ---- the editor has an address ----------------------------------------------------------------
+     `?edit=<id>` (or `?edit=new`), so the editor is a page rather than a state: a refresh keeps the user
+     where they were and Back returns to the list. Measured before this: the URL said nothing, so a reload
+     dropped the editor and Back re-opened it. Owner: "用户点进编辑进到独立页面刷新也不会跳回主功能页面". */
+  function pgEditParam(){ return new URLSearchParams(location.search).get('edit'); }
+  function pgWriteUrl(edit,replace){
+    const u=new URL(location.href);
+    if(edit==null||edit==='') u.searchParams.delete('edit'); else u.searchParams.set('edit',String(edit));
+    const url=u.pathname.split('/').pop()+u.search+u.hash;
+    try{ (replace?history.replaceState:history.pushState).call(history,{pgEdit:edit==null?'':String(edit)},'',url); }catch(e){}
+  }
+  function openGatewayModal(fromUrl){
     const v=$('pgGatewayModal');
     v.hidden=false;v.classList.add('show');v.setAttribute('aria-hidden','false');
     const list=document.querySelector('.gateway-list-card'); if(list) list.hidden=true;
     pgBindTabs();pgPanelsForCurrent();pgTab('gateway');pgMountSegs();
     window.scrollTo(0,0);
+    if(!fromUrl) pgWriteUrl(selected&&selected.id?selected.id:'new',false);
   }
-  function closeGatewayModal(){
+  function closeGatewayModal(fromUrl){
     const v=$('pgGatewayModal');
     v.hidden=true;v.classList.remove('show');v.setAttribute('aria-hidden','true');
     const list=document.querySelector('.gateway-list-card'); if(list) list.hidden=false;
     window.scrollTo(0,0);
+    if(fromUrl) return;
+    /* Closing goes back the way the editor was entered: the list entry pushed it, so the history step is
+       what removes `?edit`. Landing straight on `?edit=...` has no such entry, so the address is rewritten
+       instead of leaving the page. */
+    if(history.state&&history.state.pgEdit){ history.back(); }
+    else pgWriteUrl(null,true);
   }
 
   function resetGateway(){selected=null;$('pgId').value='';$('pgCode').value='';$('pgName').value='';$('pgBaseUrl').value='';$('pgAdminUrl').value='';$('pgLogoUrl').value='';renderLogoPreview('');$('pgStatus').value='0';$('pgDeposit').checked=true;$('pgWithdraw').checked=false;$('pgDepositChannelSelection').value='0';$('pgCredentials').value='{}';$('pgCallbackUrl').value='';$('pgDepositCallbackUrl').value='';$('pgWithdrawCallbackUrl').value='';$('pgLinkBackUrl').value='';$('pgCallbackReference').value='referenceId';$('pgCallbackStatus').value='status';$('pgCallbackMap').value='{}';$('pgCallbackVerifyMode').value='NONE';$('pgCallbackVerifyHeader').value='X-Signature';$('pgCallbackVerifyField').value='signature';$('pgCallbackVerifySecret').value='';$('pgCallbackAllowedIps').value='';$('pgDepositStatusPollEnabled').value='1';$('pgConnectTimeout').value='10000';$('pgRequestTimeout').value='20000';$('pgNotes').value='';$('pgGatewayFormTitle').textContent='New Gateway';$('pgSelectedPill').textContent='Not selected';$('pgSelectedPill').className='pg-pill off';$('pgConfigPanel').hidden=true;$('pgChannelPanel').hidden=true;renderList();}
@@ -235,7 +253,19 @@
     $('pgGatewayModal').addEventListener('click',e=>{if(e.target===$('pgGatewayModal'))closeGatewayModal();});
     /* The Escape handler is bound once at file scope (the __boPgEsc slot), so it is not
        registered again here - a second registration would stack on every entry. */
-    load().then(pgMountSegs).catch(e=>notify(e.message,'error'));
+    /* Land on the address the URL asks for: `?edit=<id>` opens that gateway, `?edit=new` a blank one, no
+       parameter the list. popstate keeps Back/Forward honest - it is the same code path. */
+    function pgSyncFromUrl(){
+      const want=pgEditParam();
+      if(want==null||want===''){ if(!$('pgGatewayModal').hidden) closeGatewayModal(true); return; }
+      const found=(want==='new')?null:gateways.find(g=>String(g.id)===String(want));
+      if(want!=='new'&&!found){ pgWriteUrl(null,true); if(!$('pgGatewayModal').hidden) closeGatewayModal(true); return; }
+      if(found){ resetGateway(); fillGateway(found); } else { resetGateway(); }
+      if($('pgGatewayModal').hidden) openGatewayModal(true);
+      else { pgPanelsForCurrent(); pgTab('gateway'); }
+    }
+    window.addEventListener('popstate',()=>{ load().then(pgSyncFromUrl).catch(()=>pgSyncFromUrl()); });
+    load().then(pgMountSegs).then(pgSyncFromUrl).catch(e=>notify(e.message,'error'));
     pgMountSegs();
   });
 })();

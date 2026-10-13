@@ -198,7 +198,12 @@ body.bo-wallet-tx.pg-editing .pg-editor{flex:1 1 auto;min-height:0;overflow-y:au
 .pg-section-head h4{margin:0;font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#B45309}
 .pg-section-head p{margin:2px 0 0;font-size:12.5px;font-weight:500;color:#71717A}
 .pg-sections{display:block}                                     /* the panel's outer wrapper: a stack of section cards, not a grid */
-.pg-section .pg-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 18px}
+/* Four across, like the reference form's first card (Code / Name / Parent / Status), with `.half` for
+   the fields that want two columns - its second card pairs two wide ones - and `.full` for textareas. */
+.pg-section .pg-form-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px 18px}
+.pg-field{min-width:0}
+.pg-field.half{grid-column:span 2}
+.pg-field.full{grid-column:1/-1}
 .pg-section .pg-note{margin-top:4px;font-size:12.5px;font-weight:500;color:#71717A}
 
 /* The header pushes its action to the right end of the same row. */
@@ -217,3 +222,6 @@ body.bo-wallet-tx.pg-editing .pg-editor{flex:1 1 auto;min-height:0;overflow-y:au
 #pgEndpointForms .pg-endpoint-head{margin-bottom:0}
 #pgEndpointForms .pg-endpoint-head>b,#pgEndpointForms .pg-endpoint-head>strong{font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#57534E}
 .pg-editor-title{display:none}
+
+/* The capabilities pair is two checkboxes on one line; give them the row's own height so the grid stays even. */
+.pg-field .pg-caps{display:flex;gap:16px;align-items:center;min-height:44px}

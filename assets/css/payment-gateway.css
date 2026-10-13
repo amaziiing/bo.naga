@@ -150,6 +150,13 @@ body.pg-editing .bo-module-tabs{display:none!important}
    loads after this one and therefore beats an equal-specificity `!important` - plus the state class. */
 body.bo-wallet-tx.pg-editing .gateway-list-card{display:none!important}
 
+/* The shell clips: `.report-main` and `.report-content` are both `overflow:hidden` and the list's scroll
+   container is the card itself. Hiding the card for the editor therefore left nothing scrollable at all -
+   measured, the frame was 734px holding 1196px, the editor reported `cannot scroll`, and the fields below
+   Credentials JSON were unreachable. The editor takes the card's place as the scroller; its action bar is
+   sticky inside it, so Cancel / Save Gateway stay on screen while the form moves. */
+body.bo-wallet-tx.pg-editing .pg-editor{flex:1 1 auto;min-height:0;overflow-y:auto}
+
 /* Native checkboxes are drawn in the browser's accent blue, which is the one colour on this page that is
    not the module's. `accent-color` keeps the native control and paints it in the page's own amber. */
 .pg-editor-card input[type=checkbox]{accent-color:#C8791A}

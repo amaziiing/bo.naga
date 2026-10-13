@@ -10,15 +10,18 @@
 
      label          11.5px / 800 / #57534E   (the house rung: agent-detail-page.css states
                                               "labels are 11.5/800 uppercase muted everywhere else")
-     input, select  36px tall / 13px / 600 / radius 10 / #DCC9A8 on #FFF8EB
-                    (the house number: bo-control-height.css is the sheet whose whole job is
-                     "Control height - one number for the panel's box controls: 36px", written
-                     because 25 pages said 36 while 49 others said something else)
-     textarea       96px tall / 13px / 10px 12px padding
+     input, select  44px tall / 13.5px / 500 / radius 10 / #DCC9A8 on #FFF8EB / padding 0 14px
+     textarea       104px tall / 13.5px / 500 / 10px 14px padding
+     primary button 44px tall / 13.5px / 700 / radius 8 / #E8901A / padding 0 22px
 
-   What this fixes is drift, measured: slider-edit's fields are 40px tall at
-   14px, the payment-gateway editor's labels were 13px/700 and its fields 44px,
-   and rebate-rule-edit draws a 11px label where the house rung is 11.5px.
+   The four control numbers are the measured tokens of the create/edit form the owner names as
+   the reference - agent-detail.html?new=1 ("Create New Agent") - which builds on the shared
+   components rather than private classes: `.form-control` for its fields and `.clean-btn` /
+   `.clean-btn.primary` for its actions.
+
+   What this fixes is drift, measured: slider-edit's fields are 40px at 14px,
+   the payment-gateway editor drew 13px/700 labels, promotion-edit 36px fields
+   with 8px corners, and rebate-rule-edit an 11px label where the rung is 11.5px.
 
    Scope: `body.bo-edit-form`, added by the pages that edit a record. Selectors
    carry that body class plus the element, so they outrank a bare `.some-form
@@ -37,22 +40,54 @@ body.bo-edit-form label:not(.bo-edit-form-keep){
 
 body.bo-edit-form input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=hidden]),
 body.bo-edit-form select{
-  min-height:36px;
-  font-size:13px;
-  font-weight:600;
+  min-height:44px;
+  font-size:13.5px;
+  font-weight:500;
   border:1px solid #DCC9A8;
   border-radius:10px;
   background:#FFF8EB;
-  padding:0 12px;
+  padding:0 14px;
 }
 
 body.bo-edit-form textarea{
-  min-height:96px;
-  font-size:13px;
-  font-weight:600;
+  min-height:104px;
+  font-size:13.5px;
+  font-weight:500;
   line-height:1.5;
   border:1px solid #DCC9A8;
   border-radius:10px;
   background:#FFF8EB;
-  padding:10px 12px;
+  padding:10px 14px;
+}
+
+/* The reference builds its actions from the shared button component - `.clean-btn` and
+   `.clean-btn.primary` - so an edit page does not need a button style of its own. */
+body.bo-edit-form .clean-btn{
+  min-height:44px;
+  font-size:13.5px;
+  font-weight:700;
+  border-radius:8px;
+  padding:0 22px;
+}
+
+body.bo-edit-form .clean-btn.primary{
+  background:#E8901A;
+  border-color:#E8901A;
+  color:#FFFFFF;
+}
+
+/* Geometry for the shared button, stated once more with `!important` because the one rule that
+   outranks this sheet declares its own with `!important` and would otherwise win on source order:
+   `bo-wallet-transaction-amber.css` sets `body.bo-wallet-tx .clean-btn.primary` - a 34px button with
+   13px text and 10px of side padding - with `!important`, so a measured Save Gateway read
+   `34h / 13px / pad 10` while the reference form reads `44h / 13.5px / pad 22`. Only the geometry is
+   restated: the module's own colour and gradient are left alone, because they are that family's
+   identity rather than drift. */
+body.bo-edit-form .clean-btn{
+  min-height:44px!important;
+  height:auto!important;
+  font-size:13.5px!important;
+  font-weight:700!important;
+  border-radius:8px!important;
+  padding:0 22px!important;
 }

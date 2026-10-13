@@ -23,7 +23,9 @@
    the page and only the sections are cards. The card keeps its role as the inset holder (see bo-shell.css)
    and nothing else. */
 .pg-editor-card{background:transparent;border:0;border-radius:0}
-.pg-editor-head{display:flex;align-items:center;justify-content:flex-start;gap:20px;padding:14px 20px;border-bottom:1px solid #EADCC8}
+/* Left inset 0: the header is the same column as the section cards, so the tab row lines up with their left
+   edge instead of sitting 18px inside it. */
+.pg-editor-head{display:flex;align-items:center;justify-content:flex-start;gap:20px;padding:14px 18px 14px 0;border-bottom:1px solid #EADCC8}
 .pg-editor-head h3{margin:0;font-size:17px;font-weight:800;color:#D97706}
 .pg-editor-head small{display:block;margin-top:3px;font-size:12px;color:#57534E}
 /* The rule belongs under the tab row, not between the title and the tabs: with it above them the tabs read
@@ -35,7 +37,7 @@
    is how this repo beats a rule of equal weight that loads later. */
 body.bo-wallet-tx .pg-editor-tabs.bo-tx-tabs{padding:0!important;border-bottom:0!important;width:auto!important}
 
-.pg-editor-body{background:#F5EBDC}
+.pg-editor-body{background:transparent}
 .pg-editor-section{padding:16px 20px}
 .pg-editor-actions{position:sticky;bottom:0;display:flex;justify-content:flex-end;gap:10px;padding:14px 24px;border-top:1px solid rgba(92,74,48,.1);background:#FFFCF7}
 /* The reference's bar (agent-detail.html?new=1, FOOTER.mac-footer-actions): 73px tall, #FFFCF7, a 1px
@@ -49,7 +51,7 @@ body.bo-wallet-tx .pg-editor-tabs.bo-tx-tabs{padding:0!important;border-bottom:0
 .pg-editor .pg-editor-section h4{margin-bottom:12px}
 html[data-bo-theme="dark"] html[data-bo-theme="dark"] .pg-editor-actions{background:#2C2E38;border-color:#3A3A38}
 html[data-bo-theme="dark"] .pg-editor-head{border-color:#3A3A38}
-html[data-bo-theme="dark"] .pg-editor-body{background:#22232A}
+html[data-bo-theme="dark"] .pg-editor-body{background:transparent}
 html[data-bo-theme="dark"] .pg-editor-section{background:#2C2E38;border-color:#3A3A38}
 html[data-bo-theme="dark"] 
 html[data-bo-theme="dark"] 

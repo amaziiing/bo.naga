@@ -49,4 +49,85 @@ function bindSourceResize(){
   handle.addEventListener('mousedown',onDown);
   handle.addEventListener('touchstart',onDown,{passive:false});
 }
-listen(document,'click',e=>{const row=e.target.closest('[data-slug]');if(row){const slug=row.dataset.slug;if(current&&current.slug===slug){reset()}else{current=pages.find(x=>x.slug===slug);if(current)fill(current)}}const b=e.target.closest('[data-cmd]');if(b)exec(b.dataset.cmd);const bl=e.target.closest('[data-block]');if(bl)exec('formatBlock',bl.dataset.block)});document.addEventListener('DOMContentLoaded',()=>{$('pcForm').addEventListener('submit',save);$('pcNew').onclick=()=>{reset()};$('pcDelete').onclick=del;$('pcPreview').onclick=openPage;$('pcCopy').onclick=copyUrl;$('pcStarter').onclick=starter;$('pcTitle').addEventListener('input',()=>{if(!current){$('pcSlug').value=$('pcTitle').value.toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');syncPartnershipUi()}});$('pcSlug').addEventListener('input',syncPartnershipUi);$('pcLink').onclick=()=>{const u=prompt('Link URL');if(u)exec('createLink',u)};$('pcImage').onclick=()=>{const u=prompt('Image URL');if(u)exec('insertImage',u)};$('pcInsertTxSlot').onclick=insertTxSlot;$('pcVisualMode').onclick=()=>setEditorMode('visual');$('pcHtmlMode').onclick=()=>setEditorMode('html');$('pcRich').addEventListener('input',()=>{if(editorMode==='visual')syncSourceFromVisual()});bindSourceResize();reset();Promise.all([loadBrands(),load()]).catch(e=>notify(e.message,true))})})();
+listen(document,'click',e=>{const row=e.target.closest('[data-slug]');if(row){const slug=row.dataset.slug;if(current&&current.slug===slug){reset()}else{current=pages.find(x=>x.slug===slug);if(current)fill(current)}}const b=e.target.closest('[data-cmd]');if(b)exec(b.dataset.cmd);const bl=e.target.closest('[data-block]');if(bl)exec('formatBlock',bl.dataset.block)});/* Code editors: lift the box over the page ---------------------------------------------------------
+   Six rows is not enough room to read or write HTML / CSS / JavaScript in, so each `.pc-code` textarea
+   gets a toggle that hands it the viewport and takes it back (owner: "要做一个可放大里面的container
+   不然用户很难编辑也很难查阅"). Built here rather than in the markup so the control always belongs to the
+   textarea it opens - and delegated, so a router swap cannot leave a dead button behind. */
+function pcToggleExpand(field,open){
+  const box=field.querySelector('textarea.pc-code');
+  field.classList.toggle('is-expanded',open);
+  /* Top layer. `position:fixed` alone is not enough here: an ancestor that carries a transform (or
+     contain / will-change) becomes the containing block, and the panel landed at the wrapper's own
+     offset instead of the viewport (measured: 798px-tall viewport, box at y=865). A popover is
+     painted above the page whatever the ancestors do, and it survives the router replacing content
+     underneath it. `manual` keeps the closing to this file, so Esc does exactly one thing. */
+  if(open){
+    if(typeof field.showPopover==='function'&&!field.hasAttribute('popover')) field.setAttribute('popover','manual');
+    if(typeof field.showPopover==='function'){ try{ field.showPopover(); }catch(e){} }
+  }else if(typeof field.hidePopover==='function'){
+    try{ if(field.matches(':popover-open')) field.hidePopover(); }catch(e){}
+  }
+  document.body.classList.toggle('pc-code-expanded',!!document.querySelector('.pc-field.is-expanded'));
+  const btn=field.querySelector('.pc-expand');
+  if(btn){
+    const name=btn.dataset.pcEditor||'code';
+    btn.setAttribute('aria-expanded',open?'true':'false');
+    btn.title=open?'Collapse':'Expand';
+    btn.setAttribute('aria-label',(open?'Collapse':'Expand')+' the '+name+' editor');
+    btn.innerHTML='<i class="bi '+(open?'bi-arrows-angle-contract':'bi-arrows-angle-expand')+'" aria-hidden="true"></i>';
+  }
+  if(open&&box) box.focus();
+}
+function pcBuildExpanders(){
+  document.querySelectorAll('textarea.pc-code').forEach(function(box){
+    const field=box.closest('.pc-field');
+    if(!field||field.querySelector('.pc-expand')) return;
+    const label=field.querySelector('label');
+    const name=label?label.textContent.trim():(box.id||'code');
+    field.classList.add('has-expand');
+    const btn=document.createElement('button');
+    btn.type='button';
+    btn.className='pc-expand';
+    btn.dataset.pcEditor=name;
+    btn.setAttribute('aria-expanded','false');
+    btn.title='Expand';
+    btn.setAttribute('aria-label','Expand the '+name+' editor');
+    btn.innerHTML='<i class="bi bi-arrows-angle-expand" aria-hidden="true"></i>';
+    /* Beside the name, not floating at the far right of the box (owner: "设计在名字右手边 不用太明显
+      也不用太大个 跟名字的大小就行了"): a small row that carries the label and the control together,
+       so the eye finds it where the field is named. The label keeps its own semantics - it is the same
+       element, only re-parented, and a button inside a <label> would fire both. */
+    if(label&&label.parentNode===field){
+      const head=document.createElement('div');
+      head.className='pc-field-head';
+      field.insertBefore(head,label);
+      head.appendChild(label);
+      head.appendChild(btn);
+    }else{
+      field.appendChild(btn);
+    }
+  });
+}
+listen(document,'click',function(e){
+  const btn=e.target.closest('.pc-expand');
+  if(!btn) return;
+  e.preventDefault();
+  const field=btn.closest('.pc-field');
+  if(!field) return;
+  const open=!field.classList.contains('is-expanded');
+  document.querySelectorAll('.pc-field.is-expanded').forEach(function(other){ if(other!==field) pcToggleExpand(other,false); });
+  pcToggleExpand(field,open);
+});
+listen(document,'keydown',function(e){
+  if(e.key!=='Escape') return;
+  const open=document.querySelector('.pc-field.is-expanded');
+  if(open) pcToggleExpand(open,false);
+});
+pcBuildExpanders();
+/* The router re-runs this file but replaces the markup: rebuild for the page it lands on. */
+if(window.__boPcExpandMount) document.removeEventListener('bo:spa:content-mounted',window.__boPcExpandMount);
+window.__boPcExpandMount=pcBuildExpanders;
+document.addEventListener('bo:spa:content-mounted',window.__boPcExpandMount);
+listen(document,'DOMContentLoaded',pcBuildExpanders);
+document.addEventListener('DOMContentLoaded',()=>{$('pcForm').addEventListener('submit',save);$('pcNew').onclick=()=>{reset()};$('pcDelete').onclick=del;$('pcPreview').onclick=openPage;$('pcCopy').onclick=copyUrl;$('pcStarter').onclick=starter;$('pcTitle').addEventListener('input',()=>{if(!current){$('pcSlug').value=$('pcTitle').value.toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');syncPartnershipUi()}});$('pcSlug').addEventListener('input',syncPartnershipUi);$('pcLink').onclick=()=>{const u=prompt('Link URL');if(u)exec('createLink',u)};$('pcImage').onclick=()=>{const u=prompt('Image URL');if(u)exec('insertImage',u)};$('pcInsertTxSlot').onclick=insertTxSlot;$('pcVisualMode').onclick=()=>setEditorMode('visual');$('pcHtmlMode').onclick=()=>setEditorMode('html');$('pcRich').addEventListener('input',()=>{if(editorMode==='visual')syncSourceFromVisual()});bindSourceResize();reset();Promise.all([loadBrands(),load()]).catch(e=>notify(e.message,true))})})();

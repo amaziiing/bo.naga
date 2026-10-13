@@ -701,3 +701,27 @@ html[data-bo-theme="dark"] body.page-customize-page.report-body.bo-charcoal:not(
     transform:none!important;
   }
 }
+
+/* --- The code editors can be lifted over the page -------------------------------------------------
+   Three 120px boxes are not enough room to read or write HTML / CSS / JavaScript in (owner: "要做一个
+   可放大里面的container 不然用户很难编辑也很难查阅"). Each one carries a toggle that gives its textarea
+   the viewport; Esc, or the same button, puts it back. Layout only - the colours stay the ones this
+   sheet already gives `.pc-field textarea`, and the panel borrows the shell's own surface token so both
+   themes hold without a second set of literals. */
+/* The control sits with the name and is sized with it - no box, no 30px square (owner: "设计在名字右手边
+   不用太明显也不用太大个 跟名字的大小就行了"). It keeps a 24px hit area through padding so it is still
+   easy to press, and only the amber on hover says it is a control. */
+/* The label above (`display:block!important; margin:0 0 6px!important; font-size:11.5px!important`) is
+   stated with !important, so this row answers the same way: it takes the label's own bottom margin over,
+   and the name's own font size becomes the row's, which is what sizes the glyph. */
+html body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-field-head{display:flex!important;align-items:center!important;gap:5px!important;margin:0 0 6px!important;font-size:11.5px!important;line-height:1.2!important}
+html body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-field-head label{margin:0!important}
+html body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-expand{display:inline-flex!important;align-items:center!important;justify-content:center!important;width:20px!important;height:20px!important;padding:0!important;border:0!important;border-radius:5px!important;background:transparent!important;box-shadow:none!important;color:inherit!important;opacity:.4;font-size:1em!important;line-height:1!important;cursor:pointer;transition:opacity .15s ease,color .15s ease}
+html body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-expand i{font-size:1em!important;line-height:1!important}
+html body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-expand:hover,html body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-expand:focus-visible{opacity:1;color:#B45309}
+html[data-bo-theme="dark"] body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-expand:hover,html[data-bo-theme="dark"] body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-expand:focus-visible{color:#F59E0B}
+html body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-field.is-expanded{position:fixed;inset:18px;z-index:1090;display:flex;flex-direction:column;gap:10px;margin:0;width:auto;height:auto;max-width:none;max-height:none;overflow:hidden;padding:16px 18px;border:1px solid var(--bo-bg,#FFF1DC);border-radius:14px;background:var(--bo-surface,#FFF8EB);box-shadow:0 24px 60px rgba(24,25,28,.30)}
+html body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-field.is-expanded label{cursor:default}
+html body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-field.is-expanded textarea.pc-code{flex:1 1 auto;min-height:0!important;height:auto!important;resize:none!important;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-size:13px!important;line-height:1.6}
+html body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-field.is-expanded::backdrop{background:rgba(24,25,28,.38)}
+body.pc-code-expanded{overflow:hidden}

@@ -160,3 +160,22 @@ body.bo-wallet-tx.pg-editing .pg-editor{flex:1 1 auto;min-height:0;overflow-y:au
 /* Native checkboxes are drawn in the browser's accent blue, which is the one colour on this page that is
    not the module's. `accent-color` keeps the native control and paints it in the page's own amber. */
 .pg-editor-card input[type=checkbox]{accent-color:#C8791A}
+
+/* ============================================================================
+   Section cards for the editor, copied from the reference form the owner named -
+   agent-detail.html?new=1 ("Create New Agent"). Measured there: the card is #FFFCF7 with a
+   1px #DCC9A8 border and 8px corners at 20/22/22 padding, a 3px rail sits at the left edge
+   starting 12px down, the head is a flex row (10px/12px gaps) with a 14px bottom pad and a rule,
+   the icon tile is the amber at 10%, fields sit on a 2-column grid with 16px/18px gaps, and
+   helper text is 12.5px/500 #71717A.
+   ========================================================================= */
+.pg-section{position:relative;background:#FFFCF7;border:1px solid #DCC9A8;border-radius:8px;padding:20px 22px 22px}
+.pg-section + .pg-section{margin-top:16px}
+.pg-section::before{content:"";position:absolute;left:0;top:12px;width:3px;height:calc(100% - 24px);background:#D97706;border-radius:0 3px 3px 0}
+.pg-section-head{display:flex;align-items:flex-start;gap:10px 12px;padding:0 0 14px;margin:0 0 18px;border-bottom:1px solid #EADCC8}
+.pg-section-ico{flex:0 0 auto;width:28px;height:28px;border-radius:8px;background:rgba(217,119,6,.1);color:#D97706;display:inline-flex;align-items:center;justify-content:center}
+.pg-section-head h4{margin:0;font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#B45309}
+.pg-section-head p{margin:2px 0 0;font-size:12.5px;font-weight:500;color:#71717A}
+.pg-editor-body > .pg-form-grid{display:block}                 /* the panel's outer wrapper: a stack of section cards */
+.pg-section .pg-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 18px}
+.pg-section .pg-note{margin-top:4px;font-size:12.5px;font-weight:500;color:#71717A}

@@ -73,7 +73,9 @@ html[data-bo-theme="dark"] .pg-panel-note{background:#2C2E38;border-color:#4A4C5
 html[data-bo-theme="dark"] .pg-advanced{background:#2C2E38;border-color:#3A3A38}
 html[data-bo-theme="dark"] .pg-advanced>summary{border-color:#3A3A38;color:#F59E0B}
 @media(max-width:991px){.pg-advanced-fields{grid-template-columns:1fr}.pg-advanced-fields .pg-field.full{grid-column:auto}}
-.pg-endpoint-details{margin:10px 0;border:1px solid #EADCC8;border-radius:12px;background:#FFF8EB;overflow:hidden}
+.pg-endpoint-details{/* Rows, not boxes: this rule was painting each endpoint as a pale rounded panel, and the bottom border
+   added elsewhere did not remove the box. */
+margin:0;border:0;border-bottom:1px solid #EADCC8;border-radius:0;background:transparent;overflow:hidden}
 .pg-endpoint-details:first-child{margin-top:0}
 .pg-endpoint-details>summary{display:flex;align-items:center;gap:10px;padding:12px 14px;font-size:13px;cursor:pointer;list-style:none}
 .pg-endpoint-details>summary::-webkit-details-marker{display:none}

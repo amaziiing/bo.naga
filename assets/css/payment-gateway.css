@@ -20,16 +20,17 @@
    the page and only the sections are cards. The card keeps its role as the inset holder (see bo-shell.css)
    and nothing else. */
 .pg-editor-card{background:transparent;border:0;border-radius:0}
-.pg-editor-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:18px 20px 14px}
+.pg-editor-head{display:flex;align-items:center;justify-content:flex-start;gap:20px;padding:16px 20px;border-bottom:1px solid #EADCC8}
 .pg-editor-head h3{margin:0;font-size:17px;font-weight:800;color:#D97706}
 .pg-editor-head small{display:block;margin-top:3px;font-size:12px;color:#57534E}
 /* The rule belongs under the tab row, not between the title and the tabs: with it above them the tabs read
    as detached from the header they belong to. This is the module's own idiom - the list page's
    .bo-module-tabs carries its rule at the row's baseline the same way. */
-/* `.bo-tx-tabs` is the module's own class and the module sheet pins it to `padding:0!important`, so the
-   row's padding and its rule have to be stated the same way - the selector names the body class the
-   module uses plus this page's state class, which is how this repo beats an equal-weight rule. */
-body.bo-wallet-tx .pg-editor-tabs.bo-tx-tabs{padding:6px 20px 14px!important;border-bottom:1px solid #EADCC8!important;width:100%!important;box-sizing:border-box!important}
+/* The tab row rides the header (owner: "可以优化 移去 edit S1pay的标题同一排"), so it states no padding
+   and no rule of its own - the header carries the rule under the whole row. The module sheet pins
+   `.bo-tx-tabs` to `padding:0!important`; naming the body class the module uses plus this page's class
+   is how this repo beats a rule of equal weight that loads later. */
+body.bo-wallet-tx .pg-editor-tabs.bo-tx-tabs{padding:0!important;border-bottom:0!important;width:auto!important}
 
 .pg-editor-body{background:#F5EBDC}
 .pg-editor-section{padding:16px 20px}
@@ -196,3 +197,6 @@ body.bo-wallet-tx.pg-editing .pg-editor{flex:1 1 auto;min-height:0;overflow-y:au
 .pg-sections{display:block}                                     /* the panel's outer wrapper: a stack of section cards, not a grid */
 .pg-section .pg-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 18px}
 .pg-section .pg-note{margin-top:4px;font-size:12.5px;font-weight:500;color:#71717A}
+
+/* The header pushes its action to the right end of the same row. */
+.pg-editor-head>#pgCloseModal{margin-left:auto;flex:0 0 auto}

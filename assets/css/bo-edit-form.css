@@ -1,0 +1,58 @@
+/* ============================================================================
+   The edit-form standard - one place for the geometry of a page that edits one
+   record, so an edit page cannot drift from the others.
+
+   The standard is not invented here. It is the one this system's edit pages
+   already declare for each other: rebate-rule-edit.css says "Match Admin
+   Create/Edit + Rebate Rule" and promotion-edit.css says "Match Admin
+   Create/Edit + Rebate Rule", so those two pages agree by construction and
+   they are the reference. Measured on both, the tokens are:
+
+     label          11.5px / 800 / #57534E   (the house rung: agent-detail-page.css states
+                                              "labels are 11.5/800 uppercase muted everywhere else")
+     input, select  36px tall / 13px / 600 / radius 10 / #DCC9A8 on #FFF8EB
+                    (the house number: bo-control-height.css is the sheet whose whole job is
+                     "Control height - one number for the panel's box controls: 36px", written
+                     because 25 pages said 36 while 49 others said something else)
+     textarea       96px tall / 13px / 10px 12px padding
+
+   What this fixes is drift, measured: slider-edit's fields are 40px tall at
+   14px, the payment-gateway editor's labels were 13px/700 and its fields 44px,
+   and rebate-rule-edit draws a 11px label where the house rung is 11.5px.
+
+   Scope: `body.bo-edit-form`, added by the pages that edit a record. Selectors
+   carry that body class plus the element, so they outrank a bare `.some-form
+   .field input` in a page sheet without `!important` - the pages keep their own
+   colours, rails and section chrome, they only stop re-deciding the geometry.
+
+   Not in scope: the Account Settings form (profile.html), which is a settings
+   page rather than a record editor and measures 14px labels with 44px fields.
+   ========================================================================= */
+
+body.bo-edit-form label:not(.bo-edit-form-keep){
+  font-size:11.5px;
+  font-weight:800;
+  color:#57534E;
+}
+
+body.bo-edit-form input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=hidden]),
+body.bo-edit-form select{
+  min-height:36px;
+  font-size:13px;
+  font-weight:600;
+  border:1px solid #DCC9A8;
+  border-radius:10px;
+  background:#FFF8EB;
+  padding:0 12px;
+}
+
+body.bo-edit-form textarea{
+  min-height:96px;
+  font-size:13px;
+  font-weight:600;
+  line-height:1.5;
+  border:1px solid #DCC9A8;
+  border-radius:10px;
+  background:#FFF8EB;
+  padding:10px 12px;
+}

@@ -1966,7 +1966,7 @@
       css.href = 'assets/css/bo-account-chip.css?v=c8730135';
       (document.head || document.documentElement).appendChild(css);
       var js = document.createElement('script');
-      js.src = 'assets/js/bo-account-chip.js?v=0d3a78bf';
+      js.src = 'assets/js/bo-account-chip.js?v=fcf6fa08';
       (document.body || document.documentElement).appendChild(js);
     }catch(e){}
   })();

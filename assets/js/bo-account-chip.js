@@ -157,9 +157,23 @@
  /* No chip on this page: auth.js renders the block into any [data-bo-profile] host, so a hidden one
     is added, painted by auth.js itself (never a second copy of the markup - that is what made five
     chips drift), the link taken out of it, and the host removed so its counter row never shows. */
+ let borrowedChip=false;
  function borrowChipFromAuth(){
+  /* Once per document, and never on a page that ships its own host. Every sync asks for a link
+     inside a host, but this file MOVES that link into the rail - so from the second sync on the
+     query is empty and this function used to run again, which asks auth.js to re-render its markup
+     (`injectProfile` -> `loadHeaderCounters` -> `BO_OPERATION_NOTIFICATION_CONTROL.refresh` ->
+     `/notifications/pending-summary`), whose DOM writes come straight back through the body observer
+     below as another sync. Measured on the local build: 583 notification requests in the first ten
+     seconds of an agent-settlement page and 600 in the next ten - about 60 a second, ~16ms apart,
+     on every BO page (owner: "我的页面加载很慢"). With the borrow pinned to one per document the
+     same page asks once a second, which is the interval the poller is built for. */
+  if(borrowedChip) return null;
   if(!window.BO_AUTH||typeof window.BO_AUTH.injectProfile!=='function') return null;
   if(document.documentElement.getAttribute('data-bo-shell')!=='bo') return null;
+  /* A page that ships its own host needs nothing borrowed: auth.js paints that one. */
+  if(document.querySelector('[data-bo-profile]')) return null;
+  borrowedChip=true;
   const host=document.createElement('div');
   host.setAttribute('data-bo-profile','');
   host.style.display='none';

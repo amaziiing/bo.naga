@@ -15,6 +15,21 @@
      Show / Showing / ladder) and the same `-` in the size list, which here means "as many rows as the
      panel can hold" and is measured rather than guessed. */
   let pgPage=1;
+  /* The list toolbar states what the siblings state: a status filter with its counts on the left and
+     the search + actions on the right. The counts follow the search (like the module's other tables),
+     and everything funnels through one render so a filter can never disagree with the ladder. */
+  let pgStatus='';
+  function pgKeyword(){return String(($('pgSearch')||{}).value||'').trim().toLowerCase();}
+  function pgMatching(){
+    const q=pgKeyword();
+    return gateways.filter(g=>!q||[g.displayName,g.gatewayCode,g.baseUrl].some(v=>String(v||'').toLowerCase().includes(q)));
+  }
+  function pgSetCounts(base){
+    const on=base.filter(g=>Number(g.status)===1).length;
+    if($('pgCountAll')) $('pgCountAll').textContent='('+base.length+')';
+    if($('pgCountEnabled')) $('pgCountEnabled').textContent='('+on+')';
+    if($('pgCountDisabled')) $('pgCountDisabled').textContent='('+(base.length-on)+')';
+  }
   function pgAutoRows(){
     const head=document.querySelector('.gateway-main-table thead');
     const foot=document.querySelector('.gateway-list-card .table-footer');
@@ -42,12 +57,18 @@
   }
   function renderList(){
     const box=$('pgGatewayList');
-    if(!gateways.length){box.innerHTML='<tr><td colspan="6" class="pg-empty">No gateway configured.</td></tr>';pgSyncFooter(0,0,0);return;}
+    const base=pgMatching();
+    pgSetCounts(base);
+    const rows=pgStatus===''?base:base.filter(g=>String(Number(g.status))===pgStatus);
+    if(!rows.length){
+      box.innerHTML='<tr><td colspan="6" class="pg-empty">'+(gateways.length?'No gateway matches this filter.':'No gateway configured yet. Create one, configure DEPOSIT / WITHDRAW / STATUS requests, then add channels.')+'</td></tr>';
+      pgSyncFooter(0,0,0);return;
+    }
     const size=pgPageSize();
-    const pages=Number.isFinite(size)?Math.max(1,Math.ceil(gateways.length/size)):1;
+    const pages=Number.isFinite(size)?Math.max(1,Math.ceil(rows.length/size)):1;
     if(pgPage>pages) pgPage=pages;
     const start=Number.isFinite(size)?(pgPage-1)*size:0;
-    const shown=Number.isFinite(size)?gateways.slice(start,start+size):gateways;
+    const shown=Number.isFinite(size)?rows.slice(start,start+size):rows;
     box.innerHTML=shown.map(g=>{
       const logo=String(g.logoUrl||'').trim();
       const deposit=Number(g.supportsDeposit)===1, withdraw=Number(g.supportsWithdraw)===1;
@@ -60,7 +81,7 @@
         <td><div class="gateway-action-wrap"><button class="gateway-action-btn" type="button" data-edit-gateway="${g.id}" title="Edit Gateway"><i class="bi bi-pencil-square"></i></button></div></td>
       </tr>`;
     }).join('');
-    pgSyncFooter(gateways.length,start+1,start+shown.length);
+    pgSyncFooter(rows.length,start+1,start+shown.length);
   }
   /* ---- the editor is a view, not a dialog --------------------------------------------------------
      Owner's call ("这个页面需要优化统一设计 并且所有编辑弹窗和添加弹窗都要做成一页也并且统一设计"): New and Edit
@@ -176,6 +197,14 @@
     $('pgChannelForm').addEventListener('submit',saveChannel);
     $('pgRefresh').addEventListener('click',()=>load().catch(e=>notify(e.message,'error')));
     if($('pgPageSize')) $('pgPageSize').addEventListener('change',()=>{pgPage=1;renderList();});
+    document.querySelectorAll('.pg-list-toolbar [data-pg-status]').forEach(b=>b.addEventListener('click',()=>{
+      pgStatus=String(b.dataset.pgStatus||'');pgPage=1;
+      document.querySelectorAll('.pg-list-toolbar [data-pg-status]').forEach(x=>{
+        const on=x===b;x.classList.toggle('is-active',on);x.setAttribute('aria-pressed',on?'true':'false');
+      });
+      renderList();
+    }));
+    if($('pgSearch')) $('pgSearch').addEventListener('input',()=>{pgPage=1;renderList();});
     if($('pgPager')) $('pgPager').addEventListener('click',e=>{const b=e.target.closest('[data-pg-page]');if(!b)return;pgPage=Number(b.dataset.pgPage)||1;renderList();});
     /* `-` is a measurement, so a resize can change it. One slot on window: this file re-runs on every
        router entry and a second listener would page twice per resize. */

@@ -87,7 +87,10 @@ body.bo-edit-form .clean-btn.primary{
    `34h / 13px / pad 10` while the reference form reads `44h / 13.5px / pad 22`. Only the geometry is
    restated: the module's own colour and gradient are left alone, because they are that family's
    identity rather than drift. */
-body.bo-edit-form .clean-btn{
+/* Scoped to the editor, not the page: as a page-wide rule it also inflated the list's own toolbar - measured,
+   `Transactions` `Refresh` `New Gateway` came out 44px tall where the module's list pages run 36px. Only the
+   editor's action bar is 44, which is the reference form's rung for a form's actions. */
+body.bo-edit-form .pg-editor .clean-btn{
   min-height:44px!important;
   height:auto!important;
   font-size:13.5px!important;

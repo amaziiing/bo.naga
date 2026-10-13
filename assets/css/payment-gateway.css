@@ -20,7 +20,7 @@
    the page and only the sections are cards. The card keeps its role as the inset holder (see bo-shell.css)
    and nothing else. */
 .pg-editor-card{background:transparent;border:0;border-radius:0}
-.pg-editor-head{display:flex;align-items:center;justify-content:flex-start;gap:20px;padding:16px 20px;border-bottom:1px solid #EADCC8}
+.pg-editor-head{display:flex;align-items:center;justify-content:flex-start;gap:20px;padding:14px 20px;border-bottom:1px solid #EADCC8}
 .pg-editor-head h3{margin:0;font-size:17px;font-weight:800;color:#D97706}
 .pg-editor-head small{display:block;margin-top:3px;font-size:12px;color:#57534E}
 /* The rule belongs under the tab row, not between the title and the tabs: with it above them the tabs read
@@ -200,3 +200,7 @@ body.bo-wallet-tx.pg-editing .pg-editor{flex:1 1 auto;min-height:0;overflow-y:au
 
 /* The header pushes its action to the right end of the same row. */
 .pg-editor-head>#pgCloseModal{margin-left:auto;flex:0 0 auto}
+
+/* With the header down to one line of title, the pills centre against it cleanly. */
+.pg-editor-title{align-items:center}
+.pg-editor-title h3{line-height:1.2}

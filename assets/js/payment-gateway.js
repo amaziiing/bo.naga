@@ -9,7 +9,7 @@
   function renderLogoPreview(url){const box=$('pgLogoPreview');if(!box)return;const safe=String(url||'').trim();box.innerHTML=safe?`<img src="${esc(safe)}" alt="Gateway logo" onerror="this.parentElement.innerHTML='<span class=&quot;pg-note&quot;>Invalid logo</span>'">`:'<span class="pg-note">No logo</span>';}
   async function uploadGatewayLogo(file){if(!file)return;const allowed=['image/png','image/jpeg','image/webp','image/gif'];if(!allowed.includes(file.type))throw new Error('Logo must be PNG, JPG, WEBP or GIF.');const fd=new FormData();fd.append('image',file);const res=await fetch(ep('UPLOAD_IMAGE'),{method:'POST',headers:{...BO_AUTH.authHeader(),'X-Admin-Username':String(BO_AUTH.user()?.username||'ADMIN')},body:fd});const j=await res.json().catch(()=>({}));if(!res.ok||j.status==='error'||!j.data?.url)throw new Error(j.message||'Logo upload failed');$('pgLogoUrl').value=j.data.url;renderLogoPreview(j.data.url);}
   function selectedId(){return selected&&selected.id;}
-  async function load(){const j=await api(ep('PAYMENT_GATEWAY_LIST'));gateways=(j.data&&j.data.content)||[];renderList();if(selected){selected=gateways.find(g=>String(g.id)===String(selected.id))||null;if(selected){fillGateway(selected);renderConfig();}}}
+  async function load(){const j=await api(ep('PAYMENT_GATEWAY_LIST'));gateways=(j.data&&j.data.content)||[];renderList();if(selected){selected=gateways.find(g=>String(g.id)===String(selected.id))||null;if(selected){fillGateway(selected);renderConfig();renderChannels();pgPanelsForCurrent();}}}
   function renderList(){
     const box=$('pgGatewayList');
     if(!gateways.length){box.innerHTML='<tr><td colspan="6" class="pg-empty">No gateway configured.</td></tr>';return;}
@@ -26,12 +26,88 @@
       </tr>`;
     }).join('');
   }
-  function openGatewayModal(){const m=$('pgGatewayModal');m.classList.add('show');m.setAttribute('aria-hidden','false');document.body.classList.add('modal-open');}
-  function closeGatewayModal(){const m=$('pgGatewayModal');m.classList.remove('show');m.setAttribute('aria-hidden','true');document.body.classList.remove('modal-open');}
+  /* ---- the editor is a view, not a dialog --------------------------------------------------------
+     Owner's call ("这个页面需要优化统一设计 并且所有编辑弹窗和添加弹窗都要做成一页也并且统一设计"): New and Edit
+     are the same page, and the three sections are tabs, so a gateway is no longer edited by scrolling
+     8.6 screens inside a modal. `selected` decides what the two dependent tabs can do - without a
+     saved gateway there is nothing to attach an endpoint or a channel to, so those panels say so
+     instead of rendering empty forms. */
+  function pgTabState(){
+    const has=!!selected;
+    document.querySelectorAll('#pgGatewayModal [data-pg-tab]').forEach(function(b){
+      const name=b.dataset.pgTab;
+      if(name==='endpoints'&&$('pgEndpointsCount')) $('pgEndpointsCount').textContent=String(((selected&&selected.endpoints)||[]).length);
+      if(name==='channels'&&$('pgChannelsCount')) $('pgChannelsCount').textContent=String(((selected&&selected.channels)||[]).length);
+      b.classList.toggle('is-dim',!has&&name!=='gateway');
+      b.disabled=!has&&name!=='gateway';
+    });
+  }
+  function pgTab(name){
+    document.querySelectorAll('#pgGatewayModal [data-pg-tab]').forEach(function(b){
+      const on=b.dataset.pgTab===name;
+      b.classList.toggle('is-active',on);
+      b.setAttribute('aria-selected',on?'true':'false');
+      b.setAttribute('aria-pressed',on?'true':'false');
+    });
+    document.querySelectorAll('#pgGatewayModal [data-pg-panel]').forEach(function(panel){ panel.hidden=panel.dataset.pgPanel!==name; });
+    pgTabState();
+  }
+  function pgBindTabs(){
+    document.querySelectorAll('#pgGatewayModal [data-pg-tab]').forEach(function(b){
+      if(b.dataset.pgBound==='1') return;
+      b.dataset.pgBound='1';
+      b.addEventListener('click',function(){ pgTab(b.dataset.pgTab); });
+    });
+  }
+  /* Which panels a view can show: a saved gateway gets its endpoints and channels, an unsaved one gets
+     the reason they are not there yet. */
+  function pgPanelsForCurrent(){
+    if(selected){
+      renderConfig();pgCollapseEndpoints($('pgEndpointForms'));renderChannels();
+      if($('pgNewChannel')) $('pgNewChannel').disabled=false;
+    }else{
+      if($('pgEndpointForms')) $('pgEndpointForms').innerHTML='<div class="pg-panel-note">Save this gateway first - API endpoints attach to a saved gateway.</div>';
+      if($('pgChannels')) $('pgChannels').innerHTML='<div class="pg-panel-note">Save this gateway first, then add its deposit and withdraw channels here.</div>';
+      if($('pgChannelForm')) $('pgChannelForm').hidden=true;
+      if($('pgNewChannel')) $('pgNewChannel').disabled=true;
+    }
+    pgTabState();
+  }
+  function openGatewayModal(){
+    const v=$('pgGatewayModal');
+    v.hidden=false;v.classList.add('show');v.setAttribute('aria-hidden','false');
+    const list=document.querySelector('.gateway-list-card'); if(list) list.hidden=true;
+    pgBindTabs();pgPanelsForCurrent();pgTab('gateway');
+    window.scrollTo(0,0);
+  }
+  function closeGatewayModal(){
+    const v=$('pgGatewayModal');
+    v.hidden=true;v.classList.remove('show');v.setAttribute('aria-hidden','true');
+    const list=document.querySelector('.gateway-list-card'); if(list) list.hidden=false;
+    window.scrollTo(0,0);
+  }
 
-  function resetGateway(){selected=null;$('pgId').value='';$('pgCode').value='';$('pgName').value='';$('pgBaseUrl').value='';$('pgAdminUrl').value='';$('pgLogoUrl').value='';renderLogoPreview('');$('pgStatus').value='0';$('pgDeposit').checked=true;$('pgWithdraw').checked=false;$('pgDepositChannelSelection').value='0';$('pgCredentials').value='{}';$('pgCallbackUrl').value='';$('pgDepositCallbackUrl').value='';$('pgWithdrawCallbackUrl').value='';$('pgLinkBackUrl').value='';$('pgCallbackReference').value='referenceId';$('pgCallbackStatus').value='status';$('pgCallbackMap').value='{}';$('pgCallbackVerifyMode').value='NONE';$('pgCallbackVerifyHeader').value='X-Signature';$('pgCallbackVerifyField').value='signature';$('pgCallbackVerifySecret').value='';$('pgCallbackAllowedIps').value='';$('pgDepositStatusPollEnabled').value='1';$('pgConnectTimeout').value='10000';$('pgRequestTimeout').value='20000';$('pgNotes').value='';$('pgGatewayFormTitle').textContent='Create Gateway';$('pgSelectedPill').textContent='Not selected';$('pgSelectedPill').className='pg-pill off';$('pgConfigPanel').hidden=true;$('pgChannelPanel').hidden=true;renderList();}
+  function resetGateway(){selected=null;$('pgId').value='';$('pgCode').value='';$('pgName').value='';$('pgBaseUrl').value='';$('pgAdminUrl').value='';$('pgLogoUrl').value='';renderLogoPreview('');$('pgStatus').value='0';$('pgDeposit').checked=true;$('pgWithdraw').checked=false;$('pgDepositChannelSelection').value='0';$('pgCredentials').value='{}';$('pgCallbackUrl').value='';$('pgDepositCallbackUrl').value='';$('pgWithdrawCallbackUrl').value='';$('pgLinkBackUrl').value='';$('pgCallbackReference').value='referenceId';$('pgCallbackStatus').value='status';$('pgCallbackMap').value='{}';$('pgCallbackVerifyMode').value='NONE';$('pgCallbackVerifyHeader').value='X-Signature';$('pgCallbackVerifyField').value='signature';$('pgCallbackVerifySecret').value='';$('pgCallbackAllowedIps').value='';$('pgDepositStatusPollEnabled').value='1';$('pgConnectTimeout').value='10000';$('pgRequestTimeout').value='20000';$('pgNotes').value='';$('pgGatewayFormTitle').textContent='New Gateway';$('pgSelectedPill').textContent='Not selected';$('pgSelectedPill').className='pg-pill off';$('pgConfigPanel').hidden=true;$('pgChannelPanel').hidden=true;renderList();}
   function fillGateway(g){selected=g;$('pgId').value=g.id||'';$('pgCode').value=g.gatewayCode||'';$('pgName').value=g.displayName||'';$('pgBaseUrl').value=g.baseUrl||'';$('pgAdminUrl').value=g.adminUrl||'';$('pgLogoUrl').value=g.logoUrl||'';renderLogoPreview(g.logoUrl||'');$('pgStatus').value=String(g.status??0);$('pgDeposit').checked=Number(g.supportsDeposit)===1;$('pgWithdraw').checked=Number(g.supportsWithdraw)===1;$('pgDepositChannelSelection').value=String(g.depositChannelSelection??0);$('pgCredentials').value=pretty(g.credentialsJson);$('pgCallbackUrl').value=g.callbackUrl||'';$('pgDepositCallbackUrl').value=g.depositCallbackUrl||g.callbackUrl||'';$('pgWithdrawCallbackUrl').value=g.withdrawCallbackUrl||g.callbackUrl||'';$('pgLinkBackUrl').value=g.linkBackUrl||'';$('pgCallbackReference').value=g.callbackReferenceField||'referenceId';$('pgCallbackStatus').value=g.callbackStatusField||'status';$('pgCallbackMap').value=pretty(g.callbackStatusMapJson);$('pgCallbackVerifyMode').value=g.callbackVerifyMode||'NONE';$('pgCallbackVerifyHeader').value=g.callbackVerifyHeader||'X-Signature';$('pgCallbackVerifyField').value=g.callbackVerifyField||'signature';$('pgCallbackVerifySecret').value=g.callbackVerifySecret||'';$('pgCallbackAllowedIps').value=g.callbackAllowedIps||'';$('pgDepositStatusPollEnabled').value=String(g.depositStatusPollEnabled??1);$('pgConnectTimeout').value=g.connectTimeoutMs||10000;$('pgRequestTimeout').value=g.requestTimeoutMs||20000;$('pgNotes').value=g.notes||'';$('pgGatewayFormTitle').textContent='Edit '+(g.displayName||'Gateway');$('pgSelectedPill').textContent=Number(g.status)===1?'Enabled':'Disabled';$('pgSelectedPill').className='pg-pill '+(Number(g.status)===1?'on':'off');$('pgConfigPanel').hidden=false;$('pgChannelPanel').hidden=false;renderList();}
   function endpointDefaults(action){if(action==='DEPOSIT')return {httpMethod:'POST',contentType:'JSON',enabled:0,path:'',headersTemplate:'{}',bodyTemplate:'{}',successPath:'',successValues:'1',messagePath:'',transactionIdPath:'',redirectUrlPath:'',redirectTransform:'NONE',transactionStatusPath:''};if(action==='WITHDRAW')return {httpMethod:'POST',contentType:'JSON',enabled:0,path:'',headersTemplate:'{}',bodyTemplate:'{}',successPath:'',successValues:'1',messagePath:'',transactionIdPath:'',redirectUrlPath:'',redirectTransform:'NONE',transactionStatusPath:''};return {httpMethod:'POST',contentType:'JSON',enabled:0,path:'',headersTemplate:'{}',bodyTemplate:'{}',successPath:'',successValues:'1',messagePath:'',transactionIdPath:'',redirectUrlPath:'',redirectTransform:'NONE',transactionStatusPath:''};}
+  /* Each action's template editor becomes a collapsible block: three of them stacked open were 3.9 screens,
+   and the action name plus its enabled state is all a reader needs to pick the one to work on. Same
+   pattern as the callback fields, so the page has one idea of "advanced" rather than two. */
+  function pgCollapseEndpoints(forms){
+    forms.querySelectorAll('form.pg-endpoint').forEach(f=>{
+      if(f.parentElement&&f.parentElement.tagName==='DETAILS') return;
+      const d=document.createElement('details');d.className='pg-endpoint-details';
+      const box=f.querySelector('input[name="enabled"]');
+      const on=!!(box&&box.checked);
+      const sum=document.createElement('summary');
+      sum.innerHTML='<b>'+esc(f.dataset.endpointForm)+'</b><span class="pg-pill '+(on?'on':'off')+'">'+(on?'Enabled':'Disabled')+'</span>';
+      f.parentNode.insertBefore(d,f);d.appendChild(sum);d.appendChild(f);
+      if(box) box.addEventListener('change',()=>{
+        sum.querySelector('.pg-pill').className='pg-pill '+(box.checked?'on':'off');
+        sum.querySelector('.pg-pill').textContent=box.checked?'Enabled':'Disabled';
+      });
+    });
+  }
   function renderConfig(){if(!selected)return;const forms=$('pgEndpointForms');const by={};(selected.endpoints||[]).forEach(e=>by[String(e.actionType).toUpperCase()]=e);forms.innerHTML=['DEPOSIT','WITHDRAW','STATUS'].map(action=>{const e={...endpointDefaults(action),...(by[action]||{})};return `<form class="pg-endpoint" data-endpoint-form="${action}"><input type="hidden" name="id" value="${esc(e.id||'')}"><div class="pg-toolbar"><b>${action}</b><label><input type="checkbox" name="enabled" ${Number(e.enabled)===1?'checked':''}> Enabled</label></div><div class="pg-form-grid"><div class="pg-field"><label>HTTP Method</label><select name="httpMethod">${['GET','POST','PUT','PATCH','DELETE'].map(x=>`<option ${x===e.httpMethod?'selected':''}>${x}</option>`).join('')}</select></div><div class="pg-field"><label>Content Type</label><select name="contentType">${['JSON','FORM','QUERY','NONE'].map(x=>`<option ${x===e.contentType?'selected':''}>${x}</option>`).join('')}</select></div><div class="pg-field full"><label>Path or Full URL</label><input name="path" value="${esc(e.path||'')}" placeholder="/ApiRobot/ApiAllocateServer.aspx"></div><div class="pg-field full"><label>Headers JSON</label><textarea name="headersTemplate" rows="3">${esc(pretty(e.headersTemplate))}</textarea></div><div class="pg-field full"><label>Request Body Template</label><textarea name="bodyTemplate" rows="9">${esc(pretty(e.bodyTemplate))}</textarea></div><div class="pg-field"><label>Success JSON Path</label><input name="successPath" value="${esc(e.successPath||'')}" placeholder="Code"></div><div class="pg-field"><label>Accepted Values</label><input name="successValues" value="${esc(e.successValues||'')}" placeholder="1,success"></div><div class="pg-field"><label>Message Path</label><input name="messagePath" value="${esc(e.messagePath||'')}" placeholder="Message"></div><div class="pg-field"><label>Provider Transaction ID Path</label><input name="transactionIdPath" value="${esc(e.transactionIdPath||'')}" placeholder="Data.TransactionId"></div><div class="pg-field"><label>Redirect URL Path</label><input name="redirectUrlPath" value="${esc(e.redirectUrlPath||'')}" placeholder="Data.Domain"></div><div class="pg-field"><label>Redirect Transform</label><select name="redirectTransform"><option ${e.redirectTransform==='NONE'?'selected':''}>NONE</option><option ${e.redirectTransform==='BASE64'?'selected':''}>BASE64</option></select></div><div class="pg-field"><label>Provider Status Path</label><input name="transactionStatusPath" value="${esc(e.transactionStatusPath||'')}" placeholder="Data.Status"></div></div><div class="pg-actions mt-2"><button class="clean-btn primary" type="submit">Save ${action}</button></div></form>`}).join('');renderChannels();}
   function renderChannels(){const box=$('pgChannels');const rows=selected?.channels||[];if(!rows.length){box.innerHTML='<div class="pg-empty">No gateway channels.</div>';return;}box.innerHTML=`<div class="pg-table-wrap"><table class="pg-table"><thead><tr><th>Name</th><th>Direction</th><th>Provider Code</th><th>Min</th><th>Max</th><th>Status</th><th>Action</th></tr></thead><tbody>${rows.map(c=>`<tr><td>${esc(c.displayName)}</td><td>${esc(c.direction)}</td><td class="pg-code">${esc(c.providerCode||'-')}</td><td>${esc(c.minAmount||0)}</td><td>${esc(c.maxAmount||0)}</td><td><span class="pg-pill ${Number(c.status)===1?'on':'off'}">${Number(c.status)===1?'Enabled':'Disabled'}</span></td><td><button class="clean-btn" data-edit-channel="${c.id}">Edit</button></td></tr>`).join('')}</tbody></table></div>`;}
   function editChannel(c){$('pgChannelForm').hidden=false;$('pgChannelId').value=c?.id||'';$('pgChannelName').value=c?.displayName||'';$('pgChannelDirection').value=c?.direction||'DEPOSIT';$('pgChannelCode').value=c?.providerCode||'';$('pgChannelStatus').value=String(c?.status??1);$('pgChannelMin').value=c?.minAmount??0;$('pgChannelMax').value=c?.maxAmount??0;$('pgChannelSort').value=c?.sortOrder??0;$('pgChannelVars').value=pretty(c?.requestVariablesJson||'{}');$('pgChannelName').focus();}

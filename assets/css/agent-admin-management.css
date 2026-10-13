@@ -108,6 +108,9 @@ html[data-bo-theme="dark"] .agent-admin-action:hover{background:#2A2C36!importan
 .agent-proof-link{display:inline-flex;align-items:center;gap:6px;color:#57534E;font-weight:600;text-decoration:none}
 .agent-approval-actions{display:flex;gap:8px}
 .approve-btn,.reject-btn,.pay-btn{width:36px;height:36px;border-radius:8px;background:#FFF8EB;display:inline-flex;align-items:center;justify-content:center}
+/* The paid step carries its own word ("action显示paid"), so it cannot stay a 36px square: the label
+   widens the button and the two icon-only steps beside it keep the square. */
+.pay-btn.pay-btn-labeled{width:auto;min-width:36px;padding:0 12px;gap:6px;font-size:13px;font-weight:600;white-space:nowrap}
 .approve-btn{border:1px solid rgba(22,101,52,.28);color:#067647}
 .reject-btn{border:1px solid rgba(185,28,28,.28);color:#B42318}
 .pay-btn{border:1px solid #EADCC8;color:#57534E}

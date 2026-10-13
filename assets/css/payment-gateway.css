@@ -276,7 +276,13 @@ body.bo-wallet-tx.pg-editing .pg-editor-actions{position:static;flex:0 0 auto}
 .pg-editor-title{display:none}
 
 /* The capabilities pair is two checkboxes on one line; give them the row's own height so the grid stays even. */
-.pg-field .pg-caps{display:flex;gap:16px;align-items:center;min-height:44px}
+/* Capabilities: a compact 20px checkbox in the module amber with its name beside it. The first cut tried a
+   pure-CSS switch, but the module sheet clamps `input[type=checkbox]` - the track collapsed to its knob and
+   rendered as a filled disc. A native box sized and coloured by CSS is unbreakable and reads the same. */
+.pg-field .pg-caps{display:flex;gap:18px;align-items:center;min-height:44px}
+.pg-caps label{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--bo-text-secondary,#3F3F46);cursor:pointer}
+.pg-caps input[type=checkbox]{width:20px!important;height:20px!important;min-width:20px!important;max-width:20px!important;
+  min-height:20px!important;max-height:20px!important;accent-color:#D97706;border-radius:4px;cursor:pointer;flex:0 0 auto}
 
 /* Every grid inside the editor is the same grid - the panels' own and the one the endpoint form is built with
    at runtime, which was still on the old 2-column / 14px numbers. */

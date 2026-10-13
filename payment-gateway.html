@@ -7,66 +7,109 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
 <link href="assets/css/reports.css?v=9c07f140" rel="stylesheet"/>
-<link href="assets/css/payment-gateway.css?v=11f1c981" rel="stylesheet"/>
+<link href="assets/css/payment-gateway.css?v=fd823e33" rel="stylesheet"/>
+<link href="assets/css/bo-wallet-transaction-amber.css?v=876e2491" rel="stylesheet"/>
+<link href="assets/css/bo-seg-bounce.css?v=adb8ca0e" rel="stylesheet"/>
 <link href="assets/css/table-pagination-horizontal.css?v=e0d02694" rel="stylesheet"/>
 <link href="assets/css/bo-ui-standard.css?v=817727e7" rel="stylesheet"/>
 <link href="assets/css/bo-targeted-fixes.css?v=3147d00a" rel="stylesheet"/>
 <link href="assets/css/bo-account-chip.css?v=c8730135" rel="stylesheet" />
-<link href="assets/css/bo-charcoal-shell.css?v=6ceb4a37" rel="stylesheet" />
-<link href="assets/css/bo-charcoal-legacy.css?v=8fced50e" rel="stylesheet" />
-<link href="assets/css/bo-charcoal-primitives.css?v=292c8b34" rel="stylesheet" />
 <link href="assets/css/bo-input-fill.css?v=1ab80f49" rel="stylesheet" />
 <link href="assets/css/bo-scrollbar.css?v=39f413e5" rel="stylesheet"/>
 <link href="assets/css/bo-control-height.css?v=ff703846" rel="stylesheet">
 <link href="assets/css/bo-field-standard.css?v=6673ed98" rel="stylesheet">
 <link href="assets/css/bo-module-tabs.css?v=0c2b4ebb" rel="stylesheet"/>
-<link href="assets/css/bo-shell.css?v=9cc65d69" rel="stylesheet" />
-<link href="assets/css/bo-global-quicknav.css?v=0d429385" rel="stylesheet" data-bo-quicknav-css="1"/></head>
-<body class="report-body standardized-listing-page bo-charcoal bo-account-chip">
+<link href="assets/css/bo-shell.css?v=7d019702" rel="stylesheet" />
+<link href="assets/css/bo-global-quicknav.css?v=0d429385" rel="stylesheet" data-bo-quicknav-css="1"/><link href="assets/css/bo-edit-form.css?v=2edf49b2" rel="stylesheet">
+</head>
+<body class="report-body standardized-listing-page payment-gateway-page bo-wallet-tx bo-account-chip bo-edit-form">
 <div class="report-shell"><aside class="report-sidebar" id="reportSidebar"><div class="report-brand"><div>Backoffice</div><button class="close-side" data-close-sidebar><i class="bi bi-x-lg"></i></button></div><nav class="report-nav"></nav></aside><div class="sidebar-overlay" data-close-sidebar id="reportOverlay"></div>
 <main class="report-main"><header class="report-topbar" data-bo-topbar data-bo-title="Payment Gateway" data-bo-icon="bi-lightning-charge"></header>
 <script src="assets/js/bo-topbar.js?v=ddbcfef7"></script>
 <section class="report-content">
 <div class="table-card gateway-list-card">
-  <div class="gateway-toolbar">
-    <div class="user-badge"><i class="bi bi-lightning-charge"></i><span>Gateway List</span></div>
-    <div class="gateway-toolbar-actions">
+  <div class="filter-card pg-list-filter">
+  <div class="bo-tx-toolbar">
+    <nav class="bo-tx-tabs bo-seg" aria-label="Gateway status" data-bo-seg-anim="bounce">
+      <button type="button" class="bo-tx-tab is-active" data-pg-status="" aria-pressed="true">All <span class="bo-tx-tab-count" id="pgCountAll">0</span></button>
+      <button type="button" class="bo-tx-tab" data-pg-status="1" aria-pressed="false">Enabled <span class="bo-tx-tab-count" id="pgCountEnabled">0</span></button>
+      <button type="button" class="bo-tx-tab" data-pg-status="0" aria-pressed="false">Disabled <span class="bo-tx-tab-count" id="pgCountDisabled">0</span></button>
+    </nav>
+    <div class="user-toolbar-actions bo-tx-filter-controls">
+      <div class="field"><label class="bo-search-control"><i class="bi bi-search" aria-hidden="true"></i><input class="form-control" id="pgSearch" type="search" placeholder="Gateway / code"/></label></div>
       <a class="clean-btn" href="payment-gateway-transactions.html"><i class="bi bi-receipt"></i> Transactions</a>
       <button class="clean-btn" id="pgRefresh" type="button"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
       <button class="clean-btn primary" id="pgNewGateway" type="button"><i class="bi bi-plus-lg"></i> New Gateway</button>
     </div>
   </div>
+  </div>
   <div class="table-wrap">
-    <table class="report-table gateway-main-table">
+    <table class="report-table gateway-main-table pg-list-table">
+      <colgroup><col class="pg-c-gateway"/><col class="pg-c-url"/><col class="pg-c-caps"/><col class="pg-c-channels"/><col class="pg-c-status"/><col class="pg-c-action"/></colgroup>
       <thead><tr><th>Gateway</th><th>Base API URL</th><th>Capabilities</th><th>Channels</th><th>Status</th><th>Action</th></tr></thead>
       <tbody id="pgGatewayList"><tr><td colspan="6" class="pg-empty">Loading...</td></tr></tbody>
     </table>
   </div>
-  <div class="gateway-help">Create one gateway, configure DEPOSIT / WITHDRAW / STATUS requests, then add channels. Templates support credential, member, reference, amount, channel, callback and custom variables.</div>
+  <div class="table-footer bo-pagination-standard">
+    <div class="entries-control">Show<select id="pgPageSize" aria-label="Rows per page"><option value="-" selected>-</option><option value="10">10</option><option value="20">20</option><option value="50">50</option><option value="100">100</option><option value="All">All</option></select>entries</div>
+    <div class="table-info" id="pgShowing">Showing 0 to 0 of 0 entries</div>
+    <div class="pagination-clean" id="pgPager"></div>
+  </div>
 </div>
-</section>
-
-</main></div>
-<!-- Modals stay at body level, outside .report-shell: main.report-main is a z-index:1 stacking
-     context, so a modal nested inside it can never paint above the sidebar's z-index:1040. -->
-<div class="modal-clean pg-modal" id="pgGatewayModal" aria-hidden="true">
-  <div class="modal-clean-panel pg-modal-panel">
-    <div class="modal-clean-head pg-modal-head">
-      <div><h3 id="pgGatewayFormTitle">Create Gateway</h3><small>Credentials stay server-side; API responses return masked values.</small></div>
-      <button class="modal-clean-close" id="pgCloseModal" type="button"><i class="bi bi-x-lg"></i></button>
-    </div>
-    <div class="modal-clean-body pg-modal-body">
+<section class="pg-editor" id="pgGatewayModal" aria-hidden="true" hidden>
+  <div class="pg-editor-card">
+    <header class="pg-editor-head">
+      <div></div>
+      <nav class="bo-tx-tabs bo-seg pg-editor-tabs" role="tablist" aria-label="Gateway editor sections">
+      <button type="button" data-bo-ui-skip class="bo-tx-tab is-active" data-pg-tab="gateway" role="tab" aria-selected="true" aria-pressed="true"><i class="bi bi-info-circle"></i> Gateway</button>
+      <button type="button" data-bo-ui-skip class="bo-tx-tab" data-pg-tab="endpoints" role="tab" aria-selected="false" aria-pressed="false"><i class="bi bi-code-slash"></i> API Endpoints <span class="bo-tx-tab-count" id="pgEndpointsCount">0</span></button>
+      <button type="button" data-bo-ui-skip class="bo-tx-tab" data-pg-tab="channels" role="tab" aria-selected="false" aria-pressed="false"><i class="bi bi-diagram-3"></i> Channels <span class="bo-tx-tab-count" id="pgChannelsCount">0</span></button>
+    </nav>
+      <button class="clean-btn" id="pgCloseModal" type="button"><i class="bi bi-arrow-left"></i> Back to list</button>
+    </header>
+    <div class="pg-editor-body">
       <form id="pgGatewayForm">
         <input type="hidden" id="pgId">
-        <section class="pg-editor-section">
-          <h4><i class="bi bi-info-circle"></i> Gateway Information <span class="pg-pill off ms-auto" id="pgSelectedPill">Not selected</span></h4>
-          <div class="pg-form-grid">
-            <div class="pg-field"><label>Gateway Code *</label><input id="pgCode" placeholder="S1PAY"></div><div class="pg-field"><label>Display Name *</label><input id="pgName" placeholder="S1PAY"></div>
-            <div class="pg-field full"><label>Base API URL *</label><input id="pgBaseUrl" placeholder="https://s.example.com"></div><div class="pg-field full"><label>Admin BO URL</label><input id="pgAdminUrl" placeholder="https://merchant.example.com"></div>
+        <section class="pg-editor-section" data-pg-panel="gateway" role="tabpanel">
+          <div class="pg-sections">
+            
+          <div class="pg-section">
+            <header class="pg-section-head"><span class="pg-section-ico"><i class="bi bi-credit-card-2-front"></i></span><div><h4>1. GATEWAY IDENTITY</h4><p>The code and name shown across the backoffice, and whether the gateway is live.</p></div></header>
+            <div class="pg-form-grid">
+            <div class="pg-field"><label>Gateway Code *</label><input id="pgCode" placeholder="S1PAY"><div class="pg-note mt-1">Used in callback URLs and reports.</div></div><div class="pg-field"><label>Display Name *</label><input id="pgName" placeholder="S1PAY"><div class="pg-note mt-1">Shown in the gateway list and on the player deposit page.</div></div><div class="pg-field"><label>Status</label><select id="pgStatus"><option value="1">Enabled</option><option value="0">Disabled</option></select><div class="pg-note mt-1">Disabled gateways stay configured but take no traffic.</div></div><div class="pg-field"><label>Capabilities</label><div style="display:flex;gap:16px;padding:10px 0"><label><input type="checkbox" id="pgDeposit" checked> Deposit</label><label><input type="checkbox" id="pgWithdraw"> Withdraw</label></div></div>
+            </div>
+          </div>
+          <div class="pg-section">
+            <header class="pg-section-head"><span class="pg-section-ico"><i class="bi bi-link-45deg"></i></span><div><h4>2. API URLS</h4><p>Where requests are sent, and where the admin backoffice lives.</p></div></header>
+            <div class="pg-form-grid">
+            <div class="pg-field half"><label>Base API URL *</label><input id="pgBaseUrl" placeholder="https://s.example.com"></div><div class="pg-field half"><label>Admin BO URL</label><input id="pgAdminUrl" placeholder="https://merchant.example.com"></div>
+            </div>
+          </div>
+          <div class="pg-section">
+            <header class="pg-section-head"><span class="pg-section-ico"><i class="bi bi-image"></i></span><div><h4>3. BRANDING</h4><p>The logo shown on the player Deposit payment gateway card.</p></div></header>
+            <div class="pg-form-grid">
             <div class="pg-field full"><label>Gateway Logo</label><div class="pg-logo-row"><div class="pg-logo-preview" id="pgLogoPreview"><span class="pg-note">No logo</span></div><div style="flex:1"><input id="pgLogoUrl" placeholder="https://.../gateway-logo.png"><div class="pg-logo-actions mt-2"><input type="file" id="pgLogoFile" accept="image/png,image/jpeg,image/webp,image/gif" hidden><button class="clean-btn" type="button" id="pgChooseLogo"><i class="bi bi-upload"></i> Upload Logo</button><button class="clean-btn" type="button" id="pgRemoveLogo"><i class="bi bi-trash"></i> Remove</button></div><div class="pg-note mt-1">Shown on the player Deposit payment gateway card. PNG/JPG/WEBP/GIF supported.</div></div></div></div>
-            <div class="pg-field"><label>Status</label><select id="pgStatus"><option value="1">Enabled</option><option value="0">Disabled</option></select></div><div class="pg-field"><label>Capabilities</label><div style="display:flex;gap:16px;padding:10px 0"><label><input type="checkbox" id="pgDeposit" checked> Deposit</label><label><input type="checkbox" id="pgWithdraw"> Withdraw</label></div></div>
+            
+            </div>
+          </div>
+          <div class="pg-section">
+            <header class="pg-section-head"><span class="pg-section-ico"><i class="bi bi-wallet2"></i></span><div><h4>4. PLAYER DEPOSIT DISPLAY</h4><p>What the player picks on the deposit page.</p></div></header>
+            <div class="pg-form-grid">
             <div class="pg-field full"><label>Player Deposit Display</label><select id="pgDepositChannelSelection"><option value="0">Gateway name only (provider chooses bank/channel)</option><option value="1">Show each deposit channel separately</option></select><div class="pg-note mt-1">Use gateway name only when the provider payment page already lets the player choose a bank/channel.</div></div>
+            </div>
+          </div>
+          <div class="pg-section">
+            <header class="pg-section-head"><span class="pg-section-ico"><i class="bi bi-key"></i></span><div><h4>5. CREDENTIALS</h4><p>Server-side secrets. Responses return masked values.</p></div></header>
+            <div class="pg-form-grid">
             <div class="pg-field full"><label>Credentials JSON</label><textarea id="pgCredentials" rows="5" placeholder='{"token":"...","username":"...","password":"...","secret":"..."}'></textarea><div class="pg-note mt-1">Masked value <b>********</b> means keep the existing secret.</div></div>
+</div>
+          </div>
+          <div class="pg-section">
+            <header class="pg-section-head"><span class="pg-section-ico"><i class="bi bi-shield-lock"></i></span><div><h4>6. CALLBACKS, VERIFICATION & TIMEOUTS</h4><p>How the provider reports back, and how those calls are trusted.</p></div></header>
+            <div class="pg-form-grid">
+            <details class="pg-advanced">
+            <summary><i class="bi bi-shield-lock"></i> Callback, verification and timeouts</summary>
+            <div class="pg-advanced-fields">
             <div class="pg-field full"><label>Deposit Callback URL</label><input id="pgDepositCallbackUrl" placeholder="https://your-domain/api/payment-gateway/callback/S1PAY"><div class="pg-note mt-1">Used for DEPOSIT request templates through ${callbackUrl}.</div></div>
             <div class="pg-field full"><label>Withdraw Callback URL</label><input id="pgWithdrawCallbackUrl" placeholder="https://your-domain/api/payment-gateway/callback/S1PAY"><div class="pg-note mt-1">Used for WITHDRAW request templates through ${callbackUrl}.</div></div>
             <div class="pg-field full"><label>Legacy Callback URL (fallback)</label><input id="pgCallbackUrl" placeholder="Used only when a direction-specific callback URL is empty"></div>
@@ -80,21 +123,36 @@
             <div class="pg-field full"><label>Allowed Callback IPs</label><input id="pgCallbackAllowedIps" placeholder="203.0.113.10, 203.0.113.11"><div class="pg-note mt-1">Optional. Leave empty when the provider does not publish fixed callback IPs.</div></div>
             <div class="pg-field full"><label>Deposit Status Polling Fallback</label><select id="pgDepositStatusPollEnabled"><option value="1">Enabled</option><option value="0">Disabled</option></select><div class="pg-note mt-1">When enabled and a STATUS endpoint exists, pending deposits are automatically rechecked if the callback is delayed or lost.</div></div>
             <div class="pg-field"><label>Connect Timeout (ms)</label><input id="pgConnectTimeout" type="number" value="10000"></div><div class="pg-field"><label>Request Timeout (ms)</label><input id="pgRequestTimeout" type="number" value="20000"></div>
-            <div class="pg-field full"><label>Notes</label><textarea id="pgNotes" rows="2"></textarea></div>
+            
+            </div>
+          </details>
           </div>
-          <div class="pg-actions mt-3"><button class="clean-btn primary" type="submit"><i class="bi bi-save"></i> Save Gateway</button><button class="clean-btn" type="button" id="pgResetGateway">Reset</button><button class="clean-btn" type="button" id="pgS1PayTemplate">Load S1PAY Example</button></div>
+          </div>
+          <div class="pg-section">
+            <header class="pg-section-head"><span class="pg-section-ico"><i class="bi bi-journal-text"></i></span><div><h4>7. NOTES</h4><p>Anything the next operator should know about this gateway.</p></div></header>
+            <div class="pg-form-grid">
+            <div class="pg-field full"><label>Notes</label><textarea id="pgNotes" rows="2"></textarea></div></div>
+          </div>
+          </div>
+          
         </section>
       </form>
-      <section class="pg-editor-section" id="pgConfigPanel" hidden><h4><i class="bi bi-code-slash"></i> API Endpoints</h4><div class="pg-note mb-2">Each action is independent, so future gateways can use GET/POST, JSON, FORM or query-string without frontend code changes.</div><div id="pgEndpointForms"></div></section>
-      <section class="pg-editor-section" id="pgChannelPanel" hidden><div class="d-flex align-items-start justify-content-between gap-2 mb-3"><div><h4 class="mb-1"><i class="bi bi-diagram-3"></i> Gateway Channels</h4><div class="pg-note">Enabled deposit channels appear automatically on player Deposit. Enabled withdraw channels appear automatically on player Withdraw.</div></div><button class="clean-btn primary" id="pgNewChannel" type="button"><i class="bi bi-plus-lg"></i> Add Channel</button></div><div id="pgChannels"></div><form id="pgChannelForm" hidden class="pg-endpoint pg-channel-form"><input type="hidden" id="pgChannelId"><div class="pg-form-grid"><div class="pg-field"><label>Display Name *</label><input id="pgChannelName"></div><div class="pg-field"><label>Direction</label><select id="pgChannelDirection"><option>DEPOSIT</option><option>WITHDRAW</option><option>BOTH</option></select></div><div class="pg-field"><label>Provider Code / BankCode / BankId</label><input id="pgChannelCode"></div><div class="pg-field"><label>Status</label><select id="pgChannelStatus"><option value="1">Enabled</option><option value="0">Disabled</option></select></div><div class="pg-field"><label>Min Amount</label><input id="pgChannelMin" type="number" step="0.01" value="0"></div><div class="pg-field"><label>Max Amount (0 = no limit)</label><input id="pgChannelMax" type="number" step="0.01" value="0"></div><div class="pg-field"><label>Sort Order</label><input id="pgChannelSort" type="number" value="0"></div><div class="pg-field full"><label>Custom Request Variables JSON</label><textarea id="pgChannelVars" rows="3" placeholder='{"BankId0":"21"}'></textarea></div></div><div class="pg-actions mt-3"><button class="clean-btn primary" type="submit">Save Channel</button><button class="clean-btn" type="button" id="pgCancelChannel">Cancel</button></div></form></section>
+      <section class="pg-editor-section" id="pgConfigPanel" data-pg-panel="endpoints" role="tabpanel" hidden><p class="pg-panel-note">Each action is independent, so future gateways can use GET/POST, JSON, FORM or query-string without frontend code changes.</p><div id="pgEndpointForms"></div></section>
+      <section class="pg-editor-section" id="pgChannelPanel" data-pg-panel="channels" role="tabpanel" hidden><div class="pg-section"><header class="pg-section-head"><span class="pg-section-ico"><i class="bi bi-diagram-3"></i></span><div><h4>1. CHANNEL LIST</h4><p>Enabled deposit channels appear automatically on player Deposit. Enabled withdraw channels appear automatically on player Withdraw.</p></div><button class="clean-btn primary" id="pgNewChannel" type="button"><i class="bi bi-plus-lg"></i> Add Channel</button></header><div id="pgChannels"></div></div><form id="pgChannelForm" hidden class="pg-section"><header class="pg-section-head"><span class="pg-section-ico"><i class="bi bi-pencil-square"></i></span><div><h4>2. ADD / EDIT CHANNEL</h4><p>Fill this in and save the gateway to attach the channel to it.</p></div></header><input type="hidden" id="pgChannelId"><div class="pg-form-grid"><div class="pg-field"><label>Display Name *</label><input id="pgChannelName"></div><div class="pg-field"><label>Direction</label><select id="pgChannelDirection"><option>DEPOSIT</option><option>WITHDRAW</option><option>BOTH</option></select></div><div class="pg-field"><label>Provider Code / BankCode / BankId</label><input id="pgChannelCode"></div><div class="pg-field"><label>Status</label><select id="pgChannelStatus"><option value="1">Enabled</option><option value="0">Disabled</option></select></div><div class="pg-field"><label>Min Amount</label><input id="pgChannelMin" type="number" step="0.01" value="0"></div><div class="pg-field"><label>Max Amount (0 = no limit)</label><input id="pgChannelMax" type="number" step="0.01" value="0"></div><div class="pg-field"><label>Sort Order</label><input id="pgChannelSort" type="number" value="0"></div><div class="pg-field full"><label>Custom Request Variables JSON</label><textarea id="pgChannelVars" rows="3" placeholder='{"BankId0":"21"}'></textarea></div></div><div class="pg-actions mt-3"><button class="clean-btn primary" type="submit">Save Channel</button><button class="clean-btn" type="button" id="pgCancelChannel">Cancel</button></div></form></section>
     </div>
-    <div class="pg-modal-actions"><button class="clean-btn" id="pgCloseModalBottom" type="button">Close</button></div>
   </div>
-</div>
+  <footer class="pg-editor-actions"><button class="clean-btn" type="button" id="pgResetGateway"><i class="bi bi-arrow-counterclockwise"></i> Reset</button><button class="clean-btn" type="button" id="pgS1PayTemplate"><i class="bi bi-magic"></i> Load S1PAY Example</button><button class="clean-btn" id="pgCloseModalBottom" type="button">Cancel</button><button class="clean-btn primary" id="pgSaveGatewayBottom" type="submit" form="pgGatewayForm"><i class="bi bi-save"></i> Save Gateway</button></footer>
+</section>
+</section>
+</main></div>
+<!-- Modals stay at body level, outside .report-shell: main.report-main is a z-index:1 stacking
+     context, so a modal nested inside it can never paint above the sidebar's z-index:1040. -->
 <script src="assets/js/config.js?v=e7312672"></script><script src="assets/js/brand-context.js?v=27360386"></script>
-<script src="assets/js/main-currency-runtime.js?v=2b28e860"></script>
-<script src="assets/js/currency-runtime.js?v=b63c89fb"></script><script src="assets/js/auth.js?v=f9eb5626"></script><script src="assets/js/reports.js?v=a96450f8"></script><script src="assets/js/payment-gateway.js?v=47aac1cb"></script><script src="assets/js/crud-modal-pattern.js?v=6584faf6"></script><script src="assets/js/bo-ui-standard.js?v=890f213b"></script>
+<script src="assets/js/main-currency-runtime.js?v=2b28e860"></script><script src="assets/js/firebase-config.js?v=c41fc3b0"></script><script src="assets/js/livechat-global-notification.js?v=6bb96bce"></script><script src="assets/js/operation-global-notification.js?v=ed9bcecb"></script>
+<script src="assets/js/currency-runtime.js?v=b63c89fb"></script><script src="assets/js/auth.js?v=f9eb5626"></script><script src="assets/js/reports.js?v=a96450f8"></script><script src="assets/js/payment-gateway.js?v=79170df4"></script><script src="assets/js/bo-ui-standard.js?v=890f213b"></script>
 <script src="assets/js/bo-theme.js?v=d78603d9"></script>
 <script src="assets/js/bo-account-chip.js?v=fcf6fa08"></script>
+<script src="assets/js/bo-seg-bounce.js?v=a1e9563f"></script>
+<script src="assets/js/pagination-standardizer.js?v=9eb44c56"></script>
 <script src="assets/js/bo-spa-manifest.js?v=c1facc9f"></script><script src="assets/js/bo-spa.js?v=4df7a52c"></script>
 </body></html>

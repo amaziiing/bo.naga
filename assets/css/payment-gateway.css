@@ -1,4 +1,292 @@
-.gateway-list-card{padding:18px}.gateway-toolbar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:16px}.gateway-toolbar-actions{display:flex;gap:9px;flex-wrap:wrap}.gateway-main-table td{vertical-align:middle}.gateway-main-table th:last-child,.gateway-main-table td:last-child{text-align:center}.gateway-name-cell{display:flex;align-items:center;gap:10px;min-width:180px}.gateway-list-logo{width:48px;height:36px;border:1px solid #EADCC8;border-radius:8px;background:#F5EBDC;display:grid;place-items:center;overflow:hidden;flex:0 0 auto}.gateway-list-logo img{width:100%;height:100%;object-fit:contain}.gateway-list-logo i{color:#78716C}.gateway-name-cell b{display:block;color:#D97706}.gateway-name-cell small{display:block;color:#57534E;margin-top:2px}.pg-code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}.pg-pill{display:inline-flex;padding:4px 8px;border-radius:999px;background:#F5EBDC;color:#18191C;font-size:11px;font-weight:800}.pg-pill.on{background:#dcfce7;color:#15803d}.pg-pill.off{background:#fee2e2;color:#b91c1c}.pg-capabilities{display:flex;gap:6px;flex-wrap:wrap}.pg-capability{display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border-radius:999px;background:#F5EBDC;color:#57534E;font-size:11px;font-weight:800}.pg-capability.off{background:#F5EBDC;color:#78716C}.gateway-action-wrap{display:flex;justify-content:center;gap:8px}.gateway-action-btn{width:42px;height:42px;border:1px solid #EADCC8;border-radius:10px;background:#FFF8EB;color:#57534E;display:inline-flex;align-items:center;justify-content:center}.gateway-action-btn:hover{background:#D97706;color:#fff;border-color:#E8901A}.pg-empty{padding:22px;text-align:center;color:#57534E}.pg-note{font-size:12px;color:#57534E}.pg-modal{z-index:5200}.pg-modal-panel{width:min(1180px,calc(100vw - 32px));max-width:1180px;max-height:calc(100vh - 32px);display:flex;flex-direction:column;overflow:hidden}.pg-modal-head{flex:0 0 auto}.pg-modal-body{padding:0;overflow:auto;background:#F5EBDC}.pg-editor-section{background:#FFF8EB;border-bottom:1px solid #EADCC8;padding:20px 22px}.pg-editor-section:last-child{border-bottom:0}.pg-editor-section h4{font-size:15px;font-weight:800;color:#D97706;margin:0 0 16px;display:flex;align-items:center;gap:8px}.pg-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.pg-form-grid .full{grid-column:1/-1}.pg-field label{display:block;font-weight:700;font-size:13px;color:#D97706;margin-bottom:6px}.pg-field input,.pg-field select,.pg-field textarea{width:100%;border:1px solid #EADCC8;border-radius:10px;padding:10px 12px;background:#FFF8EB;color:#D97706;font-size:13px;outline:none}.pg-field input,.pg-field select{min-height:44px}.pg-field textarea{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;line-height:1.5}.pg-field input:focus,.pg-field select:focus,.pg-field textarea:focus{border-color:#78716C;box-shadow:0 0 0 3px rgba(217,119,6,.1)}.pg-logo-row{display:flex;gap:12px;align-items:center}.pg-logo-preview{width:96px;height:72px;border:1px dashed #EADCC8;border-radius:10px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#F5EBDC;flex:0 0 auto}.pg-logo-preview img{max-width:100%;max-height:100%;object-fit:contain}.pg-logo-actions,.pg-actions{display:flex;gap:8px;flex-wrap:wrap}.pg-endpoint{border:1px solid #EADCC8;border-radius:12px;padding:15px;margin-top:12px;background:#FFF8EB}.pg-endpoint:first-child{margin-top:0}.pg-endpoint-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.pg-table-wrap{max-width:100%;overflow-x:auto}.pg-table{width:100%;min-width:760px;border-collapse:collapse;font-size:12px}.pg-table th,.pg-table td{padding:10px;border-bottom:1px solid #EADCC8;white-space:nowrap}.pg-table th{color:#18191C;font-weight:800;background:#F5EBDC}.pg-channel-form{margin-top:16px}.pg-modal-actions{display:flex;justify-content:flex-end;gap:10px;padding:15px 22px;border-top:1px solid #EADCC8;background:#FFF8EB;position:sticky;bottom:0;z-index:5}.gateway-help{margin-top:14px;padding:12px 14px;border-radius:10px;background:#F5EBDC;color:#57534E;font-size:12px;line-height:1.5}.gateway-transaction-card{padding:18px}.gateway-tx-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}.gateway-tx-actions{display:flex;gap:8px;flex-wrap:wrap}.gateway-tx-table td{vertical-align:middle}.gateway-tx-table th:last-child,.gateway-tx-table td:last-child{text-align:center}.gateway-tx-status{min-width:82px;justify-content:center}.gateway-tx-ref{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}.gateway-tx-action{white-space:nowrap}
-@media(max-width:991px){.pg-form-grid{grid-template-columns:1fr}.pg-form-grid .full{grid-column:auto}.pg-modal-panel{width:calc(100vw - 20px);max-height:calc(100vh - 20px)}.gateway-main-table{min-width:900px}.gateway-tx-table{min-width:900px}}
-@media(max-width:575px){.gateway-list-card,.gateway-transaction-card{padding:14px}.gateway-toolbar,.gateway-tx-toolbar{align-items:flex-start;flex-direction:column}.gateway-toolbar-actions,.gateway-tx-actions{width:100%}.gateway-toolbar-actions .clean-btn,.gateway-tx-actions .clean-btn{flex:1}.pg-modal-panel{width:100%!important;max-height:100dvh!important}.pg-editor-section{padding:16px}.pg-logo-row{align-items:flex-start;flex-direction:column}.pg-modal-actions{padding:12px 16px}.pg-modal-actions .clean-btn{flex:1}}
+.gateway-list-card{padding:18px}.gateway-main-table td{vertical-align:middle}.gateway-main-table th:last-child,.gateway-main-table td:last-child{text-align:center}.gateway-name-cell{display:flex;align-items:center;gap:10px;min-width:180px}.gateway-list-logo{width:48px;height:36px;border:1px solid #EADCC8;border-radius:8px;background:#F5EBDC;display:grid;place-items:center;overflow:hidden;flex:0 0 auto}.gateway-list-logo img{width:100%;height:100%;object-fit:contain}.gateway-list-logo i{color:#78716C}.gateway-name-cell b{display:block;color:#D97706}.gateway-name-cell small{display:block;color:#57534E;margin-top:2px}.pg-code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}.pg-pill{display:inline-flex;padding:4px 8px;border-radius:999px;background:#F5EBDC;color:#18191C;font-size:11px;font-weight:800}.pg-pill.on{background:#dcfce7;color:#15803d}.pg-pill.off{background:#fee2e2;color:#b91c1c}.pg-capabilities{display:flex;gap:6px;flex-wrap:wrap}.pg-capability{display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border-radius:999px;background:#F5EBDC;color:#57534E;font-size:11px;font-weight:800}.pg-capability.off{background:#F5EBDC;color:#78716C}.gateway-action-wrap{display:flex;justify-content:center;gap:8px}/* The size and the corners are the system's: `bo-charcoal-primitives.css` sets every
+   `body.report-body.bo-charcoal .bo-ui-icon-button` to 36x36, and this page is a bo-charcoal page, so the row
+   action states only its colours and lets that rule own the box. */
+/* 36x36 with 8px corners: every control in this module's lists runs at 36 (measured on member-deposit and
+   bank-deposit-usage) and the toolbar above this table is 36 as well. The system's own icon-button rung here
+   is 40, because the charcoal sheet that states 36 for this family is not loaded on this page - so the page
+   states the module's number itself. */
+/* Stated with the class the system sheet names plus this one, and with `!important` because that rule is
+   `!important` itself - `.bo-ui-icon-button{width:40px!important;height:40px!important;border-radius:10px!important}`
+   in bo-ui-standard.css. Two classes outrank one, so this wins on weight rather than on source order. */
+.gateway-action-btn.bo-ui-icon-button{width:36px!important;min-width:36px!important;max-width:36px!important;height:36px!important;min-height:36px!important;max-height:36px!important;border:1px solid #EADCC8;border-radius:8px!important;background:#FFF8EB;color:#D97706;font-size:15px;display:inline-flex;align-items:center;justify-content:center}.gateway-action-btn:hover{background:#D97706;color:#fff;border-color:#E8901A}.pg-empty{padding:22px;text-align:center;color:#57534E}.pg-note{font-size:12px;color:#57534E}/* The panels are plain holders now: every panel's content is a section card that carries its own
+   background, border and padding, so a panel that painted its own would be the box around the boxes
+   again. */
+.pg-editor-section{background:transparent;border:0;padding:16px 0 0}.pg-editor-section:last-child{border-bottom:0}.pg-editor-section h4{font-size:15px;font-weight:800;color:#D97706;margin:0 0 16px;display:flex;align-items:center;gap:8px}.pg-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.pg-form-grid .full{grid-column:1/-1}.pg-field label{display:block;margin-bottom:6px}.pg-field input,.pg-field select,.pg-field textarea{width:100%;color:#D97706;outline:none}.pg-field textarea{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;line-height:1.5}.pg-field input:focus,.pg-field select:focus,.pg-field textarea:focus{border-color:#78716C;box-shadow:0 0 0 3px rgba(217,119,6,.1)}.pg-logo-row{display:flex;gap:12px;align-items:center}.pg-logo-preview{width:96px;height:72px;border:1px dashed #EADCC8;border-radius:10px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#F5EBDC;flex:0 0 auto}.pg-logo-preview img{max-width:100%;max-height:100%;object-fit:contain}.pg-logo-actions{display:flex;gap:8px;flex-wrap:wrap}
+/* One action bar, as the reference form has: the secondary actions sit in the same row as Cancel
+   and Save instead of a band of their own above them. */
+.pg-editor-actions{display:flex;gap:12px;justify-content:flex-end;flex-wrap:wrap}.pg-endpoint{border:1px solid #EADCC8;border-radius:12px;padding:15px;margin-top:12px;background:#FFF8EB}.pg-endpoint:first-child{margin-top:0}.pg-endpoint-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.pg-table-wrap{max-width:100%;overflow-x:auto}.pg-table{width:100%;min-width:760px;border-collapse:collapse;font-size:12px}.pg-table th,.pg-table td{padding:10px;border-bottom:1px solid #EADCC8;white-space:nowrap}.pg-table th{color:#18191C;font-weight:800;background:#F5EBDC}.pg-channel-form{margin-top:16px}.gateway-help{margin-top:14px;padding:12px 14px;border-radius:10px;background:#F5EBDC;color:#57534E;font-size:12px;line-height:1.5}.gateway-transaction-card{padding:18px}.gateway-tx-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}.gateway-tx-actions{display:flex;gap:8px;flex-wrap:wrap}.gateway-tx-table td{vertical-align:middle}.gateway-tx-table th:last-child,.gateway-tx-table td:last-child{text-align:center}.gateway-tx-status{min-width:82px;justify-content:center}.gateway-tx-ref{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}.gateway-tx-action{white-space:nowrap}
+@media(max-width:991px){.pg-form-grid{grid-template-columns:1fr}.pg-form-grid .full{grid-column:auto}.gateway-main-table{min-width:900px}.gateway-tx-table{min-width:900px}}
+@media(max-width:575px){.gateway-list-card,.gateway-transaction-card{padding:14px}.gateway-toolbar,.gateway-tx-toolbar{align-items:flex-start;flex-direction:column}.gateway-toolbar-actions,.gateway-tx-actions{width:100%}.gateway-toolbar-actions .clean-btn,.gateway-tx-actions .clean-btn{flex:1}.pg-editor-section{padding:16px}.pg-logo-row{align-items:flex-start;flex-direction:column}}
 .pg-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.pg-toolbar>label{margin:0;font-size:12px;font-weight:700;color:#18191C}
+
+/* ---- The gateway editor is a page, not a dialog ------------------------------------------------
+   New and Edit are one view with the sections as tabs (owner: "这个页面需要优化统一设计 并且所有编辑弹窗和
+   添加弹窗都要做成一页也并且统一设计"), so the old 1180x766 dialog with an 8.6-screen scroll is gone: the card
+   sits in the content frame like every other page, one section is on screen at a time, and Save and
+   Cancel stay in one bar. The field spacing is tightened with it - 44px controls on a 14px gap had made
+   even the short panel 3.4 screens tall. */
+.pg-editor{display:none}
+.pg-editor.show{display:block}
+.pg-editor[hidden]{display:none!important}
+/* No box around the box (owner: "这个设计是怎么回事"): with a bordered card wrapping seven bordered
+   sections the editor read as cards inside a card, and the reference has no outer one - its title sits on
+   the page and only the sections are cards. The card keeps its role as the inset holder (see bo-shell.css)
+   and nothing else. */
+.pg-editor-card{background:transparent;border:0;border-radius:0}
+/* Left inset 0: the header is the same column as the section cards, so the tab row lines up with their left
+   edge instead of sitting 18px inside it. */
+.pg-editor-head{display:flex;align-items:center;justify-content:flex-start;gap:20px;padding:14px 18px 14px 0;border-bottom:1px solid #EADCC8}
+.pg-editor-head h3{margin:0;font-size:17px;font-weight:800;color:#D97706}
+.pg-editor-head small{display:block;margin-top:3px;font-size:12px;color:#57534E}
+/* The rule belongs under the tab row, not between the title and the tabs: with it above them the tabs read
+   as detached from the header they belong to. This is the module's own idiom - the list page's
+   .bo-module-tabs carries its rule at the row's baseline the same way. */
+/* The tab row rides the header (owner: "可以优化 移去 edit S1pay的标题同一排"), so it states no padding
+   and no rule of its own - the header carries the rule under the whole row. The module sheet pins
+   `.bo-tx-tabs` to `padding:0!important`; naming the body class the module uses plus this page's class
+   is how this repo beats a rule of equal weight that loads later. */
+body.bo-wallet-tx .pg-editor-tabs.bo-tx-tabs{padding:0!important;border-bottom:0!important;width:auto!important}
+
+.pg-editor-body{background:transparent}
+.pg-editor-section{padding:16px 20px}
+.pg-editor-actions{position:sticky;bottom:0;display:flex;justify-content:flex-end;gap:10px;padding:14px 24px;border-top:1px solid rgba(92,74,48,.1);background:#FFFCF7}
+/* The reference's bar (agent-detail.html?new=1, FOOTER.mac-footer-actions): 73px tall, #FFFCF7, a 1px
+   rgba(92,74,48,.1) top edge and 14px/24px padding. `sticky` inside this editor's own scroller gives the
+   same visible result as the reference's `fixed` without leaving the shell's layout, and the bar is a
+   child of .pg-editor rather than of the card so it spans the full width the way the reference's does. */
+.pg-panel-note{padding:18px;border:1px dashed #EADCC8;border-radius:10px;background:#FFF8EB;color:#57534E;font-size:13px}
+.pg-editor .pg-form-grid{gap:12px}
+.pg-editor .pg-field label{margin-bottom:4px}
+.pg-editor .pg-field input,.pg-editor .pg-field select{min-height:40px;padding:8px 11px}
+.pg-editor .pg-editor-section h4{margin-bottom:12px}
+html[data-bo-theme="dark"] html[data-bo-theme="dark"] .pg-editor-actions{background:#2C2E38;border-color:#3A3A38}
+html[data-bo-theme="dark"] .pg-editor-head{border-color:#3A3A38}
+html[data-bo-theme="dark"] .pg-editor-body{background:transparent}
+html[data-bo-theme="dark"] .pg-editor-section{background:#2C2E38;border-color:#3A3A38}
+html[data-bo-theme="dark"] 
+html[data-bo-theme="dark"] 
+html[data-bo-theme="dark"] .pg-editor-head h3{color:#F59E0B}
+html[data-bo-theme="dark"] .pg-editor-head small,html[data-bo-theme="dark"] .pg-panel-note{color:#D6D3D1}
+html[data-bo-theme="dark"] .pg-panel-note{background:#2C2E38;border-color:#4A4C58}
+@media(max-width:575px){.pg-editor-head,.pg-editor-tabs,.pg-editor-section,.pg-editor-actions{padding-left:14px;padding-right:14px}.pg-editor-actions .clean-btn{flex:1}}
+
+/* The callback, verification and timeout fields are only touched when a provider is being wired up, so
+   they collapse by default and the Gateway tab reads as one screen of the fields that matter. */
+/* `grid-column:1/-1` is the fix for a real defect: this block is a child of the card's four-column field grid,
+   so without it the whole callback section was laid out as one cell - a quarter of the row - while the rest of
+   the card sat empty. It is a section of its own, so it spans the row and drops the box. */
+.pg-advanced{grid-column:1/-1;margin:0;border:0;border-radius:0;background:transparent;overflow:visible}
+/* It has to look openable, not like another line of description: the label takes the amber this editor uses for
+   things you can act on, and the chevron sits in a 24px disc of the same amber at 10% - the token the section
+   icons use - which deepens on hover and turns over when the block is open. */
+/* A control, not a caption: the row is a filled bar in the same amber family the section icons use (6% fill,
+   1px edge at 18%, the cards' 8px corners) so it cannot be mistaken for another line of description. It is a
+   control and not a container, which is why a fill is right here where a box around cards was not. Opening
+   deepens it and squares its bottom corners so it joins the fields below. */
+.pg-advanced>summary{display:flex;align-items:center;gap:10px;padding:12px 16px;font-size:13px;font-weight:700;color:#B45309;background:rgba(217,119,6,.06);border:1px solid rgba(217,119,6,.18);border-radius:8px;cursor:pointer;list-style:none;user-select:none;transition:background .16s ease,border-color .16s ease}
+.pg-advanced>summary:hover{background:rgba(217,119,6,.12);border-color:rgba(217,119,6,.3);color:#92400E}
+.pg-advanced>summary::-webkit-details-marker{display:none}
+.pg-advanced>summary::after{margin-left:auto;content:"\F282";font-family:"bootstrap-icons";font-size:14px;line-height:1;display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:rgba(217,119,6,.1);color:#D97706;transition:transform .18s ease,background .18s ease}
+.pg-advanced>summary:hover::after{background:rgba(217,119,6,.2)}
+.pg-advanced[open]>summary::after{transform:rotate(180deg)}
+.pg-advanced[open]>summary{background:rgba(217,119,6,.1);border-color:rgba(217,119,6,.26);border-bottom-left-radius:0;border-bottom-right-radius:0}
+.pg-advanced-fields{padding:18px 0 0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 18px}
+.pg-advanced-fields .pg-field.full{grid-column:1/-1}
+html[data-bo-theme="dark"] .pg-advanced{background:#2C2E38;border-color:#3A3A38}
+html[data-bo-theme="dark"] .pg-advanced>summary{border-color:#3A3A38;color:#F59E0B}
+@media(max-width:991px){.pg-advanced-fields{grid-template-columns:1fr}.pg-advanced-fields .pg-field.full{grid-column:auto}}
+/* Each action is a card: the `details` element carries the card, its `summary` is the head (`1. DEPOSIT` +
+   the pill + the chevron) and the form inside is the card's content. Collapsed it is a one-line card;
+   opened, the same card with its fields - so there is never a card inside a card. The number comes from a
+   counter, which leaves the script's markup untouched. */
+#pgEndpointForms{counter-reset:pgEp}
+#pgEndpointForms .pg-endpoint-details{position:relative;counter-increment:pgEp;background:#FFFCF7;border:1px solid #DCC9A8;border-radius:8px;padding:20px 22px 22px;margin:0 0 16px}
+#pgEndpointForms .pg-endpoint-details::before{content:"";position:absolute;left:0;top:12px;width:3px;height:calc(100% - 24px);background:#D97706;border-radius:0 3px 3px 0}
+#pgEndpointForms .pg-endpoint-details:last-child{margin-bottom:0}
+.pg-endpoint-details:first-child{margin-top:0}
+.pg-endpoint-details>summary{display:flex;align-items:center;gap:10px;padding:12px 14px;font-size:13px;cursor:pointer;list-style:none}
+.pg-endpoint-details>summary::-webkit-details-marker{display:none}
+.pg-endpoint-details>summary::after{margin-left:auto;content:"\F282";font-family:"bootstrap-icons";transition:transform .18s ease}
+.pg-endpoint-details[open]>summary{border-bottom:1px solid #EADCC8}
+.pg-endpoint-details[open]>summary::after{transform:rotate(180deg)}
+.pg-endpoint-details .pg-endpoint{border:0;border-radius:0;margin:0}
+.pg-endpoint-details .pg-toolbar{display:none}
+html[data-bo-theme="dark"] .pg-endpoint-details{background:#2C2E38;border-color:#3A3A38}
+html[data-bo-theme="dark"] .pg-endpoint-details>summary{border-color:#3A3A38}
+
+/* List toolbar, in the shape the module's other tables use: the status filter with its counts on the
+   left, the search and the actions on the right. The pills are the same .pg-tab component the editor's
+   tabs use, so the page has one kind of segmented control rather than two. */
+
+@media(max-width:575px){}
+
+/* The filter row sits in the module's own `.filter-card` box, the way the sibling tabs carry it. No
+   padding of my own on either: the theme's `.filter-card` already states 14px, and adding 12px on the
+   toolbar stacked on top of it - measured 89px tall for a row whose control is 36px. The box is the
+   theme's now: 14 + 36 + 14. */
+.pg-list-filter{overflow:visible}
+.pg-editor .pg-editor-section .pg-form-grid{gap:12px}
+.pg-editor-card>.pg-editor-body>.pg-editor-section:first-child{padding-top:18px}
+
+/* Column widths and per-column alignment, declared once for the head and the body together: six
+   auto-width columns came out 201px each whatever they held, and the theme gave the ACTION head a left
+   alignment while its cell went right - the header did not line up with what was under it. The same
+   `<colgroup>` boxes drive both rows, so the two can only disagree if this block is edited carelessly. */
+body.bo-wallet-tx .pg-list-table{table-layout:fixed;width:100%}
+body.bo-wallet-tx .pg-list-table col.pg-c-gateway{width:24%}
+body.bo-wallet-tx .pg-list-table col.pg-c-url{width:26%}
+body.bo-wallet-tx .pg-list-table col.pg-c-caps{width:18%}
+body.bo-wallet-tx .pg-list-table col.pg-c-channels{width:10%}
+body.bo-wallet-tx .pg-list-table col.pg-c-status{width:12%}
+body.bo-wallet-tx .pg-list-table col.pg-c-action{width:10%}
+/* The theme states `body.bo-wallet-tx .report-content .report-table thead th{text-align:left!important}`
+   and it is linked after this sheet, so equal-specificity rules lose: the head cell of ACTION stayed left
+   while its cell went centre. Same shape as the theme, one class more. */
+/* No padding here on purpose: the guard reads `.report-content .report-table th/td` as a shell selector
+   and refuses a metric on it, and the theme already gives these cells 12px - measured, not assumed. */
+html body.bo-wallet-tx .report-content .report-table.pg-list-table th,
+html body.bo-wallet-tx .report-content .report-table.pg-list-table td{text-align:left!important;vertical-align:middle}
+html body.bo-wallet-tx .report-content .report-table.pg-list-table thead th:nth-child(4),
+html body.bo-wallet-tx .report-content .report-table.pg-list-table tbody td:nth-child(4),
+html body.bo-wallet-tx .report-content .report-table.pg-list-table thead th:nth-child(5),
+html body.bo-wallet-tx .report-content .report-table.pg-list-table tbody td:nth-child(5),
+html body.bo-wallet-tx .report-content .report-table.pg-list-table thead th:nth-child(6),
+html body.bo-wallet-tx .report-content .report-table.pg-list-table tbody td:nth-child(6){text-align:center!important}
+body.bo-wallet-tx .pg-list-table td:nth-child(2){font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}
+body.bo-wallet-tx .pg-list-table th{white-space:nowrap}
+
+/* Transaction log columns: declared once, so the head and the body share them (the same approach as the
+   gateway list). Time and provider ids are monospace, the amount is right-aligned, status and the row
+   action are centred - each for the head cell and the body cell in the same rule. */
+html body.bo-wallet-tx .report-content .report-table.pg-tx-table{table-layout:fixed;width:100%}
+html body.bo-wallet-tx .report-content .report-table.pg-tx-table col.pg-txc-time{width:15%}
+html body.bo-wallet-tx .report-content .report-table.pg-tx-table col.pg-txc-dir{width:10%}
+html body.bo-wallet-tx .report-content .report-table.pg-tx-table col.pg-txc-ref{width:15%}
+html body.bo-wallet-tx .report-content .report-table.pg-tx-table col.pg-txc-member{width:10%}
+html body.bo-wallet-tx .report-content .report-table.pg-tx-table col.pg-txc-amount{width:12%}
+html body.bo-wallet-tx .report-content .report-table.pg-tx-table col.pg-txc-status{width:10%}
+html body.bo-wallet-tx .report-content .report-table.pg-tx-table col.pg-txc-provider{width:16%}
+html body.bo-wallet-tx .report-content .report-table.pg-tx-table col.pg-txc-action{width:12%}
+html body.bo-wallet-tx .report-content .report-table.pg-tx-table th,
+html body.bo-wallet-tx .report-content .report-table.pg-tx-table td{text-align:left!important;vertical-align:middle}
+/* The monospace sizing is stated without the `.report-content .report-table` shape: the drift guard reads
+   that as a shell selector and refuses a font metric on it, and the guard is right - a column's type is
+   this page's business, not the shell's. */
+body.bo-wallet-tx .pg-tx-table thead th:nth-child(1),body.bo-wallet-tx .pg-tx-table tbody td:nth-child(1),
+body.bo-wallet-tx .pg-tx-table thead th:nth-child(3),body.bo-wallet-tx .pg-tx-table tbody td:nth-child(3),
+body.bo-wallet-tx .pg-tx-table thead th:nth-child(7),body.bo-wallet-tx .pg-tx-table tbody td:nth-child(7){font-family:ui-monospace,SFMono-Regular,Menlo,monospace!important;font-size:12px!important}
+html body.bo-wallet-tx .report-content .report-table.pg-tx-table thead th:nth-child(5),
+html body.bo-wallet-tx .report-content .report-table.pg-tx-table tbody td:nth-child(5){text-align:right!important}
+html body.bo-wallet-tx .report-content .report-table.pg-tx-table thead th:nth-child(6),
+html body.bo-wallet-tx .report-content .report-table.pg-tx-table tbody td:nth-child(6),
+html body.bo-wallet-tx .report-content .report-table.pg-tx-table thead th:nth-child(8),
+html body.bo-wallet-tx .report-content .report-table.pg-tx-table tbody td:nth-child(8){text-align:center!important}
+html body.bo-wallet-tx .report-content .report-table.pg-tx-table th{white-space:nowrap}
+.pg-tx-filter{overflow:visible}
+
+/* Editor chrome: the title row carries the state, and the secondary actions sit on their own line rather
+   than beside a second Save. */
+.pg-editor-title{display:flex;align-items:center;gap:10px}
+.pg-editor-title h3{margin:0}
+
+
+/* Focus mode: while a gateway is being edited the module's tab row is not shown - it belongs to the list's
+   context and only offers a way out of the editor. The rail and the topbar stay, so leaving is deliberate.
+
+   The list card is hidden here rather than with its `hidden` attribute: the module's sheet declares
+   `.table-card{display:flex!important}`, which outranks `[hidden]`, so the attribute left the card and its
+   footer laid out - measured, the footer still sat at 138..203 inside the editor. Two classes plus the body
+   state outrank the module rule, and `hidden` stays on the element for assistive technology. */
+body.pg-editing .bo-module-tabs{display:none!important}
+/* Same selector shape as the rule that wins - `body.bo-wallet-tx .table-card` in the module sheet, which
+   loads after this one and therefore beats an equal-specificity `!important` - plus the state class. */
+body.bo-wallet-tx.pg-editing .gateway-list-card{display:none!important}
+
+/* The shell clips: `.report-main` and `.report-content` are both `overflow:hidden` and the list's scroll
+   container is the card itself. Hiding the card for the editor therefore left nothing scrollable at all -
+   measured, the frame was 734px holding 1196px, the editor reported `cannot scroll`, and the fields below
+   Credentials JSON were unreachable. The editor takes the card's place as the scroller; its action bar is
+   sticky inside it, so Cancel / Save Gateway stay on screen while the form moves. */
+body.bo-wallet-tx.pg-editing .pg-editor{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
+body.bo-wallet-tx.pg-editing .pg-editor-card{flex:1 1 auto;min-height:0;overflow-y:auto}
+/* The bar is the column's last child, so it sits on the frame's bottom edge on every tab - sticky only
+   helps while there is something to scroll, and a short tab like API Endpoints has nothing to scroll. */
+body.bo-wallet-tx.pg-editing .pg-editor-actions{position:static;flex:0 0 auto}
+
+/* Native checkboxes are drawn in the browser's accent blue, which is the one colour on this page that is
+   not the module's. `accent-color` keeps the native control and paints it in the page's own amber. */
+.pg-editor-card input[type=checkbox]{accent-color:#C8791A}
+
+/* ============================================================================
+   Section cards for the editor, copied from the reference form the owner named -
+   agent-detail.html?new=1 ("Create New Agent"). Measured there: the card is #FFFCF7 with a
+   1px #DCC9A8 border and 8px corners at 20/22/22 padding, a 3px rail sits at the left edge
+   starting 12px down, the head is a flex row (10px/12px gaps) with a 14px bottom pad and a rule,
+   the icon tile is the amber at 10%, fields sit on a 2-column grid with 16px/18px gaps, and
+   helper text is 12.5px/500 #71717A.
+   ========================================================================= */
+.pg-section{position:relative;background:#FFFCF7;border:1px solid #DCC9A8;border-radius:8px;padding:20px 22px 22px}
+.pg-section + .pg-section{margin-top:16px}
+.pg-section::before{content:"";position:absolute;left:0;top:12px;width:3px;height:calc(100% - 24px);background:#D97706;border-radius:0 3px 3px 0}
+.pg-section-head{display:flex;align-items:flex-start;gap:10px 12px;padding:0 0 14px;margin:0 0 18px;border-bottom:1px solid #EADCC8}
+.pg-section-ico{flex:0 0 auto;width:28px;height:28px;border-radius:8px;background:rgba(217,119,6,.1);color:#D97706;display:inline-flex;align-items:center;justify-content:center}
+.pg-section-head h4{margin:0;font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#B45309}
+.pg-section-head p{margin:2px 0 0;font-size:12.5px;font-weight:500;color:#71717A}
+.pg-sections{display:block}                                     /* the panel's outer wrapper: a stack of section cards, not a grid */
+/* Four across, like the reference form's first card (Code / Name / Parent / Status), with `.half` for
+   the fields that want two columns - its second card pairs two wide ones - and `.full` for textareas. */
+.pg-section .pg-form-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px 18px}
+.pg-field{min-width:0}
+.pg-field.half{grid-column:span 2}
+.pg-field.full{grid-column:1/-1}
+/* Helper lines are the reference's <small>: 12px/500 muted. */
+.pg-section .pg-note{margin-top:4px;font-size:12px;font-weight:500;color:#71717A}
+
+/* The header pushes its action to the right end of the same row. */
+.pg-editor-head>#pgCloseModal{margin-left:auto;flex:0 0 auto}
+
+/* With the header down to one line of title, the pills centre against it cleanly. */
+.pg-editor-title{align-items:center}
+.pg-editor-title h3{line-height:1.2}
+
+/* The head's action rides the head, the way the reference form puts its own action there. */
+.pg-section-head>.clean-btn{margin-left:auto;flex:0 0 auto}
+/* Action rows inside a card are rows, not cards: a rule between them, no box of their own. The channel
+   form keeps its box - it is a sub-form that appears when a row is being edited. */
+/* The endpoint rows are `details > summary > form.pg-endpoint` - the script builds them that way - so the
+   selectors name that shape. The earlier rules used a direct-child selector that never matched, which is why
+   an expanded endpoint still looked like the old box: a row is a row with a rule between, and the form inside
+   is the card's own content, not a box inside a box. */
+#pgEndpointForms .pg-endpoint-details{border-bottom:1px solid #EADCC8}
+#pgEndpointForms .pg-endpoint-details:last-child{border-bottom:0}
+#pgEndpointForms summary{display:flex;align-items:center;gap:12px;padding:0 0 14px;margin:0;border-bottom:1px solid #EADCC8;cursor:pointer;list-style:none}
+#pgEndpointForms .pg-endpoint-details[open]>summary{margin-bottom:18px}
+#pgEndpointForms summary::-webkit-details-marker{display:none}
+#pgEndpointForms summary b{font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#B45309}
+#pgEndpointForms summary b::before{content:counter(pgEp) ". "}
+#pgEndpointForms form.pg-endpoint{border:0;border-radius:0;background:transparent;padding:0 0 18px;margin-top:0}
+/* The endpoint form is a compact sub-form, so its fields run two across rather than four: `HTTP Method` and
+   `Content Type` are half-width each instead of a quarter, which left half the row empty beside them. */
+#pgEndpointForms form.pg-endpoint .pg-form-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 18px}
+/* The open row says so: its name takes the amber the rest of the editor uses for an active thing. */
+#pgEndpointForms form.pg-endpoint{padding:0}
+/* JSON editors get a working height instead of the rows=5/6 the script asks for - five of them stacked made the
+   form taller than the screen. They keep the standard textarea look and stay resizable by hand. */
+#pgEndpointForms form.pg-endpoint textarea{height:120px;min-height:120px}
+.pg-editor-title{display:none}
+
+/* The capabilities pair is two checkboxes on one line; give them the row's own height so the grid stays even. */
+.pg-field .pg-caps{display:flex;gap:16px;align-items:center;min-height:44px}
+
+/* Every grid inside the editor is the same grid - the panels' own and the one the endpoint form is built with
+   at runtime, which was still on the old 2-column / 14px numbers. */
+.pg-editor-body .pg-form-grid,.pg-section .pg-form-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px 18px}
+.pg-panel-note{margin:0 0 14px;font-size:12px;font-weight:500;color:#71717A}
+
+/* A tab that cannot be opened yet dims and says so where it was tried. */
+.pg-editor-tabs .bo-tx-tab[aria-disabled="true"]{cursor:not-allowed}
+.pg-editor-tabs .bo-tx-tab[aria-disabled="true"] .bo-tx-tab-label{opacity:.55}
+.pg-tab-tip{position:fixed;z-index:60;max-width:340px;background:#FFFCF7;border:1px solid #DCC9A8;border-radius:8px;
+  box-shadow:0 8px 22px rgba(92,74,48,.14);padding:9px 12px;font-size:12.5px;font-weight:500;color:#57534E;
+  opacity:0;transform:translateY(-4px);transition:opacity .18s ease,transform .18s ease;pointer-events:none}
+.pg-tab-tip.show{opacity:1;transform:none}

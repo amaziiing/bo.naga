@@ -732,3 +732,25 @@ html:not(#bo-charcoal-off) body.report-body .report-shell .report-sidebar .repor
 html:not(#bo-charcoal-off) body.report-body .report-shell .report-sidebar .report-nav .report-sub span{
   border-radius:0!important;
 }
+
+/* ============================================================================
+   Focus mode: while the Payment Gateway editor is open the content frame hands
+   its padding to the editor's own card, so the bottom action bar can sit flush
+   with the frame's edges the way the reference form's bar does
+   (agent-detail.html?new=1: FOOTER.mac-footer-actions spans the full 1246px and
+   touches the viewport's bottom). Measured before: the bar was inset to 1210px
+   with an 18px strip to its left and right and a 16px gap under it. Expressed
+   here rather than in the page sheet because a `.report-content` padding is a
+   shell metric, and bo-shell.css is the one place this project allows to state
+   those.
+   ========================================================================= */
+/* The inset this has to beat is stated by three rules, all with `!important`: the base frame
+   (`padding:18px 18px 22px`), a two-id guard that pins the sides to 18px, and the module's own
+   `padding-bottom:16px`. Read from the browser's matched styles on `?edit=1`, not guessed. So the
+   selector mirrors the guarded one and adds this page's state class - the same move bo-shell.css
+   already documents above ("mirroring that selector and loading later wins the tie") - and states
+   the padding with `!important` because every rule it replaces does. */
+html:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body.report-body.bo-wallet-tx.pg-editing .report-shell .report-main .report-content{
+  padding-top:8px!important;padding-right:0!important;padding-bottom:0!important;padding-left:0!important}
+html:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body.report-body.bo-wallet-tx.pg-editing .report-shell .report-main .report-content .pg-editor-card{
+  margin:0 18px 16px}

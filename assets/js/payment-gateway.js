@@ -193,6 +193,15 @@
        out of the editor, so it goes - and so does the band it leaves behind. Owner: "用户点入编辑页面后
        上面的tab页面切换就不用出现 ... 编辑页面就是让用户专注编辑gateway的东西". */
     document.body.classList.toggle('pg-editing',open);
+    /* Coming back from the editor the list is measured again: the seg's thumb and travel are written as inline
+       values when it mounts, and the row was display:none while the editor was open, so its geometry has to be
+       re-read once the layout is back. The module's own sync() does exactly that, one frame later as it does
+       after mount. */
+    if(!open&&window.BO_SEG_BOUNCE&&typeof window.BO_SEG_BOUNCE.sync==='function'){
+      document.querySelectorAll('.pg-list-filter .bo-tx-tabs').forEach(function(track){
+        requestAnimationFrame(function(){ try{ window.BO_SEG_BOUNCE.sync(track); }catch(e){} });
+      });
+    }
   }
   function openGatewayModal(fromUrl){
     const v=$('pgGatewayModal');

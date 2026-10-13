@@ -99,18 +99,34 @@
       if(name==='channels'&&$('pgChannelsCount')) $('pgChannelsCount').textContent=String(((selected&&selected.channels)||[]).length);
       const locked=!has&&name!=='gateway';
       b.classList.toggle('is-dim',locked);
-      b.disabled=locked;
-      /* A disabled tab that does not say why reads as broken: the owner asked whether the tabs being
-         unselectable on a new gateway was a setting or a fault. The reason is on the tab and beside the row. */
-      b.title=locked?'Save the gateway first - this tab attaches to a saved gateway.':'';
+      /* `aria-disabled` rather than `disabled`: a disabled button never fires a click, and the owner wants the
+         reason to appear when the reader tries the tab. The state still announces itself to assistive tech. */
+      b.setAttribute('aria-disabled',locked?'true':'false');
+      b.removeAttribute('title');
     });
-    const hint=$('pgTabsHint');
-    if(hint){
-      hint.hidden=has;
-      hint.textContent='Save the gateway first - endpoints and channels attach to a saved gateway.';
-    }
   }
-  function pgTab(name){
+  /* The reason floats beside the tab that was tried, then leaves. Owner: "我不要把提示词放在外面 而是让用户点选
+     api endpoint 还是 channel 才触发悬浮提示词". */
+  function pgTabTip(btn,text){
+    const old=document.getElementById('pgTabTip');
+    if(old) old.remove();
+    if(!btn) return;
+    const tip=document.createElement('div');
+    tip.id='pgTabTip';tip.className='pg-tab-tip';tip.textContent=text;
+    document.body.appendChild(tip);
+    const r=btn.getBoundingClientRect();
+    tip.style.left=Math.round(r.left)+'px';
+    tip.style.top=Math.round(r.bottom+8)+'px';
+    requestAnimationFrame(function(){tip.classList.add('show');});
+    clearTimeout(pgTabTip._t);
+    pgTabTip._t=setTimeout(function(){tip.classList.remove('show');setTimeout(function(){tip.remove();},220);},2800);
+  }
+  function pgTab(name,btn){
+    if(!selected&&name!=='gateway'){
+      pgTabTip(btn||document.querySelector('#pgGatewayModal [data-pg-tab="'+name+'"]'),
+        'Save the gateway first - endpoints and channels attach to a saved gateway.');
+      return;
+    }
     document.querySelectorAll('#pgGatewayModal [data-pg-tab]').forEach(function(b){
       const on=b.dataset.pgTab===name;
       b.classList.toggle('is-active',on);
@@ -136,7 +152,7 @@
     document.querySelectorAll('#pgGatewayModal [data-pg-tab]').forEach(function(b){
       if(b.dataset.pgBound==='1') return;
       b.dataset.pgBound='1';
-      b.addEventListener('click',function(){ pgTab(b.dataset.pgTab); });
+      b.addEventListener('click',function(){ pgTab(b.dataset.pgTab,b); });
     });
   }
   /* Which panels a view can show: a saved gateway gets its endpoints and channels, an unsaved one gets

@@ -283,7 +283,10 @@ body.bo-wallet-tx.pg-editing .pg-editor-actions{position:static;flex:0 0 auto}
 .pg-editor-body .pg-form-grid,.pg-section .pg-form-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px 18px}
 .pg-panel-note{margin:0 0 14px;font-size:12px;font-weight:500;color:#71717A}
 
-/* The hint beside the tab row, and a dimmed tab that says it is not available yet. */
-.pg-tabs-hint{margin-left:12px;font-size:12px;font-weight:500;color:#71717A}
-.pg-editor-tabs .bo-tx-tab:disabled{cursor:not-allowed}
-.pg-editor-tabs .bo-tx-tab:disabled .bo-tx-tab-label{opacity:.55}
+/* A tab that cannot be opened yet dims and says so where it was tried. */
+.pg-editor-tabs .bo-tx-tab[aria-disabled="true"]{cursor:not-allowed}
+.pg-editor-tabs .bo-tx-tab[aria-disabled="true"] .bo-tx-tab-label{opacity:.55}
+.pg-tab-tip{position:fixed;z-index:60;max-width:340px;background:#FFFCF7;border:1px solid #DCC9A8;border-radius:8px;
+  box-shadow:0 8px 22px rgba(92,74,48,.14);padding:9px 12px;font-size:12.5px;font-weight:500;color:#57534E;
+  opacity:0;transform:translateY(-4px);transition:opacity .18s ease,transform .18s ease;pointer-events:none}
+.pg-tab-tip.show{opacity:1;transform:none}

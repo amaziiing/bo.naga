@@ -62,13 +62,16 @@ html[data-bo-theme="dark"] .pg-panel-note{background:#2C2E38;border-color:#4A4C5
 
 /* The callback, verification and timeout fields are only touched when a provider is being wired up, so
    they collapse by default and the Gateway tab reads as one screen of the fields that matter. */
-.pg-advanced{margin:6px 0 2px;border:1px solid #EADCC8;border-radius:12px;background:#FFF8EB;overflow:hidden}
-.pg-advanced>summary{display:flex;align-items:center;gap:8px;padding:12px 14px;font-size:13px;font-weight:800;color:#D97706;cursor:pointer;list-style:none}
+/* `grid-column:1/-1` is the fix for a real defect: this block is a child of the card's four-column field grid,
+   so without it the whole callback section was laid out as one cell - a quarter of the row - while the rest of
+   the card sat empty. It is a section of its own, so it spans the row and drops the box. */
+.pg-advanced{grid-column:1/-1;margin:0;border:0;border-radius:0;background:transparent;overflow:visible}
+.pg-advanced>summary{display:flex;align-items:center;gap:10px;padding:0 0 14px;font-size:13px;font-weight:700;color:var(--bo-text-secondary,#3F3F46);cursor:pointer;list-style:none}
 .pg-advanced>summary::-webkit-details-marker{display:none}
 .pg-advanced>summary::after{margin-left:auto;content:"\F282";font-family:"bootstrap-icons";transition:transform .18s ease}
 .pg-advanced[open]>summary::after{transform:rotate(180deg)}
-.pg-advanced[open]>summary{border-bottom:1px solid #EADCC8}
-.pg-advanced-fields{padding:14px;border-top:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.pg-advanced[open]>summary{margin-bottom:18px;border-bottom:1px solid #EADCC8}
+.pg-advanced-fields{padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 18px}
 .pg-advanced-fields .pg-field.full{grid-column:1/-1}
 html[data-bo-theme="dark"] .pg-advanced{background:#2C2E38;border-color:#3A3A38}
 html[data-bo-theme="dark"] .pg-advanced>summary{border-color:#3A3A38;color:#F59E0B}

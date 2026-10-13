@@ -149,11 +149,16 @@
      where they were and Back returns to the list. Measured before this: the URL said nothing, so a reload
      dropped the editor and Back re-opened it. Owner: "用户点进编辑进到独立页面刷新也不会跳回主功能页面". */
   function pgEditParam(){ return new URLSearchParams(location.search).get('edit'); }
-  function pgWriteUrl(edit,replace){
+  /* replaceState only, deliberately. Pushing an entry and walking back out of it looked tidier, but the
+     step is asynchronous: a close that ended in history.back() left `?edit` on the address if anything
+     re-read it in between, and a refresh then reopened the editor - measured on the ordinary
+     list -> pencil -> Cancel path. The address is a description of what is on screen, so it is replaced,
+     never stacked: refresh keeps the editor, Cancel clears it, and Back leaves the page like any other. */
+  function pgWriteUrl(edit){
     const u=new URL(location.href);
     if(edit==null||edit==='') u.searchParams.delete('edit'); else u.searchParams.set('edit',String(edit));
     const url=u.pathname.split('/').pop()+u.search+u.hash;
-    try{ (replace?history.replaceState:history.pushState).call(history,{pgEdit:edit==null?'':String(edit)},'',url); }catch(e){}
+    try{ history.replaceState({pgEdit:edit==null?'':String(edit)},'',url); }catch(e){}
   }
   function openGatewayModal(fromUrl){
     const v=$('pgGatewayModal');
@@ -161,19 +166,19 @@
     const list=document.querySelector('.gateway-list-card'); if(list) list.hidden=true;
     pgBindTabs();pgPanelsForCurrent();pgTab('gateway');pgMountSegs();
     window.scrollTo(0,0);
-    if(!fromUrl) pgWriteUrl(selected&&selected.id?selected.id:'new',false);
+    if(!fromUrl) pgWriteUrl(selected&&selected.id?selected.id:'new');
   }
   function closeGatewayModal(fromUrl){
     const v=$('pgGatewayModal');
     v.hidden=true;v.classList.remove('show');v.setAttribute('aria-hidden','true');
     const list=document.querySelector('.gateway-list-card'); if(list) list.hidden=false;
     window.scrollTo(0,0);
-    if(fromUrl) return;
+    if(fromUrl===true) return;
     /* Closing goes back the way the editor was entered: the list entry pushed it, so the history step is
        what removes `?edit`. Landing straight on `?edit=...` has no such entry, so the address is rewritten
        instead of leaving the page. */
-    if(history.state&&history.state.pgEdit){ history.back(); }
-    else pgWriteUrl(null,true);
+    /* A closed editor must not leave `?edit` behind: a refresh would reopen it. */
+    pgWriteUrl(null);
   }
 
   function resetGateway(){selected=null;$('pgId').value='';$('pgCode').value='';$('pgName').value='';$('pgBaseUrl').value='';$('pgAdminUrl').value='';$('pgLogoUrl').value='';renderLogoPreview('');$('pgStatus').value='0';$('pgDeposit').checked=true;$('pgWithdraw').checked=false;$('pgDepositChannelSelection').value='0';$('pgCredentials').value='{}';$('pgCallbackUrl').value='';$('pgDepositCallbackUrl').value='';$('pgWithdrawCallbackUrl').value='';$('pgLinkBackUrl').value='';$('pgCallbackReference').value='referenceId';$('pgCallbackStatus').value='status';$('pgCallbackMap').value='{}';$('pgCallbackVerifyMode').value='NONE';$('pgCallbackVerifyHeader').value='X-Signature';$('pgCallbackVerifyField').value='signature';$('pgCallbackVerifySecret').value='';$('pgCallbackAllowedIps').value='';$('pgDepositStatusPollEnabled').value='1';$('pgConnectTimeout').value='10000';$('pgRequestTimeout').value='20000';$('pgNotes').value='';$('pgGatewayFormTitle').textContent='New Gateway';$('pgSelectedPill').textContent='Not selected';$('pgSelectedPill').className='pg-pill off';$('pgConfigPanel').hidden=true;$('pgChannelPanel').hidden=true;renderList();}
@@ -248,8 +253,8 @@
     $('pgS1PayTemplate').addEventListener('click',loadS1PayTemplate);
     $('pgNewChannel').addEventListener('click',()=>editChannel(null));
     $('pgCancelChannel').addEventListener('click',()=>{$('pgChannelForm').hidden=true;});
-    $('pgCloseModal').addEventListener('click',closeGatewayModal);
-    $('pgCloseModalBottom').addEventListener('click',closeGatewayModal);
+    $('pgCloseModal').addEventListener('click',()=>closeGatewayModal());
+    $('pgCloseModalBottom').addEventListener('click',()=>closeGatewayModal());
     $('pgGatewayModal').addEventListener('click',e=>{if(e.target===$('pgGatewayModal'))closeGatewayModal();});
     /* The Escape handler is bound once at file scope (the __boPgEsc slot), so it is not
        registered again here - a second registration would stack on every entry. */
@@ -259,7 +264,7 @@
       const want=pgEditParam();
       if(want==null||want===''){ if(!$('pgGatewayModal').hidden) closeGatewayModal(true); return; }
       const found=(want==='new')?null:gateways.find(g=>String(g.id)===String(want));
-      if(want!=='new'&&!found){ pgWriteUrl(null,true); if(!$('pgGatewayModal').hidden) closeGatewayModal(true); return; }
+      if(want!=='new'&&!found){ pgWriteUrl(null); if(!$('pgGatewayModal').hidden) closeGatewayModal(true); return; }
       if(found){ resetGateway(); fillGateway(found); } else { resetGateway(); }
       if($('pgGatewayModal').hidden) openGatewayModal(true);
       else { pgPanelsForCurrent(); pgTab('gateway'); }

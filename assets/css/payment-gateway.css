@@ -67,3 +67,11 @@ html[data-bo-theme="dark"] .pg-endpoint-details>summary{border-color:#3A3A38}
    tabs use, so the page has one kind of segmented control rather than two. */
 
 @media(max-width:575px){}
+
+/* The filter row sits in the module's own `.filter-card` box, the way the sibling tabs carry it, and the
+   card keeps the panel's inner rhythm. Everything else in this editor/listing is the module's component
+   (bo-tx-*), not a lookalike. */
+.pg-list-filter{padding:0}
+.pg-list-filter .bo-tx-toolbar{padding:12px 16px}
+.pg-editor .pg-editor-section .pg-form-grid{gap:12px}
+.pg-editor-card>.pg-editor-body>.pg-editor-section:first-child{padding-top:18px}

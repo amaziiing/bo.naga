@@ -23,7 +23,11 @@
 
 .pg-editor-body{background:#F5EBDC}
 .pg-editor-section{padding:16px 20px}
-.pg-editor-actions{position:sticky;bottom:0;display:flex;justify-content:flex-end;gap:10px;padding:12px 20px;border-top:1px solid #EADCC8;background:#FFF8EB}
+.pg-editor-actions{position:sticky;bottom:0;display:flex;justify-content:flex-end;gap:10px;padding:14px 24px;border-top:1px solid rgba(92,74,48,.1);background:#FFFCF7}
+/* The reference's bar (agent-detail.html?new=1, FOOTER.mac-footer-actions): 73px tall, #FFFCF7, a 1px
+   rgba(92,74,48,.1) top edge and 14px/24px padding. `sticky` inside this editor's own scroller gives the
+   same visible result as the reference's `fixed` without leaving the shell's layout, and the bar is a
+   child of .pg-editor rather than of the card so it spans the full width the way the reference's does. */
 .pg-panel-note{padding:18px;border:1px dashed #EADCC8;border-radius:10px;background:#FFF8EB;color:#57534E;font-size:13px}
 .pg-editor .pg-form-grid{gap:12px}
 .pg-editor .pg-field label{margin-bottom:4px}

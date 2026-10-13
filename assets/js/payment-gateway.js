@@ -111,6 +111,18 @@
     document.querySelectorAll('#pgGatewayModal [data-pg-panel]').forEach(function(panel){ panel.hidden=panel.dataset.pgPanel!==name; });
     pgTabState();
   }
+  /* The segmented control's pill is not CSS: bo-seg-bounce.js builds a `.bo-seg-thumb` behind the active
+     item when it is mounted, so an unmounted track renders as plain text - which is what "页面刷新后 胶囊没有
+     出现" was, because this only ran when the editor was opened. Both rows are mounted on load: the editor's
+     markup is in the DOM from the start, so there is nothing to wait for. */
+  function pgMountSegs(){
+    if(!window.BO_SEG_BOUNCE||typeof window.BO_SEG_BOUNCE.mount!=='function') return;
+    document.querySelectorAll('.pg-list-filter .bo-tx-tabs, .pg-editor-tabs, #pgGatewayModal .bo-tx-tabs').forEach(function(track){
+      if(track.dataset.pgSegMounted==='1') return;
+      track.dataset.pgSegMounted='1';
+      try{ window.BO_SEG_BOUNCE.mount(track,{button:':scope > .bo-tx-tab',anim:'bounce'}); }catch(e){}
+    });
+  }
   function pgBindTabs(){
     document.querySelectorAll('#pgGatewayModal [data-pg-tab]').forEach(function(b){
       if(b.dataset.pgBound==='1') return;
@@ -136,16 +148,7 @@
     const v=$('pgGatewayModal');
     v.hidden=false;v.classList.add('show');v.setAttribute('aria-hidden','false');
     const list=document.querySelector('.gateway-list-card'); if(list) list.hidden=true;
-    pgBindTabs();pgPanelsForCurrent();pgTab('gateway');
-    /* The module's segmented control owns its own bounce animation (bo-seg-bounce.js): mount it on both
-       tab rows, exactly as the sibling pages mount it on theirs. */
-    if(window.BO_SEG_BOUNCE){
-      document.querySelectorAll('#pgGatewayModal .bo-tx-tabs, .pg-editor-tabs, .bo-tx-toolbar .bo-tx-tabs').forEach(function(track){
-        if(track.dataset.pgSegMounted==='1') return;
-        track.dataset.pgSegMounted='1';
-        window.BO_SEG_BOUNCE.mount(track,{button:':scope > .bo-tx-tab',anim:'bounce'});
-      });
-    }
+    pgBindTabs();pgPanelsForCurrent();pgTab('gateway');pgMountSegs();
     window.scrollTo(0,0);
   }
   function closeGatewayModal(){
@@ -232,6 +235,7 @@
     $('pgGatewayModal').addEventListener('click',e=>{if(e.target===$('pgGatewayModal'))closeGatewayModal();});
     /* The Escape handler is bound once at file scope (the __boPgEsc slot), so it is not
        registered again here - a second registration would stack on every entry. */
-    load().catch(e=>notify(e.message,'error'));
+    load().then(pgMountSegs).catch(e=>notify(e.message,'error'));
+    pgMountSegs();
   });
 })();

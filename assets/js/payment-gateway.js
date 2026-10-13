@@ -160,14 +160,24 @@
     const url=u.pathname.split('/').pop()+u.search+u.hash;
     try{ history.replaceState({pgEdit:edit==null?'':String(edit)},'',url); }catch(e){}
   }
+  /* One function owns what is on screen, derived from the editor's own state rather than set at each call
+     site. Setting it imperatively at open/close left two ways to be wrong: a direct `?edit=1` load could
+     render the list and the editor together (owner's screenshot: the filter pills and the table above the
+     form), and a router swap replaced the frame's markup, dropping the `hidden` the list carried. Both are
+     the same defect - a view state that several places had to remember. */
+  function pgApplyView(){
+    const view=$('pgGatewayModal');
+    const open=!!view&&!view.hidden;
+    const list=document.querySelector('.gateway-list-card'); if(list) list.hidden=open;
+    /* Editing is a room of its own: the module's tab row belongs to the list's context and is only a way
+       out of the editor, so it goes - and so does the band it leaves behind. Owner: "用户点入编辑页面后
+       上面的tab页面切换就不用出现 ... 编辑页面就是让用户专注编辑gateway的东西". */
+    document.body.classList.toggle('pg-editing',open);
+  }
   function openGatewayModal(fromUrl){
     const v=$('pgGatewayModal');
     v.hidden=false;v.classList.add('show');v.setAttribute('aria-hidden','false');
-    const list=document.querySelector('.gateway-list-card'); if(list) list.hidden=true;
-    /* Editing is a room of its own: the module's tab row above belongs to the list's context and reads as a
-       way out of the editor, so it is hidden while one is open. Owner: "用户点入编辑页面后 上面的tab页面切换
-       就不用出现 ... 编辑页面就是让用户专注编辑gateway的东西". */
-    document.body.classList.add('pg-editing');
+    pgApplyView();
     pgBindTabs();pgPanelsForCurrent();pgTab('gateway');pgMountSegs();
     window.scrollTo(0,0);
     if(!fromUrl) pgWriteUrl(selected&&selected.id?selected.id:'new');
@@ -175,8 +185,7 @@
   function closeGatewayModal(fromUrl){
     const v=$('pgGatewayModal');
     v.hidden=true;v.classList.remove('show');v.setAttribute('aria-hidden','true');
-    const list=document.querySelector('.gateway-list-card'); if(list) list.hidden=false;
-    document.body.classList.remove('pg-editing');
+    pgApplyView();
     window.scrollTo(0,0);
     if(fromUrl===true) return;
     /* Closing goes back the way the editor was entered: the list entry pushed it, so the history step is
@@ -272,10 +281,15 @@
       if(want!=='new'&&!found){ pgWriteUrl(null); if(!$('pgGatewayModal').hidden) closeGatewayModal(true); return; }
       if(found){ resetGateway(); fillGateway(found); } else { resetGateway(); }
       if($('pgGatewayModal').hidden) openGatewayModal(true);
-      else { pgPanelsForCurrent(); pgTab('gateway'); }
+      else { pgPanelsForCurrent(); pgTab('gateway'); pgApplyView(); }
     }
     window.addEventListener('popstate',()=>{ load().then(pgSyncFromUrl).catch(()=>pgSyncFromUrl()); });
     load().then(pgMountSegs).then(pgSyncFromUrl).catch(e=>notify(e.message,'error'));
     pgMountSegs();
+    /* A router swap replaces the frame's markup, so the editor's visibility and the list's are re-derived
+       on the page's own mount signal rather than assumed to have survived. */
+    if(window.__boPgSpaViewBound) document.removeEventListener('bo:spa:content-mounted',window.__boPgSpaViewBound);
+    window.__boPgSpaViewBound=pgApplyView;
+    document.addEventListener('bo:spa:content-mounted',window.__boPgSpaViewBound);
   });
 })();

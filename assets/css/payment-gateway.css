@@ -86,7 +86,11 @@ html[data-bo-theme="dark"] .pg-panel-note{background:#2C2E38;border-color:#4A4C5
 .pg-advanced-fields .pg-field.full{grid-column:1/-1}
 html[data-bo-theme="dark"] .pg-advanced{background:#2C2E38;border-color:#3A3A38}
 html[data-bo-theme="dark"] .pg-advanced>summary{border-color:#3A3A38;color:#F59E0B}
-@media(max-width:991px){.pg-advanced-fields{grid-template-columns:1fr}.pg-advanced-fields .pg-field.full{grid-column:auto}}
+@media(max-width:991px){/* Two columns, and the fields marked `full` in this block pair up (`grid-column:auto` below) instead of each
+   taking a whole row - with one column the callback section read as a narrow strip with the row's right half
+   empty. Fields holding a textarea still want the row. */
+.pg-advanced-fields{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 18px}
+.pg-advanced-fields .pg-field.full:has(textarea){grid-column:1/-1}.pg-advanced-fields .pg-field.full{grid-column:auto}}
 /* Each action is a card: the `details` element carries the card, its `summary` is the head (`1. DEPOSIT` +
    the pill + the chevron) and the form inside is the card's content. Collapsed it is a one-line card;
    opened, the same card with its fields - so there is never a card inside a card. The number comes from a
@@ -322,3 +326,15 @@ body.bo-wallet-tx .report-main .gateway-list-card > .table-footer.bo-pagination-
 .pg-section[data-pg-fold].is-folded > .pg-section-head::after{transform:rotate(-90deg)}
 .pg-section[data-pg-fold].is-folded > .pg-section-head{margin-bottom:0;padding-bottom:0;border-bottom:0}
 .pg-section[data-pg-fold].is-folded > .pg-form-grid{display:none}
+
+/* ============================================================================
+   The callback block, stated once and last. It is the one place in this sheet
+   where two earlier rules and the module's own `grid-.pg-field.full` handling
+   were fighting: measured, the block came out `display:block` with each field at
+   272px - a quarter of the row - so the section read as a narrow strip with
+   three quarters of every row empty. Two columns, full-width for the fields
+   that hold a textarea, and `auto` for the rest so they pair up.
+   ========================================================================= */
+.pg-advanced-fields{display:grid!important;grid-column:1/-1!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:16px 18px!important}
+.pg-advanced-fields .pg-field.full:not(:has(textarea)){grid-column:auto!important}

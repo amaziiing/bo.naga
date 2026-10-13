@@ -290,3 +290,22 @@ body.bo-wallet-tx.pg-editing .pg-editor-actions{position:static;flex:0 0 auto}
   box-shadow:0 8px 22px rgba(92,74,48,.14);padding:9px 12px;font-size:12.5px;font-weight:500;color:#57534E;
   opacity:0;transform:translateY(-4px);transition:opacity .18s ease,transform .18s ease;pointer-events:none}
 .pg-tab-tip.show{opacity:1;transform:none}
+
+/* The footer is the module's three-part row: `Show N entries` at the start, the `Showing X to Y of Z` line
+   centred on the row itself rather than merely sitting between its neighbours, and the pager at the end. */
+/* Three equal parts, so the middle line is centred on the row rather than merely sitting between its
+   neighbours: the agent family states its footer the same way
+   (`minmax(190px,1fr) minmax(260px,1fr) minmax(190px,1fr)`), which is why their `Showing X of Y` reads centred
+   and the `auto 1fr auto` template here did not - the left control is wider than the pager, so the middle was
+   pushed 26px right (measured on bank-deposit-usage as well, so it is the template's doing, not this page's). */
+/* Three equal parts, so `Showing X to Y of Z` is centred on the row. The repo already states this shape -
+   `.report-main .table-footer{minmax(190px,1fr) minmax(260px,1fr) minmax(190px,1fr)!important}` - but on this
+   page `body.bo-wallet-tx .report-main .bo-pagination-standard{…}` outranks it by one element, and an
+   `auto 1fr auto` template pushes the middle 26px right (measured on bank-deposit-usage too, so it is that
+   template's doing and not this page's). Selector mirrors the winner with this card's class added. */
+body.bo-wallet-tx .report-main .gateway-list-card > .table-footer.bo-pagination-standard{
+  display:grid!important;grid-template-columns:minmax(190px,1fr) minmax(260px,1fr) minmax(190px,1fr)!important;
+  align-items:center!important;gap:12px!important}
+body.bo-wallet-tx .report-main .gateway-list-card > .table-footer.bo-pagination-standard > .entries-control{justify-self:start}
+body.bo-wallet-tx .report-main .gateway-list-card > .table-footer.bo-pagination-standard > .table-info{justify-self:center;text-align:center}
+body.bo-wallet-tx .report-main .gateway-list-card > .table-footer.bo-pagination-standard > .pagination-clean{justify-self:end}

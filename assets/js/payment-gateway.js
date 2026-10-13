@@ -51,7 +51,9 @@
     if($('pgShowing')) $('pgShowing').textContent='Showing '+(total?from:0)+' to '+(total?to:0)+' of '+total+' entries';
     const pager=$('pgPager'); if(!pager) return;
     const size=pgPageSize(),pages=Number.isFinite(size)?Math.max(1,Math.ceil(total/size)):1;
-    if(pages<2){pager.innerHTML='';return;}
+    /* One page still gets a pager: the module's footers always carry the controls, and an empty right end read
+       as a missing piece rather than as "there is nothing to page". */
+
     let html='<button type="button" class="page-btn" data-pg-page="'+Math.max(1,pgPage-1)+'"'+(pgPage<=1?' disabled':'')+' aria-label="Previous page"><i class="bi bi-chevron-left"></i></button>';
     for(let i=1;i<=pages;i++) html+='<button type="button" class="page-btn'+(i===pgPage?' active':'')+'" data-pg-page="'+i+'"'+(i===pgPage?' aria-current="page"':'')+'>'+i+'</button>';
     html+='<button type="button" class="page-btn" data-pg-page="'+Math.min(pages,pgPage+1)+'"'+(pgPage>=pages?' disabled':'')+' aria-label="Next page"><i class="bi bi-chevron-right"></i></button>';

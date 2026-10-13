@@ -211,9 +211,9 @@
     $('pgChannelForm').addEventListener('submit',saveChannel);
     $('pgRefresh').addEventListener('click',()=>load().catch(e=>notify(e.message,'error')));
     if($('pgPageSize')) $('pgPageSize').addEventListener('change',()=>{pgPage=1;renderList();});
-    document.querySelectorAll('.pg-list-toolbar [data-pg-status]').forEach(b=>b.addEventListener('click',()=>{
+    document.querySelectorAll('.pg-list-filter [data-pg-status]').forEach(b=>b.addEventListener('click',()=>{
       pgStatus=String(b.dataset.pgStatus||'');pgPage=1;
-      document.querySelectorAll('.pg-list-toolbar [data-pg-status]').forEach(x=>{
+      document.querySelectorAll('.pg-list-filter [data-pg-status]').forEach(x=>{
         const on=x===b;x.classList.toggle('is-active',on);x.setAttribute('aria-pressed',on?'true':'false');
       });
       renderList();

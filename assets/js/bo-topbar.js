@@ -29,6 +29,13 @@
    an empty-header flash at the top of the page (the same flash the sidebar toggle was
    previously fixed for).
 
+   WHERE THE ACCOUNT CHIP LIVES
+   The account block does not stay in the header - it takes the "Backoffice" title's place at the
+   top of the rail, left of the rail toggle. bo-account-chip.js owns that move, not this file: this
+   script replaces the topbar's markup but is only loaded by pages that opt into the shared header,
+   and the legacy-layout pages (brand-detail / contact-sync / currency-management) ship their own
+   header while still loading the chip script.
+
    CONTRACT - these are load-bearing, do not rename:
      #boThemeToggle / .bo-theme-btn / [data-theme-icon]  -> bo-theme.js
      .hamb / [data-open-sidebar]                         -> reports.js

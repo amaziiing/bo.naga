@@ -1942,6 +1942,35 @@
     }catch(e){}
   })();
 
+  /* The account chip is the rail's header row on the BO side too, and that move lives in
+     bo-account-chip.js (see its WHERE THE CHIP LIVES note) - so every BO page that ships its own
+     header instead of the shared topbar has to load that file. Same shape as mountMainRailCard
+     above, and the same warning applies: the two ?v= below are hand-written (the asset-pin guard
+     reads HTML only), so a change to either file has to be re-stamped HERE as well.
+     Pages that already load it are left alone; the Main portal and a MAIN account are skipped,
+     because main-sidebar-account.js owns the card there. */
+  (function mountBoChip(){
+    try{
+      if(document.querySelector('script[src*="bo-account-chip.js"]')) return;
+      var host = String(location.hostname || '').toLowerCase();
+      if(host === 'main.titanx7.com' || host === 'www.main.titanx7.com') return;
+      var u = window.BO_AUTH.user() || {};
+      var type = String(u.roleType || '').toUpperCase();
+      if(type === 'MAIN' || u.mainAdmin === true || Number(u.mainAdmin) === 1) return;
+      var file = String(location.pathname || '').split('/').pop().split('?')[0].split('#')[0]
+        .replace(/\.html$/i, '').toLowerCase();
+      if(/^main[-_]/i.test(file) || file === 'menu-permission') return;
+      if(!document.querySelector('.report-sidebar')) return;
+      var css = document.createElement('link');
+      css.rel = 'stylesheet';
+      css.href = 'assets/css/bo-account-chip.css?v=c8730135';
+      (document.head || document.documentElement).appendChild(css);
+      var js = document.createElement('script');
+      js.src = 'assets/js/bo-account-chip.js?v=0d3a78bf';
+      (document.body || document.documentElement).appendChild(js);
+    }catch(e){}
+  })();
+
   // Warm the small set of sibling workspace tabs in the browser cache. Tabs remain
   // normal links/full navigations; this only removes avoidable HTML wait when users
   // switch between Admin/Merchant/Provider/Report tabs — and between the page-level

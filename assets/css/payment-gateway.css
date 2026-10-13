@@ -224,11 +224,27 @@ body.bo-wallet-tx.pg-editing .pg-editor-actions{position:static;flex:0 0 auto}
 .pg-section-head>.clean-btn{margin-left:auto;flex:0 0 auto}
 /* Action rows inside a card are rows, not cards: a rule between them, no box of their own. The channel
    form keeps its box - it is a sub-form that appears when a row is being edited. */
-#pgEndpointForms>.pg-endpoint{border:0;border-bottom:1px solid #EADCC8;border-radius:0;background:transparent;padding:14px 0;margin-top:0}
-#pgEndpointForms>.pg-endpoint:last-child{border-bottom:0}
-#pgEndpointForms .pg-endpoint-head{margin-bottom:0}
-#pgEndpointForms .pg-endpoint-head>b,#pgEndpointForms .pg-endpoint-head>strong{font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#57534E}
+/* The endpoint rows are `details > summary > form.pg-endpoint` - the script builds them that way - so the
+   selectors name that shape. The earlier rules used a direct-child selector that never matched, which is why
+   an expanded endpoint still looked like the old box: a row is a row with a rule between, and the form inside
+   is the card's own content, not a box inside a box. */
+#pgEndpointForms .pg-endpoint-details{border-bottom:1px solid #EADCC8}
+#pgEndpointForms .pg-endpoint-details:last-child{border-bottom:0}
+#pgEndpointForms summary{display:flex;align-items:center;gap:10px;padding:14px 0;cursor:pointer;list-style:none}
+#pgEndpointForms summary::-webkit-details-marker{display:none}
+#pgEndpointForms summary b{font-size:13px;font-weight:700;color:var(--bo-text-secondary,#3F3F46)}
+#pgEndpointForms form.pg-endpoint{border:0;border-radius:0;background:transparent;padding:0 0 18px;margin-top:0}
+#pgEndpointForms form.pg-endpoint .pg-form-grid{gap:16px 18px}
 .pg-editor-title{display:none}
 
 /* The capabilities pair is two checkboxes on one line; give them the row's own height so the grid stays even. */
 .pg-field .pg-caps{display:flex;gap:16px;align-items:center;min-height:44px}
+
+/* Every grid inside the editor is the same grid - the panels' own and the one the endpoint form is built with
+   at runtime, which was still on the old 2-column / 14px numbers. */
+.pg-editor-body .pg-form-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px 18px}
+
+/* Add / Edit channel is a form, so it reads as a card of its own rather than a bare box hanging under the
+   list card. Same numbers as every other card in the editor. */
+.pg-channel-form{background:#FFFCF7;border:1px solid #DCC9A8;border-radius:8px;padding:20px 22px;margin-top:16px}
+.pg-panel-note{font-size:12px;font-weight:500;color:#71717A}

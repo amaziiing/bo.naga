@@ -16,10 +16,16 @@
 .pg-editor.show{display:block}
 .pg-editor[hidden]{display:none!important}
 .pg-editor-card{background:#FFF8EB;border:1px solid #EADCC8;border-radius:14px;overflow:hidden}
-.pg-editor-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:16px 20px;border-bottom:1px solid #EADCC8}
+.pg-editor-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:18px 20px 14px}
 .pg-editor-head h3{margin:0;font-size:17px;font-weight:800;color:#D97706}
 .pg-editor-head small{display:block;margin-top:3px;font-size:12px;color:#57534E}
-.pg-editor-tabs{padding:12px 20px 0}
+/* The rule belongs under the tab row, not between the title and the tabs: with it above them the tabs read
+   as detached from the header they belong to. This is the module's own idiom - the list page's
+   .bo-module-tabs carries its rule at the row's baseline the same way. */
+/* `.bo-tx-tabs` is the module's own class and the module sheet pins it to `padding:0!important`, so the
+   row's padding and its rule have to be stated the same way - the selector names the body class the
+   module uses plus this page's state class, which is how this repo beats an equal-weight rule. */
+body.bo-wallet-tx .pg-editor-tabs.bo-tx-tabs{padding:6px 20px 14px!important;border-bottom:1px solid #EADCC8!important;width:100%!important;box-sizing:border-box!important}
 
 .pg-editor-body{background:#F5EBDC}
 .pg-editor-section{padding:16px 20px}

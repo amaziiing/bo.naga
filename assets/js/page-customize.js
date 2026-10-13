@@ -65,18 +65,30 @@ function pcToggleExpand(field,open){
   if(open){
     if(typeof field.showPopover==='function'&&!field.hasAttribute('popover')) field.setAttribute('popover','manual');
     if(typeof field.showPopover==='function'){ try{ field.showPopover(); }catch(e){} }
-  }else if(typeof field.hidePopover==='function'){
-    try{ if(field.matches(':popover-open')) field.hidePopover(); }catch(e){}
+  }else{
+    if(typeof field.hidePopover==='function'){
+      try{ if(field.matches(':popover-open')) field.hidePopover(); }catch(e){}
+    }
+    /* The attribute has to go with the state: an element that carries `popover` while it is closed is
+       `display:none` by the UA's own rule, so every box that had been opened and closed stayed hidden -
+       after two of them the section showed only the box that had never been opened (owner: "有bug 我关闭后
+       其他的container会消失"). */
+    if(field.hasAttribute('popover')) field.removeAttribute('popover');
   }
   document.body.classList.toggle('pc-code-expanded',!!document.querySelector('.pc-field.is-expanded'));
   const btn=field.querySelector('.pc-expand');
   if(btn){
     const name=btn.dataset.pcEditor||'code';
     btn.setAttribute('aria-expanded',open?'true':'false');
-    btn.title=open?'Collapse':'Expand';
-    btn.setAttribute('aria-label',(open?'Collapse':'Expand')+' the '+name+' editor');
-    btn.innerHTML='<i class="bi '+(open?'bi-arrows-angle-contract':'bi-arrows-angle-expand')+'" aria-hidden="true"></i>';
+    /* Design board: the collapsed glyph is the four arrows pointing out, the expanded one points in,
+       and the wording states what the click does rather than what the state is. */
+    btn.title=open?'Exit full screen (Esc)':'Full screen editor';
+    btn.setAttribute('aria-label',open?('Exit full screen for the '+name+' editor'):('Open the '+name+' editor full screen'));
+    btn.innerHTML='<i class="bi '+(open?'bi-fullscreen-exit':'bi-arrows-fullscreen')+'" aria-hidden="true"></i>';
   }
+  /* One control only. The board asked for a plain close beside the toggle as well, but the owner read
+     the pair as two exits of the same thing ("为什么有两个 exit full screen的按键 把打叉按键删除即可") -
+     the toggle already states the way out, and Esc is the second one. */
   if(open&&box) box.focus();
 }
 function pcBuildExpanders(){
@@ -91,22 +103,14 @@ function pcBuildExpanders(){
     btn.className='pc-expand';
     btn.dataset.pcEditor=name;
     btn.setAttribute('aria-expanded','false');
-    btn.title='Expand';
-    btn.setAttribute('aria-label','Expand the '+name+' editor');
-    btn.innerHTML='<i class="bi bi-arrows-angle-expand" aria-hidden="true"></i>';
-    /* Beside the name, not floating at the far right of the box (owner: "设计在名字右手边 不用太明显
-      也不用太大个 跟名字的大小就行了"): a small row that carries the label and the control together,
-       so the eye finds it where the field is named. The label keeps its own semantics - it is the same
-       element, only re-parented, and a button inside a <label> would fire both. */
-    if(label&&label.parentNode===field){
-      const head=document.createElement('div');
-      head.className='pc-field-head';
-      field.insertBefore(head,label);
-      head.appendChild(label);
-      head.appendChild(btn);
-    }else{
-      field.appendChild(btn);
-    }
+    btn.title='Full screen editor';
+    btn.setAttribute('aria-label','Open the '+name+' editor full screen');
+    btn.innerHTML='<i class="bi bi-arrows-fullscreen" aria-hidden="true"></i>';
+    /* The field's own top-right corner, over the label row (owner, after trying it beside the name:
+       "你还是帮我右上角的位置吧 然后做明显点"). Positioned by CSS on `.pc-field.has-expand`, which is
+       why this stays a plain sibling rather than a row of its own. */
+    if(label&&label.parentNode===field) field.insertBefore(btn,label.nextSibling);
+    else field.appendChild(btn);
   });
 }
 listen(document,'click',function(e){

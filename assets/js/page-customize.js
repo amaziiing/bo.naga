@@ -79,9 +79,9 @@ function pcToggleExpand(field,open){
     btn.setAttribute('aria-label',open?('Exit full screen for the '+name+' editor'):('Open the '+name+' editor full screen'));
     btn.innerHTML='<i class="bi '+(open?'bi-fullscreen-exit':'bi-arrows-fullscreen')+'" aria-hidden="true"></i>';
   }
-  /* Inside the fullscreen panel the board also wants a plain close control beside the toggle. */
-  const close=field.querySelector('.pc-expand-close');
-  if(close) close.hidden=!open;
+  /* One control only. The board asked for a plain close beside the toggle as well, but the owner read
+     the pair as two exits of the same thing ("为什么有两个 exit full screen的按键 把打叉按键删除即可") -
+     the toggle already states the way out, and Esc is the second one. */
   if(open&&box) box.focus();
 }
 function pcBuildExpanders(){
@@ -99,24 +99,16 @@ function pcBuildExpanders(){
     btn.title='Full screen editor';
     btn.setAttribute('aria-label','Open the '+name+' editor full screen');
     btn.innerHTML='<i class="bi bi-arrows-fullscreen" aria-hidden="true"></i>';
-    const close=document.createElement('button');
-    close.type='button';
-    close.className='pc-expand-close';
-    close.hidden=true;
-    close.title='Exit full screen (Esc)';
-    close.setAttribute('aria-label','Exit full screen');
-    close.innerHTML='<i class="bi bi-x-lg" aria-hidden="true"></i>';
     /* The field's own top-right corner, over the label row (owner, after trying it beside the name:
        "你还是帮我右上角的位置吧 然后做明显点"). Positioned by CSS on `.pc-field.has-expand`, which is
        why this stays a plain sibling rather than a row of its own. */
-    if(label&&label.parentNode===field){ field.insertBefore(btn,label.nextSibling); field.insertBefore(close,btn.nextSibling); }
-    else { field.appendChild(btn); field.appendChild(close); }
+    if(label&&label.parentNode===field) field.insertBefore(btn,label.nextSibling);
+    else field.appendChild(btn);
   });
 }
 listen(document,'click',function(e){
-  const btn=e.target.closest('.pc-expand,.pc-expand-close');
+  const btn=e.target.closest('.pc-expand');
   if(!btn) return;
-  if(btn.classList.contains('pc-expand-close')){ const f=btn.closest('.pc-field'); if(f) pcToggleExpand(f,false); return; }
   e.preventDefault();
   const field=btn.closest('.pc-field');
   if(!field) return;

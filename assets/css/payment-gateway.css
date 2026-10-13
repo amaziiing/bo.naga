@@ -139,5 +139,17 @@ html body.bo-wallet-tx .report-content .report-table.pg-tx-table th{white-space:
 .pg-actions-secondary{display:flex;justify-content:flex-end;gap:8px;margin-top:4px}
 
 /* Focus mode: while a gateway is being edited the module's tab row is not shown - it belongs to the list's
-   context and only offers a way out of the editor. The rail and the topbar stay, so leaving is deliberate. */
+   context and only offers a way out of the editor. The rail and the topbar stay, so leaving is deliberate.
+
+   The list card is hidden here rather than with its `hidden` attribute: the module's sheet declares
+   `.table-card{display:flex!important}`, which outranks `[hidden]`, so the attribute left the card and its
+   footer laid out - measured, the footer still sat at 138..203 inside the editor. Two classes plus the body
+   state outrank the module rule, and `hidden` stays on the element for assistive technology. */
 body.pg-editing .bo-module-tabs{display:none!important}
+/* Same selector shape as the rule that wins - `body.bo-wallet-tx .table-card` in the module sheet, which
+   loads after this one and therefore beats an equal-specificity `!important` - plus the state class. */
+body.bo-wallet-tx.pg-editing .gateway-list-card{display:none!important}
+
+/* Native checkboxes are drawn in the browser's accent blue, which is the one colour on this page that is
+   not the module's. `accent-color` keeps the native control and paints it in the page's own amber. */
+.pg-editor-card input[type=checkbox]{accent-color:#C8791A}

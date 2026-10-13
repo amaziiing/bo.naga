@@ -12,7 +12,7 @@
   flex:0 0 auto !important;
   margin-bottom:0 !important;
   padding:16px 18px !important;
-  border-radius:12px !important;
+  border-radius:8px !important;
   border:1px solid #DCC9A8 !important;
   border-left:3px solid #D97706 !important;
   background:#FFFCF7 !important;
@@ -48,7 +48,7 @@
 }
 .vip-management-page .vip-section-title p{
   margin:6px 0 0 42px !important;
-  font-size:12px !important;
+  font-size:12.5px !important;
   font-weight:500 !important;
   color:#57534E !important;
   line-height:1.4 !important;
@@ -1172,7 +1172,7 @@ html body.vip-level-edit-page.report-body.bo-charcoal:not(#bo-charcoal-off) .vle
   border-left:1px solid #EADCC8 !important;
   border-radius:12px !important;
   box-shadow:0 1px 0 rgba(255,255,255,.7) inset, 0 4px 14px rgba(92,74,48,.045) !important;
-  padding:14px 16px 16px !important;
+  padding:20px 22px 22px !important;
   min-width:0 !important;
 }
 html body.vip-level-edit-page.report-body.bo-charcoal:not(#bo-charcoal-off) .vle-section-head{
@@ -1221,7 +1221,7 @@ html body.vip-level-edit-page.report-body.bo-charcoal:not(#bo-charcoal-off) .vle
 html body.vip-level-edit-page.report-body.bo-charcoal:not(#bo-charcoal-off) .vle-fields{
   display:grid !important;
   grid-template-columns:repeat(2,minmax(0,1fr)) !important;
-  gap:10px 12px !important;
+  gap:16px 18px !important;
 }
 html body.vip-level-edit-page.report-body.bo-charcoal:not(#bo-charcoal-off) .vle-fields-2{
   grid-template-columns:repeat(2,minmax(0,1fr)) !important;
@@ -1263,7 +1263,7 @@ html body.vip-level-edit-page.report-body.bo-charcoal:not(#bo-charcoal-off):not(
 html body.vip-level-edit-page.report-body.bo-charcoal:not(#bo-charcoal-off):not(#bo-input-fill-legacy):not(#bo-input-fill-legacy-2) .vle-field select,
 html body.vip-level-edit-page.report-body.bo-charcoal:not(#bo-charcoal-off):not(#bo-input-fill-legacy):not(#bo-input-fill-legacy-2) .vle-field textarea{
   width:100% !important;
-  min-height:40px !important;
+  min-height:44px !important;
   margin:0 !important;
   padding:8px 12px !important;
   border:1px solid #DCC9A8 !important;
@@ -2325,7 +2325,7 @@ html body.vip-level-edit-page.report-body.bo-charcoal:not(#bo-charcoal-off) .vle
   gap:14px !important;
 }
 html body.vip-level-edit-page.report-body.bo-charcoal:not(#bo-charcoal-off) .vle-section{
-  background:linear-gradient(180deg,#FFFDF9 0%,#FFFCF7 100%) !important;
+  background:#FFFCF7 !important;
   border:1px solid #EADCC8 !important;
   border-left:1px solid #EADCC8 !important;
   box-shadow:
@@ -2371,7 +2371,7 @@ html body.vip-level-edit-page.report-body.bo-charcoal:not(#bo-charcoal-off) .vle
 html body.vip-level-edit-page.report-body.bo-charcoal:not(#bo-charcoal-off):not(#bo-input-fill-legacy):not(#bo-input-fill-legacy-2) .vle-field input,
 html body.vip-level-edit-page.report-body.bo-charcoal:not(#bo-charcoal-off):not(#bo-input-fill-legacy):not(#bo-input-fill-legacy-2) .vle-field select,
 html body.vip-level-edit-page.report-body.bo-charcoal:not(#bo-charcoal-off):not(#bo-input-fill-legacy):not(#bo-input-fill-legacy-2) .vle-field textarea{
-  min-height:42px !important;
+  min-height:44px !important;
   border-color:#DCC9A8 !important;
   background:#F0E4D0 !important;
   box-shadow:inset 0 1px 2px rgba(92,74,48,.06) !important;
@@ -2608,3 +2608,25 @@ html:not(#bo-filter-standard-off):not(#bo-charcoal-off):not(#bo-input-fill-legac
   flex:0 0 auto !important;
   height:36px !important;
 }
+
+/* ============================================================================
+   Aligned to the reference edit form, agent-detail.html?new=1 ("Create New Agent"):
+   a 3px amber rail at the card's left edge, 16px between cards, and numbered section
+   titles. The reference prints "1. AGENT PROFILE" in its markup; a counter produces the
+   same look here without editing 29 fields' worth of markup.
+   Numbers measured on the reference: rail 3px at top 12, title 11.5px/800 uppercase
+   #B45309, description 12.5px/500 #71717A, card gap 16px, fields 44px/13.5px/500/radius 10.
+   ========================================================================= */
+body.vip-level-edit-page form{counter-reset:vle-sec}
+body.vip-level-edit-page .vle-section{position:relative;counter-increment:vle-sec}
+body.vip-level-edit-page .vle-section + .vle-section{margin-top:16px !important}
+body.vip-level-edit-page .vle-section::before{content:"";position:absolute;left:0;top:12px;width:3px;height:calc(100% - 24px);background:#D97706;border-radius:0 3px 3px 0}
+body.vip-level-edit-page .vle-section-copy h3::before{content:counter(vle-sec) ". "}
+body.vip-level-edit-page .vle-section-copy h3{font-size:11.5px !important;font-weight:800 !important;color:#B45309 !important;text-transform:uppercase !important;letter-spacing:.06em !important}
+body.vip-level-edit-page .vle-section-icon{width:28px !important;height:28px !important;flex-basis:28px !important;border-radius:8px !important;background:rgba(217,119,6,.1) !important;color:#D97706 !important;border:0 !important}
+body.vip-level-edit-page .vle-section-copy p{font-size:12.5px !important;font-weight:500 !important;color:#71717A !important}
+body.vip-level-edit-page .vle-section-head{padding:0 0 14px !important;margin:0 0 18px !important;align-items:flex-start !important}
+body.vip-level-edit-page .vle-field input,body.vip-level-edit-page .vle-field select,
+body.vip-level-edit-page .vle-field textarea{font-size:13.5px !important;font-weight:500 !important;border-radius:10px !important;padding:0 14px !important}
+body.vip-level-edit-page .vle-field textarea{padding:10px 14px !important}
+body.vip-level-edit-page .vle-field label{font-size:11.5px !important;font-weight:800 !important;color:#57534E !important}

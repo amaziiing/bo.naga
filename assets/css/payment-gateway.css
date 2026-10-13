@@ -204,7 +204,8 @@ body.bo-wallet-tx.pg-editing .pg-editor{flex:1 1 auto;min-height:0;overflow-y:au
 .pg-field{min-width:0}
 .pg-field.half{grid-column:span 2}
 .pg-field.full{grid-column:1/-1}
-.pg-section .pg-note{margin-top:4px;font-size:12.5px;font-weight:500;color:#71717A}
+/* Helper lines are the reference's <small>: 12px/500 muted. */
+.pg-section .pg-note{margin-top:4px;font-size:12px;font-weight:500;color:#71717A}
 
 /* The header pushes its action to the right end of the same row. */
 .pg-editor-head>#pgCloseModal{margin-left:auto;flex:0 0 auto}

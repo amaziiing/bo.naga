@@ -2629,4 +2629,4 @@ body.vip-level-edit-page .vle-section-head{padding:0 0 14px !important;margin:0 
 body.vip-level-edit-page .vle-field input,body.vip-level-edit-page .vle-field select,
 body.vip-level-edit-page .vle-field textarea{font-size:13.5px !important;font-weight:500 !important;border-radius:10px !important;padding:0 14px !important}
 body.vip-level-edit-page .vle-field textarea{padding:10px 14px !important}
-body.vip-level-edit-page .vle-field label{font-size:11.5px !important;font-weight:800 !important;color:#57534E !important}
+body.vip-level-edit-page .vle-field label{font-size:13px !important;font-weight:700 !important;color:var(--bo-text-secondary,#3F3F46) !important}

@@ -32,10 +32,14 @@
    page rather than a record editor and measures 14px labels with 44px fields.
    ========================================================================= */
 
+/* Field labels are the create-page ladder's rung, not the micro-label one: the reference's own sheet states
+   `body.main-admin-create-page .mac-label{font-size:13px;font-weight:700;color:var(--bo-text-secondary)}` and
+   agent-detail.html is built on that ladder. 11.5/800 is the rung for a label sitting inside a well, which is
+   a different slot and was the wrong number here. */
 body.bo-edit-form label:not(.bo-edit-form-keep){
-  font-size:11.5px;
-  font-weight:800;
-  color:#57534E;
+  font-size:13px;
+  font-weight:700;
+  color:var(--bo-text-secondary,#3F3F46);
 }
 
 body.bo-edit-form input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=hidden]),

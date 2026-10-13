@@ -97,9 +97,18 @@
       const name=b.dataset.pgTab;
       if(name==='endpoints'&&$('pgEndpointsCount')) $('pgEndpointsCount').textContent=String(((selected&&selected.endpoints)||[]).length);
       if(name==='channels'&&$('pgChannelsCount')) $('pgChannelsCount').textContent=String(((selected&&selected.channels)||[]).length);
-      b.classList.toggle('is-dim',!has&&name!=='gateway');
-      b.disabled=!has&&name!=='gateway';
+      const locked=!has&&name!=='gateway';
+      b.classList.toggle('is-dim',locked);
+      b.disabled=locked;
+      /* A disabled tab that does not say why reads as broken: the owner asked whether the tabs being
+         unselectable on a new gateway was a setting or a fault. The reason is on the tab and beside the row. */
+      b.title=locked?'Save the gateway first - this tab attaches to a saved gateway.':'';
     });
+    const hint=$('pgTabsHint');
+    if(hint){
+      hint.hidden=has;
+      hint.textContent='Save the gateway first - endpoints and channels attach to a saved gateway.';
+    }
   }
   function pgTab(name){
     document.querySelectorAll('#pgGatewayModal [data-pg-tab]').forEach(function(b){

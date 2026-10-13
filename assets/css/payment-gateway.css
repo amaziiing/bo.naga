@@ -282,3 +282,8 @@ body.bo-wallet-tx.pg-editing .pg-editor-actions{position:static;flex:0 0 auto}
    at runtime, which was still on the old 2-column / 14px numbers. */
 .pg-editor-body .pg-form-grid,.pg-section .pg-form-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px 18px}
 .pg-panel-note{margin:0 0 14px;font-size:12px;font-weight:500;color:#71717A}
+
+/* The hint beside the tab row, and a dimmed tab that says it is not available yet. */
+.pg-tabs-hint{margin-left:12px;font-size:12px;font-weight:500;color:#71717A}
+.pg-editor-tabs .bo-tx-tab:disabled{cursor:not-allowed}
+.pg-editor-tabs .bo-tx-tab:disabled .bo-tx-tab-label{opacity:.55}

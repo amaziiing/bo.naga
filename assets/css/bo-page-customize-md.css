@@ -701,3 +701,20 @@ html[data-bo-theme="dark"] body.page-customize-page.report-body.bo-charcoal:not(
     transform:none!important;
   }
 }
+
+/* --- The code editors can be lifted over the page -------------------------------------------------
+   Three 120px boxes are not enough room to read or write HTML / CSS / JavaScript in (owner: "要做一个
+   可放大里面的container 不然用户很难编辑也很难查阅"). Each one carries a toggle that gives its textarea
+   the viewport; Esc, or the same button, puts it back. Layout only - the colours stay the ones this
+   sheet already gives `.pc-field textarea`, and the panel borrows the shell's own surface token so both
+   themes hold without a second set of literals. */
+html body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-field.has-expand{position:relative}
+html body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-expand{position:absolute;top:0;right:0;display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;padding:0;border:1px solid #EADCC8;border-radius:8px;background:#FFF8EB;color:#57534E;cursor:pointer}
+html body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-expand:hover{background:#FDE9C8;color:#18191C}
+html[data-bo-theme="dark"] body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-expand{border-color:#4A4C58;background:#2C2E38;color:#D6D3D1}
+html[data-bo-theme="dark"] body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-expand:hover{background:#383A46;color:#F5F5F4}
+html body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-field.is-expanded{position:fixed;inset:18px;z-index:1090;display:flex;flex-direction:column;gap:10px;margin:0;width:auto;height:auto;max-width:none;max-height:none;overflow:hidden;padding:16px 18px;border:1px solid var(--bo-bg,#FFF1DC);border-radius:14px;background:var(--bo-surface,#FFF8EB);box-shadow:0 24px 60px rgba(24,25,28,.30)}
+html body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-field.is-expanded label{cursor:default}
+html body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-field.is-expanded textarea.pc-code{flex:1 1 auto;min-height:0!important;height:auto!important;resize:none!important;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-size:13px!important;line-height:1.6}
+html body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-field.is-expanded::backdrop{background:rgba(24,25,28,.38)}
+body.pc-code-expanded{overflow:hidden}

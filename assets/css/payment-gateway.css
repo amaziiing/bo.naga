@@ -243,8 +243,4 @@ body.bo-wallet-tx.pg-editing .pg-editor-actions{position:static;flex:0 0 auto}
 /* Every grid inside the editor is the same grid - the panels' own and the one the endpoint form is built with
    at runtime, which was still on the old 2-column / 14px numbers. */
 .pg-editor-body .pg-form-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px 18px}
-
-/* Add / Edit channel is a form, so it reads as a card of its own rather than a bare box hanging under the
-   list card. Same numbers as every other card in the editor. */
-.pg-channel-form{background:#FFFCF7;border:1px solid #DCC9A8;border-radius:8px;padding:20px 22px;margin-top:16px}
 .pg-panel-note{font-size:12px;font-weight:500;color:#71717A}

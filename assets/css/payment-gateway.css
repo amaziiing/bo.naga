@@ -178,7 +178,11 @@ body.bo-wallet-tx.pg-editing .gateway-list-card{display:none!important}
    measured, the frame was 734px holding 1196px, the editor reported `cannot scroll`, and the fields below
    Credentials JSON were unreachable. The editor takes the card's place as the scroller; its action bar is
    sticky inside it, so Cancel / Save Gateway stay on screen while the form moves. */
-body.bo-wallet-tx.pg-editing .pg-editor{flex:1 1 auto;min-height:0;overflow-y:auto}
+body.bo-wallet-tx.pg-editing .pg-editor{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
+body.bo-wallet-tx.pg-editing .pg-editor-card{flex:1 1 auto;min-height:0;overflow-y:auto}
+/* The bar is the column's last child, so it sits on the frame's bottom edge on every tab - sticky only
+   helps while there is something to scroll, and a short tab like API Endpoints has nothing to scroll. */
+body.bo-wallet-tx.pg-editing .pg-editor-actions{position:static;flex:0 0 auto}
 
 /* Native checkboxes are drawn in the browser's accent blue, which is the one colour on this page that is
    not the module's. `accent-color` keeps the native control and paints it in the page's own amber. */

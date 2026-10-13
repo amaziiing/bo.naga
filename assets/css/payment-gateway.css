@@ -11,7 +11,13 @@
 .gateway-action-btn.bo-ui-icon-button{width:36px!important;min-width:36px!important;max-width:36px!important;height:36px!important;min-height:36px!important;max-height:36px!important;border:1px solid #EADCC8;border-radius:8px!important;background:#FFF8EB;color:#D97706;font-size:15px;display:inline-flex;align-items:center;justify-content:center}.gateway-action-btn:hover{background:#D97706;color:#fff;border-color:#E8901A}.pg-empty{padding:22px;text-align:center;color:#57534E}.pg-note{font-size:12px;color:#57534E}/* The panels are plain holders now: every panel's content is a section card that carries its own
    background, border and padding, so a panel that painted its own would be the box around the boxes
    again. */
-.pg-editor-section{background:transparent;border:0;padding:16px 0 0}.pg-editor-section:last-child{border-bottom:0}.pg-editor-section h4{font-size:15px;font-weight:800;color:#D97706;margin:0 0 16px;display:flex;align-items:center;gap:8px}.pg-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.pg-form-grid .full{grid-column:1/-1}.pg-field label{display:block;margin-bottom:6px}.pg-field input,.pg-field select,.pg-field textarea{width:100%;color:#D97706;outline:none}.pg-field textarea{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;line-height:1.5}.pg-field input:focus,.pg-field select:focus,.pg-field textarea:focus{border-color:#78716C;box-shadow:0 0 0 3px rgba(217,119,6,.1)}.pg-logo-row{display:flex;gap:12px;align-items:center}.pg-logo-preview{width:96px;height:72px;border:1px dashed #EADCC8;border-radius:10px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#F5EBDC;flex:0 0 auto}.pg-logo-preview img{max-width:100%;max-height:100%;object-fit:contain}.pg-logo-actions{display:flex;gap:8px;flex-wrap:wrap}
+.pg-editor-section{background:transparent;border:0;padding:16px 0 0}.pg-editor-section:last-child{border-bottom:0}.pg-editor-section h4{font-size:15px;font-weight:800;color:#D97706;margin:0 0 16px;display:flex;align-items:center;gap:8px}.pg-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.pg-form-grid .full{grid-column:1/-1}.pg-field label{display:block;margin-bottom:6px}.pg-field input,.pg-field select,.pg-field textarea{width:100%;color:#D97706;outline:none}.pg-field textarea{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;line-height:1.5}.pg-field input:focus,.pg-field select:focus,.pg-field textarea:focus{border-color:#78716C;box-shadow:0 0 0 3px rgba(217,119,6,.1)}/* A brand block, not a stretched field: the preview is a proper tile and the column beside it stops growing at
+   a comfortable width, so the URL input no longer runs the whole card while the preview stays thumbnail-sized. */
+.pg-logo-row{display:flex;gap:12px;align-items:center}
+/* Only the column beside the tile grows: `> div` matched the preview too and stretched it to 610px. */
+/* One line: tile, the URL field, then the two actions. The field gives way to them and stops at 520px so the
+   row never leaves a bare half beside it. */
+.pg-logo-url{flex:1 1 auto;min-width:0;max-width:520px}.pg-logo-preview{width:112px;height:76px;border:1px solid #EADCC8;border-radius:10px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#F5EBDC;flex:0 0 auto}.pg-logo-preview img{max-width:100%;max-height:100%;object-fit:contain}.pg-logo-actions{display:flex;gap:8px;flex-wrap:wrap;flex:0 0 auto}
 /* One action bar, as the reference form has: the secondary actions sit in the same row as Cancel
    and Save instead of a band of their own above them. */
 .pg-editor-actions{display:flex;gap:12px;justify-content:flex-end;flex-wrap:wrap}.pg-endpoint{border:1px solid #EADCC8;border-radius:12px;padding:15px;margin-top:12px;background:#FFF8EB}.pg-endpoint:first-child{margin-top:0}.pg-endpoint-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.pg-table-wrap{max-width:100%;overflow-x:auto}.pg-table{width:100%;min-width:760px;border-collapse:collapse;font-size:12px}.pg-table th,.pg-table td{padding:10px;border-bottom:1px solid #EADCC8;white-space:nowrap}.pg-table th{color:#18191C;font-weight:800;background:#F5EBDC}.pg-channel-form{margin-top:16px}.gateway-help{margin-top:14px;padding:12px 14px;border-radius:10px;background:#F5EBDC;color:#57534E;font-size:12px;line-height:1.5}.gateway-transaction-card{padding:18px}.gateway-tx-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}.gateway-tx-actions{display:flex;gap:8px;flex-wrap:wrap}.gateway-tx-table td{vertical-align:middle}.gateway-tx-table th:last-child,.gateway-tx-table td:last-child{text-align:center}.gateway-tx-status{min-width:82px;justify-content:center}.gateway-tx-ref{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}.gateway-tx-action{white-space:nowrap}
@@ -76,25 +82,15 @@ html[data-bo-theme="dark"] .pg-panel-note{background:#2C2E38;border-color:#4A4C5
    so without it the whole callback section was laid out as one cell - a quarter of the row - while the rest of
    the card sat empty. It is a section of its own, so it spans the row and drops the box. */
 .pg-advanced{grid-column:1/-1;margin:0;border:0;border-radius:0;background:transparent;overflow:visible}
-/* It has to look openable, not like another line of description: the label takes the amber this editor uses for
-   things you can act on, and the chevron sits in a 24px disc of the same amber at 10% - the token the section
-   icons use - which deepens on hover and turns over when the block is open. */
-/* A control, not a caption: the row is a filled bar in the same amber family the section icons use (6% fill,
-   1px edge at 18%, the cards' 8px corners) so it cannot be mistaken for another line of description. It is a
-   control and not a container, which is why a fill is right here where a box around cards was not. Opening
-   deepens it and squares its bottom corners so it joins the fields below. */
-.pg-advanced>summary{display:flex;align-items:center;gap:10px;padding:12px 16px;font-size:13px;font-weight:700;color:#B45309;background:rgba(217,119,6,.06);border:1px solid rgba(217,119,6,.18);border-radius:8px;cursor:pointer;list-style:none;user-select:none;transition:background .16s ease,border-color .16s ease}
-.pg-advanced>summary:hover{background:rgba(217,119,6,.12);border-color:rgba(217,119,6,.3);color:#92400E}
-.pg-advanced>summary::-webkit-details-marker{display:none}
-.pg-advanced>summary::after{margin-left:auto;content:"\F282";font-family:"bootstrap-icons";font-size:14px;line-height:1;display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:rgba(217,119,6,.1);color:#D97706;transition:transform .18s ease,background .18s ease}
-.pg-advanced>summary:hover::after{background:rgba(217,119,6,.2)}
-.pg-advanced[open]>summary::after{transform:rotate(180deg)}
-.pg-advanced[open]>summary{background:rgba(217,119,6,.1);border-color:rgba(217,119,6,.26);border-bottom-left-radius:0;border-bottom-right-radius:0}
-.pg-advanced-fields{padding:18px 0 0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 18px}
+
 .pg-advanced-fields .pg-field.full{grid-column:1/-1}
 html[data-bo-theme="dark"] .pg-advanced{background:#2C2E38;border-color:#3A3A38}
 html[data-bo-theme="dark"] .pg-advanced>summary{border-color:#3A3A38;color:#F59E0B}
-@media(max-width:991px){.pg-advanced-fields{grid-template-columns:1fr}.pg-advanced-fields .pg-field.full{grid-column:auto}}
+@media(max-width:991px){/* Two columns, and the fields marked `full` in this block pair up (`grid-column:auto` below) instead of each
+   taking a whole row - with one column the callback section read as a narrow strip with the row's right half
+   empty. Fields holding a textarea still want the row. */
+.pg-advanced-fields{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 18px}
+.pg-advanced-fields .pg-field.full:has(textarea){grid-column:1/-1}.pg-advanced-fields .pg-field.full{grid-column:auto}}
 /* Each action is a card: the `details` element carries the card, its `summary` is the head (`1. DEPOSIT` +
    the pill + the chevron) and the form inside is the card's content. Collapsed it is a one-line card;
    opened, the same card with its fields - so there is never a card inside a card. The number comes from a
@@ -276,7 +272,13 @@ body.bo-wallet-tx.pg-editing .pg-editor-actions{position:static;flex:0 0 auto}
 .pg-editor-title{display:none}
 
 /* The capabilities pair is two checkboxes on one line; give them the row's own height so the grid stays even. */
-.pg-field .pg-caps{display:flex;gap:16px;align-items:center;min-height:44px}
+/* Capabilities: a compact 20px checkbox in the module amber with its name beside it. The first cut tried a
+   pure-CSS switch, but the module sheet clamps `input[type=checkbox]` - the track collapsed to its knob and
+   rendered as a filled disc. A native box sized and coloured by CSS is unbreakable and reads the same. */
+.pg-field .pg-caps{display:flex;gap:18px;align-items:center;min-height:44px}
+.pg-caps label{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--bo-text-secondary,#3F3F46);cursor:pointer}
+.pg-caps input[type=checkbox]{width:20px!important;height:20px!important;min-width:20px!important;max-width:20px!important;
+  min-height:20px!important;max-height:20px!important;accent-color:#D97706;border-radius:4px;cursor:pointer;flex:0 0 auto}
 
 /* Every grid inside the editor is the same grid - the panels' own and the one the endpoint form is built with
    at runtime, which was still on the old 2-column / 14px numbers. */
@@ -309,3 +311,30 @@ body.bo-wallet-tx .report-main .gateway-list-card > .table-footer.bo-pagination-
 body.bo-wallet-tx .report-main .gateway-list-card > .table-footer.bo-pagination-standard > .entries-control{justify-self:start}
 body.bo-wallet-tx .report-main .gateway-list-card > .table-footer.bo-pagination-standard > .table-info{justify-self:center;text-align:center}
 body.bo-wallet-tx .report-main .gateway-list-card > .table-footer.bo-pagination-standard > .pagination-clean{justify-self:end}
+
+/* Panels are switched with the `hidden` attribute, and something on this page declares `display` on
+   `.pg-editor-section` with enough weight to beat `[hidden]` - the same trap the list card fell into. The state
+   is stated once, here, so switching a tab cannot leave two panels on screen. */
+.pg-editor-section[hidden]{display:none!important}
+
+/* A foldable section toggles from its own head, marked with a chevron that turns when it is closed. */
+.pg-section[data-pg-fold] > .pg-section-head{cursor:pointer;user-select:none}
+.pg-section[data-pg-fold] > .pg-section-head::after{margin-left:auto;content:"\F282";font-family:"bootstrap-icons";
+  font-size:14px;line-height:1;display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;
+  border-radius:50%;background:rgba(217,119,6,.1);color:#D97706;transition:transform .18s ease,background .18s ease}
+.pg-section[data-pg-fold] > .pg-section-head:hover::after{background:rgba(217,119,6,.2)}
+.pg-section[data-pg-fold].is-folded > .pg-section-head::after{transform:rotate(-90deg)}
+.pg-section[data-pg-fold].is-folded > .pg-section-head{margin-bottom:0;padding-bottom:0;border-bottom:0}
+.pg-section[data-pg-fold].is-folded > .pg-form-grid{display:none}
+
+/* ============================================================================
+   The callback block, stated once and last. It is the one place in this sheet
+   where two earlier rules and the module's own `grid-.pg-field.full` handling
+   were fighting: measured, the block came out `display:block` with each field at
+   272px - a quarter of the row - so the section read as a narrow strip with
+   three quarters of every row empty. Two columns, full-width for the fields
+   that hold a textarea, and `auto` for the rest so they pair up.
+   ========================================================================= */
+.pg-advanced-fields{display:grid!important;grid-column:1/-1!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:16px 18px!important}
+.pg-advanced-fields .pg-field.full:not(:has(textarea)){grid-column:auto!important}

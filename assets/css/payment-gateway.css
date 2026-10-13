@@ -68,11 +68,11 @@ html[data-bo-theme="dark"] .pg-endpoint-details>summary{border-color:#3A3A38}
 
 @media(max-width:575px){}
 
-/* The filter row sits in the module's own `.filter-card` box, the way the sibling tabs carry it, and the
-   card keeps the panel's inner rhythm. Everything else in this editor/listing is the module's component
-   (bo-tx-*), not a lookalike. */
-.pg-list-filter{padding:0}
-.pg-list-filter .bo-tx-toolbar{padding:12px 16px}
+/* The filter row sits in the module's own `.filter-card` box, the way the sibling tabs carry it. No
+   padding of my own on either: the theme's `.filter-card` already states 14px, and adding 12px on the
+   toolbar stacked on top of it - measured 89px tall for a row whose control is 36px. The box is the
+   theme's now: 14 + 36 + 14. */
+.pg-list-filter{overflow:visible}
 .pg-editor .pg-editor-section .pg-form-grid{gap:12px}
 .pg-editor-card>.pg-editor-body>.pg-editor-section:first-child{padding-top:18px}
 

@@ -75,3 +75,30 @@ html[data-bo-theme="dark"] .pg-endpoint-details>summary{border-color:#3A3A38}
 .pg-list-filter .bo-tx-toolbar{padding:12px 16px}
 .pg-editor .pg-editor-section .pg-form-grid{gap:12px}
 .pg-editor-card>.pg-editor-body>.pg-editor-section:first-child{padding-top:18px}
+
+/* Column widths and per-column alignment, declared once for the head and the body together: six
+   auto-width columns came out 201px each whatever they held, and the theme gave the ACTION head a left
+   alignment while its cell went right - the header did not line up with what was under it. The same
+   `<colgroup>` boxes drive both rows, so the two can only disagree if this block is edited carelessly. */
+body.bo-wallet-tx .pg-list-table{table-layout:fixed;width:100%}
+body.bo-wallet-tx .pg-list-table col.pg-c-gateway{width:24%}
+body.bo-wallet-tx .pg-list-table col.pg-c-url{width:26%}
+body.bo-wallet-tx .pg-list-table col.pg-c-caps{width:18%}
+body.bo-wallet-tx .pg-list-table col.pg-c-channels{width:10%}
+body.bo-wallet-tx .pg-list-table col.pg-c-status{width:12%}
+body.bo-wallet-tx .pg-list-table col.pg-c-action{width:10%}
+/* The theme states `body.bo-wallet-tx .report-content .report-table thead th{text-align:left!important}`
+   and it is linked after this sheet, so equal-specificity rules lose: the head cell of ACTION stayed left
+   while its cell went centre. Same shape as the theme, one class more. */
+/* No padding here on purpose: the guard reads `.report-content .report-table th/td` as a shell selector
+   and refuses a metric on it, and the theme already gives these cells 12px - measured, not assumed. */
+html body.bo-wallet-tx .report-content .report-table.pg-list-table th,
+html body.bo-wallet-tx .report-content .report-table.pg-list-table td{text-align:left!important;vertical-align:middle}
+html body.bo-wallet-tx .report-content .report-table.pg-list-table thead th:nth-child(4),
+html body.bo-wallet-tx .report-content .report-table.pg-list-table tbody td:nth-child(4),
+html body.bo-wallet-tx .report-content .report-table.pg-list-table thead th:nth-child(5),
+html body.bo-wallet-tx .report-content .report-table.pg-list-table tbody td:nth-child(5),
+html body.bo-wallet-tx .report-content .report-table.pg-list-table thead th:nth-child(6),
+html body.bo-wallet-tx .report-content .report-table.pg-list-table tbody td:nth-child(6){text-align:center!important}
+body.bo-wallet-tx .pg-list-table td:nth-child(2){font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}
+body.bo-wallet-tx .pg-list-table th{white-space:nowrap}

@@ -7,7 +7,7 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
 <link href="assets/css/reports.css?v=9c07f140" rel="stylesheet"/>
-<link href="assets/css/payment-gateway.css?v=0fd37685" rel="stylesheet"/>
+<link href="assets/css/payment-gateway.css?v=1d86e035" rel="stylesheet"/>
 <link href="assets/css/bo-wallet-transaction-amber.css?v=876e2491" rel="stylesheet"/>
 <link href="assets/css/bo-seg-bounce.css?v=adb8ca0e" rel="stylesheet"/>
 <link href="assets/css/table-pagination-horizontal.css?v=e0d02694" rel="stylesheet"/>
@@ -43,7 +43,8 @@
   </div>
   </div>
   <div class="table-wrap">
-    <table class="report-table gateway-main-table">
+    <table class="report-table gateway-main-table pg-list-table">
+      <colgroup><col class="pg-c-gateway"/><col class="pg-c-url"/><col class="pg-c-caps"/><col class="pg-c-channels"/><col class="pg-c-status"/><col class="pg-c-action"/></colgroup>
       <thead><tr><th>Gateway</th><th>Base API URL</th><th>Capabilities</th><th>Channels</th><th>Status</th><th>Action</th></tr></thead>
       <tbody id="pgGatewayList"><tr><td colspan="6" class="pg-empty">Loading...</td></tr></tbody>
     </table>

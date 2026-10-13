@@ -236,7 +236,12 @@ body.bo-wallet-tx.pg-editing .pg-editor-actions{position:static;flex:0 0 auto}
 #pgEndpointForms summary::-webkit-details-marker{display:none}
 #pgEndpointForms summary b{font-size:13px;font-weight:700;color:var(--bo-text-secondary,#3F3F46)}
 #pgEndpointForms form.pg-endpoint{border:0;border-radius:0;background:transparent;padding:0 0 18px;margin-top:0}
-#pgEndpointForms form.pg-endpoint .pg-form-grid{gap:16px 18px}
+/* The endpoint form is a compact sub-form, so its fields run two across rather than four: `HTTP Method` and
+   `Content Type` are half-width each instead of a quarter, which left half the row empty beside them. */
+#pgEndpointForms form.pg-endpoint .pg-form-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 18px}
+/* The open row says so: its name takes the amber the rest of the editor uses for an active thing. */
+#pgEndpointForms .pg-endpoint-details[open]>summary b{color:#B45309}
+#pgEndpointForms form.pg-endpoint{padding:6px 0 20px}
 .pg-editor-title{display:none}
 
 /* The capabilities pair is two checkboxes on one line; give them the row's own height so the grid stays even. */

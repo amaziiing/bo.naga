@@ -708,12 +708,14 @@ html[data-bo-theme="dark"] body.page-customize-page.report-body.bo-charcoal:not(
    the viewport; Esc, or the same button, puts it back. Layout only - the colours stay the ones this
    sheet already gives `.pc-field textarea`, and the panel borrows the shell's own surface token so both
    themes hold without a second set of literals. */
-/* The field's own top-right corner, and a control that reads as one: bordered, on its own surface, full
-   opacity (owner: "你还是帮我右上角的位置吧 然后做明显点"). Beside the name it was easy to miss; the corner
-   is where the eye already goes when a box is too small to work in. */
+/* Top-right of the field, sitting on the label row rather than straddling the code box (owner, after
+   seeing all three: "你还是帮我右上角的位置吧 然后做明显点" then "帮我再优化一下位置"). A 32px square on the
+   corner spilled 12px into the textarea and read as part of the code panel; at 22px it lines up with the
+   field's own name, overlaps the box by 2px, and stays plainly a button - bordered, on its own surface,
+   full opacity, amber on hover. */
 html body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-field.has-expand{position:relative!important}
-html body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-expand{position:absolute!important;top:0!important;right:0!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;width:32px!important;height:32px!important;padding:0!important;border:1px solid #EADCC8!important;border-radius:8px!important;background:#FFF8EB!important;box-shadow:0 1px 2px rgba(24,25,28,.06)!important;color:#57534E!important;opacity:1;font-size:14px!important;line-height:1!important;cursor:pointer;transition:background .15s ease,border-color .15s ease,color .15s ease}
-html body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-expand i{font-size:14px!important;line-height:1!important}
+html body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-expand{position:absolute!important;top:0!important;right:0!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;width:22px!important;height:22px!important;padding:0!important;border:1px solid #EADCC8!important;border-radius:6px!important;background:#FFF8EB!important;box-shadow:0 1px 2px rgba(24,25,28,.06)!important;color:#57534E!important;opacity:1;font-size:13px!important;line-height:1!important;cursor:pointer;transition:background .15s ease,border-color .15s ease,color .15s ease}
+html body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-expand i{font-size:13px!important;line-height:1!important}
 html body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-expand:hover,html body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-expand:focus-visible{background:#FDE9C8!important;border-color:#D97706!important;color:#7C2D12!important}
 html[data-bo-theme="dark"] body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-expand{border-color:#4A4C58!important;background:#2C2E38!important;color:#D6D3D1!important}
 html[data-bo-theme="dark"] body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-expand:hover,html[data-bo-theme="dark"] body.page-customize-page.report-body.bo-charcoal:not(#bo-charcoal-off) .pc-expand:focus-visible{background:#383A46!important;border-color:#F59E0B!important;color:#FDE9C8!important}

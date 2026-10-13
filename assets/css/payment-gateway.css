@@ -15,7 +15,11 @@
 .pg-editor{display:none}
 .pg-editor.show{display:block}
 .pg-editor[hidden]{display:none!important}
-.pg-editor-card{background:#FFF8EB;border:1px solid #EADCC8;border-radius:14px;overflow:hidden}
+/* No box around the box (owner: "这个设计是怎么回事"): with a bordered card wrapping seven bordered
+   sections the editor read as cards inside a card, and the reference has no outer one - its title sits on
+   the page and only the sections are cards. The card keeps its role as the inset holder (see bo-shell.css)
+   and nothing else. */
+.pg-editor-card{background:transparent;border:0;border-radius:0}
 .pg-editor-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:18px 20px 14px}
 .pg-editor-head h3{margin:0;font-size:17px;font-weight:800;color:#D97706}
 .pg-editor-head small{display:block;margin-top:3px;font-size:12px;color:#57534E}
@@ -39,7 +43,7 @@ body.bo-wallet-tx .pg-editor-tabs.bo-tx-tabs{padding:6px 20px 14px!important;bor
 .pg-editor .pg-field label{margin-bottom:4px}
 .pg-editor .pg-field input,.pg-editor .pg-field select{min-height:40px;padding:8px 11px}
 .pg-editor .pg-editor-section h4{margin-bottom:12px}
-html[data-bo-theme="dark"] .pg-editor-card,html[data-bo-theme="dark"] .pg-editor-actions{background:#2C2E38;border-color:#3A3A38}
+html[data-bo-theme="dark"] html[data-bo-theme="dark"] .pg-editor-actions{background:#2C2E38;border-color:#3A3A38}
 html[data-bo-theme="dark"] .pg-editor-head{border-color:#3A3A38}
 html[data-bo-theme="dark"] .pg-editor-body{background:#22232A}
 html[data-bo-theme="dark"] .pg-editor-section{background:#2C2E38;border-color:#3A3A38}

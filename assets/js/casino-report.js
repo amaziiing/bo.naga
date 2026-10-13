@@ -232,25 +232,80 @@
       <td class="${num(r.companyWinLoss)<0?'text-danger':'text-success'}"><b>${money(r.companyWinLoss)}</b></td>
     </tr>`), 'No data.');
   }
-  /* The eye leaves the list for one provider's transactions (casino-provider-transactions.html reads
-     `providerCode` plus a range from the URL). It carries the range the report is showing, not the
-     row's single day: the owner asked for "一个 provider 的所有流水交易", so every transaction that
-     provider had in the period on screen, alongside that page's totals for the same period. `back`
-     returns to this exact view, filters and all - the drill page builds its Back control from it. */
-  function providerDrillUrl(code){
-    const u = new URL('casino-provider-transactions.html', location.href);
+  /* Two things this table has to be, in one place (owner: "选择了 date range后 获取...从最旧至12号的
+     全部的total", "点选action 眼睛后 就能查看provider的明细 像main的页面一样").
+     The LIST is one row per provider for the whole range, not one row per date: pick a range and the row
+     already carries the total a reader would otherwise reach by adding the detail's rows up column by
+     column - which also makes the two views checkable against each other. The date cell shows the newest
+     day that total covers, so the list stays a summary of one line per provider. `activeMembers` is summed
+     with the rest because the endpoint reports it per day; member-days is what that column adds up to.
+     The EYE opens this same report filtered to one provider (`?providerCode=...&from=...&to=...&back=...`),
+     which is the Main panel's shape of the same drill-down: the provider's daily rows plus the `Back to
+     list` built from `back` further down. Inside that detail each day keeps its own way into that
+     provider's transactions, so casino-provider-transactions.html is still one click from the report. */
+  const PROVIDER_SUM_FIELDS = ['activeMembers','betCount','betAmount','validBetAmount','payout','memberWinLoss','companyWinLoss'];
+  function providerTotals(rows){
+    const by = new Map();
+    (rows || []).forEach(function(r){
+      const code = String(r.providerCode || '').trim().toUpperCase();
+      if(!code) return;
+      let t = by.get(code);
+      if(!t){
+        t = {providerCode:code, first:'', last:''};
+        PROVIDER_SUM_FIELDS.forEach(function(k){ t[k] = 0; });
+        by.set(code, t);
+      }
+      PROVIDER_SUM_FIELDS.forEach(function(k){ t[k] += num(r[k]); });
+      const d = String(r.date || '').trim();
+      if(d){ if(!t.first || d < t.first) t.first = d; if(!t.last || d > t.last) t.last = d; }
+    });
+    /* Biggest first: as a summary the reader wants the providers that carry the volume at the top
+       rather than whichever one the endpoint happened to emit first. */
+    return Array.from(by.values()).sort(function(a, b){ return b.validBetAmount - a.validBetAmount; });
+  }
+  /* The date cell states when this total was last added to - the newest day the provider has data for,
+     i.e. the end of the range the reader picked - and keeps the days it covers in the tooltip. The list
+     is a summary, so the second (older) date in the cell was noise: "旧日期不需要出现". */
+  function providerDateCell(t){
+    const covered = (t.first && t.last && t.first !== t.last) ? (t.first + ' - ' + t.last) : (t.first || t.last || '');
+    return '<td title="' + esc(covered) + '">' + esc(t.last || '-') + '</td>';
+  }
+  function providerLink(page, code){
+    const u = new URL(page, location.href);
     u.searchParams.set('providerCode', String(code || '').trim().toUpperCase());
     const from = (document.getElementById('casinoFrom') || {}).value || '';
     const to = (document.getElementById('casinoTo') || {}).value || '';
     if(from) u.searchParams.set('from', from);
     if(to) u.searchParams.set('to', to);
+    /* The range travels, the single day does not: both targets show the period on screen. */
     u.searchParams.set('back', location.pathname + location.search);
     return u.toString();
   }
+  function providerEye(label, href){
+    return '<a class="icon-action view icon-action-btn" href="' + esc(href) + '" title="' + esc(label) + '" aria-label="' + esc(label) + '"><i class="bi bi-eye" aria-hidden="true"></i></a>';
+  }
+  function providerCells(r){
+    return '<td>' + whole(r.activeMembers) + '</td><td>' + whole(r.betCount) + '</td><td>' + money(r.betAmount) + '</td>'
+      + '<td>' + money(r.validBetAmount) + '</td><td>' + money(r.payout) + '</td>'
+      + '<td class="' + (num(r.memberWinLoss) < 0 ? 'text-danger' : 'text-success') + '">' + money(r.memberWinLoss) + '</td>'
+      + '<td class="' + (num(r.companyWinLoss) < 0 ? 'text-danger' : 'text-success') + '"><b>' + money(r.companyWinLoss) + '</b></td>';
+  }
   function renderProvider(rows){
-    rows = (rows || []).filter(function(r){ return hasAnyData(r, ['activeMembers','betCount','betAmount','validBetAmount','payout','memberWinLoss','companyWinLoss']); });
-    if(LINK_PROVIDER) rows = rows.filter(function(r){ return String(r.providerCode || '').toUpperCase() === LINK_PROVIDER; });
-    mountRows('crProviderBody', rows.map(r=>`<tr><td><b>${esc(r.date || '-')}</b></td><td><b>${esc(r.providerCode)}</b></td><td>${whole(r.activeMembers)}</td><td>${whole(r.betCount)}</td><td>${money(r.betAmount)}</td><td>${money(r.validBetAmount)}</td><td>${money(r.payout)}</td><td class="${num(r.memberWinLoss)<0?'text-danger':'text-success'}">${money(r.memberWinLoss)}</td><td class="${num(r.companyWinLoss)<0?'text-danger':'text-success'}"><b>${money(r.companyWinLoss)}</b></td><td><a class="icon-action view icon-action-btn" href="${esc(providerDrillUrl(r.providerCode))}" title="View transactions" aria-label="View ${esc(r.providerCode)} transactions"><i class="bi bi-eye" aria-hidden="true"></i></a></td></tr>`), 'No provider bet records.');
+    const list = (rows || []).filter(function(r){ return hasAnyData(r, PROVIDER_SUM_FIELDS); });
+    if(LINK_PROVIDER){
+      /* Opened from a row's eye: this provider's days, for the range the link carried. */
+      mountRows('crProviderBody', list
+        .filter(function(r){ return String(r.providerCode || '').toUpperCase() === LINK_PROVIDER; })
+        .map(function(r){
+          return '<tr><td><b>' + esc(r.date || '-') + '</b></td><td><b>' + esc(r.providerCode) + '</b></td>' + providerCells(r)
+            + '<td>' + providerEye('View ' + String(r.providerCode || '') + ' transactions', providerLink('casino-provider-transactions.html', r.providerCode)) + '</td></tr>';
+        }), 'No provider bet records.');
+      return;
+    }
+    mountRows('crProviderBody', providerTotals(list).map(function(t){
+      return '<tr>' + providerDateCell(t) + '<td><b>' + esc(t.providerCode) + '</b></td>' + providerCells(t)
+        + '<td>' + providerEye('View ' + t.providerCode + ' detail', providerLink('casino-provider-winloss-report.html', t.providerCode)) + '</td></tr>';
+    }), 'No provider bet records.');
   }
   /* The deposit/withdraw row set, in one place: the table below and the KPI strip above it have to
      agree on which rows count, so they share this list rather than each spelling it out. */

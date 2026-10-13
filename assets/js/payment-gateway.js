@@ -168,6 +168,26 @@
   function pgApplyView(){
     const view=$('pgGatewayModal');
     const open=!!view&&!view.hidden;
+    /* The page's own name is in the top bar - that is where the reference form keeps "Create New Agent" - so
+       while a gateway is open the bar says which one: `Edit S1PAY` / `New Gateway`. Closing removes the
+       override and the bar falls back to the menu row's title. `BO_TOPBAR.refresh()` is the script's own API
+       for a page that pins a title, so this does not fight its rendering. */
+    const bar=document.querySelector('[data-bo-topbar]');
+    if(bar){
+      const h1=bar.querySelector('h1');
+      if(open){
+        const wanted='Edit '+(selected?(selected.displayName||selected.gatewayCode||'Gateway'):'')||'New Gateway';
+        const title=selected?('Edit '+(selected.displayName||selected.gatewayCode||'Gateway')):'New Gateway';
+        bar.dataset.boTitle=title;
+        /* bo-topbar's refresh deliberately leaves the h1 alone while a page pins `data-bo-title` - it hands
+           the title to the page - so the page writes it. Closing drops the pin and refresh() writes the menu
+           row's own title back. */
+        if(h1) h1.textContent=title;
+      }else{
+        delete bar.dataset.boTitle;
+        if(window.BO_TOPBAR&&typeof window.BO_TOPBAR.refresh==='function') window.BO_TOPBAR.refresh();
+      }
+    }
     const list=document.querySelector('.gateway-list-card'); if(list) list.hidden=open;
     /* Editing is a room of its own: the module's tab row belongs to the list's context and is only a way
        out of the editor, so it goes - and so does the band it leaves behind. Owner: "用户点入编辑页面后
@@ -197,6 +217,7 @@
 
   function resetGateway(){selected=null;$('pgId').value='';$('pgCode').value='';$('pgName').value='';$('pgBaseUrl').value='';$('pgAdminUrl').value='';$('pgLogoUrl').value='';renderLogoPreview('');$('pgStatus').value='0';$('pgDeposit').checked=true;$('pgWithdraw').checked=false;$('pgDepositChannelSelection').value='0';$('pgCredentials').value='{}';$('pgCallbackUrl').value='';$('pgDepositCallbackUrl').value='';$('pgWithdrawCallbackUrl').value='';$('pgLinkBackUrl').value='';$('pgCallbackReference').value='referenceId';$('pgCallbackStatus').value='status';$('pgCallbackMap').value='{}';$('pgCallbackVerifyMode').value='NONE';$('pgCallbackVerifyHeader').value='X-Signature';$('pgCallbackVerifyField').value='signature';$('pgCallbackVerifySecret').value='';$('pgCallbackAllowedIps').value='';$('pgDepositStatusPollEnabled').value='1';$('pgConnectTimeout').value='10000';$('pgRequestTimeout').value='20000';$('pgNotes').value='';{const _t=$('pgGatewayFormTitle'); if(_t) _t.textContent='New Gateway';}{const _p=$('pgSelectedPill'); if(_p) _p.textContent='Not selected';}{const _p=$('pgSelectedPill'); if(_p) _p.className='pg-pill off';}$('pgConfigPanel').hidden=true;$('pgChannelPanel').hidden=true;renderList();}
   function fillGateway(g){selected=g;$('pgId').value=g.id||'';$('pgCode').value=g.gatewayCode||'';$('pgName').value=g.displayName||'';$('pgBaseUrl').value=g.baseUrl||'';$('pgAdminUrl').value=g.adminUrl||'';$('pgLogoUrl').value=g.logoUrl||'';renderLogoPreview(g.logoUrl||'');$('pgStatus').value=String(g.status??0);$('pgDeposit').checked=Number(g.supportsDeposit)===1;$('pgWithdraw').checked=Number(g.supportsWithdraw)===1;$('pgDepositChannelSelection').value=String(g.depositChannelSelection??0);$('pgCredentials').value=pretty(g.credentialsJson);$('pgCallbackUrl').value=g.callbackUrl||'';$('pgDepositCallbackUrl').value=g.depositCallbackUrl||g.callbackUrl||'';$('pgWithdrawCallbackUrl').value=g.withdrawCallbackUrl||g.callbackUrl||'';$('pgLinkBackUrl').value=g.linkBackUrl||'';$('pgCallbackReference').value=g.callbackReferenceField||'referenceId';$('pgCallbackStatus').value=g.callbackStatusField||'status';$('pgCallbackMap').value=pretty(g.callbackStatusMapJson);$('pgCallbackVerifyMode').value=g.callbackVerifyMode||'NONE';$('pgCallbackVerifyHeader').value=g.callbackVerifyHeader||'X-Signature';$('pgCallbackVerifyField').value=g.callbackVerifyField||'signature';$('pgCallbackVerifySecret').value=g.callbackVerifySecret||'';$('pgCallbackAllowedIps').value=g.callbackAllowedIps||'';$('pgDepositStatusPollEnabled').value=String(g.depositStatusPollEnabled??1);$('pgConnectTimeout').value=g.connectTimeoutMs||10000;$('pgRequestTimeout').value=g.requestTimeoutMs||20000;$('pgNotes').value=g.notes||'';{const _t=$('pgGatewayFormTitle'); if(_t) _t.textContent='Edit '+(g.displayName||'Gateway');}{const _p=$('pgSelectedPill'); if(_p) _p.textContent=Number(g.status)===1?'Enabled':'Disabled';}{const _p=$('pgSelectedPill'); if(_p) _p.className='pg-pill '+(Number(g.status)===1?'on':'off');}$('pgConfigPanel').hidden=false;$('pgChannelPanel').hidden=false;renderList();}
+    pgApplyView();
   function endpointDefaults(action){if(action==='DEPOSIT')return {httpMethod:'POST',contentType:'JSON',enabled:0,path:'',headersTemplate:'{}',bodyTemplate:'{}',successPath:'',successValues:'1',messagePath:'',transactionIdPath:'',redirectUrlPath:'',redirectTransform:'NONE',transactionStatusPath:''};if(action==='WITHDRAW')return {httpMethod:'POST',contentType:'JSON',enabled:0,path:'',headersTemplate:'{}',bodyTemplate:'{}',successPath:'',successValues:'1',messagePath:'',transactionIdPath:'',redirectUrlPath:'',redirectTransform:'NONE',transactionStatusPath:''};return {httpMethod:'POST',contentType:'JSON',enabled:0,path:'',headersTemplate:'{}',bodyTemplate:'{}',successPath:'',successValues:'1',messagePath:'',transactionIdPath:'',redirectUrlPath:'',redirectTransform:'NONE',transactionStatusPath:''};}
   /* Each action's template editor becomes a collapsible block: three of them stacked open were 3.9 screens,
    and the action name plus its enabled state is all a reader needs to pick the one to work on. Same

@@ -21,7 +21,7 @@
 <link href="assets/css/bo-field-standard.css?v=6673ed98" rel="stylesheet">
 <title>Finance - Withdraw</title>
 <link href="assets/css/bo-global-quicknav.css?v=0d429385" rel="stylesheet" data-bo-quicknav-css="1">
-<link href="assets/css/agent-withdraw.css?v=452548e4" rel="stylesheet"></head>
+<link href="assets/css/agent-withdraw.css?v=eac360e2" rel="stylesheet"></head>
 <body class="report-body agent-report-body standardized-listing-page brand-agent-standard agent-modern bo-charcoal bo-account-chip" data-agent-page="withdraw">
 <div class="report-shell">
 <aside class="report-sidebar" id="reportSidebar"><div class="report-brand"><div>Backoffice</div><button class="close-side" data-close-sidebar><i class="bi bi-x-lg"></i></button></div><nav class="report-nav" id="agentPortalNav"></nav><div id="agentSidebarFooter"></div></aside>
@@ -46,7 +46,7 @@
 
 <div class="agent-withdraw-main-grid">
   <section class="agent-withdraw-panel">
-    <h2>1. Withdraw Request</h2>
+    <h2><i class="bi bi-send"></i> 1. Withdraw Request</h2>
     <div class="agent-withdraw-form-row"><label>Withdraw Method</label><div class="agent-withdraw-select-static"><i class="bi bi-bank"></i><span>Bank Transfer (Local)</span><i class="bi bi-chevron-down"></i></div></div>
     <div class="agent-withdraw-form-row agent-bank-account-row"><label>Bank Account</label><div><select id="agentPayoutAccount" class="agent-withdraw-select"><option value="">Select bank account</option></select></div></div>
     <div class="agent-withdraw-form-row"><label>Withdraw Amount (RM)</label><div class="agent-withdraw-amount"><span>RM</span><input id="agentSettlementAmount" min="0.01" placeholder="Enter amount" step="0.01" type="number"><button id="withdrawAllBtn" type="button">All</button></div><small class="agent-withdraw-limit-note">Min: RM <b id="agentSettlementMin">0.00</b><span>|</span>Max: RM <b id="agentSettlementMax">0.00</b></small></div>
@@ -57,18 +57,19 @@
   </section>
 
   <div class="agent-withdraw-middle">
-    <section class="agent-withdraw-panel agent-withdraw-summary"><h2>2. Withdrawal Summary</h2><div><span>Withdraw Amount</span><strong id="summaryAmount">RM 0.00</strong></div><div><span>Processing Fee</span><strong class="minus" id="summaryFee">- RM 0.00</strong></div><hr><div class="receive"><span>You Will Receive</span><strong id="summaryReceive">RM 0.00</strong></div></section>
-    <section class="agent-withdraw-panel"><h2>Important Notes</h2><ul class="agent-withdraw-notes"><li>Withdrawal requests are only allowed for approved earnings.</li><li>Approved payout will be transferred according to your registered payout arrangement.</li><li>Submitted requests cannot be edited while under review.</li><li id="withdrawMinNote">Minimum withdraw amount follows company policy.</li><li>Available amount is determined by approved commission and settlement status.</li></ul></section>
+    <section class="agent-withdraw-panel agent-withdraw-summary"><h2><i class="bi bi-calculator"></i> 2. Withdrawal Summary</h2><div><span>Withdraw Amount</span><strong id="summaryAmount">RM 0.00</strong></div><div><span>Processing Fee</span><strong class="minus" id="summaryFee">- RM 0.00</strong></div><hr><div class="receive"><span>You Will Receive</span><strong id="summaryReceive">RM 0.00</strong></div></section>
+    <section class="agent-withdraw-panel"><h2><i class="bi bi-info-circle"></i> Important Notes</h2><ul class="agent-withdraw-notes"><li>Withdrawal requests are only allowed for approved earnings.</li><li>Approved payout will be transferred according to your registered payout arrangement.</li><li>Submitted requests cannot be edited while under review.</li><li id="withdrawMinNote">Minimum withdraw amount follows company policy.</li><li>Available amount is determined by approved commission and settlement status.</li></ul></section>
   </div>
 
   <div class="agent-withdraw-right">
-    <section class="agent-withdraw-panel"><h2>3. Withdrawal Limits</h2><div class="agent-limit-row"><span>Available Balance</span><b id="limitAvailable">RM 0.00</b></div><div class="agent-limit-row"><span>Pending Withdraw</span><b id="limitPending">RM 0.00</b></div><hr><div class="agent-limit-row highlight"><span>Remaining Available</span><b id="limitRemaining">RM 0.00</b></div><div class="agent-limit-row"><span>Minimum Withdraw</span><b id="limitMinimum">RM 0.00</b></div></section>
-    <section class="agent-withdraw-panel"><h2>4. Bank Account</h2><div class="agent-bank-card"><span class="agent-bank-icon"><i class="bi bi-bank"></i></span><div><b id="withdrawBankName">No bank account</b><span id="withdrawAccountDetail">Add a bank account before submitting a withdrawal.</span></div></div><button class="agent-bank-link" id="agentManageBankAccounts" type="button">Manage Bank Accounts <i class="bi bi-chevron-right"></i></button></section>
+    <section class="agent-withdraw-panel"><h2><i class="bi bi-sliders"></i> 3. Withdrawal Limits</h2><div class="agent-limit-row"><span>Available Balance</span><b id="limitAvailable">RM 0.00</b></div><div class="agent-limit-row"><span>Pending Withdraw</span><b id="limitPending">RM 0.00</b></div><hr><div class="agent-limit-row highlight"><span>Remaining Available</span><b id="limitRemaining">RM 0.00</b></div><div class="agent-limit-row"><span>Minimum Withdraw</span><b id="limitMinimum">RM 0.00</b></div></section>
+    <section class="agent-withdraw-panel"><h2><i class="bi bi-bank"></i> 4. Bank Account</h2><div class="agent-bank-card"><span class="agent-bank-icon"><i class="bi bi-bank"></i></span><div><b id="withdrawBankName">No bank account</b><span id="withdrawAccountDetail">Add a bank account before submitting a withdrawal.</span></div></div><button class="agent-bank-link" id="agentManageBankAccounts" type="button">Manage Bank Accounts <i class="bi bi-chevron-right"></i></button></section>
   </div>
 </div>
 
 <section class="agent-withdraw-panel agent-withdraw-history">
-  <div class="agent-withdraw-history-head"><h2>5. Withdrawal History</h2><div class="agent-withdraw-history-filters bo-filter-row"><div class="field"><label>From</label><input data-range-default="today" id="agentSettlementFrom" type="date"></div><div class="field"><label>To</label><input id="agentSettlementTo" type="date"></div><select id="withdrawHistoryStatus"><option value="">All Status</option><option value="PENDING">Pending</option><option value="APPROVED">Approved</option><option value="PAID">Completed</option><option value="REJECTED">Rejected</option></select><button class="clean-btn" id="agentSettlementRefresh" type="button"><i class="bi bi-arrow-clockwise"></i> Refresh</button></div></div>
+  <div class="agent-withdraw-history-head"><h2><i class="bi bi-clock-history"></i> 5. Withdrawal History</h2></div>
+  <div class="agent-withdraw-history-filters bo-filter-row"><div class="field"><label>From</label><input data-range-default="today" id="agentSettlementFrom" type="date"></div><div class="field"><label>To</label><input id="agentSettlementTo" type="date"></div><select id="withdrawHistoryStatus"><option value="">All Status</option><option value="PENDING">Pending</option><option value="APPROVED">Approved</option><option value="PAID">Completed</option><option value="REJECTED">Rejected</option></select><button class="clean-btn" id="agentSettlementRefresh" type="button"><i class="bi bi-arrow-clockwise"></i> Refresh</button></div>
   <div class="table-wrap"><table class="report-table agent-withdraw-table"><thead><tr><th>Request ID</th><th>Request Date & Time</th><th>Withdraw Method</th><th>Amount (RM)</th><th>Fee (RM)</th><th>You Will Receive (RM)</th><th>Status</th><th>Remark</th><th>Reference</th></tr></thead><tbody id="agentSettlementRows"></tbody></table></div>
   <div class="agent-table-footer agent-withdraw-history-footer"><div class="agent-page-size">Show <select id="agentWithdrawPageSize" aria-label="Rows per page"><option value="10">10</option><option value="20">20</option><option value="50">50</option><option value="100">100</option></select> entries</div><div id="withdrawHistoryShowing">Showing 0 to 0 of 0 records</div><div class="agent-pagination" id="agentWithdrawPagination"></div></div>
 </section>

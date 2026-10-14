@@ -227,6 +227,16 @@ body[data-agent-page="finance"] .agent-wallet-ledger-footer > .agent-pagination{
   align-items:center;
   gap:6px;
 }
+/* The page-size menu opens upwards. The widget's base rule drops it below its trigger
+   (`top:calc(100% + 6px)`), which is right in a filter bar and wrong in a footer: this band sits under
+   the table, so the menu covered the money panels below it (owner, with the screenshot: "show entries
+   展开后 应该向上开 而不是向下展开"). The reports, products and player_game_report footers already
+   re-point it at the wrapper's top edge; this is the same statement for this page. */
+html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-ledger-footer .rounded-select-wrap .rounded-select-menu{
+  top:auto!important;
+  bottom:100%!important;
+  margin:0 0 6px 0!important;
+}
 
 /* Reimbursement: an operation, not another table. */
 body[data-agent-page="finance"] .agent-wallet-claim-note{
@@ -274,44 +284,46 @@ body[data-agent-page="finance"] .agent-wallet-claim-form .field > label:first-ch
   font-size:12px!important;
   font-weight:600!important;
 }
-/* One control with the currency inside it, on the 40px rung the portal's `.field input` uses. */
+/* The currency sits INSIDE the field, not in a frame around it.
+
+   The first version wrapped the input in a bordered group, which put two boxes on the same control: the
+   group's frame and the input's own. The input's could not be styled away either - the system states its
+   border and radius (bo-charcoal-legacy.css / bo-field-standard.css) at id-level specificity, so the
+   page-scoped `border:0;border-radius:0` lost and the field painted a rounded border inside the group
+   (owner, looking at the 6x crop: "claim amount 的 border radius 有点视觉上的不好").
+
+   Now the input keeps the system's own field frame - the same 1px #DCC9A8, radius, fill and 40px height
+   as the textarea beside it - and the RM cell is an overlay on its left padding. There is no second box to
+   style away, the field focuses like every other field on the portal, and the divider is the prefix's own
+   right edge. */
 body[data-agent-page="finance"] .agent-wallet-money-input{
+  position:relative;
+  display:block;
   width:100%;
-  height:40px;
-  border:1px solid var(--aw-border);
-  border-radius:8px;
-  background:#FFF8EB;
-  display:grid;
-  grid-template-columns:auto minmax(0,1fr);
-  align-items:center;
-  overflow:hidden;
-}
-body[data-agent-page="finance"] .agent-wallet-money-input:focus-within{
-  border-color:var(--aw-amber);
-  box-shadow:0 0 0 3px rgba(217,119,6,.12);
+  height:auto;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  overflow:visible;
 }
 body[data-agent-page="finance"] .agent-wallet-money-input > span{
-  height:100%;
-  padding:0 11px;
+  position:absolute;
+  left:1px;
+  top:1px;
+  bottom:1px;
+  width:42px;
   border-right:1px solid var(--aw-border);
+  border-radius:9px 0 0 9px;
   color:#6B360C;
   display:flex;
   align-items:center;
+  justify-content:center;
   font-size:11px;
   font-weight:800;
+  pointer-events:none;
 }
 body[data-agent-page="finance"] .agent-wallet-money-input #agentReimburseAmount{
-  width:100%!important;
-  height:38px!important;
-  min-height:0!important;
-  padding:0 11px!important;
-  border:0!important;
-  border-radius:0!important;
-  outline:0!important;
-  background:transparent!important;
-  box-shadow:none!important;
-  color:var(--aw-text)!important;
-  font-size:13px!important;
+  padding-left:54px!important;
   font-variant-numeric:tabular-nums;
   appearance:textfield;
 }
@@ -526,7 +538,6 @@ html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-upload-
 html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-deduction-copy strong{
   color:var(--aw-text);
 }
-html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-money-input,
 html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-upload,
 html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-claim-form #agentReimburseRemark{
   background:#2A2C36!important;

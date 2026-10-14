@@ -44,14 +44,14 @@ html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.age
 html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.purple .agent-withdraw-kpi-icon i{color:#7F56D9!important}
 html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.green .agent-withdraw-kpi-icon i{color:#079455!important}
 html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.orange .agent-withdraw-kpi-icon i{color:#F79009!important}
-html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-kpi.blue .agent-withdraw-kpi-icon{background:rgba(245,158,11,.16)!important;color:#FBBF24!important}
-html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-kpi.purple .agent-withdraw-kpi-icon{background:rgba(127,86,217,.20)!important;color:#C4B5FD!important}
-html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-kpi.green .agent-withdraw-kpi-icon{background:rgba(16,185,129,.16)!important;color:#34D399!important}
-html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-kpi.orange .agent-withdraw-kpi-icon{background:rgba(247,144,9,.16)!important;color:#FBBF24!important}
-html[data-bo-theme="dark"] body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.blue .agent-withdraw-kpi-icon i{color:#FBBF24!important}
-html[data-bo-theme="dark"] body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.purple .agent-withdraw-kpi-icon i{color:#C4B5FD!important}
-html[data-bo-theme="dark"] body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.green .agent-withdraw-kpi-icon i{color:#34D399!important}
-html[data-bo-theme="dark"] body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.orange .agent-withdraw-kpi-icon i{color:#FBBF24!important}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.blue .agent-withdraw-kpi-icon{background:rgba(245,158,11,.16)!important;color:#FBBF24!important}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.purple .agent-withdraw-kpi-icon{background:rgba(127,86,217,.20)!important;color:#C4B5FD!important}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.green .agent-withdraw-kpi-icon{background:rgba(16,185,129,.16)!important;color:#34D399!important}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.orange .agent-withdraw-kpi-icon{background:rgba(247,144,9,.16)!important;color:#FBBF24!important}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.blue .agent-withdraw-kpi-icon i{color:#FBBF24!important}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.purple .agent-withdraw-kpi-icon i{color:#C4B5FD!important}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.green .agent-withdraw-kpi-icon i{color:#34D399!important}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.orange .agent-withdraw-kpi-icon i{color:#FBBF24!important}
 
 /* The ledger takes the full width, the two money operations sit side by side under it. This is the
    shape the Withdraw page already uses (its widest panel carries the history, the operations sit in

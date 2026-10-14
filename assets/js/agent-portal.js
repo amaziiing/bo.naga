@@ -321,7 +321,9 @@ async function loadSettlement(){
  if($('agentSettlementMax'))$('agentSettlementMax').textContent=money(remaining);
  if($('agentSettlementAmount')){$('agentSettlementAmount').min=String(Math.max(.01,min));$('agentSettlementAmount').max=String(remaining);$('agentSettlementAmount').disabled=false;}
  if($('agentSettlementSubmit')){$('agentSettlementSubmit').disabled=!lossClose&&(remaining<=0||remaining<min);$('agentSettlementSubmit').textContent=lossClose?'Submit Red Share Loss Carry':'Submit Withdraw Request';}
- if($('agentSettlementKpiBasis'))$('agentSettlementKpiBasis').textContent='KPI Cycle: '+String(d.kpiPeriod||profile.kpiPeriod||'MONTHLY');
+ // "NONE" is the menu's No Limit cycle, and the raw enum must not reach the panel.
+ const kpiCycleLabel=v=>{const s=String(v||'MONTHLY').trim().toUpperCase();return s==='NONE'?'No Limit':s};
+ if($('agentSettlementKpiBasis'))$('agentSettlementKpiBasis').textContent='KPI Cycle: '+kpiCycleLabel(d.kpiPeriod||profile.kpiPeriod);
  if($('agentSettlementAchieved'))$('agentSettlementAchieved').textContent=money(d.kpiAchieved)+' achieved';
  if($('agentSettlementTarget'))$('agentSettlementTarget').textContent=money(d.kpiTarget)+' target';
  if($('agentSettlementBar'))$('agentSettlementBar').style.width=Math.max(0,Math.min(100,Number(d.kpiProgressPercent||0)))+'%';

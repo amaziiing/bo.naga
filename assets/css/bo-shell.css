@@ -754,3 +754,46 @@ html:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body.report-body.bo-wallet-t
   padding-top:8px!important;padding-right:0!important;padding-bottom:0!important;padding-left:0!important}
 html:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body.report-body.bo-wallet-tx.pg-editing .report-shell .report-main .report-content .pg-editor-card{
   margin:0 18px 16px}
+
+/* Top-up Reward is a scrolling edit page: the shell already clips .report-main / .report-content, so the page
+   needs the frame turned into a column - scroll area above, the 73px action bar below it. This is a shell
+   metric on a shell selector, which is why it lives here rather than in the page's own sheet.
+
+   The padding needs the same guard as the gateway's focus mode: the frame's inset is declared by rules that
+   carry `!important`, so a plain `padding:0` loses - measured on this page, the frame computed
+   `12px 18px 22px` and the action bar therefore sat 18px in from each side (owner: "操作区没有定死跟sidebar对齐").
+   The selector mirrors the guarded shape and adds this page's body class; the inset itself is handed to the
+   scroll area, which carries the page's own 16/24 padding. */
+html:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body.report-body.topup-reward-page .report-shell .report-main .report-content{
+  padding-top:0!important;padding-right:0!important;padding-bottom:0!important;padding-left:0!important}
+body.report-body.topup-reward-page .report-content{
+  display:flex;
+  flex-direction:column;
+  min-height:0;
+}
+
+/* Top-up Reward keeps the whole shell inside the viewport, so its action bar is on screen from the first paint
+   rather than at the end of the document (owner: "我的操作区要fixed死呀 我不想划到底部才看见"). The shapes are
+   frontend-display.html's own, with this page's class - that page had to declare the same four rules inline for
+   the same reason. The frame becomes the column; the scroll area inside it is the only thing that scrolls. */
+html:has(body.topup-reward-page),
+body.report-body.topup-reward-page{
+  height:100%!important;
+  overflow:hidden!important;
+}
+body.report-body.topup-reward-page .report-shell{
+  height:100dvh!important;
+  max-height:100dvh!important;
+  overflow:hidden!important;
+}
+body.report-body.topup-reward-page .report-main{
+  display:flex!important;
+  flex-direction:column!important;
+  height:100dvh!important;
+  max-height:100dvh!important;
+  overflow:hidden!important;
+}
+body.report-body.topup-reward-page .report-content{
+  flex:1 1 auto!important;
+  min-height:0!important;
+}

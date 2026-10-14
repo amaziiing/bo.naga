@@ -1,1 +1,149 @@
-.tr-prize-img{width:52px;height:52px;object-fit:contain;border-radius:10px}.tr-image-cell{min-width:260px}label{font-weight:600;margin-bottom:6px}
+/* Top-up Reward - page-scoped only.
+
+   The frame, the section cards, the fields, the labels and the action bar are the shared edit-form
+   standard (bo-edit-form.css), so this file holds what is only true of this page: how its frame
+   scrolls, the one-line banner field, the switch row, and the prize table. */
+
+/* The frame's own geometry (it is a shell selector, so its metrics live in bo-shell.css) leaves this
+   page a scroll area above the action bar - the same shape the gateway editor settled on. */
+body.topup-reward-page .tr-scroll{
+  flex:1 1 auto;
+  min-height:0;
+  overflow-y:auto;
+  padding:16px 24px 20px;
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+}
+
+/* A field whose control is a button: the input takes the room, the button keeps its own width. */
+body.topup-reward-page .tr-line{display:flex;align-items:center;gap:10px;min-width:0}
+body.topup-reward-page .tr-line > input:not([type=file]){flex:1 1 auto;min-width:0}
+body.topup-reward-page .tr-line > .clean-btn,
+body.topup-reward-page .tr-line > .mad-btn{flex:0 0 auto}
+/* A button sitting in the same row as a field is the field's height - the editor rung, 44 - while the same
+   component inside the prize table stays on the row rung (36) with its row's inputs. Measured before: the
+   banner Upload came out 36 against a 44 field. */
+body.topup-reward-page .tr-line > .mad-btn{
+  height:44px!important;
+  min-height:44px!important;
+  max-height:44px!important;
+}
+
+/* The player-page switches: one row of plain checkboxes, amber like the rest of the system. */
+body.topup-reward-page .tr-switches{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:10px 24px;
+  min-height:50px;
+  padding:0 14px;
+  border:1px solid rgba(217,119,6,.18);
+  border-radius:8px;
+  background:rgba(217,119,6,.06);
+}
+body.topup-reward-page .tr-switch{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  margin:0;
+  font-size:13px;
+  font-weight:600;
+  color:#3F3F46;
+  cursor:pointer;
+}
+body.topup-reward-page .tr-switch input[type=checkbox]{
+  width:18px;
+  height:18px;
+  min-height:0;
+  margin:0;
+  accent-color:#C8791A;
+  cursor:pointer;
+}
+
+/* The prize list. Inner rows are table rows, not cards - the card is the section itself. */
+body.topup-reward-page .tr-table-wrap{overflow-x:auto}
+body.topup-reward-page .tr-table{width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed}
+/* The table is a list, so every control in it runs on the list rung - 36px, the same as the buttons -
+   and the rows get a head band, a hairline and a hover. With the fields at 44px and the buttons at 36
+   the rows read as unfinished, which is what this fixes (owner: "container里面还需要设计好看点"). */
+body.topup-reward-page .tr-table th{
+  padding:11px 12px;
+  text-align:left;
+  font-size:11.5px;
+  font-weight:800;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+  color:#B45309;
+  background:rgba(245,235,220,.62);
+  border-bottom:1px solid #EADCC8;
+}
+body.topup-reward-page .tr-table th:first-child{border-top-left-radius:8px}
+body.topup-reward-page .tr-table th:last-child{border-top-right-radius:8px}
+body.topup-reward-page .tr-table td{
+  padding:9px 12px;
+  vertical-align:middle;
+  border-bottom:1px solid #F0E3D0;
+}
+body.topup-reward-page .tr-table tr:last-child td{border-bottom:0}
+body.topup-reward-page .tr-table tbody tr{transition:background .13s ease}
+body.topup-reward-page .tr-table tbody tr:hover td{background:rgba(217,119,6,.045)}
+/* The 44px rung is declared elsewhere with `!important` (the shared field sheets pin it), so the row
+   rung is stated the same way - measured first: the inputs came out 44px against 36px buttons. */
+body.topup-reward-page .tr-table td input:not([type=file]){
+  width:100%;
+  min-height:36px!important;
+  height:36px!important;
+  max-height:36px!important;
+  font-size:13px;
+  padding:0 10px;
+  border-radius:8px!important;
+}
+body.topup-reward-page .tr-table td input:not([type=file])::placeholder{color:#A8A29E}
+body.topup-reward-page .tr-table td.tr-image-cell{display:flex;gap:8px;align-items:center;min-width:0}
+body.topup-reward-page .tr-table td.tr-image-cell > input:not([type=file]){flex:1 1 auto;min-width:0}
+body.topup-reward-page .tr-table .clean-btn{
+  min-height:36px!important;
+  height:36px!important;
+  padding:0 12px;
+  border-radius:8px!important;
+  font-size:13px!important;
+}
+/* Hung off the rule that already wins on row geometry: alone, `[data-remove]` lost the border to a
+   higher-specificity `!important` (measured: still #DCC9A8), while the same shape here takes it. */
+/* The remove button is the system's danger button at the row rung (36). It used to be a ghost with a
+   hand-mixed hover (#FDECEC, next to the system's #fff1f2) - both are gone: the states come from the
+   shared ladder in bo-edit-form.css, which the button carries as `.clean-btn.danger`. */
+body.topup-reward-page .tr-table .clean-btn[data-remove]{
+  width:36px!important;
+  min-width:36px!important;
+  padding:0!important;
+  justify-content:center;
+}
+
+/* Dark ladder - colours only. */
+html[data-bo-theme="dark"] body.topup-reward-page .tr-switches{
+  background:rgba(245,158,11,.1);
+  border-color:rgba(245,158,11,.28);
+}
+html[data-bo-theme="dark"] body.topup-reward-page .tr-switch{color:#E7E5E4}
+html[data-bo-theme="dark"] body.topup-reward-page .tr-table th{color:#FBBF24;border-bottom-color:rgba(255,255,255,.12)}
+html[data-bo-theme="dark"] body.topup-reward-page .tr-table td{border-bottom-color:rgba(255,255,255,.08)}
+
+/* ---------------------------------------------------------------------------
+   Screen sizes. The page is a form inside a shell, so it has to keep working
+   when the frame is narrow: fields pair up while there is room for a pair and
+   go one-across when there is not, the head lets its button fall to its own
+   line, and the table scrolls inside its card instead of pushing the frame.
+   ------------------------------------------------------------------------- */
+@media (max-width:1180px){
+  body.topup-reward-page .bo-edit-field.half{grid-column:1/-1}
+  body.topup-reward-page .bo-edit-head{flex-wrap:wrap;row-gap:10px}
+}
+@media (max-width:760px){
+  body.topup-reward-page .tr-scroll{padding:12px 14px 16px}
+  body.topup-reward-page .bo-edit-card{padding:16px 14px 18px}
+  body.topup-reward-page .bo-edit-bar{flex-wrap:wrap;justify-content:stretch;padding:12px 14px}
+  body.topup-reward-page .bo-edit-bar > .clean-btn{flex:1 1 auto}
+  body.topup-reward-page .tr-table{min-width:640px}
+}

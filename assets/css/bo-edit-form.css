@@ -98,3 +98,130 @@ body.bo-edit-form .pg-editor .clean-btn{
   border-radius:8px!important;
   padding:0 22px!important;
 }
+
+/* ----------------------------------------------------------------------------
+   The section card. Same anatomy as the payment-gateway editor - a card with a
+   numbered head, an icon tile, a rail and a rule - lifted here so the next edit
+   page does not re-invent it. Numbers are the ones measured on that page.
+   -------------------------------------------------------------------------- */
+body.bo-edit-form .bo-edit-card{
+  position:relative;
+  background:#FFFCF7;
+  border:1px solid #DCC9A8;
+  border-radius:8px;
+  padding:20px 22px 22px;
+  box-shadow:0 1px 0 rgba(92,74,48,.04);
+}
+body.bo-edit-form .bo-edit-card::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:12px;
+  width:3px;
+  height:28px;
+  border-radius:0 3px 3px 0;
+  background:#D97706;
+}
+body.bo-edit-form .bo-edit-head{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding-bottom:14px;
+  margin-bottom:16px;
+  border-bottom:1px solid #EADCC8;
+}
+body.bo-edit-form .bo-edit-head-ico{
+  width:28px;
+  height:28px;
+  flex:0 0 28px;
+  display:grid;
+  place-items:center;
+  border-radius:7px;
+  background:rgba(217,119,6,.1);
+  border:1px solid rgba(217,119,6,.22);
+  color:#D97706;
+  font-size:13px;
+}
+body.bo-edit-form .bo-edit-head h4{
+  margin:0;
+  font-size:11.5px;
+  font-weight:800;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+  color:#B45309;
+}
+body.bo-edit-form .bo-edit-head p{
+  margin:2px 0 0;
+  font-size:12.5px;
+  font-weight:500;
+  color:#71717A;
+}
+/* A control that belongs to the head (Add Channel / Add Prize) is pushed to the right end. */
+body.bo-edit-form .bo-edit-head > .clean-btn,
+body.bo-edit-form .bo-edit-head > .bo-edit-head-action{
+  margin-left:auto;
+  flex:0 0 auto;
+}
+body.bo-edit-form .bo-edit-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:16px 18px;
+}
+body.bo-edit-form .bo-edit-field{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  min-width:0;
+}
+body.bo-edit-form .bo-edit-field.half{grid-column:span 2}
+body.bo-edit-form .bo-edit-field.full{grid-column:1/-1}
+body.bo-edit-form .bo-edit-note{
+  margin:0;
+  font-size:11.5px;
+  font-weight:500;
+  line-height:1.4;
+  color:#78716C;
+}
+/* A head that folds: the title already says what the card is, so it is the toggle (owner asked for
+   exactly that on the gateway's callback card). Same chevron, same behaviour. */
+body.bo-edit-form .bo-edit-card[data-fold] > .bo-edit-head{cursor:pointer;user-select:none}
+body.bo-edit-form .bo-edit-card[data-fold] > .bo-edit-head::after{
+  margin-left:auto;
+  content:"\F282";
+  font-family:"bootstrap-icons";
+  font-size:14px;
+  line-height:1;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:24px;
+  height:24px;
+  border-radius:50%;
+  background:rgba(217,119,6,.1);
+  color:#D97706;
+  transition:transform .18s ease,background .18s ease;
+}
+body.bo-edit-form .bo-edit-card[data-fold].is-folded > .bo-edit-head::after{transform:rotate(-90deg)}
+body.bo-edit-form .bo-edit-card[data-fold].is-folded > .bo-edit-head{margin-bottom:0;padding-bottom:0;border-bottom:0}
+body.bo-edit-form .bo-edit-card[data-fold].is-folded > .bo-edit-grid{display:none}
+/* The action bar: one row, always at the bottom of the frame, buttons on the reference rung. */
+body.bo-edit-form .bo-edit-bar{
+  flex:0 0 auto;
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:12px;
+  min-height:73px;
+  padding:14px 24px;
+  border-top:1px solid rgba(92,74,48,.1);
+  background:#FFFCF7;
+}
+/* Dark ladder. Colours only - the geometry above is theme-independent. */
+html[data-bo-theme="dark"] body.bo-edit-form .bo-edit-card{background:#383A46;border-color:rgba(255,255,255,.14)}
+html[data-bo-theme="dark"] body.bo-edit-form .bo-edit-card::before{background:#F59E0B}
+html[data-bo-theme="dark"] body.bo-edit-form .bo-edit-head{border-bottom-color:rgba(255,255,255,.12)}
+html[data-bo-theme="dark"] body.bo-edit-form .bo-edit-head-ico{background:rgba(245,158,11,.14);border-color:rgba(245,158,11,.32);color:#FBBF24}
+html[data-bo-theme="dark"] body.bo-edit-form .bo-edit-head h4{color:#FBBF24}
+html[data-bo-theme="dark"] body.bo-edit-form .bo-edit-head p{color:#D4D4D8}
+html[data-bo-theme="dark"] body.bo-edit-form .bo-edit-note{color:#A1A1AA}
+html[data-bo-theme="dark"] body.bo-edit-form .bo-edit-bar{background:#383A46;border-top-color:rgba(255,255,255,.14)}

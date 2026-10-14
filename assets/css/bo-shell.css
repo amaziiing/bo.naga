@@ -754,3 +754,13 @@ html:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body.report-body.bo-wallet-t
   padding-top:8px!important;padding-right:0!important;padding-bottom:0!important;padding-left:0!important}
 html:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body.report-body.bo-wallet-tx.pg-editing .report-shell .report-main .report-content .pg-editor-card{
   margin:0 18px 16px}
+
+/* Top-up Reward is a scrolling edit page: the shell already clips .report-main / .report-content, so the page
+   needs the frame turned into a column - scroll area above, the 73px action bar below it. This is a shell
+   metric on a shell selector, which is why it lives here rather than in the page's own sheet. */
+body.report-body.topup-reward-page .report-content{
+  display:flex;
+  flex-direction:column;
+  min-height:0;
+  padding:0;
+}

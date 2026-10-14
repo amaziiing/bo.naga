@@ -138,3 +138,89 @@ html[data-bo-theme="dark"] body.topup-reward-page .tr-table td{border-bottom-col
   body.topup-reward-page .bo-edit-bar > .clean-btn{flex:1 1 auto}
   body.topup-reward-page .tr-table{min-width:640px}
 }
+
+/* ---------------------------------------------------------------------------
+   The page's own structure, to the shape of the reference edit page
+   (agent-detail.html): a row of pills with the way back at its right end, a
+   summary strip of the topbar counter's anatomy, then the section cards.
+   ------------------------------------------------------------------------- */
+body.topup-reward-page .tr-top{
+  flex:0 0 auto;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:12px 24px;
+  border-bottom:1px solid #EADCC8;
+  background:#FFFCF7;
+}
+body.topup-reward-page .tr-tabs{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex:1 1 auto;
+  min-width:0;
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+body.topup-reward-page .tr-tabs::-webkit-scrollbar{display:none}
+/* Same weight as the reference: agent-detail-page.css states its own pills with `!important`
+   (`.agent-detail-tabs .clean-btn{font-size:13.5px!important;font-weight:800!important}`), and the module's
+   36px button rule carries `!important` too - measured here, 13px/700 without it. */
+body.topup-reward-page .tr-tabs .clean-btn{font-size:13.5px!important;font-weight:800!important;white-space:nowrap}
+/* The summary strip: one identity tile, then the numbers - measured from the topbar counter. */
+body.topup-reward-page .tr-summary{
+  display:grid;
+  grid-template-columns:minmax(260px,1.6fr) repeat(4,minmax(0,1fr));
+  gap:12px;
+}
+body.topup-reward-page .tr-sum-id,
+body.topup-reward-page .tr-kpi{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-width:0;
+  padding:6px 14px 6px 6px;
+  border:1px solid #EADCC8;
+  border-radius:10px;
+  background:#FFFCF7;
+}
+body.topup-reward-page .tr-sum-plate,
+body.topup-reward-page .tr-kpi-plate{
+  width:38px;
+  height:38px;
+  flex:0 0 38px;
+  display:grid;
+  place-items:center;
+  border-radius:8px;
+  background:rgba(217,119,6,.12);
+  border:1px solid rgba(217,119,6,.22);
+  color:#D97706;
+  font-size:17px;
+}
+body.topup-reward-page .tr-sum-copy,
+body.topup-reward-page .tr-kpi-copy{min-width:0;display:grid;gap:1px}
+body.topup-reward-page .tr-sum-copy strong{font-size:15px;font-weight:800;color:#18191C;letter-spacing:-.01em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.topup-reward-page .tr-sum-copy span{font-size:11.5px;font-weight:600;color:#78716C;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.topup-reward-page .tr-kpi-copy small{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#44403C}
+body.topup-reward-page .tr-kpi-copy b{font-size:18px;font-weight:800;color:#18191C;line-height:1.1}
+
+/* Dark ladder - colours only. */
+html[data-bo-theme="dark"] body.topup-reward-page .tr-top{background:#383A46;border-bottom-color:rgba(255,255,255,.14)}
+html[data-bo-theme="dark"] body.topup-reward-page .tr-sum-id,
+html[data-bo-theme="dark"] body.topup-reward-page .tr-kpi{background:#383A46;border-color:rgba(255,255,255,.14)}
+html[data-bo-theme="dark"] body.topup-reward-page .tr-sum-plate,
+html[data-bo-theme="dark"] body.topup-reward-page .tr-kpi-plate{background:rgba(245,158,11,.14);border-color:rgba(245,158,11,.32);color:#FBBF24}
+html[data-bo-theme="dark"] body.topup-reward-page .tr-sum-copy strong,
+html[data-bo-theme="dark"] body.topup-reward-page .tr-kpi-copy b{color:#F5F5F4}
+html[data-bo-theme="dark"] body.topup-reward-page .tr-sum-copy span{color:#A1A1AA}
+html[data-bo-theme="dark"] body.topup-reward-page .tr-kpi-copy small{color:#D4D4D8}
+
+@media (max-width:1400px){
+  body.topup-reward-page .tr-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:760px){
+  body.topup-reward-page .tr-top{flex-wrap:wrap;padding:10px 14px}
+  body.topup-reward-page .tr-summary{grid-template-columns:1fr}
+}

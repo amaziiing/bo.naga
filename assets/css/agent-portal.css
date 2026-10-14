@@ -3296,3 +3296,73 @@ html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[d
   color:#52525B!important;
   opacity:1!important;
 }
+
+/* Two more shapes the night-mode audit missed, both reported from the pages themselves:
+
+   - the footer's page-size menu dropped DOWNWARD on every page except the wallet: the widget's base rule is
+     `top:calc(100% + 6px)`, and in a footer that means covering the last rows and hanging past the card's
+     bottom edge (owner's promotion screenshot). The reports/products/player_game_report footers and the
+     wallet already re-pointed it; this makes it a property of the footer rather than of a page.
+   - the eye/expand action buttons inside the report tables (`icon-action`, `agent-view-btn`) kept their cream
+     ivory fill in dark mode (owner circled them on the reports page). They are the same button family on
+     players, reports and provider/game reports, so they are stated once here. */
+html:not(#bo-charcoal-off) body[data-agent-page] .agent-table-footer .rounded-select-wrap .rounded-select-menu{
+  top:auto!important;
+  bottom:100%!important;
+  margin:0 0 6px 0!important;
+}
+html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .table-card .icon-action,
+html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .table-card .agent-view-btn,
+html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .table-card .agent-report-expand-btn{
+  background:#FFF8EB!important;
+  border:1px solid #EADCC8!important;
+  color:#57534E!important;
+  border-radius:8px!important;
+}
+html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .table-card .icon-action:hover,
+html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .table-card .agent-view-btn:hover{
+  background:#FFF1DC!important;
+  color:#18191C!important;
+}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .table-card .icon-action,
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .table-card .agent-view-btn,
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .table-card .agent-report-expand-btn{
+  background:#2A2C36!important;
+  border-color:rgba(255,255,255,.14)!important;
+  color:#D4D4D8!important;
+}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .table-card .icon-action:hover,
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .table-card .agent-view-btn:hover{
+  background:#444654!important;
+  color:#E7E5E4!important;
+}
+
+/* The promotion page's own page-size widget (`.agent-size-picker`, its own markup, not the shared
+   `.rounded-select-wrap` one) was missed by the first night-mode pass for a simple reason: it is `hidden`
+   until it opens, so the audit - which measures what is rendered - never saw it. The owner opened it and the
+   menu came out cream on a dark page. The button, its menu and its options take the same dark values as the
+   pager beside them. */
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-size-btn{
+  background:#2A2C36!important;
+  border-color:rgba(255,255,255,.14)!important;
+  color:#F5F5F4!important;
+}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-size-btn i{
+  color:#A1A1AA!important;
+}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-size-menu{
+  background:#2A2C36!important;
+  border-color:rgba(255,255,255,.14)!important;
+  box-shadow:0 12px 28px rgba(0,0,0,.45)!important;
+}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-size-opt{
+  color:#D4D4D8!important;
+}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-size-opt:hover{
+  background:#444654!important;
+  color:#E7E5E4!important;
+}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-size-opt.is-active{
+  background:rgba(245,158,11,.2)!important;
+  color:#F59E0B!important;
+}

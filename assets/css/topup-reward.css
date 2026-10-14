@@ -55,40 +55,68 @@ body.topup-reward-page .tr-switch input[type=checkbox]{
 /* The prize list. Inner rows are table rows, not cards - the card is the section itself. */
 body.topup-reward-page .tr-table-wrap{overflow-x:auto}
 body.topup-reward-page .tr-table{width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed}
+/* The table is a list, so every control in it runs on the list rung - 36px, the same as the buttons -
+   and the rows get a head band, a hairline and a hover. With the fields at 44px and the buttons at 36
+   the rows read as unfinished, which is what this fixes (owner: "container里面还需要设计好看点"). */
 body.topup-reward-page .tr-table th{
-  padding:0 10px 10px;
+  padding:11px 12px;
   text-align:left;
   font-size:11.5px;
   font-weight:800;
   letter-spacing:.04em;
   text-transform:uppercase;
   color:#B45309;
+  background:rgba(245,235,220,.62);
   border-bottom:1px solid #EADCC8;
 }
+body.topup-reward-page .tr-table th:first-child{border-top-left-radius:8px}
+body.topup-reward-page .tr-table th:last-child{border-top-right-radius:8px}
 body.topup-reward-page .tr-table td{
-  padding:10px 10px 0;
-  vertical-align:top;
+  padding:9px 12px;
+  vertical-align:middle;
   border-bottom:1px solid #F0E3D0;
 }
 body.topup-reward-page .tr-table tr:last-child td{border-bottom:0}
-body.topup-reward-page .tr-table td input:not([type=file]){width:100%}
-body.topup-reward-page .tr-table td.tr-image-cell{display:flex;gap:8px;align-items:center}
+body.topup-reward-page .tr-table tbody tr{transition:background .13s ease}
+body.topup-reward-page .tr-table tbody tr:hover td{background:rgba(217,119,6,.045)}
+/* The 44px rung is declared elsewhere with `!important` (the shared field sheets pin it), so the row
+   rung is stated the same way - measured first: the inputs came out 44px against 36px buttons. */
+body.topup-reward-page .tr-table td input:not([type=file]){
+  width:100%;
+  min-height:36px!important;
+  height:36px!important;
+  max-height:36px!important;
+  font-size:13px;
+  padding:0 10px;
+  border-radius:8px!important;
+}
+body.topup-reward-page .tr-table td input:not([type=file])::placeholder{color:#A8A29E}
+body.topup-reward-page .tr-table td.tr-image-cell{display:flex;gap:8px;align-items:center;min-width:0}
 body.topup-reward-page .tr-table td.tr-image-cell > input:not([type=file]){flex:1 1 auto;min-width:0}
 body.topup-reward-page .tr-table .clean-btn{
-  min-height:36px;
+  min-height:36px!important;
+  height:36px!important;
   padding:0 12px;
-  border-radius:8px;
-  font-size:13px;
+  border-radius:8px!important;
+  font-size:13px!important;
 }
-body.topup-reward-page .tr-table .tr-row-actions{display:flex;justify-content:flex-end}
-body.topup-reward-page .tr-table [data-remove]{
-  width:36px;
-  min-width:36px;
-  padding:0;
+/* Hung off the rule that already wins on row geometry: alone, `[data-remove]` lost the border to a
+   higher-specificity `!important` (measured: still #DCC9A8), while the same shape here takes it. */
+body.topup-reward-page .tr-table .clean-btn[data-remove]{
+  width:36px!important;
+  min-width:36px!important;
+  padding:0!important;
   justify-content:center;
+  border-color:transparent!important;
+  background:transparent!important;
+  box-shadow:none!important;
   color:#B45309;
 }
-body.topup-reward-page .tr-table [data-remove]:hover{background:#FDECEC;border-color:#F3C6C6;color:#B91C1C}
+body.topup-reward-page .tr-table .clean-btn[data-remove]:hover{
+  background:#FDECEC!important;
+  border-color:#F3C6C6!important;
+  color:#B91C1C!important;
+}
 
 /* Dark ladder - colours only. */
 html[data-bo-theme="dark"] body.topup-reward-page .tr-switches{

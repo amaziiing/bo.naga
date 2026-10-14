@@ -771,3 +771,29 @@ body.report-body.topup-reward-page .report-content{
   flex-direction:column;
   min-height:0;
 }
+
+/* Top-up Reward keeps the whole shell inside the viewport, so its action bar is on screen from the first paint
+   rather than at the end of the document (owner: "我的操作区要fixed死呀 我不想划到底部才看见"). The shapes are
+   frontend-display.html's own, with this page's class - that page had to declare the same four rules inline for
+   the same reason. The frame becomes the column; the scroll area inside it is the only thing that scrolls. */
+html:has(body.topup-reward-page),
+body.report-body.topup-reward-page{
+  height:100%!important;
+  overflow:hidden!important;
+}
+body.report-body.topup-reward-page .report-shell{
+  height:100dvh!important;
+  max-height:100dvh!important;
+  overflow:hidden!important;
+}
+body.report-body.topup-reward-page .report-main{
+  display:flex!important;
+  flex-direction:column!important;
+  height:100dvh!important;
+  max-height:100dvh!important;
+  overflow:hidden!important;
+}
+body.report-body.topup-reward-page .report-content{
+  flex:1 1 auto!important;
+  min-height:0!important;
+}

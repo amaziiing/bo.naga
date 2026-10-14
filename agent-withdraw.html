@@ -21,7 +21,7 @@
 <link href="assets/css/bo-field-standard.css?v=6673ed98" rel="stylesheet">
 <title>Finance - Withdraw</title>
 <link href="assets/css/bo-global-quicknav.css?v=0d429385" rel="stylesheet" data-bo-quicknav-css="1">
-<link href="assets/css/agent-withdraw.css?v=2c74ef34" rel="stylesheet"></head>
+<link href="assets/css/agent-withdraw.css?v=84614a80" rel="stylesheet"></head>
 <body class="report-body agent-report-body standardized-listing-page brand-agent-standard agent-modern bo-charcoal bo-account-chip" data-agent-page="withdraw">
 <div class="report-shell">
 <aside class="report-sidebar" id="reportSidebar"><div class="report-brand"><div>Backoffice</div><button class="close-side" data-close-sidebar><i class="bi bi-x-lg"></i></button></div><nav class="report-nav" id="agentPortalNav"></nav><div id="agentSidebarFooter"></div></aside>
@@ -76,16 +76,30 @@
 
 <div class="agent-modal-backdrop" id="agentBankModal" hidden>
   <div class="agent-bank-modal" role="dialog" aria-modal="true" aria-labelledby="agentBankModalTitle">
-    <div class="agent-bank-modal-head"><h3 id="agentBankModalTitle">Manage Bank Accounts</h3><button type="button" id="agentBankModalClose"><i class="bi bi-x-lg"></i></button></div>
-    <div id="agentBankAccountList" class="agent-bank-account-list"></div>
-    <form id="agentBankAccountForm" class="agent-bank-account-form">
-      <input type="hidden" id="agentBankAccountId">
-      <label>Bank Name<input id="agentBankName" maxlength="100" required placeholder="e.g. Maybank"></label>
-      <label>Account Holder<input id="agentBankHolder" maxlength="120" required placeholder="Account holder name"></label>
-      <label>Account Number<input id="agentBankNumber" maxlength="50" required placeholder="Bank account number"></label>
-      <label class="agent-bank-default"><input type="checkbox" id="agentBankDefault"> Set as default payout account</label>
-      <div class="agent-bank-form-actions"><button type="button" class="clean-btn" id="agentBankFormReset">Clear</button><button type="submit" class="btn-primary-clean">Save Bank Account</button></div>
-      <div class="upload-status" id="agentBankFormStatus"></div>
+    <div class="agent-bank-modal-head">
+      <div>
+        <h3 id="agentBankModalTitle">Manage Bank Accounts</h3>
+        <p>Add or edit the account that receives your payouts.</p>
+      </div>
+      <button type="button" id="agentBankModalClose" aria-label="Close"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <form id="agentBankAccountForm">
+      <div class="agent-bank-modal-body">
+        <div id="agentBankAccountList" class="agent-bank-account-list"></div>
+        <div class="agent-bank-fields">
+          <input type="hidden" id="agentBankAccountId">
+          <div class="field"><label for="agentBankName">Bank Name *</label><input id="agentBankName" maxlength="100" required placeholder="e.g. Maybank"></div>
+          <div class="field"><label for="agentBankHolder">Account Holder *</label><input id="agentBankHolder" maxlength="120" required placeholder="Account holder name"></div>
+          <div class="field"><label for="agentBankNumber">Account Number *</label><input id="agentBankNumber" maxlength="50" required placeholder="Bank account number"></div>
+          <label class="agent-bank-default"><input type="checkbox" id="agentBankDefault"> Set as default payout account</label>
+          <div class="agent-bank-help">The default account receives payout transfers. Changes are checked against your payout records.</div>
+          <div class="upload-status" id="agentBankFormStatus"></div>
+        </div>
+      </div>
+      <div class="agent-bank-modal-foot">
+        <button type="button" class="clean-btn" id="agentBankFormReset">Clear</button>
+        <button type="submit" class="btn-primary-clean">Save Bank Account</button>
+      </div>
     </form>
   </div>
 </div>

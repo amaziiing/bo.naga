@@ -250,28 +250,118 @@ html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page="withdraw"
   background:rgba(245,158,11,.16)!important;
   color:#FBBF24!important;
 }
-body[data-agent-page="withdraw"] .agent-bank-account-form label{
-  font-size:12px!important;
-  font-weight:600!important;
+/* The modal's own anatomy follows the BO's modal (the owner's reference: index.html's Create User):
+   a head of title + subtitle + close, a scrolling body, and a footer band with right-aligned actions.
+   The numbers are that modal's own (its styles are inline in index.html): panel min(760px,96vw), radius 18,
+   head 18px 22px with a 21px title over a 13px subtitle, body 20px 22px, a two-column field grid at 14px,
+   13px/800 labels, 42px inputs at radius 10, a 12px help line, and a 14px 22px footer band. Only the
+   palette is this page's - the portal theme paints the surface and the borders, as it already did. */
+html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-bank-modal{
+  width:min(760px,96vw)!important;
+  max-width:min(760px,96vw)!important;
+  max-height:92vh!important;
+  padding:0!important;
+  border-radius:18px!important;
+  overflow:hidden!important;
+  display:flex!important;
+  flex-direction:column!important;
+  box-shadow:0 28px 80px rgba(0,0,0,.35)!important;
+}
+html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-bank-modal-head{
+  margin:0!important;
+  padding:18px 22px!important;
+  align-items:flex-start!important;
+  gap:16px!important;
+  border-bottom:1px solid var(--awd-border)!important;
+}
+html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-bank-modal-head h3{
+  margin:0!important;
+  font-size:21px!important;
+  font-weight:800!important;
+  letter-spacing:-.01em;
+}
+html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-bank-modal-head p{
+  margin:4px 0 0!important;
+  font-size:13px!important;
   color:var(--awd-muted)!important;
 }
-body[data-agent-page="withdraw"] .agent-bank-account-form input:not([type=checkbox]):not([type=hidden]){
+html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-bank-modal-head button{
+  width:38px!important;
   height:38px!important;
+  min-width:38px!important;
   border:1px solid var(--awd-border)!important;
-  border-radius:8px!important;
+  border-radius:10px!important;
+  background:transparent!important;
+}
+html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern #agentBankAccountForm{
+  display:flex!important;
+  flex-direction:column!important;
+  flex:1 1 auto!important;
+  min-height:0!important;
+}
+html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-bank-modal-body{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  overflow:auto!important;
+  padding:20px 22px!important;
+}
+html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-bank-fields{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:14px!important;
+  margin-top:16px!important;
+}
+html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-bank-fields .field{
+  display:grid!important;
+  gap:6px!important;
+  margin:0!important;
+  min-width:0!important;
+}
+html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-bank-fields label{
+  font-size:13px!important;
+  font-weight:800!important;
+  color:var(--awd-text,#334155)!important;
+}
+html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-bank-fields input:not([type=checkbox]):not([type=hidden]){
+  height:42px!important;
+  border:1px solid var(--awd-border)!important;
+  border-radius:10px!important;
+  padding:0 12px!important;
   background:#FFF8EB!important;
   color:#18191C!important;
   font-size:13px!important;
 }
-html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-bank-account-form input:not([type=checkbox]):not([type=hidden]){
+html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-bank-fields label:has(#agentBankNumber),
+html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-bank-fields .agent-bank-default,
+html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-bank-fields .agent-bank-help,
+html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-bank-fields .upload-status{
+  grid-column:1/-1!important;
+}
+html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-bank-help{
+  margin-top:2px;
+  font-size:12px!important;
+  font-weight:400!important;
+  color:var(--awd-muted)!important;
+  line-height:1.5;
+}
+html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-bank-modal-foot{
+  flex:0 0 auto!important;
+  padding:14px 22px!important;
+  border-top:1px solid var(--awd-border)!important;
+  display:flex!important;
+  justify-content:flex-end!important;
+  gap:10px!important;
+}
+html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-bank-account-item{
+  border-radius:10px!important;
+}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-bank-fields input:not([type=checkbox]):not([type=hidden]){
   background:#2A2C36!important;
-  border-color:rgba(255,255,255,.12)!important;
+  border-color:rgba(255,255,255,.14)!important;
   color:#F5F5F4!important;
 }
-/* Account Number sits on its own row in a two-column grid; spanning it keeps the form from carrying an
-   empty half-row beside it. */
-body[data-agent-page="withdraw"] .agent-bank-account-form label:has(#agentBankNumber){
-  grid-column:1/-1;
+html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-bank-fields label{
+  color:#D4D4D8!important;
 }
 
 /* 5. A floor under the history table, so a short or empty result still leaves the panel the height of a

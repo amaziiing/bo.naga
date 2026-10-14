@@ -19,7 +19,16 @@ body.topup-reward-page .tr-scroll{
 /* A field whose control is a button: the input takes the room, the button keeps its own width. */
 body.topup-reward-page .tr-line{display:flex;align-items:center;gap:10px;min-width:0}
 body.topup-reward-page .tr-line > input:not([type=file]){flex:1 1 auto;min-width:0}
-body.topup-reward-page .tr-line > .clean-btn{flex:0 0 auto}
+body.topup-reward-page .tr-line > .clean-btn,
+body.topup-reward-page .tr-line > .mad-btn{flex:0 0 auto}
+/* A button sitting in the same row as a field is the field's height - the editor rung, 44 - while the same
+   component inside the prize table stays on the row rung (36) with its row's inputs. Measured before: the
+   banner Upload came out 36 against a 44 field. */
+body.topup-reward-page .tr-line > .mad-btn{
+  height:44px!important;
+  min-height:44px!important;
+  max-height:44px!important;
+}
 
 /* The player-page switches: one row of plain checkboxes, amber like the rest of the system. */
 body.topup-reward-page .tr-switches{

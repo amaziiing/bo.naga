@@ -145,11 +145,28 @@ body[data-agent-page="withdraw"] .agent-withdraw-history-filters .bo-range-field
 body[data-agent-page="withdraw"] .agent-withdraw-history-filters .bo-range-field > label > span{
   display:none!important;
 }
+/* The history table is the panel's own table, not a box inside it - the wallet ledger's arrangement.
+
+   `.brand-agent-standard .table-wrap` draws a bordered, rounded box of its own, so this panel showed two
+   frames (the panel and the table), and with a single row the inner box stretched to the height floor and
+   read as a large empty white slab (owner, with a screenshot: "跑偏了都 没有统一到上一个页面的设计").
+   Without the frame the amber header band reaches the panel's edges and the space below a short list is
+   the panel's own surface, exactly like the wallet's ledger. */
 body[data-agent-page="withdraw"] .agent-withdraw-history .table-wrap{
-  margin:16px!important;
+  margin:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
 }
+
+/* The footer is the ledger's own band: a top border, the same 56px floor, the three parts centred in it.
+   No padding is stated here on purpose - the portal's own `.agent-table-footer{padding:14px 16px!important}`
+   (id-level, every `body[data-agent-page]`) already owns the band's inset, and the first version of this
+   rule lost that fight while looking like it had won (measured: the band came out at 69px here against the
+   wallet's 56px). Both pages now take the portal's inset. */
 body[data-agent-page="withdraw"] .agent-withdraw-history-footer{
-  padding:0 16px 16px!important;
+  min-height:56px!important;
+  border-top:1px solid var(--awd-border);
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -162,6 +179,7 @@ html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.ag
   justify-content:space-between!important;
   gap:12px!important;
   margin:0!important;
+  border-top:1px solid var(--awd-border)!important;
 }
 html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-withdraw-history-footer > .agent-page-size{
   flex:0 0 auto!important;
@@ -201,6 +219,9 @@ html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.ag
    real table (ten rows a page measure ~474px). */
 html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-withdraw-history .table-wrap{
   min-height:322px;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
 }
 html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-withdraw-table td.table-empty{
   height:322px!important;

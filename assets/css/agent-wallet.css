@@ -191,7 +191,6 @@ body[data-agent-page="finance"] .agent-wallet-ledger-table td.table-empty{
    select are page-scoped, because the portal states those per page. */
 body[data-agent-page="finance"] .agent-wallet-ledger-footer{
   min-height:56px;
-  padding:10px 16px;
   border-top:1px solid var(--aw-border);
 }
 body[data-agent-page="finance"] .agent-wallet-ledger-footer > .agent-page-size{

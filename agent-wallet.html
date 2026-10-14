@@ -21,7 +21,7 @@
   <link href="assets/css/bo-input-fill.css?v=1ab80f49" rel="stylesheet">
   <link href="assets/css/bo-scrollbar.css?v=39f413e5" rel="stylesheet">
   <link href="assets/css/bo-global-quicknav.css?v=0d429385" rel="stylesheet" data-bo-quicknav-css="1">
-  <link href="assets/css/agent-wallet.css?v=1705c0dc" rel="stylesheet">
+  <link href="assets/css/agent-wallet.css?v=ce32bf02" rel="stylesheet">
   <title>Finance - Wallet</title>
 </head>
 <body class="report-body agent-report-body standardized-listing-page brand-agent-standard agent-modern bo-charcoal bo-account-chip" data-agent-page="finance">
@@ -108,8 +108,17 @@
                 <tbody id="agentLedgerRows"></tbody>
               </table>
             </div>
-            <div class="agent-wallet-ledger-footer">
-              <span id="agentWalletShowing">Showing 0 of 0 entries</span>
+            <div class="agent-table-footer agent-wallet-ledger-footer">
+              <div class="agent-page-size">Show
+                <select id="agentWalletPageSize" aria-label="Rows per page">
+                  <option value="10">10</option>
+                  <option value="20">20</option>
+                  <option value="50">50</option>
+                  <option value="100">100</option>
+                </select> entries
+              </div>
+              <div id="agentWalletShowing">Showing 0 of 0 entries</div>
+              <div class="agent-pagination" id="agentWalletPagination"></div>
             </div>
           </section>
 
@@ -179,7 +188,7 @@
   <script src="assets/js/main-currency-runtime.js?v=2b28e860"></script>
   <script src="assets/js/reports.js?v=a96450f8"></script>
   <script src="assets/js/bo-date-range.js?v=b1113dc8"></script>
-  <script src="assets/js/agent-portal.js?v=15179e42"></script>
+  <script src="assets/js/agent-portal.js?v=ec3041ad"></script>
   <script src="assets/js/pagination-standardizer.js?v=9eb44c56"></script>
   <script defer src="assets/js/bo-ui-standard.js?v=890f213b"></script>
   <script src="assets/js/currency-runtime.js?v=b63c89fb"></script>

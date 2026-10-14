@@ -80,8 +80,15 @@ body[data-agent-page="finance"] .agent-wallet-deductions-panel{
   min-width:0;
   margin:0!important;
   padding:0!important;
-  overflow:hidden;
 }
+/* The ledger must not clip. bo-date-range.js positions the calendar as an absolutely positioned child of
+   its own field, so `overflow:hidden` on the card cut the popover off at the card's edge - the owner's
+   screenshot shows the lower half of the calendar gone. Nothing else in this panel can spill (the table
+   wrapper scrolls, every band is transparent and inherits the card's own rounded background), and the
+   two money panels keep their clip because they carry no popover. */
+body[data-agent-page="finance"] .agent-wallet-ledger-panel{overflow:visible}
+body[data-agent-page="finance"] .agent-wallet-claim-panel,
+body[data-agent-page="finance"] .agent-wallet-deductions-panel{overflow:hidden}
 
 /* Panel header band. The title keeps the portal's size; only the icon colour is the page's own. */
 body[data-agent-page="finance"] .agent-wallet-panel-title{
@@ -168,22 +175,57 @@ body[data-agent-page="finance"] .agent-wallet-reference{
   font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;
   font-size:10.5px;
 }
+/* The ledger is the page's main panel, so it keeps a floor: at ten rows a page it measures ~474px, and a
+   short or empty result still leaves the panel the height of a real table instead of a stub. */
+body[data-agent-page="finance"] .agent-wallet-ledger-wrap{
+  min-height:322px;
+}
 body[data-agent-page="finance"] .agent-wallet-ledger-table td.table-empty{
-  height:220px!important;
+  height:322px!important;
 }
 
-/* The page's own footer strip under the ledger (the portal's footers all carry paging controls; this
-   list renders every matching row, so all it owes the reader is the count). */
+/* The ledger footer is the portal's table footer: page size, the count and the pager, the same three
+   parts the players, products and reports pages render. The buttons need nothing from this file -
+   agent-portal.css already styles `.agent-pagination button` for every `body[data-agent-page]` (36px,
+   radius 8, 12.5px/700, and the amber active state in both themes). Only the band and the page-size
+   select are page-scoped, because the portal states those per page. */
 body[data-agent-page="finance"] .agent-wallet-ledger-footer{
-  min-height:44px;
-  padding:11px 16px;
+  min-height:56px;
+  padding:10px 16px;
   border-top:1px solid var(--aw-border);
-  color:var(--aw-muted);
+}
+body[data-agent-page="finance"] .agent-wallet-ledger-footer > .agent-page-size{
+  flex:0 0 auto;
   display:flex;
   align-items:center;
-  justify-content:flex-end;
+  gap:6px;
+}
+body[data-agent-page="finance"] .agent-wallet-ledger-footer > .agent-page-size select{
+  width:auto!important;
+  min-width:68px;
+  max-width:96px;
+  height:36px;
+  padding:0 28px 0 10px;
+  border:1px solid var(--aw-border);
+  border-radius:8px;
+  background:#FFF8EB;
+  color:var(--aw-text);
+  font-size:12px;
+  font-weight:700;
+}
+body[data-agent-page="finance"] .agent-wallet-ledger-footer > #agentWalletShowing{
+  flex:1 1 auto;
+  text-align:center;
+  color:var(--aw-muted);
   font-size:12px;
   font-weight:600;
+  font-variant-numeric:tabular-nums;
+}
+body[data-agent-page="finance"] .agent-wallet-ledger-footer > .agent-pagination{
+  flex:0 0 auto;
+  display:flex;
+  align-items:center;
+  gap:6px;
 }
 
 /* Reimbursement: an operation, not another table. */
@@ -498,6 +540,11 @@ html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-money-i
 html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-upload-action{
   background:#383A46;
   border-color:var(--aw-border);
+  color:#F5F5F4;
+}
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-ledger-footer > .agent-page-size select{
+  background:#383A46;
+  border-color:rgba(255,255,255,.14);
   color:#F5F5F4;
 }
 html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-deduction{

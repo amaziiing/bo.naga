@@ -1,88 +1,77 @@
-/* Agent Wallet
-   Uses the Agent Portal's approved financial cards, panel headers, filters and table language.
-   This file only composes the page; the portal shell remains owned by agent-portal.css. */
+/* Agent Wallet — composition only.
+
+   This page renders the Agent Portal's own components and states nothing they already state. Measured
+   against the pages that render the same components in the same theme (agent-dashboard.html for
+   `.agent-panel` / `.agent-kpi-card`, agent-withdraw.html for `.agent-withdraw-kpi` and the Finance
+   table), the system already supplies:
+
+       card surface      #FFF8EB light / #383A46 dark, border #EADCC8 / rgba(255,255,255,.14), radius 8
+       KPI card          112px tall, padding 18px 16px, label 12/400, value 20/700, note 11/400
+       panel title       16px/800 (and the page sets only its icon colour)
+       table header      11px/700, letter-spacing .44px, #6B360C on #FFE8CC
+       table cell        13px/700, #18191C on #FFF8EB
+       dark table        header #1F2128/#E7E5E4, cell #3A3C48/#F5F5F4
+       filter controls   36px (the rung bo-control-height.css enforces), grid from the portal's own
+                         [data-agent-page="finance"] rule
+
+   What is left here is what the system does not give this page: where the panels go, how wide the
+   ledger's columns are, and the three parts the portal has no component for - the ledger footer, the
+   receipt picker and the deductions list. Everything below is page-scoped on purpose: the portal and
+   the BO keep separate shells (AGENTS.md), and nothing here re-states a shared shell metric. */
 
 body[data-agent-page="finance"] .agent-wallet-page{
-  --aw-surface:#FFFCF7;
-  --aw-surface-soft:#FFF8EB;
   --aw-border:#EADCC8;
-  --aw-border-strong:#DCC9A8;
   --aw-text:#18191C;
   --aw-muted:#78716C;
   --aw-amber:#D97706;
-  --aw-amber-dark:#B45309;
   display:grid;
   gap:14px;
 }
 
-/* Financial summary: the exact KPI anatomy used by Finance - Withdraw, with four columns here. */
+/* Summary row: four cards, two, then one. The card itself is `.agent-withdraw-kpi` untouched - the
+   tint per card is the only thing this file adds, so the four money figures stay identifiable in both
+   themes (the withdraw page's own dark rule flattens its icons to one neutral grey). */
 body[data-agent-page="finance"] .agent-wallet-kpis{
   grid-template-columns:repeat(4,minmax(0,1fr))!important;
   gap:14px!important;
   margin:0!important;
 }
-body[data-agent-page="finance"] .agent-wallet-kpi{
-  min-height:112px!important;
-  padding:17px 18px!important;
-  border:1px solid var(--aw-border)!important;
-  border-radius:12px!important;
-  background:var(--aw-surface)!important;
-  box-shadow:0 1px 2px rgba(68,45,18,.035)!important;
-}
-body[data-agent-page="finance"] .agent-wallet-kpi:first-child{
-  border-color:#E6C990!important;
-  box-shadow:inset 3px 0 0 var(--aw-amber),0 1px 2px rgba(68,45,18,.04)!important;
-}
-body[data-agent-page="finance"] .agent-wallet-kpi .agent-withdraw-kpi-icon{
-  width:46px!important;
-  height:46px!important;
-  flex:0 0 46px!important;
-  font-size:20px!important;
-}
-body[data-agent-page="finance"] .agent-wallet-kpi.blue .agent-withdraw-kpi-icon{background:#FFF0D5!important;color:#D97706!important}
-body[data-agent-page="finance"] .agent-wallet-kpi.purple .agent-withdraw-kpi-icon{background:#F4EBFF!important;color:#7F56D9!important}
-body[data-agent-page="finance"] .agent-wallet-kpi.green .agent-withdraw-kpi-icon{background:#ECFDF3!important;color:#079455!important}
-body[data-agent-page="finance"] .agent-wallet-kpi.orange .agent-withdraw-kpi-icon{background:#FFF6E8!important;color:#F79009!important}
+html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.blue .agent-withdraw-kpi-icon{background:#FFF0D5!important;color:#D97706!important}
+html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.purple .agent-withdraw-kpi-icon{background:#F4EBFF!important;color:#7F56D9!important}
+html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.green .agent-withdraw-kpi-icon{background:#ECFDF3!important;color:#079455!important}
+html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.orange .agent-withdraw-kpi-icon{background:#FFF6E8!important;color:#F79009!important}
 html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.blue .agent-withdraw-kpi-icon i{color:#D97706!important}
 html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.purple .agent-withdraw-kpi-icon i{color:#7F56D9!important}
 html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.green .agent-withdraw-kpi-icon i{color:#079455!important}
 html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.orange .agent-withdraw-kpi-icon i{color:#F79009!important}
-body[data-agent-page="finance"] .agent-wallet-kpi > div{
-  min-width:0;
-  gap:3px!important;
-}
-body[data-agent-page="finance"] .agent-wallet-kpi > div > span{
-  color:#57534E!important;
-  font-size:11px!important;
-  font-weight:650!important;
-  letter-spacing:.01em;
-}
-body[data-agent-page="finance"] .agent-wallet-kpi > div > strong{
-  color:var(--aw-text)!important;
-  font-size:21px!important;
-  font-weight:700!important;
-  line-height:1.2!important;
-  letter-spacing:-.015em;
-  font-variant-numeric:tabular-nums;
-}
-body[data-agent-page="finance"] .agent-wallet-kpi > div > small{
-  margin-top:2px;
-  color:#A8A29E!important;
-  font-size:10.5px!important;
-  font-weight:500!important;
-}
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-kpi.blue .agent-withdraw-kpi-icon{background:rgba(245,158,11,.16)!important;color:#FBBF24!important}
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-kpi.purple .agent-withdraw-kpi-icon{background:rgba(127,86,217,.20)!important;color:#C4B5FD!important}
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-kpi.green .agent-withdraw-kpi-icon{background:rgba(16,185,129,.16)!important;color:#34D399!important}
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-kpi.orange .agent-withdraw-kpi-icon{background:rgba(247,144,9,.16)!important;color:#FBBF24!important}
+html[data-bo-theme="dark"] body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.blue .agent-withdraw-kpi-icon i{color:#FBBF24!important}
+html[data-bo-theme="dark"] body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.purple .agent-withdraw-kpi-icon i{color:#C4B5FD!important}
+html[data-bo-theme="dark"] body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.green .agent-withdraw-kpi-icon i{color:#34D399!important}
+html[data-bo-theme="dark"] body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.orange .agent-withdraw-kpi-icon i{color:#FBBF24!important}
 
-/* Primary ledger with a financial-operation rail. */
+/* The ledger takes the full width, the two money operations sit side by side under it. This is the
+   shape the Withdraw page already uses (its widest panel carries the history, the operations sit in
+   panels above), and it is also what lets the filter row keep the system's own control widths: beside
+   a rail the ledger column is ~880px, and the three controls at their system sizes (a 390px date
+   range + a select measured to fit its widest option + the search box's 260px minimum) come to 882px,
+   so the flex row wrapped the search onto a second line and every fix for that was a specificity war
+   with bo-filter-standard.css. At full width the same row has 1220px to sit in and needs no override
+   at all. */
 body[data-agent-page="finance"] .agent-wallet-layout{
   display:grid;
-  grid-template-columns:minmax(0,1fr) minmax(360px,390px);
+  grid-template-columns:1fr;
   gap:14px;
-  align-items:start;
   min-width:0;
 }
 body[data-agent-page="finance"] .agent-wallet-side{
   display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
   gap:14px;
+  align-items:start;
   min-width:0;
 }
 body[data-agent-page="finance"] .agent-wallet-ledger-panel,
@@ -92,37 +81,17 @@ body[data-agent-page="finance"] .agent-wallet-deductions-panel{
   margin:0!important;
   padding:0!important;
   overflow:hidden;
-  border:1px solid var(--aw-border)!important;
-  border-radius:12px!important;
-  background:var(--aw-surface)!important;
-  box-shadow:0 1px 2px rgba(68,45,18,.035)!important;
 }
 
-/* One header anatomy everywhere: dashboard's inline icon + 16px title, no oversized copy blocks. */
+/* Panel header band. The title keeps the portal's size; only the icon colour is the page's own. */
 body[data-agent-page="finance"] .agent-wallet-panel-title{
   min-height:55px;
   margin:0!important;
   padding:14px 16px!important;
   border-bottom:1px solid var(--aw-border);
-  background:var(--aw-surface)!important;
-}
-body[data-agent-page="finance"] .agent-wallet-panel-title h2{
-  min-width:0;
-  margin:0!important;
-  color:var(--aw-text)!important;
-  font-size:14px!important;
-  font-weight:800!important;
-  line-height:1.25;
 }
 html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body .agent-wallet-panel-title h2 i{
-  margin-right:8px!important;
   color:var(--aw-amber)!important;
-  font-size:15px!important;
-}
-body[data-agent-page="finance"] .agent-wallet-panel-context{
-  color:var(--aw-muted);
-  font-size:11px;
-  font-weight:650;
 }
 body[data-agent-page="finance"] .agent-wallet-count{
   min-width:26px;
@@ -130,7 +99,7 @@ body[data-agent-page="finance"] .agent-wallet-count{
   padding:0 8px;
   border-radius:999px;
   background:#FFF0D5;
-  color:var(--aw-amber-dark);
+  color:#B45309;
   display:inline-flex;
   align-items:center;
   justify-content:center;
@@ -139,88 +108,23 @@ body[data-agent-page="finance"] .agent-wallet-count{
   font-variant-numeric:tabular-nums;
 }
 
-/* Filters belong to the ledger panel, matching Players/Reports rather than floating above the page. */
+/* The filter row is a band inside the ledger panel: the controls are the only filled things on it.
+   The row, the control widths and the breakpoints are all bo-filter-standard.css's own flex row - the
+   page states nothing about them, because everything it could state lost: that sheet pins
+   `.bo-filter-row` to `display:flex!important; grid-template-columns:none!important` and the range
+   trigger to a fixed width, at a specificity the page cannot reach without stacking `:not(#...)`
+   guards of its own. */
 body[data-agent-page="finance"] .agent-wallet-filter-bar{
   margin:0!important;
-  padding:12px 16px!important;
+  padding:14px 16px!important;
   border:0!important;
   border-bottom:1px solid var(--aw-border)!important;
   border-radius:0!important;
-  background:var(--aw-surface-soft)!important;
-  box-shadow:none!important;
-}
-body[data-agent-page="finance"] .agent-wallet-filter-grid{
-  width:100%;
-  display:grid!important;
-  grid-template-columns:minmax(280px,1.3fr) 178px minmax(190px,1fr)!important;
-  gap:10px!important;
-  align-items:center!important;
-}
-body[data-agent-page="finance"] .agent-wallet-filter-grid > .bo-filter-range-item,
-body[data-agent-page="finance"] .agent-wallet-filter-grid > .bo-filter-range-item .bo-range-trigger,
-body[data-agent-page="finance"] .agent-wallet-filter-grid > .bo-range-field,
-body[data-agent-page="finance"] .agent-wallet-filter-grid > [data-bo-date-range]{
-  width:100%!important;
-  min-width:0!important;
-  max-width:none!important;
-  flex:1 1 auto!important;
-}
-body[data-agent-page="finance"] .agent-wallet-filter-grid .field{
-  width:100%!important;
-  min-width:0!important;
-  margin:0!important;
-}
-body[data-agent-page="finance"] .agent-wallet-filter-grid .rounded-select-wrap,
-body[data-agent-page="finance"] .agent-wallet-filter-grid .rounded-select-btn{
-  width:100%!important;
-  min-width:0!important;
-  max-width:none!important;
-}
-body[data-agent-page="finance"] .agent-wallet-filter-grid .field > label{
-  display:none!important;
-}
-body[data-agent-page="finance"] .agent-wallet-filter-grid select,
-body[data-agent-page="finance"] .agent-wallet-filter-grid > .field > input,
-body[data-agent-page="finance"] .agent-wallet-filter-grid .agent-search-box,
-body[data-agent-page="finance"] .agent-wallet-filter-grid .bo-range-trigger{
-  width:100%!important;
-  height:42px!important;
-  min-height:42px!important;
-  margin:0!important;
-  border:1px solid var(--aw-border-strong)!important;
-  border-radius:9px!important;
-  background:var(--aw-surface)!important;
-  box-shadow:none!important;
-}
-body[data-agent-page="finance"] .agent-wallet-filter-grid .agent-search-box{
-  padding:0 11px!important;
-  gap:8px;
-}
-body[data-agent-page="finance"] .agent-wallet-filter-grid .agent-search-box i{
-  color:#A8A29E;
-  font-size:13px;
-}
-body[data-agent-page="finance"] .agent-wallet-filter-grid .agent-search-box input{
-  width:100%!important;
-  height:38px!important;
-  min-height:0!important;
-  padding:0!important;
-  border:0!important;
-  border-radius:0!important;
-  outline:0!important;
   background:transparent!important;
   box-shadow:none!important;
-  font-size:12px!important;
-}
-body[data-agent-page="finance"] .agent-wallet-filter-grid select:focus,
-body[data-agent-page="finance"] .agent-wallet-filter-grid > .field > input:focus,
-body[data-agent-page="finance"] .agent-wallet-filter-grid .agent-search-box:focus-within,
-body[data-agent-page="finance"] .agent-wallet-filter-grid .bo-range-trigger:focus-within{
-  border-color:var(--aw-amber)!important;
-  box-shadow:0 0 0 3px rgba(217,119,6,.12)!important;
 }
 
-/* The panel is the container; the table wrapper must not draw a second card inside it. */
+/* The panel draws the frame, so the wrapper must not draw a second one. */
 body[data-agent-page="finance"] .agent-wallet-ledger-wrap{
   width:100%!important;
   max-width:100%!important;
@@ -228,7 +132,6 @@ body[data-agent-page="finance"] .agent-wallet-ledger-wrap{
   overflow:auto!important;
   border:0!important;
   border-radius:0!important;
-  background:var(--aw-surface)!important;
 }
 body[data-agent-page="finance"] .agent-wallet-ledger-table{
   min-width:820px!important;
@@ -241,35 +144,10 @@ body[data-agent-page="finance"] .agent-wallet-ledger-table th:nth-child(3){width
 body[data-agent-page="finance"] .agent-wallet-ledger-table th:nth-child(4),
 body[data-agent-page="finance"] .agent-wallet-ledger-table th:nth-child(5){width:120px}
 body[data-agent-page="finance"] .agent-wallet-ledger-table th:nth-child(6){width:118px}
-body[data-agent-page="finance"] .agent-wallet-ledger-table thead th{
-  height:42px!important;
-  padding:0 12px!important;
-  background:#F5EBDC!important;
-  border-bottom-color:var(--aw-border)!important;
-  color:#6B360C!important;
-  font-size:10.5px!important;
-  font-weight:800!important;
-  text-transform:uppercase!important;
-  letter-spacing:.035em!important;
-}
+body[data-agent-page="finance"] .agent-wallet-ledger-table thead th{height:44px!important}
 body[data-agent-page="finance"] .agent-wallet-ledger-table tbody td{
-  height:48px!important;
-  padding:10px 12px!important;
-  background:var(--aw-surface)!important;
-  color:#44403C!important;
-  border-bottom-color:#F0E6D7!important;
   overflow:hidden!important;
-  font-size:11.5px!important;
-  font-weight:500!important;
-  font-variant-numeric:tabular-nums;
   text-overflow:ellipsis;
-}
-body[data-agent-page="finance"] .agent-wallet-ledger-table td:nth-child(2),
-body[data-agent-page="finance"] .agent-wallet-ledger-table td:nth-child(3){font-weight:750!important}
-body[data-agent-page="finance"] .agent-wallet-ledger-table td:nth-child(4),
-body[data-agent-page="finance"] .agent-wallet-ledger-table td:nth-child(5){font-weight:650!important}
-body[data-agent-page="finance"] .agent-wallet-ledger-table tbody tr:hover td{
-  background:#FFF9EE!important;
 }
 body[data-agent-page="finance"] .agent-wallet-ledger-table th:nth-child(3),
 body[data-agent-page="finance"] .agent-wallet-ledger-table th:nth-child(4),
@@ -279,29 +157,36 @@ body[data-agent-page="finance"] .agent-wallet-ledger-table td:nth-child(4),
 body[data-agent-page="finance"] .agent-wallet-ledger-table td:nth-child(5){
   text-align:right;
 }
-body[data-agent-page="finance"] .agent-wallet-ledger-table .agent-wallet-reference{
+/* The listing-page rule right-aligns every last column, which is right for an action column and wrong
+   for this one: the ledger's last column is prose. */
+body[data-agent-page="finance"] .agent-wallet-ledger-table thead th:last-child,
+body[data-agent-page="finance"] .agent-wallet-ledger-table tbody td:last-child{
+  text-align:left;
+}
+body[data-agent-page="finance"] .agent-wallet-reference{
   color:#57534E;
   font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;
   font-size:10.5px;
 }
 body[data-agent-page="finance"] .agent-wallet-ledger-table td.table-empty{
-  height:250px!important;
-  color:var(--aw-muted)!important;
+  height:220px!important;
 }
+
+/* The page's own footer strip under the ledger (the portal's footers all carry paging controls; this
+   list renders every matching row, so all it owes the reader is the count). */
 body[data-agent-page="finance"] .agent-wallet-ledger-footer{
   min-height:44px;
   padding:11px 16px;
   border-top:1px solid var(--aw-border);
-  background:var(--aw-surface)!important;
   color:var(--aw-muted);
   display:flex;
   align-items:center;
   justify-content:flex-end;
-  font-size:11px;
+  font-size:12px;
   font-weight:600;
 }
 
-/* Reimbursement is an operation, not another table. */
+/* Reimbursement: an operation, not another table. */
 body[data-agent-page="finance"] .agent-wallet-claim-note{
   margin:14px 16px 0;
   padding:10px 12px;
@@ -341,33 +226,19 @@ body[data-agent-page="finance"] .agent-wallet-claim-form .field{
   min-width:0;
   margin:0!important;
 }
-body[data-agent-page="finance"] #agentReimburseProof.visually-hidden{
-  position:absolute!important;
-  width:1px!important;
-  height:1px!important;
-  min-width:0!important;
-  min-height:0!important;
-  padding:0!important;
-  margin:-1px!important;
-  overflow:hidden!important;
-  clip:rect(0,0,0,0)!important;
-  white-space:nowrap!important;
-  border:0!important;
-}
 body[data-agent-page="finance"] .agent-wallet-claim-form .field > label:first-child{
   display:block!important;
   margin:0 0 6px!important;
-  color:#57534E!important;
-  font-size:11px!important;
-  font-weight:700!important;
-  letter-spacing:.01em!important;
+  font-size:12px!important;
+  font-weight:600!important;
 }
+/* One control with the currency inside it, on the 40px rung the portal's `.field input` uses. */
 body[data-agent-page="finance"] .agent-wallet-money-input{
   width:100%;
-  height:42px;
-  border:1px solid var(--aw-border-strong);
-  border-radius:9px;
-  background:var(--aw-surface-soft);
+  height:40px;
+  border:1px solid var(--aw-border);
+  border-radius:8px;
+  background:#FFF8EB;
   display:grid;
   grid-template-columns:auto minmax(0,1fr);
   align-items:center;
@@ -389,7 +260,7 @@ body[data-agent-page="finance"] .agent-wallet-money-input > span{
 }
 body[data-agent-page="finance"] .agent-wallet-money-input #agentReimburseAmount{
   width:100%!important;
-  height:40px!important;
+  height:38px!important;
   min-height:0!important;
   padding:0 11px!important;
   border:0!important;
@@ -407,14 +278,15 @@ body[data-agent-page="finance"] .agent-wallet-money-input #agentReimburseAmount:
   -webkit-appearance:none;
   margin:0;
 }
+/* The receipt picker: a real control in the house field treatment, not the browser's default file box. */
 body[data-agent-page="finance"] .agent-wallet-upload{
   width:100%;
   min-height:68px;
   margin:0!important;
   padding:10px 11px!important;
   border:1px dashed #D5B986;
-  border-radius:9px;
-  background:var(--aw-surface-soft);
+  border-radius:8px;
+  background:#FFF8EB;
   color:var(--aw-text)!important;
   display:grid!important;
   grid-template-columns:36px minmax(0,1fr) auto;
@@ -429,6 +301,19 @@ body[data-agent-page="finance"] .agent-wallet-upload:hover{
 body[data-agent-page="finance"] #agentReimburseProof:focus-visible + .agent-wallet-upload{
   border-color:var(--aw-amber);
   box-shadow:0 0 0 3px rgba(217,119,6,.12);
+}
+body[data-agent-page="finance"] #agentReimburseProof.visually-hidden{
+  position:absolute!important;
+  width:1px!important;
+  height:1px!important;
+  min-width:0!important;
+  min-height:0!important;
+  padding:0!important;
+  margin:-1px!important;
+  overflow:hidden!important;
+  clip:rect(0,0,0,0)!important;
+  white-space:nowrap!important;
+  border:0!important;
 }
 body[data-agent-page="finance"] .agent-wallet-upload-icon{
   width:36px;
@@ -464,9 +349,9 @@ body[data-agent-page="finance"] .agent-wallet-upload-copy small{
 body[data-agent-page="finance"] .agent-wallet-upload-action{
   height:30px;
   padding:0 10px;
-  border:1px solid var(--aw-border-strong);
+  border:1px solid var(--aw-border);
   border-radius:7px;
-  background:var(--aw-surface);
+  background:#FFFCF7;
   color:#57534E;
   display:inline-flex;
   align-items:center;
@@ -476,12 +361,12 @@ body[data-agent-page="finance"] .agent-wallet-upload-action{
 }
 body[data-agent-page="finance"] .agent-wallet-claim-form #agentReimburseRemark{
   width:100%!important;
-  min-height:86px!important;
-  padding:10px 11px!important;
+  min-height:84px!important;
+  padding:9px 11px!important;
   resize:vertical;
-  border:1px solid var(--aw-border-strong)!important;
-  border-radius:9px!important;
-  background:var(--aw-surface-soft)!important;
+  border:1px solid var(--aw-border)!important;
+  border-radius:8px!important;
+  background:#FFF8EB!important;
   color:var(--aw-text)!important;
   font-size:12px!important;
   line-height:1.45;
@@ -493,32 +378,24 @@ body[data-agent-page="finance"] .agent-wallet-claim-form #agentReimburseRemark:f
 }
 body[data-agent-page="finance"] .agent-wallet-claim-form #agentReimburseSubmit{
   width:100%!important;
-  min-height:42px!important;
   margin:0!important;
-  font-size:11.5px!important;
-  font-weight:800!important;
 }
-body[data-agent-page="finance"] .agent-wallet-approval-note{
-  margin:-3px 0 0;
-  color:var(--aw-muted);
-  font-size:10px;
-  line-height:1.4;
-  text-align:center;
+body[data-agent-page="finance"] .agent-wallet-claim-form #agentReimburseSubmit:active{
+  transform:scale(.98);
 }
-body[data-agent-page="finance"] .agent-wallet-approval-note i{
-  margin-right:4px;
-  color:var(--aw-amber);
+@media (prefers-reduced-motion: reduce){
+  body[data-agent-page="finance"] .agent-wallet-claim-form #agentReimburseSubmit{transition:none!important}
 }
 
-/* Deductions are supporting activity, rendered as a compact list in the narrower column. */
+/* Deductions: supporting activity in the narrower column, so it is a list of movements rather than a
+   four-column table squeezed into 390px. */
 body[data-agent-page="finance"] .agent-wallet-deductions-list{
   min-height:122px;
-  background:var(--aw-surface)!important;
 }
 body[data-agent-page="finance"] .agent-wallet-deduction{
   min-height:70px;
   padding:11px 14px;
-  border-bottom:1px solid #F0E6D7;
+  border-bottom:1px solid rgba(234,220,200,.7);
   display:grid;
   grid-template-columns:34px minmax(0,1fr) auto;
   align-items:center;
@@ -546,7 +423,7 @@ body[data-agent-page="finance"] .agent-wallet-deduction-copy strong{
   overflow:hidden;
   color:var(--aw-text);
   font-size:11.5px;
-  font-weight:750;
+  font-weight:800;
   text-overflow:ellipsis;
   white-space:nowrap;
 }
@@ -584,69 +461,22 @@ body[data-agent-page="finance"] .agent-wallet-empty i{
   font-size:22px;
 }
 
-/* Dark theme: same hierarchy, charcoal surfaces and the portal's amber focus language. */
+/* Dark theme: the tokens the system already sets are not repeated, only the parts that are this page's
+   own (its footer, the claim controls, the receipt picker, the deductions list and the count pill). */
 html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-page{
-  --aw-surface:#2A2C36;
-  --aw-surface-soft:#23252E;
-  --aw-border:rgba(255,255,255,.12);
-  --aw-border-strong:rgba(255,255,255,.17);
+  --aw-border:rgba(255,255,255,.14);
   --aw-text:#F5F5F4;
   --aw-muted:#A1A1AA;
   --aw-amber:#F59E0B;
-  --aw-amber-dark:#FBBF24;
 }
-html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-kpi,
-html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-ledger-panel,
-html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-claim-panel,
-html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-deductions-panel,
-html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-panel-title,
-html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-ledger-wrap,
-html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-ledger-footer,
-html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-deductions-list{
-  background:var(--aw-surface)!important;
-  border-color:var(--aw-border)!important;
-}
-html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-filter-bar,
-html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-filter-grid select,
-html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-filter-grid > .field > input,
-html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-filter-grid .agent-search-box,
-html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-filter-grid .bo-range-trigger,
-html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-money-input,
-html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-upload,
-html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-claim-form #agentReimburseRemark{
-  background:var(--aw-surface-soft)!important;
-  border-color:var(--aw-border-strong)!important;
-  color:var(--aw-text)!important;
-}
-html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-kpi > div > span,
-html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-panel-context,
-html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-claim-form .field > label:first-child,
-html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-approval-note,
-html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-upload-copy small,
-html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-deduction-copy span,
-html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-empty{
-  color:var(--aw-muted)!important;
-}
-html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-ledger-table thead th{
-  background:#343640!important;
-  color:#FCD9A1!important;
-  border-color:var(--aw-border)!important;
-}
-html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-ledger-table tbody td{
-  background:var(--aw-surface)!important;
-  color:#E7E5E4!important;
-  border-color:rgba(255,255,255,.08)!important;
-}
-html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-ledger-table tbody tr:hover td{
-  background:#31333E!important;
-}
-html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-reference{color:#D4D4D8!important}
-html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-money-input > span{
-  color:#FBBF24!important;
-  border-right-color:var(--aw-border)!important;
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-count,
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-upload-icon,
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-deduction-icon{
+  background:rgba(245,158,11,.16);
+  color:#FBBF24;
 }
 html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-claim-note{
-  background:rgba(245,158,11,.09);
+  background:rgba(245,158,11,.10);
   color:#D4D4D8;
 }
 html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-claim-note strong,
@@ -654,32 +484,38 @@ html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-upload-
 html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-deduction-copy strong{
   color:var(--aw-text);
 }
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-money-input,
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-upload,
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-claim-form #agentReimburseRemark{
+  background:#2A2C36!important;
+  border-color:var(--aw-border)!important;
+  color:var(--aw-text)!important;
+}
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-money-input > span{
+  color:#FBBF24;
+  border-right-color:var(--aw-border);
+}
 html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-upload-action{
   background:#383A46;
-  border-color:var(--aw-border-strong);
+  border-color:var(--aw-border);
   color:#F5F5F4;
 }
-html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-count,
-html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-upload-icon,
-html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-deduction-icon{
-  background:rgba(245,158,11,.14);
-  color:#FBBF24;
-}
-html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-kpi.blue .agent-withdraw-kpi-icon{background:rgba(245,158,11,.14)!important;color:#FBBF24!important}
-html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-kpi.purple .agent-withdraw-kpi-icon{background:rgba(127,86,217,.18)!important;color:#C4B5FD!important}
-html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-kpi.green .agent-withdraw-kpi-icon{background:rgba(7,148,85,.18)!important;color:#6EE7B7!important}
-html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-kpi.orange .agent-withdraw-kpi-icon{background:rgba(247,144,9,.16)!important;color:#FBBF24!important}
-html[data-bo-theme="dark"] body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.blue .agent-withdraw-kpi-icon i{color:#FBBF24!important}
-html[data-bo-theme="dark"] body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.purple .agent-withdraw-kpi-icon i{color:#C4B5FD!important}
-html[data-bo-theme="dark"] body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.green .agent-withdraw-kpi-icon i{color:#6EE7B7!important}
-html[data-bo-theme="dark"] body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.orange .agent-withdraw-kpi-icon i{color:#FBBF24!important}
 html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-deduction{
-  border-color:rgba(255,255,255,.08);
+  border-bottom-color:rgba(255,255,255,.08);
+}
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-deduction-copy time{
+  color:#A1A1AA;
+}
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-deduction-amount{
+  color:#FCA5A5!important;
+}
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-empty i{
+  color:#8A7A5E;
 }
 
 @media(max-width:1450px){
   body[data-agent-page="finance"] .agent-wallet-layout{grid-template-columns:1fr}
-  body[data-agent-page="finance"] .agent-wallet-side{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
+  body[data-agent-page="finance"] .agent-wallet-side{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media(max-width:1180px){
   body[data-agent-page="finance"] .agent-wallet-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}
@@ -687,13 +523,8 @@ html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-deducti
 @media(max-width:880px){
   body[data-agent-page="finance"] .agent-wallet-side{grid-template-columns:1fr}
 }
-@media(max-width:760px){
-  body[data-agent-page="finance"] .agent-wallet-filter-grid{grid-template-columns:1fr!important}
-  body[data-agent-page="finance"] .agent-wallet-panel-title{align-items:flex-start!important;flex-wrap:wrap}
-}
 @media(max-width:560px){
   body[data-agent-page="finance"] .agent-wallet-kpis{grid-template-columns:1fr!important}
   body[data-agent-page="finance"] .agent-wallet-upload{grid-template-columns:36px minmax(0,1fr)}
   body[data-agent-page="finance"] .agent-wallet-upload-action{display:none}
-  body[data-agent-page="finance"] .agent-wallet-panel-context{display:none}
 }

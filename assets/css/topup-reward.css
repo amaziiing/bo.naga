@@ -98,3 +98,21 @@ html[data-bo-theme="dark"] body.topup-reward-page .tr-switches{
 html[data-bo-theme="dark"] body.topup-reward-page .tr-switch{color:#E7E5E4}
 html[data-bo-theme="dark"] body.topup-reward-page .tr-table th{color:#FBBF24;border-bottom-color:rgba(255,255,255,.12)}
 html[data-bo-theme="dark"] body.topup-reward-page .tr-table td{border-bottom-color:rgba(255,255,255,.08)}
+
+/* ---------------------------------------------------------------------------
+   Screen sizes. The page is a form inside a shell, so it has to keep working
+   when the frame is narrow: fields pair up while there is room for a pair and
+   go one-across when there is not, the head lets its button fall to its own
+   line, and the table scrolls inside its card instead of pushing the frame.
+   ------------------------------------------------------------------------- */
+@media (max-width:1180px){
+  body.topup-reward-page .bo-edit-field.half{grid-column:1/-1}
+  body.topup-reward-page .bo-edit-head{flex-wrap:wrap;row-gap:10px}
+}
+@media (max-width:760px){
+  body.topup-reward-page .tr-scroll{padding:12px 14px 16px}
+  body.topup-reward-page .bo-edit-card{padding:16px 14px 18px}
+  body.topup-reward-page .bo-edit-bar{flex-wrap:wrap;justify-content:stretch;padding:12px 14px}
+  body.topup-reward-page .bo-edit-bar > .clean-btn{flex:1 1 auto}
+  body.topup-reward-page .tr-table{min-width:640px}
+}

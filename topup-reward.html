@@ -26,70 +26,33 @@
   <link href="assets/css/bo-module-tabs.css?v=0c2b4ebb" rel="stylesheet"/>
   <link href="assets/css/bo-shell.css?v=047655db" rel="stylesheet"/>
   <link href="assets/css/bo-global-quicknav.css?v=0d429385" rel="stylesheet" data-bo-quicknav-css="1"/>
-  <link href="assets/css/bo-edit-form.css?v=84ac1a0b" rel="stylesheet">
-  <link href="assets/css/topup-reward.css?v=34a503df" rel="stylesheet"/>
+  <link href="assets/css/bo-edit-form.css?v=5f179e95" rel="stylesheet">
+  <link href="assets/css/topup-reward.css?v=cd1fad2a" rel="stylesheet"/>
 </head>
 
-<body class="report-body standardized-listing-page topup-reward-page bo-charcoal bo-account-chip bo-edit-form"><aside class="report-sidebar" id="reportSidebar">
+<body class="report-body standardized-listing-page topup-reward-page bo-charcoal bo-account-chip bo-edit-form">
+<div class="report-shell">
+<aside class="report-sidebar" id="reportSidebar">
       <div class="report-brand">
         <div>Backoffice</div><button class="close-side" data-close-sidebar><i class="bi bi-x-lg"></i></button>
       </div>
       <nav class="report-nav"></nav>
-    </aside><div class="report-shell">
+    </aside>
 <main class="report-main">
   <header class="report-topbar" data-bo-topbar data-bo-title="Top-up Reward" data-bo-icon="bi-trophy"></header>
   <script src="assets/js/bo-topbar.js?v=ddbcfef7"></script>
 
   <section class="report-content">
-
-    <!-- The pill row, the way agent-detail.html declares its own: a row of `.clean-btn` pills with the active
-         one at `.primary`, and the way back at the right end of the same row. -->
-    <div class="tr-top">
-      <div class="tr-tabs" role="tablist" aria-label="Top-up Reward sections">
-        <button class="clean-btn primary" type="button" role="tab" aria-selected="true" data-tr-tab="campaign"><i class="bi bi-megaphone"></i> Campaign</button>
-        <button class="clean-btn" type="button" role="tab" aria-selected="false" data-tr-tab="prizes"><i class="bi bi-list-ol"></i> Prizes</button>
-      </div>
-      <a class="clean-btn" href="frontend-display.html"><i class="bi bi-arrow-left"></i> Back to list</a>
-    </div>
-
     <div class="tr-scroll">
 
-      <!-- The summary strip. The anatomy is the topbar counter's own, measured: tile #FFFCF7 on #EADCC8 at radius
-           10, a 38px icon plate at radius 8, an 11px/800 uppercase label with .66px tracking over an 18px/800
-           value - plus the identity tile the reference puts first. Numbers are filled by the page's script. -->
-      <div class="tr-summary">
-        <div class="tr-sum-id">
-          <span class="tr-sum-plate"><i class="bi bi-trophy"></i></span>
-          <div class="tr-sum-copy">
-            <strong id="trSumTitle">Top-up Reward</strong>
-            <span id="trSumWindow">No campaign window set</span>
-          </div>
-        </div>
-        <div class="tr-kpi">
-          <span class="tr-kpi-plate"><i class="bi bi-toggle-on"></i></span>
-          <div class="tr-kpi-copy"><small>Status</small><b id="trSumStatus">-</b></div>
-        </div>
-        <div class="tr-kpi">
-          <span class="tr-kpi-plate"><i class="bi bi-list-ol"></i></span>
-          <div class="tr-kpi-copy"><small>Prizes</small><b id="trSumPrizes">0</b></div>
-        </div>
-        <div class="tr-kpi">
-          <span class="tr-kpi-plate"><i class="bi bi-signpost-split"></i></span>
-          <div class="tr-kpi-copy"><small>Ranks</small><b id="trSumRanks">-</b></div>
-        </div>
-        <div class="tr-kpi">
-          <span class="tr-kpi-plate"><i class="bi bi-cash-coin"></i></span>
-          <div class="tr-kpi-copy"><small>Min Qualify</small><b id="trSumMin">-</b></div>
-        </div>
-      </div>
-
-      <div class="bo-edit-card" data-tr-panel="campaign">
+      <div class="bo-edit-card">
         <header class="bo-edit-head">
           <span class="bo-edit-head-ico"><i class="bi bi-megaphone"></i></span>
           <div>
             <h4>1. Campaign</h4>
             <p>What the player sees: the wording, the window and how many rows are shown.</p>
           </div>
+          <a class="clean-btn" href="frontend-display.html"><i class="bi bi-arrow-left"></i> Back to list</a>
         </header>
         <div class="bo-edit-grid">
           <div class="bo-edit-field half"><label for="trTitle">Campaign Title</label>
@@ -130,7 +93,7 @@
         </div>
       </div>
 
-      <div class="bo-edit-card" data-tr-panel="prizes" hidden>
+      <div class="bo-edit-card">
         <header class="bo-edit-head">
           <span class="bo-edit-head-ico"><i class="bi bi-list-ol"></i></span>
           <div>
@@ -170,7 +133,7 @@
 <script src="assets/js/config.js?v=e7312672"></script><script src="assets/js/brand-context.js?v=27360386"></script>
 <script src="assets/js/main-currency-runtime.js?v=2b28e860"></script><script src="assets/js/firebase-config.js?v=c41fc3b0"></script>
 <script src="assets/js/currency-runtime.js?v=b63c89fb"></script><script src="assets/js/auth.js?v=f9eb5626"></script>
-<script src="assets/js/reports.js?v=a96450f8"></script><script src="assets/js/topup-reward.js?v=6455ace0"></script>
+<script src="assets/js/reports.js?v=a96450f8"></script><script src="assets/js/topup-reward.js?v=90673055"></script>
 <script src="assets/js/bo-ui-standard.js?v=890f213b"></script>
 <script src="assets/js/bo-theme.js?v=d78603d9"></script>
 <script src="assets/js/bo-account-chip.js?v=fcf6fa08"></script>

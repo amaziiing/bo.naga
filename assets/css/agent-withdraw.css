@@ -1,0 +1,189 @@
+/* Agent Withdraw — the page-scoped parts, on the same terms as agent-wallet.css: the page states only
+   what the portal does not, and nothing here re-states a shell metric (AGENTS.md keeps the portal's
+   shell separate from the BO's).
+
+   Measured on this page before writing (light + dark, 12-row stub): the KPI card is already the family's
+   (112px, 18px 16px, label 12/400, value 20/700), so is the table (th 11px/700 ls .44px #6B360C on
+   #FFE8CC, td 13px/700 on #FFF8EB, rows 43px) and the date popover is not clipped here. What was wrong:
+   the history footer had no paging parts, the amount control painted two boxes, its KPI icons lost their
+   colour in dark, and the history table had no height floor. */
+
+body[data-agent-page="withdraw"]{
+  --awd-border:#EADCC8;
+  --awd-muted:#78716C;
+  --awd-amber:#D97706;
+}
+
+/* ------------------------------------------------------------------------------------------------
+   1. The amount control is one box.
+
+   `.agent-withdraw-amount` is a bordered group holding (RM) (input) (All). Its own rule already asks the
+   inner input for `border:0;border-radius:0`, but the system states an input's border and radius at
+   id-level specificity (bo-charcoal-legacy.css / bo-field-standard.css), so that lost: measured, the
+   field still painted a 1px border and a 10px radius inside the group - two boxes on one control, the
+   same defect the owner spotted on the wallet page.
+
+   Instead of escalating `:not(#...)` guards, the structure follows the wallet's: the input keeps the
+   system's own field frame and the two badges become overlays on its padding - RM on the left, All on
+   the right, each with its own divider and an outer corner radius to match the frame's inner curve. */
+html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-withdraw-amount{
+  position:relative!important;
+  display:block!important;
+  height:auto!important;
+  min-height:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  overflow:visible!important;
+}
+html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-withdraw-amount > span{
+  position:absolute!important;
+  left:1px!important;
+  top:1px!important;
+  bottom:1px!important;
+  width:42px!important;
+  height:auto!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-right:1px solid var(--awd-border)!important;
+  border-radius:9px 0 0 9px!important;
+  background:transparent!important;
+  color:#6B360C!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  font-size:11px!important;
+  font-weight:800!important;
+  pointer-events:none!important;
+}
+html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-withdraw-amount input#agentSettlementAmount{
+  padding-left:54px!important;
+  padding-right:74px!important;
+  font-variant-numeric:tabular-nums;
+  appearance:textfield!important;
+}
+html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-withdraw-amount button#withdrawAllBtn{
+  position:absolute!important;
+  right:1px!important;
+  top:1px!important;
+  bottom:1px!important;
+  width:66px!important;
+  height:auto!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-left:1px solid var(--awd-border)!important;
+  border-radius:0 9px 9px 0!important;
+  background:transparent!important;
+  color:#155eef!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  font-size:12px!important;
+  font-weight:700!important;
+  cursor:pointer!important;
+}
+html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-withdraw-amount button#withdrawAllBtn:hover{
+  background:rgba(217,119,6,.10)!important;
+}
+/* The group's own focus ring no longer has a border to sit on; the field's own focus state is the
+   affordance, exactly like every other field on the portal. */
+html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-withdraw-amount:focus-within{
+  box-shadow:none!important;
+  border-color:transparent!important;
+}
+
+/* ------------------------------------------------------------------------------------------------
+   2. The history footer carries the portal's three parts: page size, the count, the pager. The buttons
+   themselves need nothing - agent-portal.css styles `.agent-pagination button` for every
+   `body[data-agent-page]`, in both themes. */
+html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-withdraw-history-footer{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:12px!important;
+  padding:14px 0 0!important;
+  margin:0!important;
+}
+html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-withdraw-history-footer > .agent-page-size{
+  flex:0 0 auto!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:6px!important;
+}
+html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-withdraw-history-footer > .agent-page-size select{
+  width:auto!important;
+  min-width:68px!important;
+  max-width:96px!important;
+  height:36px!important;
+  padding:0 28px 0 10px!important;
+  border:1px solid var(--awd-border)!important;
+  border-radius:8px!important;
+  background:#FFF8EB!important;
+  color:#18191C!important;
+  font-size:12px!important;
+  font-weight:700!important;
+}
+html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-withdraw-history-footer > #withdrawHistoryShowing{
+  flex:1 1 auto!important;
+  text-align:center!important;
+  color:var(--awd-muted)!important;
+  font-size:12px!important;
+  font-weight:600!important;
+  font-variant-numeric:tabular-nums;
+}
+html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-withdraw-history-footer > .agent-pagination{
+  flex:0 0 auto!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:6px!important;
+}
+
+/* 3. A floor under the history table, so a short or empty result still leaves the panel the height of a
+   real table (ten rows a page measure ~474px). */
+html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-withdraw-history .table-wrap{
+  min-height:322px;
+}
+html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-withdraw-table td.table-empty{
+  height:322px!important;
+  text-align:center!important;
+  vertical-align:middle!important;
+}
+
+/* 4. The KPI icons keep their colour in dark. The portal's light rules carry the five tints and its dark
+   block flattens every one of them to the same neutral grey (measured: #2A2C36 on #D4D4D8), which loses
+   the one thing the tints are for. These are the BO's own dark chip values, the same set the wallet page
+   uses, so the two Finance screens read alike. */
+html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-withdraw-kpi.blue .agent-withdraw-kpi-icon{
+  background:rgba(37,99,235,.22)!important;color:#93C5FD!important;
+}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-withdraw-kpi.green .agent-withdraw-kpi-icon{
+  background:rgba(16,185,129,.16)!important;color:#34D399!important;
+}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-withdraw-kpi.orange .agent-withdraw-kpi-icon{
+  background:rgba(247,144,9,.16)!important;color:#FBBF24!important;
+}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-withdraw-kpi.purple .agent-withdraw-kpi-icon{
+  background:rgba(127,86,217,.20)!important;color:#C4B5FD!important;
+}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-withdraw-kpi.red .agent-withdraw-kpi-icon{
+  background:rgba(248,113,113,.16)!important;color:#F87171!important;
+}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-withdraw-amount button#withdrawAllBtn{
+  color:#93C5FD!important;
+}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-withdraw-amount button#withdrawAllBtn:hover{
+  background:rgba(147,197,253,.12)!important;
+}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-withdraw-amount > span{
+  color:#FBBF24!important;
+  border-right-color:rgba(255,255,255,.14)!important;
+}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-withdraw-history-footer > .agent-page-size select{
+  background:#383A46!important;
+  border-color:rgba(255,255,255,.14)!important;
+  color:#F5F5F4!important;
+}

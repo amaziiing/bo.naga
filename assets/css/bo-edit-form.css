@@ -289,3 +289,17 @@ body.bo-edit-form .bo-edit-pill.primary{
 }
 html[data-bo-theme="dark"] body.bo-edit-form .bo-edit-pill:not(.primary){color:#A1A1AA}
 html[data-bo-theme="dark"] body.bo-edit-form .bo-edit-pill:not(.primary):hover{color:#F5F5F4}
+
+/* A control that is an anchor keeps the button's look, not the link's: `Back to list` came out
+   underlined the moment it became `.mad-btn.mad-btn-ghost` (owner: "back to list 按键不应该有underline呀").
+   The house rule for a link used as a control is `text-decoration:none`, stated here for both components. */
+body.bo-edit-form a.mad-btn,
+body.bo-edit-form a.clean-btn,
+body.bo-edit-form button.mad-btn,
+body.bo-edit-form button.clean-btn{
+  text-decoration:none;
+}
+body.bo-edit-form a.mad-btn:hover,
+body.bo-edit-form a.clean-btn:hover{
+  text-decoration:none;
+}

@@ -3232,3 +3232,41 @@ html:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card #agentRei
 html:not(#bo-charcoal-off) body[data-agent-page="dashboard"].agent-report-body.agent-modern .agent-dashboard-lower{
   grid-template-columns:1fr!important;
 }
+
+/* Agent Portal mobile shell repair.
+   Desktop deliberately keeps its only rail toggle inside .report-brand. Below 992px that rail is
+   off-canvas, so the same arrangement leaves no reachable opener. A later desktop parity block also
+   beat the portal's original mobile margin rule: measured at 800px, the rail was at x=-230 while
+   .report-main still started at x=230 and the topbar opener was 0x0. Keep this in the portal sheet
+   (not bo-shell.css): data-agent-page pages own this shell by design. */
+@media(max-width:991.98px){
+  html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .report-main{
+    width:100%!important;
+    max-width:100%!important;
+    margin-left:0!important;
+  }
+  html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .report-topbar,
+  html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .agent-modern-head{
+    left:0!important;
+    width:100%!important;
+  }
+  html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .report-topbar > .hamb,
+  html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .agent-modern-head > .hamb{
+    display:inline-flex!important;
+    width:42px!important;
+    min-width:42px!important;
+    max-width:42px!important;
+    height:42px!important;
+    min-height:42px!important;
+    max-height:42px!important;
+    align-items:center!important;
+    justify-content:center!important;
+    flex:0 0 42px!important;
+  }
+  html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .report-sidebar .report-brand > .dashboard-sidebar-toggle{
+    display:none!important;
+  }
+  html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern.sidebar-open .report-sidebar{
+    transform:translateX(0)!important;
+  }
+}

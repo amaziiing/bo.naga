@@ -1,0 +1,699 @@
+/* Agent Wallet
+   Uses the Agent Portal's approved financial cards, panel headers, filters and table language.
+   This file only composes the page; the portal shell remains owned by agent-portal.css. */
+
+body[data-agent-page="finance"] .agent-wallet-page{
+  --aw-surface:#FFFCF7;
+  --aw-surface-soft:#FFF8EB;
+  --aw-border:#EADCC8;
+  --aw-border-strong:#DCC9A8;
+  --aw-text:#18191C;
+  --aw-muted:#78716C;
+  --aw-amber:#D97706;
+  --aw-amber-dark:#B45309;
+  display:grid;
+  gap:14px;
+}
+
+/* Financial summary: the exact KPI anatomy used by Finance - Withdraw, with four columns here. */
+body[data-agent-page="finance"] .agent-wallet-kpis{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:14px!important;
+  margin:0!important;
+}
+body[data-agent-page="finance"] .agent-wallet-kpi{
+  min-height:112px!important;
+  padding:17px 18px!important;
+  border:1px solid var(--aw-border)!important;
+  border-radius:12px!important;
+  background:var(--aw-surface)!important;
+  box-shadow:0 1px 2px rgba(68,45,18,.035)!important;
+}
+body[data-agent-page="finance"] .agent-wallet-kpi:first-child{
+  border-color:#E6C990!important;
+  box-shadow:inset 3px 0 0 var(--aw-amber),0 1px 2px rgba(68,45,18,.04)!important;
+}
+body[data-agent-page="finance"] .agent-wallet-kpi .agent-withdraw-kpi-icon{
+  width:46px!important;
+  height:46px!important;
+  flex:0 0 46px!important;
+  font-size:20px!important;
+}
+body[data-agent-page="finance"] .agent-wallet-kpi.blue .agent-withdraw-kpi-icon{background:#FFF0D5!important;color:#D97706!important}
+body[data-agent-page="finance"] .agent-wallet-kpi.purple .agent-withdraw-kpi-icon{background:#F4EBFF!important;color:#7F56D9!important}
+body[data-agent-page="finance"] .agent-wallet-kpi.green .agent-withdraw-kpi-icon{background:#ECFDF3!important;color:#079455!important}
+body[data-agent-page="finance"] .agent-wallet-kpi.orange .agent-withdraw-kpi-icon{background:#FFF6E8!important;color:#F79009!important}
+html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.blue .agent-withdraw-kpi-icon i{color:#D97706!important}
+html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.purple .agent-withdraw-kpi-icon i{color:#7F56D9!important}
+html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.green .agent-withdraw-kpi-icon i{color:#079455!important}
+html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.orange .agent-withdraw-kpi-icon i{color:#F79009!important}
+body[data-agent-page="finance"] .agent-wallet-kpi > div{
+  min-width:0;
+  gap:3px!important;
+}
+body[data-agent-page="finance"] .agent-wallet-kpi > div > span{
+  color:#57534E!important;
+  font-size:11px!important;
+  font-weight:650!important;
+  letter-spacing:.01em;
+}
+body[data-agent-page="finance"] .agent-wallet-kpi > div > strong{
+  color:var(--aw-text)!important;
+  font-size:21px!important;
+  font-weight:700!important;
+  line-height:1.2!important;
+  letter-spacing:-.015em;
+  font-variant-numeric:tabular-nums;
+}
+body[data-agent-page="finance"] .agent-wallet-kpi > div > small{
+  margin-top:2px;
+  color:#A8A29E!important;
+  font-size:10.5px!important;
+  font-weight:500!important;
+}
+
+/* Primary ledger with a financial-operation rail. */
+body[data-agent-page="finance"] .agent-wallet-layout{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(360px,390px);
+  gap:14px;
+  align-items:start;
+  min-width:0;
+}
+body[data-agent-page="finance"] .agent-wallet-side{
+  display:grid;
+  gap:14px;
+  min-width:0;
+}
+body[data-agent-page="finance"] .agent-wallet-ledger-panel,
+body[data-agent-page="finance"] .agent-wallet-claim-panel,
+body[data-agent-page="finance"] .agent-wallet-deductions-panel{
+  min-width:0;
+  margin:0!important;
+  padding:0!important;
+  overflow:hidden;
+  border:1px solid var(--aw-border)!important;
+  border-radius:12px!important;
+  background:var(--aw-surface)!important;
+  box-shadow:0 1px 2px rgba(68,45,18,.035)!important;
+}
+
+/* One header anatomy everywhere: dashboard's inline icon + 16px title, no oversized copy blocks. */
+body[data-agent-page="finance"] .agent-wallet-panel-title{
+  min-height:55px;
+  margin:0!important;
+  padding:14px 16px!important;
+  border-bottom:1px solid var(--aw-border);
+  background:var(--aw-surface)!important;
+}
+body[data-agent-page="finance"] .agent-wallet-panel-title h2{
+  min-width:0;
+  margin:0!important;
+  color:var(--aw-text)!important;
+  font-size:14px!important;
+  font-weight:800!important;
+  line-height:1.25;
+}
+html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body .agent-wallet-panel-title h2 i{
+  margin-right:8px!important;
+  color:var(--aw-amber)!important;
+  font-size:15px!important;
+}
+body[data-agent-page="finance"] .agent-wallet-panel-context{
+  color:var(--aw-muted);
+  font-size:11px;
+  font-weight:650;
+}
+body[data-agent-page="finance"] .agent-wallet-count{
+  min-width:26px;
+  height:24px;
+  padding:0 8px;
+  border-radius:999px;
+  background:#FFF0D5;
+  color:var(--aw-amber-dark);
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:11px;
+  font-weight:800;
+  font-variant-numeric:tabular-nums;
+}
+
+/* Filters belong to the ledger panel, matching Players/Reports rather than floating above the page. */
+body[data-agent-page="finance"] .agent-wallet-filter-bar{
+  margin:0!important;
+  padding:12px 16px!important;
+  border:0!important;
+  border-bottom:1px solid var(--aw-border)!important;
+  border-radius:0!important;
+  background:var(--aw-surface-soft)!important;
+  box-shadow:none!important;
+}
+body[data-agent-page="finance"] .agent-wallet-filter-grid{
+  width:100%;
+  display:grid!important;
+  grid-template-columns:minmax(280px,1.3fr) 178px minmax(190px,1fr)!important;
+  gap:10px!important;
+  align-items:center!important;
+}
+body[data-agent-page="finance"] .agent-wallet-filter-grid > .bo-filter-range-item,
+body[data-agent-page="finance"] .agent-wallet-filter-grid > .bo-filter-range-item .bo-range-trigger,
+body[data-agent-page="finance"] .agent-wallet-filter-grid > .bo-range-field,
+body[data-agent-page="finance"] .agent-wallet-filter-grid > [data-bo-date-range]{
+  width:100%!important;
+  min-width:0!important;
+  max-width:none!important;
+  flex:1 1 auto!important;
+}
+body[data-agent-page="finance"] .agent-wallet-filter-grid .field{
+  width:100%!important;
+  min-width:0!important;
+  margin:0!important;
+}
+body[data-agent-page="finance"] .agent-wallet-filter-grid .rounded-select-wrap,
+body[data-agent-page="finance"] .agent-wallet-filter-grid .rounded-select-btn{
+  width:100%!important;
+  min-width:0!important;
+  max-width:none!important;
+}
+body[data-agent-page="finance"] .agent-wallet-filter-grid .field > label{
+  display:none!important;
+}
+body[data-agent-page="finance"] .agent-wallet-filter-grid select,
+body[data-agent-page="finance"] .agent-wallet-filter-grid > .field > input,
+body[data-agent-page="finance"] .agent-wallet-filter-grid .agent-search-box,
+body[data-agent-page="finance"] .agent-wallet-filter-grid .bo-range-trigger{
+  width:100%!important;
+  height:42px!important;
+  min-height:42px!important;
+  margin:0!important;
+  border:1px solid var(--aw-border-strong)!important;
+  border-radius:9px!important;
+  background:var(--aw-surface)!important;
+  box-shadow:none!important;
+}
+body[data-agent-page="finance"] .agent-wallet-filter-grid .agent-search-box{
+  padding:0 11px!important;
+  gap:8px;
+}
+body[data-agent-page="finance"] .agent-wallet-filter-grid .agent-search-box i{
+  color:#A8A29E;
+  font-size:13px;
+}
+body[data-agent-page="finance"] .agent-wallet-filter-grid .agent-search-box input{
+  width:100%!important;
+  height:38px!important;
+  min-height:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  outline:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  font-size:12px!important;
+}
+body[data-agent-page="finance"] .agent-wallet-filter-grid select:focus,
+body[data-agent-page="finance"] .agent-wallet-filter-grid > .field > input:focus,
+body[data-agent-page="finance"] .agent-wallet-filter-grid .agent-search-box:focus-within,
+body[data-agent-page="finance"] .agent-wallet-filter-grid .bo-range-trigger:focus-within{
+  border-color:var(--aw-amber)!important;
+  box-shadow:0 0 0 3px rgba(217,119,6,.12)!important;
+}
+
+/* The panel is the container; the table wrapper must not draw a second card inside it. */
+body[data-agent-page="finance"] .agent-wallet-ledger-wrap{
+  width:100%!important;
+  max-width:100%!important;
+  margin:0!important;
+  overflow:auto!important;
+  border:0!important;
+  border-radius:0!important;
+  background:var(--aw-surface)!important;
+}
+body[data-agent-page="finance"] .agent-wallet-ledger-table{
+  min-width:820px!important;
+  table-layout:fixed!important;
+  border:0!important;
+}
+body[data-agent-page="finance"] .agent-wallet-ledger-table th:nth-child(1){width:108px}
+body[data-agent-page="finance"] .agent-wallet-ledger-table th:nth-child(2){width:124px}
+body[data-agent-page="finance"] .agent-wallet-ledger-table th:nth-child(3){width:114px}
+body[data-agent-page="finance"] .agent-wallet-ledger-table th:nth-child(4),
+body[data-agent-page="finance"] .agent-wallet-ledger-table th:nth-child(5){width:120px}
+body[data-agent-page="finance"] .agent-wallet-ledger-table th:nth-child(6){width:118px}
+body[data-agent-page="finance"] .agent-wallet-ledger-table thead th{
+  height:42px!important;
+  padding:0 12px!important;
+  background:#F5EBDC!important;
+  border-bottom-color:var(--aw-border)!important;
+  color:#6B360C!important;
+  font-size:10.5px!important;
+  font-weight:800!important;
+  text-transform:uppercase!important;
+  letter-spacing:.035em!important;
+}
+body[data-agent-page="finance"] .agent-wallet-ledger-table tbody td{
+  height:48px!important;
+  padding:10px 12px!important;
+  background:var(--aw-surface)!important;
+  color:#44403C!important;
+  border-bottom-color:#F0E6D7!important;
+  overflow:hidden!important;
+  font-size:11.5px!important;
+  font-weight:500!important;
+  font-variant-numeric:tabular-nums;
+  text-overflow:ellipsis;
+}
+body[data-agent-page="finance"] .agent-wallet-ledger-table td:nth-child(2),
+body[data-agent-page="finance"] .agent-wallet-ledger-table td:nth-child(3){font-weight:750!important}
+body[data-agent-page="finance"] .agent-wallet-ledger-table td:nth-child(4),
+body[data-agent-page="finance"] .agent-wallet-ledger-table td:nth-child(5){font-weight:650!important}
+body[data-agent-page="finance"] .agent-wallet-ledger-table tbody tr:hover td{
+  background:#FFF9EE!important;
+}
+body[data-agent-page="finance"] .agent-wallet-ledger-table th:nth-child(3),
+body[data-agent-page="finance"] .agent-wallet-ledger-table th:nth-child(4),
+body[data-agent-page="finance"] .agent-wallet-ledger-table th:nth-child(5),
+body[data-agent-page="finance"] .agent-wallet-ledger-table td:nth-child(3),
+body[data-agent-page="finance"] .agent-wallet-ledger-table td:nth-child(4),
+body[data-agent-page="finance"] .agent-wallet-ledger-table td:nth-child(5){
+  text-align:right;
+}
+body[data-agent-page="finance"] .agent-wallet-ledger-table .agent-wallet-reference{
+  color:#57534E;
+  font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;
+  font-size:10.5px;
+}
+body[data-agent-page="finance"] .agent-wallet-ledger-table td.table-empty{
+  height:250px!important;
+  color:var(--aw-muted)!important;
+}
+body[data-agent-page="finance"] .agent-wallet-ledger-footer{
+  min-height:44px;
+  padding:11px 16px;
+  border-top:1px solid var(--aw-border);
+  background:var(--aw-surface)!important;
+  color:var(--aw-muted);
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  font-size:11px;
+  font-weight:600;
+}
+
+/* Reimbursement is an operation, not another table. */
+body[data-agent-page="finance"] .agent-wallet-claim-note{
+  margin:14px 16px 0;
+  padding:10px 12px;
+  border-left:3px solid var(--aw-amber);
+  border-radius:0 8px 8px 0;
+  background:#FFF7E8;
+  color:#57534E;
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+}
+body[data-agent-page="finance"] .agent-wallet-claim-note > i{
+  margin-top:1px;
+  color:var(--aw-amber);
+  font-size:16px;
+}
+body[data-agent-page="finance"] .agent-wallet-claim-note div{
+  min-width:0;
+  display:grid;
+  gap:2px;
+}
+body[data-agent-page="finance"] .agent-wallet-claim-note strong{
+  color:var(--aw-text);
+  font-size:11.5px;
+  font-weight:800;
+}
+body[data-agent-page="finance"] .agent-wallet-claim-note span{
+  color:var(--aw-muted);
+  font-size:10.5px;
+  line-height:1.4;
+}
+body[data-agent-page="finance"] .agent-wallet-claim-form{
+  padding:14px 16px 16px;
+  gap:13px!important;
+}
+body[data-agent-page="finance"] .agent-wallet-claim-form .field{
+  min-width:0;
+  margin:0!important;
+}
+body[data-agent-page="finance"] #agentReimburseProof.visually-hidden{
+  position:absolute!important;
+  width:1px!important;
+  height:1px!important;
+  min-width:0!important;
+  min-height:0!important;
+  padding:0!important;
+  margin:-1px!important;
+  overflow:hidden!important;
+  clip:rect(0,0,0,0)!important;
+  white-space:nowrap!important;
+  border:0!important;
+}
+body[data-agent-page="finance"] .agent-wallet-claim-form .field > label:first-child{
+  display:block!important;
+  margin:0 0 6px!important;
+  color:#57534E!important;
+  font-size:11px!important;
+  font-weight:700!important;
+  letter-spacing:.01em!important;
+}
+body[data-agent-page="finance"] .agent-wallet-money-input{
+  width:100%;
+  height:42px;
+  border:1px solid var(--aw-border-strong);
+  border-radius:9px;
+  background:var(--aw-surface-soft);
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr);
+  align-items:center;
+  overflow:hidden;
+}
+body[data-agent-page="finance"] .agent-wallet-money-input:focus-within{
+  border-color:var(--aw-amber);
+  box-shadow:0 0 0 3px rgba(217,119,6,.12);
+}
+body[data-agent-page="finance"] .agent-wallet-money-input > span{
+  height:100%;
+  padding:0 11px;
+  border-right:1px solid var(--aw-border);
+  color:#6B360C;
+  display:flex;
+  align-items:center;
+  font-size:11px;
+  font-weight:800;
+}
+body[data-agent-page="finance"] .agent-wallet-money-input #agentReimburseAmount{
+  width:100%!important;
+  height:40px!important;
+  min-height:0!important;
+  padding:0 11px!important;
+  border:0!important;
+  border-radius:0!important;
+  outline:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  color:var(--aw-text)!important;
+  font-size:13px!important;
+  font-variant-numeric:tabular-nums;
+  appearance:textfield;
+}
+body[data-agent-page="finance"] .agent-wallet-money-input #agentReimburseAmount::-webkit-inner-spin-button,
+body[data-agent-page="finance"] .agent-wallet-money-input #agentReimburseAmount::-webkit-outer-spin-button{
+  -webkit-appearance:none;
+  margin:0;
+}
+body[data-agent-page="finance"] .agent-wallet-upload{
+  width:100%;
+  min-height:68px;
+  margin:0!important;
+  padding:10px 11px!important;
+  border:1px dashed #D5B986;
+  border-radius:9px;
+  background:var(--aw-surface-soft);
+  color:var(--aw-text)!important;
+  display:grid!important;
+  grid-template-columns:36px minmax(0,1fr) auto;
+  align-items:center;
+  gap:10px!important;
+  cursor:pointer;
+}
+body[data-agent-page="finance"] .agent-wallet-upload:hover{
+  border-color:var(--aw-amber);
+  background:#FFF5DF;
+}
+body[data-agent-page="finance"] #agentReimburseProof:focus-visible + .agent-wallet-upload{
+  border-color:var(--aw-amber);
+  box-shadow:0 0 0 3px rgba(217,119,6,.12);
+}
+body[data-agent-page="finance"] .agent-wallet-upload-icon{
+  width:36px;
+  height:36px;
+  border-radius:9px;
+  background:#FFF0D5;
+  color:var(--aw-amber);
+  display:grid;
+  place-items:center;
+  font-size:17px;
+}
+body[data-agent-page="finance"] .agent-wallet-upload-copy{
+  min-width:0;
+  display:grid;
+  gap:2px;
+}
+body[data-agent-page="finance"] .agent-wallet-upload-copy strong{
+  overflow:hidden;
+  color:var(--aw-text);
+  font-size:11.5px;
+  font-weight:800;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+body[data-agent-page="finance"] .agent-wallet-upload-copy small{
+  overflow:hidden;
+  color:var(--aw-muted);
+  font-size:10px;
+  font-weight:500;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+body[data-agent-page="finance"] .agent-wallet-upload-action{
+  height:30px;
+  padding:0 10px;
+  border:1px solid var(--aw-border-strong);
+  border-radius:7px;
+  background:var(--aw-surface);
+  color:#57534E;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:10.5px;
+  font-weight:800;
+}
+body[data-agent-page="finance"] .agent-wallet-claim-form #agentReimburseRemark{
+  width:100%!important;
+  min-height:86px!important;
+  padding:10px 11px!important;
+  resize:vertical;
+  border:1px solid var(--aw-border-strong)!important;
+  border-radius:9px!important;
+  background:var(--aw-surface-soft)!important;
+  color:var(--aw-text)!important;
+  font-size:12px!important;
+  line-height:1.45;
+  outline:0!important;
+}
+body[data-agent-page="finance"] .agent-wallet-claim-form #agentReimburseRemark:focus{
+  border-color:var(--aw-amber)!important;
+  box-shadow:0 0 0 3px rgba(217,119,6,.12)!important;
+}
+body[data-agent-page="finance"] .agent-wallet-claim-form #agentReimburseSubmit{
+  width:100%!important;
+  min-height:42px!important;
+  margin:0!important;
+  font-size:11.5px!important;
+  font-weight:800!important;
+}
+body[data-agent-page="finance"] .agent-wallet-approval-note{
+  margin:-3px 0 0;
+  color:var(--aw-muted);
+  font-size:10px;
+  line-height:1.4;
+  text-align:center;
+}
+body[data-agent-page="finance"] .agent-wallet-approval-note i{
+  margin-right:4px;
+  color:var(--aw-amber);
+}
+
+/* Deductions are supporting activity, rendered as a compact list in the narrower column. */
+body[data-agent-page="finance"] .agent-wallet-deductions-list{
+  min-height:122px;
+  background:var(--aw-surface)!important;
+}
+body[data-agent-page="finance"] .agent-wallet-deduction{
+  min-height:70px;
+  padding:11px 14px;
+  border-bottom:1px solid #F0E6D7;
+  display:grid;
+  grid-template-columns:34px minmax(0,1fr) auto;
+  align-items:center;
+  gap:10px;
+}
+body[data-agent-page="finance"] .agent-wallet-deduction:last-child{
+  border-bottom:0;
+}
+body[data-agent-page="finance"] .agent-wallet-deduction-icon{
+  width:34px;
+  height:34px;
+  border-radius:9px;
+  background:#FFF0D5;
+  color:var(--aw-amber);
+  display:grid;
+  place-items:center;
+  font-size:14px;
+}
+body[data-agent-page="finance"] .agent-wallet-deduction-copy{
+  min-width:0;
+  display:grid;
+  gap:2px;
+}
+body[data-agent-page="finance"] .agent-wallet-deduction-copy strong{
+  overflow:hidden;
+  color:var(--aw-text);
+  font-size:11.5px;
+  font-weight:750;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+body[data-agent-page="finance"] .agent-wallet-deduction-copy span{
+  overflow:hidden;
+  color:var(--aw-muted);
+  font-size:10px;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+body[data-agent-page="finance"] .agent-wallet-deduction-copy time{
+  color:#A8A29E;
+  font-size:9.5px;
+}
+body[data-agent-page="finance"] .agent-wallet-deduction-amount{
+  color:#B42318!important;
+  font-size:11.5px;
+  font-weight:800;
+  font-variant-numeric:tabular-nums;
+  white-space:nowrap;
+}
+body[data-agent-page="finance"] .agent-wallet-empty{
+  min-height:122px;
+  padding:20px;
+  color:var(--aw-muted);
+  display:grid;
+  place-items:center;
+  align-content:center;
+  gap:6px;
+  text-align:center;
+  font-size:11px;
+}
+body[data-agent-page="finance"] .agent-wallet-empty i{
+  color:#C4A97A;
+  font-size:22px;
+}
+
+/* Dark theme: same hierarchy, charcoal surfaces and the portal's amber focus language. */
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-page{
+  --aw-surface:#2A2C36;
+  --aw-surface-soft:#23252E;
+  --aw-border:rgba(255,255,255,.12);
+  --aw-border-strong:rgba(255,255,255,.17);
+  --aw-text:#F5F5F4;
+  --aw-muted:#A1A1AA;
+  --aw-amber:#F59E0B;
+  --aw-amber-dark:#FBBF24;
+}
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-kpi,
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-ledger-panel,
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-claim-panel,
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-deductions-panel,
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-panel-title,
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-ledger-wrap,
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-ledger-footer,
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-deductions-list{
+  background:var(--aw-surface)!important;
+  border-color:var(--aw-border)!important;
+}
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-filter-bar,
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-filter-grid select,
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-filter-grid > .field > input,
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-filter-grid .agent-search-box,
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-filter-grid .bo-range-trigger,
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-money-input,
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-upload,
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-claim-form #agentReimburseRemark{
+  background:var(--aw-surface-soft)!important;
+  border-color:var(--aw-border-strong)!important;
+  color:var(--aw-text)!important;
+}
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-kpi > div > span,
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-panel-context,
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-claim-form .field > label:first-child,
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-approval-note,
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-upload-copy small,
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-deduction-copy span,
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-empty{
+  color:var(--aw-muted)!important;
+}
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-ledger-table thead th{
+  background:#343640!important;
+  color:#FCD9A1!important;
+  border-color:var(--aw-border)!important;
+}
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-ledger-table tbody td{
+  background:var(--aw-surface)!important;
+  color:#E7E5E4!important;
+  border-color:rgba(255,255,255,.08)!important;
+}
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-ledger-table tbody tr:hover td{
+  background:#31333E!important;
+}
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-reference{color:#D4D4D8!important}
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-money-input > span{
+  color:#FBBF24!important;
+  border-right-color:var(--aw-border)!important;
+}
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-claim-note{
+  background:rgba(245,158,11,.09);
+  color:#D4D4D8;
+}
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-claim-note strong,
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-upload-copy strong,
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-deduction-copy strong{
+  color:var(--aw-text);
+}
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-upload-action{
+  background:#383A46;
+  border-color:var(--aw-border-strong);
+  color:#F5F5F4;
+}
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-count,
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-upload-icon,
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-deduction-icon{
+  background:rgba(245,158,11,.14);
+  color:#FBBF24;
+}
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-kpi.blue .agent-withdraw-kpi-icon{background:rgba(245,158,11,.14)!important;color:#FBBF24!important}
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-kpi.purple .agent-withdraw-kpi-icon{background:rgba(127,86,217,.18)!important;color:#C4B5FD!important}
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-kpi.green .agent-withdraw-kpi-icon{background:rgba(7,148,85,.18)!important;color:#6EE7B7!important}
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-kpi.orange .agent-withdraw-kpi-icon{background:rgba(247,144,9,.16)!important;color:#FBBF24!important}
+html[data-bo-theme="dark"] body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.blue .agent-withdraw-kpi-icon i{color:#FBBF24!important}
+html[data-bo-theme="dark"] body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.purple .agent-withdraw-kpi-icon i{color:#C4B5FD!important}
+html[data-bo-theme="dark"] body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.green .agent-withdraw-kpi-icon i{color:#6EE7B7!important}
+html[data-bo-theme="dark"] body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.orange .agent-withdraw-kpi-icon i{color:#FBBF24!important}
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-deduction{
+  border-color:rgba(255,255,255,.08);
+}
+
+@media(max-width:1450px){
+  body[data-agent-page="finance"] .agent-wallet-layout{grid-template-columns:1fr}
+  body[data-agent-page="finance"] .agent-wallet-side{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
+}
+@media(max-width:1180px){
+  body[data-agent-page="finance"] .agent-wallet-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(max-width:880px){
+  body[data-agent-page="finance"] .agent-wallet-side{grid-template-columns:1fr}
+}
+@media(max-width:760px){
+  body[data-agent-page="finance"] .agent-wallet-filter-grid{grid-template-columns:1fr!important}
+  body[data-agent-page="finance"] .agent-wallet-panel-title{align-items:flex-start!important;flex-wrap:wrap}
+}
+@media(max-width:560px){
+  body[data-agent-page="finance"] .agent-wallet-kpis{grid-template-columns:1fr!important}
+  body[data-agent-page="finance"] .agent-wallet-upload{grid-template-columns:36px minmax(0,1fr)}
+  body[data-agent-page="finance"] .agent-wallet-upload-action{display:none}
+  body[data-agent-page="finance"] .agent-wallet-panel-context{display:none}
+}

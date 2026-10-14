@@ -672,7 +672,7 @@
         try { source = String(new URLSearchParams(location.search || '').get('source') || 'overview').toLowerCase(); } catch(e) {}
         current = (source && source !== 'overview') ? 'main-accounting-report.html' : 'main-dashboard.html';
       }
-      const alwaysAllowed = ['profile.html','main-profile.html','change-password.html','rebate-management.html','animation-effect.html'];
+      const alwaysAllowed = ['profile.html','main-profile.html','change-password.html','rebate-management.html','animation-effect.html', 'referral-v2.html', 'referral-v2-approval.html', 'agent-referral-v2.html', 'merchant-referral-v2.html'];
       if(alwaysAllowed.indexOf(current) !== -1) return true;
       const menus = this.allowedMenus(user);
       if(!menus.length){

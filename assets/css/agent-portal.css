@@ -1252,17 +1252,17 @@ html:not(#bo-charcoal-off) body[data-agent-page] .agent-detail-table td{
   font-size:13px!important;font-weight:700!important;background:rgb(255,248,235)!important;
   padding:10px 12px!important;border-bottom-color:rgb(234,220,200)!important;
 }
-html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page] table thead th,
-html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page] .agent-mini-table th,
-html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page] .agent-player-table th,
-html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page] .agent-detail-table th{
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern table thead th,
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-mini-table th,
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-player-table th,
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-detail-table th{
   background:rgb(31,33,40)!important;color:rgb(231,229,228)!important;
   border-bottom-color:rgba(255,255,255,.14)!important;
 }
-html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page] table tbody td,
-html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page] .agent-mini-table td,
-html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page] .agent-player-table td,
-html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page] .agent-detail-table td{
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern table tbody td,
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-mini-table td,
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-player-table td,
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-detail-table td{
   background:rgb(58,60,72)!important;color:rgb(245,245,244)!important;
   border-bottom-color:rgba(255,255,255,.12)!important;
 }
@@ -1294,13 +1294,13 @@ html:not(#bo-charcoal-off) body[data-agent-page] .status-pill.pending,
 html:not(#bo-charcoal-off) body[data-agent-page] .agent-status.pending{
   background:#FFEDD5!important;color:#EA580C!important;border-color:rgba(234,88,12,.35)!important;
 }
-html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page] .status-pill,
-html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page] .agent-status{
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .status-pill,
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-status{
   background:rgba(16,185,129,.16)!important;color:#34D399!important;border-color:rgba(52,211,153,.28)!important;
 }
-html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page] .status-pill.off,
-html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page] .status-pill.inactive,
-html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page] .agent-status.inactive{
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .status-pill.off,
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .status-pill.inactive,
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-status.inactive{
   background:rgba(248,113,113,.16)!important;color:#FCA5A5!important;border-color:rgba(252,165,165,.28)!important;
 }/* The trend line was the only blue left in a BO-family palette whose accent is amber. The stroke
    is set on the SVG element by the JS, so this is a CSS override rather than a value change - and
@@ -1309,8 +1309,8 @@ html:not(#bo-charcoal-off) body[data-agent-page] #agentTrendChart path[stroke],
 html:not(#bo-charcoal-off) body[data-agent-page] #agentTrendChart polyline{
   stroke:#D97706!important;
 }
-html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page] #agentTrendChart path[stroke],
-html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page] #agentTrendChart polyline{
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern #agentTrendChart path[stroke],
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern #agentTrendChart polyline{
   stroke:#F59E0B!important;
 }
 /* ------------------------------------------------------------------------------------------------
@@ -1395,11 +1395,11 @@ html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern 
   height:24px!important;line-height:22px!important;padding:0 10px!important;
   font-size:12px!important;font-weight:700!important;margin-top:4px!important;
 }
-html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .agent-kpi-card{
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern.agent-report-body.agent-modern .agent-kpi-card{
   background:#2A2C36!important;border-color:rgba(255,255,255,.12)!important;
 }
-html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .agent-kpi-card > div > span,
-html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .agent-kpi-card small{
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern.agent-report-body.agent-modern .agent-kpi-card > div > span,
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern.agent-report-body.agent-modern .agent-kpi-card small{
   color:#D6D3D1!important;
 }
 /* ================================================================================================
@@ -1471,7 +1471,7 @@ html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern 
   background:#FFF8EB!important;color:rgb(24,25,28)!important;
   border:1px solid #EADCC8!important;border-radius:8px!important;height:36px!important;
 }
-html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .agent-refresh-btn{
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern.agent-report-body.agent-modern .agent-refresh-btn{
   background:#2A2C36!important;color:#F5F5F4!important;border-color:rgba(255,255,255,.14)!important;
 }/* ------------------------------------------------------------------------------------------------
    P8 - the collapsed rail, measured against the BO's collapsed rail for the first time.
@@ -1573,12 +1573,12 @@ html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern 
 html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .agent-summary-icon i{
   color:rgb(217,119,6)!important;
 }
-html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .agent-stat-icon,
-html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .agent-kpi-icon{
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern.agent-report-body.agent-modern .agent-stat-icon,
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern.agent-report-body.agent-modern .agent-kpi-icon{
   background:rgba(245,158,11,.16)!important;color:#F59E0B!important;
 }
-html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .agent-stat-icon i,
-html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .agent-kpi-icon i{
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern.agent-report-body.agent-modern .agent-stat-icon i,
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern.agent-report-body.agent-modern .agent-kpi-icon i{
   color:#F59E0B!important;
 }
 html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .agent-player-stat-card small,
@@ -1664,8 +1664,8 @@ html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern 
 html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .agent-tab-buttons button.active{
   background:rgba(217,119,6,.16)!important;color:#B45309!important;border-color:rgba(217,119,6,.3)!important;
 }
-html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .agent-pagination button.active,
-html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .agent-tab-buttons button.active{
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern.agent-report-body.agent-modern .agent-pagination button.active,
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern.agent-report-body.agent-modern .agent-tab-buttons button.active{
   background:rgba(245,158,11,.2)!important;color:#F59E0B!important;
 }
 /* ------------------------------------------------------------------------------------------------
@@ -2536,14 +2536,14 @@ html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern 
 }
 html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .agent-back-to-list:focus-visible{outline:2px solid #D97706!important;outline-offset:2px!important}
 html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .agent-back-to-list:active{transform:translateY(1px)!important}
-html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .agent-back-to-list{
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern.agent-report-body.agent-modern .agent-back-to-list{
   background-color:#2A2C36!important;
   background-image:linear-gradient(180deg,#383A46 0%,#2A2C36 100%)!important;
   border-color:rgba(255,255,255,.14)!important;color:#F5F5F4!important;
   box-shadow:0 1px 2px rgba(0,0,0,.35),0 2px 8px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.06)!important;
 }
-html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .agent-back-to-list:hover,
-html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .agent-back-to-list:focus-visible{
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern.agent-report-body.agent-modern .agent-back-to-list:hover,
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern.agent-report-body.agent-modern .agent-back-to-list:focus-visible{
   background-image:linear-gradient(180deg,#444654 0%,#383A46 100%)!important;
   border-color:#F59E0B!important;color:#FFFFFF!important;
 }
@@ -3103,11 +3103,11 @@ html:not(#bo-charcoal-off) body.report-body.agent-report-body.agent-modern .repo
 html:not(#bo-charcoal-off) body.report-body.agent-report-body.agent-modern .report-sidebar .report-nav .agent-nav-parent, html:not(#bo-charcoal-off) body.report-body.agent-report-body.agent-modern .report-sidebar .report-nav .agent-nav-parent:hover{border-radius:10px!important;}
 html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .report-sidebar .report-nav > a, html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .report-sidebar .report-nav > a span, html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .report-sidebar .report-nav .report-nav-item span, html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .report-sidebar .report-nav .agent-nav-parent, html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .report-sidebar .report-nav .agent-nav-parent span, html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .report-sidebar .report-nav .agent-nav-subitem, html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .report-sidebar .report-nav .agent-nav-subitem span, html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .report-sidebar .agent-sidebar-utils a span{letter-spacing:normal!important;}
 html body.report-body .report-shell .report-sidebar .report-nav > a, html body.report-body .report-shell .report-sidebar .report-nav > a span, html body.report-body .report-shell .report-sidebar .report-nav .nav-group-btn, html body.report-body .report-shell .report-sidebar .report-nav .nav-group-btn span, html body.report-body .report-shell .report-sidebar .report-nav .report-sub, html body.report-body .report-shell .report-sidebar .report-nav .report-sub span, html body.report-body .report-shell .report-sidebar .bo-sidebar-logout, html body.report-body .report-shell .report-sidebar .bo-sidebar-logout span{font-family:Inter, ui-sans-serif, "Segoe UI", system-ui, sans-serif!important;}
-/* Finance - Wallet, brought onto the language the other agent pages use (and that BO/Main show):
-   - the filter row carried visible field titles (Date Range / Type / Search) because the rule that hides them
-     lives in bo-filter-standard.css, which this page does not load;
-   - the card inside a card: `.table-card` draws the frame and `.table-wrap` drew a second one;
-   - the row's Reset and Search buttons are gone - the controls apply themselves, as everywhere else here. */
+/* Finance - Wallet keeps two filter-row facts and drops the rest. The field titles need hiding here
+   because the rule that hides them (bo-filter-standard.css) is not loaded on this page, and the row
+   reads centred. Everything this block used to say about `.table-card` frames and `.user-badge`
+   headers went with the markup that carried those classes - the ledger and the two money panels are
+   `.agent-panel`s now. */
 html:not(#bo-charcoal-off) body[data-agent-page="finance"] .agent-filter-card .field > label{
   display:none!important;
 }
@@ -3115,115 +3115,21 @@ html:not(#bo-charcoal-off) body[data-agent-page="finance"] .filter-card .bo-filt
 html:not(#bo-charcoal-off) body[data-agent-page="finance"] .filter-card .referral-filter-grid{
   align-items:center!important;
 }
-html:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card > .table-wrap{
-  border:0!important;border-radius:0!important;
-}
-html:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card{
-  padding:0!important;
-}
-html:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card > .user-toolbar{
-  border:0!important;border-bottom:1px solid #EADCC8!important;border-radius:0!important;margin:0!important;
-  padding:12px 16px!important;
-}
 
-/* The card titles were cream pills (`.user-badge`, the BO's member-page badge) sitting inside a full-width
-   header band - a sticker in a band. As a plain icon + bold title on the band they match the strips the other
-   agent pages use and the BO's own card headings. Form labels inside the cards are untouched. */
-html:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card > .user-toolbar .user-badge{
-  background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;
-  padding:0!important;height:auto!important;min-height:0!important;
-  font-size:14px!important;font-weight:800!important;color:#18191C!important;gap:8px!important;
-}
-html:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card > .user-toolbar .user-badge i{
-  font-size:15px!important;color:#A9743F!important;
-}
-html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card > .user-toolbar .user-badge{
-  color:#F5F5F4!important;
-}
+/* Three page-scoped money rules outlived the page rewrite; the tier overrides that sat above them did
+   not. Those answered `.agent-player-stat-card`, which this page no longer renders - it uses the
+   Finance family's own `agent-withdraw-kpi` cards now - so every one of them was dead code. */
 
-/* ------------------------------------------------------------------------------------------------
-   Finance - Wallet: a craft pass, scoped to this page so the shared components other pages use are not
-   touched. House palette and the shared sheets stay the source of truth; what changes is hierarchy,
-   density, states and number typography - the four things that read as "designed" or not.
-
-   Hierarchy   the metrics row holds one focal value (Available Balance) at 22px/600 with the label
-               demoted to 11px/500 muted; supporting cards sit a tier below it.
-   Numbers     every money figure gets tabular-nums so columns and counters do not shift.
-   States      table empty states get a calm centred treatment instead of a bare sentence; inputs get a
-               focus ring in the house amber; the primary action gets press feedback.
-   Density     4px base: 12px inside controls, 16px inside cards, 24px between blocks.
-   ------------------------------------------------------------------------------------------------ */
-
-/* 1. metrics: three tiers - label / value / note.
-   These carry the same chain as the rule they answer (agent-portal.css:1619, which renders the value in a <b> and
-   out-ranks a shorter selector) plus the page attribute, so the tiers actually land:
-     11px/500 muted label · 22px/600 tabular value (28px on the focal card) · 11px muted note. */
-html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-player-stat-card > div > span{
-  font-size:11px!important;font-weight:500!important;color:#78716C!important;letter-spacing:.02em!important;
-}
-html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-player-stat-card > div > b,
-html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-player-stat-card > div > strong,
-html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-player-stat-card strong{
-  font-size:22px!important;font-weight:600!important;color:#18191C!important;line-height:1.25!important;
-  font-variant-numeric:tabular-nums!important;letter-spacing:-.01em!important;
-}
-html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-player-stat-card > div > small{
-  font-size:11px!important;color:#A8A29E!important;font-weight:400!important;
-}
-html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-player-stat-card{
-  min-height:96px!important;padding:16px!important;gap:14px!important;
-}
-html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-player-stat-card:first-child{
-  min-height:112px!important;padding:18px 20px!important;
-}
-html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-player-stat-card:first-child > div > b,
-html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-player-stat-card:first-child > div > strong{
-  font-size:28px!important;letter-spacing:-.02em!important;
-}
-/* 2. money columns and any figure aligned to the right read as numbers, not text */
+/* money columns read as numbers, not as text */
 html:not(#bo-charcoal-off) body[data-agent-page="finance"] .report-table td{
   font-variant-numeric:tabular-nums!important;
   padding-top:11px!important;padding-bottom:11px!important;
 }
 
-/* 3. empty states: centred, quiet, with room to breathe */
+/* empty states: centred, quiet, with room to breathe */
 html:not(#bo-charcoal-off) body[data-agent-page="finance"] .report-table td.table-empty{
   height:150px!important;text-align:center!important;vertical-align:middle!important;
   color:#78716C!important;font-size:13px!important;font-weight:400!important;background:transparent!important;
-}
-
-/* 4. form: the amount is the payload, so it reads as one control with the currency inside it */
-html:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card label,
-html:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card > div > label{
-  font-size:11px!important;font-weight:500!important;color:#78716C!important;letter-spacing:.02em!important;
-  margin-bottom:6px!important;
-}
-html:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card input[type="text"],
-html:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card input[type="number"],
-html:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card textarea,
-html:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card select{
-  font-variant-numeric:tabular-nums!important;font-size:13px!important;
-}
-html:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card input:focus,
-html:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card textarea:focus,
-html:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card select:focus{
-  outline:0!important;border-color:#D97706!important;
-  box-shadow:0 0 0 3px rgba(217,119,6,.14)!important;
-}
-
-/* 5. the single primary action: press feedback, nothing else animated */
-html:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card .btn-primary-clean,
-html:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card button[id*="Submit"],
-html:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card #agentReimburseSubmit{
-  transition:transform .12s cubic-bezier(.23,1,.32,1),background-color .12s ease!important;
-}
-html:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card .btn-primary-clean:active,
-html:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card button[id*="Submit"]:active,
-html:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card #agentReimburseSubmit:active{
-  transform:scale(.98)!important;
-}
-@media (prefers-reduced-motion: reduce){
-  html:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card button{transition:none!important}
 }
 
 /* The lower row held two panels side by side; the customer-facing one is gone, so the one that is
@@ -3231,4 +3137,232 @@ html:not(#bo-charcoal-off) body[data-agent-page="finance"] .table-card #agentRei
    metric rules belong to bo-shell.css, and `grid-template-columns` is not a shell metric anyway. */
 html:not(#bo-charcoal-off) body[data-agent-page="dashboard"].agent-report-body.agent-modern .agent-dashboard-lower{
   grid-template-columns:1fr!important;
+}
+
+/* Agent Portal mobile shell repair.
+   Desktop deliberately keeps its only rail toggle inside .report-brand. Below 992px that rail is
+   off-canvas, so the same arrangement leaves no reachable opener. A later desktop parity block also
+   beat the portal's original mobile margin rule: measured at 800px, the rail was at x=-230 while
+   .report-main still started at x=230 and the topbar opener was 0x0. Keep this in the portal sheet
+   (not bo-shell.css): data-agent-page pages own this shell by design. */
+@media(max-width:991.98px){
+  html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .report-main{
+    width:100%!important;
+    max-width:100%!important;
+    margin-left:0!important;
+  }
+  html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .report-topbar,
+  html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .agent-modern-head{
+    left:0!important;
+    width:100%!important;
+  }
+  html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .report-topbar > .hamb,
+  html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .agent-modern-head > .hamb{
+    display:inline-flex!important;
+    width:42px!important;
+    min-width:42px!important;
+    max-width:42px!important;
+    height:42px!important;
+    min-height:42px!important;
+    max-height:42px!important;
+    align-items:center!important;
+    justify-content:center!important;
+    flex:0 0 42px!important;
+  }
+  html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .report-sidebar .report-brand > .dashboard-sidebar-toggle{
+    display:none!important;
+  }
+  html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern.sidebar-open .report-sidebar{
+    transform:translateX(0)!important;
+  }
+}
+
+/* The modal backdrop is an overlay of the whole app, and the reference for it is the BO's own modal
+   (index.html's Create User): that one dims the page AND blurs it behind the panel. The dim colour is
+   already the BO's rgba(15,23,42,.55); this adds the blur, for every portal modal that uses the class. */
+html:not(#bo-charcoal-off) body[data-agent-page] .agent-modal-backdrop{
+  -webkit-backdrop-filter:blur(2px);
+  backdrop-filter:blur(2px);
+}
+
+/* ------------------------------------------------------------------------------------------------
+   Night mode across the agent pages: the dark counterparts of the shared components.
+
+   An audit of every agent page in the dark theme (effective background of each surface + contrast of its
+   text, measured in the browser) found the same shape four times: a page-scoped rule states a LIGHT
+   surface or text and carries no dark counterpart, so the page keeps it while the rest of the app goes
+   dark. Measured before this block:
+
+     agent-bonus.html      kpi card / filter card / table cells / footer / pager  rgb(255,248,235) on a
+                           dark page, text #F5F5F4 on it - 1.03:1, i.e. illegible
+     agent-products.html   the four stat tiles the same way (1.03:1)
+     agent-products / bet-report / player_game_report   footer text #57534E on #383A46 - 1.48:1, and the
+                           pager #52525B on #2A2C36 - 1.8:1
+     agent-wallet.html     its own dark tile tints lost to its light ones (guard added in agent-wallet.css)
+
+   These selectors are deliberately shaped like the light rules they answer and carry the dark attribute on
+   top, which is what makes them win; the values are the portal's own dark set (#383A46 surface, #2A2C36
+   inset, #1F2128/#E7E5E4 head, #3A3C48/#F5F5F4 cells, rgba(255,255,255,.14) border, #D4D4D8/#A1A1AA text,
+   #F59E0B current page).
+   ------------------------------------------------------------------------------------------------ */
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-player-stat-card,
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-kpi-card{
+  background:#383A46!important;
+  border-color:rgba(255,255,255,.14)!important;
+  box-shadow:none!important;
+}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-player-stat-card > div > span,
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-player-stat-card > div > b,
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-player-stat-card > div > strong,
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-player-stat-card strong{
+  color:#F5F5F4!important;
+}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-player-stat-card small,
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-kpi-card small,
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-kpi-card small.muted{
+  color:#A1A1AA!important;
+}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-player-stat-card .agent-stat-icon,
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-kpi-card .agent-kpi-icon{
+  background:rgba(245,158,11,.16)!important;
+  color:#FBBF24!important;
+}
+/* The promotion page's campaign card states every one of its surfaces in the light palette. */
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-promo-campaign-card{
+  background:#383A46!important;
+  border-color:rgba(255,255,255,.14)!important;
+  box-shadow:none!important;
+}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-promo-campaign-card > .filter-card{
+  background:#2A2C36!important;
+  border-color:rgba(255,255,255,.14)!important;
+}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-promo-campaign-card .report-table thead th{
+  background:#1F2128!important;
+  color:#E7E5E4!important;
+  border-bottom-color:rgba(255,255,255,.14)!important;
+}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-promo-campaign-card > .agent-table-footer{
+  background:#383A46!important;
+  border-top-color:rgba(255,255,255,.14)!important;
+  color:#D4D4D8!important;
+}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-promo-campaign-card > .agent-table-footer > .agent-pagination button{
+  background:#2A2C36!important;
+  color:#D4D4D8!important;
+}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-promo-campaign-card > .agent-table-footer > .agent-pagination button.dots{
+  background:transparent!important;
+  color:#A1A1AA!important;
+}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-promo-campaign-card > .agent-table-footer > .agent-pagination button.active{
+  background:#F59E0B!important;
+  color:#2A2C36!important;
+}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-promo-campaign-card > .agent-table-footer > .agent-pagination button[disabled]{
+  background:#2A2C36!important;
+  color:#52525B!important;
+}
+/* Footer text and the pager, on every agent page: the light rules state the colours, most pages never got a
+   dark one, and the band was already dark - so the text vanished into it. */
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-table-footer,
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-table-footer > .agent-page-size,
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-table-footer > [id$="Showing"],
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-table-footer > [id$="Meta"]{
+  color:#D4D4D8!important;
+}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-table-footer > .agent-page-size select{
+  background:#2A2C36!important;
+  border-color:rgba(255,255,255,.14)!important;
+  color:#F5F5F4!important;
+}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-table-footer .agent-pagination button{
+  background:#2A2C36!important;
+  border-color:rgba(255,255,255,.14)!important;
+  color:#D4D4D8!important;
+}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-table-footer .agent-pagination button.dots{
+  background:transparent!important;
+  border-color:transparent!important;
+  color:#A1A1AA!important;
+}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-table-footer .agent-pagination button.active{
+  background:#F59E0B!important;
+  border-color:#F59E0B!important;
+  color:#2A2C36!important;
+}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-table-footer .agent-pagination button[disabled]{
+  background:#2A2C36!important;
+  color:#52525B!important;
+  opacity:1!important;
+}
+
+/* Two more shapes the night-mode audit missed, both reported from the pages themselves:
+
+   - the footer's page-size menu dropped DOWNWARD on every page except the wallet: the widget's base rule is
+     `top:calc(100% + 6px)`, and in a footer that means covering the last rows and hanging past the card's
+     bottom edge (owner's promotion screenshot). The reports/products/player_game_report footers and the
+     wallet already re-pointed it; this makes it a property of the footer rather than of a page.
+   - the eye/expand action buttons inside the report tables (`icon-action`, `agent-view-btn`) kept their cream
+     ivory fill in dark mode (owner circled them on the reports page). They are the same button family on
+     players, reports and provider/game reports, so they are stated once here. */
+html:not(#bo-charcoal-off) body[data-agent-page] .agent-table-footer .rounded-select-wrap .rounded-select-menu{
+  top:auto!important;
+  bottom:100%!important;
+  margin:0 0 6px 0!important;
+}
+html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .table-card .icon-action,
+html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .table-card .agent-view-btn,
+html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .table-card .agent-report-expand-btn{
+  background:#FFF8EB!important;
+  border:1px solid #EADCC8!important;
+  color:#57534E!important;
+  border-radius:8px!important;
+}
+html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .table-card .icon-action:hover,
+html:not(#bo-charcoal-off) body[data-agent-page].agent-report-body.agent-modern .table-card .agent-view-btn:hover{
+  background:#FFF1DC!important;
+  color:#18191C!important;
+}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .table-card .icon-action,
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .table-card .agent-view-btn,
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .table-card .agent-report-expand-btn{
+  background:#2A2C36!important;
+  border-color:rgba(255,255,255,.14)!important;
+  color:#D4D4D8!important;
+}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .table-card .icon-action:hover,
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .table-card .agent-view-btn:hover{
+  background:#444654!important;
+  color:#E7E5E4!important;
+}
+
+/* The promotion page's own page-size widget (`.agent-size-picker`, its own markup, not the shared
+   `.rounded-select-wrap` one) was missed by the first night-mode pass for a simple reason: it is `hidden`
+   until it opens, so the audit - which measures what is rendered - never saw it. The owner opened it and the
+   menu came out cream on a dark page. The button, its menu and its options take the same dark values as the
+   pager beside them. */
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-size-btn{
+  background:#2A2C36!important;
+  border-color:rgba(255,255,255,.14)!important;
+  color:#F5F5F4!important;
+}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-size-btn i{
+  color:#A1A1AA!important;
+}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-size-menu{
+  background:#2A2C36!important;
+  border-color:rgba(255,255,255,.14)!important;
+  box-shadow:0 12px 28px rgba(0,0,0,.45)!important;
+}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-size-opt{
+  color:#D4D4D8!important;
+}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-size-opt:hover{
+  background:#444654!important;
+  color:#E7E5E4!important;
+}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body[data-agent-page].agent-report-body.agent-modern .agent-size-opt.is-active{
+  background:rgba(245,158,11,.2)!important;
+  color:#F59E0B!important;
 }

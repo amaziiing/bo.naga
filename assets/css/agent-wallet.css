@@ -1,0 +1,587 @@
+/* Agent Wallet — composition only.
+
+   This page renders the Agent Portal's own components and states nothing they already state. Measured
+   against the pages that render the same components in the same theme (agent-dashboard.html for
+   `.agent-panel` / `.agent-kpi-card`, agent-withdraw.html for `.agent-withdraw-kpi` and the Finance
+   table), the system already supplies:
+
+       card surface      #FFF8EB light / #383A46 dark, border #EADCC8 / rgba(255,255,255,.14), radius 8
+       KPI card          112px tall, padding 18px 16px, label 12/400, value 20/700, note 11/400
+       panel title       16px/800 (and the page sets only its icon colour)
+       table header      11px/700, letter-spacing .44px, #6B360C on #FFE8CC
+       table cell        13px/700, #18191C on #FFF8EB
+       dark table        header #1F2128/#E7E5E4, cell #3A3C48/#F5F5F4
+       filter controls   36px (the rung bo-control-height.css enforces), grid from the portal's own
+                         [data-agent-page="finance"] rule
+
+   What is left here is what the system does not give this page: where the panels go, how wide the
+   ledger's columns are, and the three parts the portal has no component for - the ledger footer, the
+   receipt picker and the deductions list. Everything below is page-scoped on purpose: the portal and
+   the BO keep separate shells (AGENTS.md), and nothing here re-states a shared shell metric. */
+
+body[data-agent-page="finance"] .agent-wallet-page{
+  --aw-border:#EADCC8;
+  --aw-text:#18191C;
+  --aw-muted:#78716C;
+  --aw-amber:#D97706;
+  display:grid;
+  gap:14px;
+}
+
+/* Summary row: four cards, two, then one. The card itself is `.agent-withdraw-kpi` untouched - the
+   tint per card is the only thing this file adds, so the four money figures stay identifiable in both
+   themes (the withdraw page's own dark rule flattens its icons to one neutral grey). */
+body[data-agent-page="finance"] .agent-wallet-kpis{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:14px!important;
+  margin:0!important;
+}
+html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.blue .agent-withdraw-kpi-icon{background:#FFF0D5!important;color:#D97706!important}
+html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.purple .agent-withdraw-kpi-icon{background:#F4EBFF!important;color:#7F56D9!important}
+html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.green .agent-withdraw-kpi-icon{background:#ECFDF3!important;color:#079455!important}
+html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.orange .agent-withdraw-kpi-icon{background:#FFF6E8!important;color:#F79009!important}
+html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.blue .agent-withdraw-kpi-icon i{color:#D97706!important}
+html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.purple .agent-withdraw-kpi-icon i{color:#7F56D9!important}
+html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.green .agent-withdraw-kpi-icon i{color:#079455!important}
+html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.orange .agent-withdraw-kpi-icon i{color:#F79009!important}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.blue .agent-withdraw-kpi-icon{background:rgba(245,158,11,.16)!important;color:#FBBF24!important}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.purple .agent-withdraw-kpi-icon{background:rgba(127,86,217,.20)!important;color:#C4B5FD!important}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.green .agent-withdraw-kpi-icon{background:rgba(16,185,129,.16)!important;color:#34D399!important}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.orange .agent-withdraw-kpi-icon{background:rgba(247,144,9,.16)!important;color:#FBBF24!important}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.blue .agent-withdraw-kpi-icon i{color:#FBBF24!important}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.purple .agent-withdraw-kpi-icon i{color:#C4B5FD!important}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.green .agent-withdraw-kpi-icon i{color:#34D399!important}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-kpi.orange .agent-withdraw-kpi-icon i{color:#FBBF24!important}
+
+/* The ledger takes the full width, the two money operations sit side by side under it. This is the
+   shape the Withdraw page already uses (its widest panel carries the history, the operations sit in
+   panels above), and it is also what lets the filter row keep the system's own control widths: beside
+   a rail the ledger column is ~880px, and the three controls at their system sizes (a 390px date
+   range + a select measured to fit its widest option + the search box's 260px minimum) come to 882px,
+   so the flex row wrapped the search onto a second line and every fix for that was a specificity war
+   with bo-filter-standard.css. At full width the same row has 1220px to sit in and needs no override
+   at all. */
+body[data-agent-page="finance"] .agent-wallet-layout{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:14px;
+  min-width:0;
+}
+body[data-agent-page="finance"] .agent-wallet-side{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+  align-items:start;
+  min-width:0;
+}
+body[data-agent-page="finance"] .agent-wallet-ledger-panel,
+body[data-agent-page="finance"] .agent-wallet-claim-panel,
+body[data-agent-page="finance"] .agent-wallet-deductions-panel{
+  min-width:0;
+  margin:0!important;
+  padding:0!important;
+}
+/* The ledger must not clip. bo-date-range.js positions the calendar as an absolutely positioned child of
+   its own field, so `overflow:hidden` on the card cut the popover off at the card's edge - the owner's
+   screenshot shows the lower half of the calendar gone. Nothing else in this panel can spill (the table
+   wrapper scrolls, every band is transparent and inherits the card's own rounded background), and the
+   two money panels keep their clip because they carry no popover. */
+body[data-agent-page="finance"] .agent-wallet-ledger-panel{overflow:visible}
+body[data-agent-page="finance"] .agent-wallet-claim-panel,
+body[data-agent-page="finance"] .agent-wallet-deductions-panel{overflow:hidden}
+
+/* Panel header band. The title keeps the portal's size; only the icon colour is the page's own. */
+body[data-agent-page="finance"] .agent-wallet-panel-title{
+  min-height:55px;
+  margin:0!important;
+  padding:14px 16px!important;
+  border-bottom:1px solid var(--aw-border);
+}
+html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body .agent-wallet-panel-title h2 i{
+  color:var(--aw-amber)!important;
+}
+body[data-agent-page="finance"] .agent-wallet-count{
+  min-width:26px;
+  height:24px;
+  padding:0 8px;
+  border-radius:999px;
+  background:#FFF0D5;
+  color:#B45309;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:11px;
+  font-weight:800;
+  font-variant-numeric:tabular-nums;
+}
+
+/* The filter row is a band inside the ledger panel: the controls are the only filled things on it.
+   The row, the control widths and the breakpoints are all bo-filter-standard.css's own flex row - the
+   page states nothing about them, because everything it could state lost: that sheet pins
+   `.bo-filter-row` to `display:flex!important; grid-template-columns:none!important` and the range
+   trigger to a fixed width, at a specificity the page cannot reach without stacking `:not(#...)`
+   guards of its own. */
+body[data-agent-page="finance"] .agent-wallet-filter-bar{
+  margin:0!important;
+  padding:14px 16px!important;
+  border:0!important;
+  border-bottom:1px solid var(--aw-border)!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+
+/* The panel draws the frame, so the wrapper must not draw a second one. */
+body[data-agent-page="finance"] .agent-wallet-ledger-wrap{
+  width:100%!important;
+  max-width:100%!important;
+  margin:0!important;
+  overflow:auto!important;
+  border:0!important;
+  border-radius:0!important;
+}
+body[data-agent-page="finance"] .agent-wallet-ledger-table{
+  min-width:820px!important;
+  table-layout:fixed!important;
+  border:0!important;
+}
+body[data-agent-page="finance"] .agent-wallet-ledger-table th:nth-child(1){width:108px}
+body[data-agent-page="finance"] .agent-wallet-ledger-table th:nth-child(2){width:124px}
+body[data-agent-page="finance"] .agent-wallet-ledger-table th:nth-child(3){width:114px}
+body[data-agent-page="finance"] .agent-wallet-ledger-table th:nth-child(4),
+body[data-agent-page="finance"] .agent-wallet-ledger-table th:nth-child(5){width:120px}
+body[data-agent-page="finance"] .agent-wallet-ledger-table th:nth-child(6){width:118px}
+body[data-agent-page="finance"] .agent-wallet-ledger-table thead th{height:44px!important}
+body[data-agent-page="finance"] .agent-wallet-ledger-table tbody td{
+  overflow:hidden!important;
+  text-overflow:ellipsis;
+}
+body[data-agent-page="finance"] .agent-wallet-ledger-table th:nth-child(3),
+body[data-agent-page="finance"] .agent-wallet-ledger-table th:nth-child(4),
+body[data-agent-page="finance"] .agent-wallet-ledger-table th:nth-child(5),
+body[data-agent-page="finance"] .agent-wallet-ledger-table td:nth-child(3),
+body[data-agent-page="finance"] .agent-wallet-ledger-table td:nth-child(4),
+body[data-agent-page="finance"] .agent-wallet-ledger-table td:nth-child(5){
+  text-align:right;
+}
+/* The listing-page rule right-aligns every last column, which is right for an action column and wrong
+   for this one: the ledger's last column is prose. */
+body[data-agent-page="finance"] .agent-wallet-ledger-table thead th:last-child,
+body[data-agent-page="finance"] .agent-wallet-ledger-table tbody td:last-child{
+  text-align:left;
+}
+body[data-agent-page="finance"] .agent-wallet-reference{
+  color:#57534E;
+  font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;
+  font-size:10.5px;
+}
+/* The ledger is the page's main panel, so it keeps a floor: at ten rows a page it measures ~474px, and a
+   short or empty result still leaves the panel the height of a real table instead of a stub. */
+body[data-agent-page="finance"] .agent-wallet-ledger-wrap{
+  min-height:322px;
+}
+body[data-agent-page="finance"] .agent-wallet-ledger-table td.table-empty{
+  height:322px!important;
+}
+
+/* The ledger footer is the portal's table footer: page size, the count and the pager, the same three
+   parts the players, products and reports pages render. The buttons need nothing from this file -
+   agent-portal.css already styles `.agent-pagination button` for every `body[data-agent-page]` (36px,
+   radius 8, 12.5px/700, and the amber active state in both themes). Only the band and the page-size
+   select are page-scoped, because the portal states those per page. */
+body[data-agent-page="finance"] .agent-wallet-ledger-footer{
+  min-height:56px;
+  border-top:1px solid var(--aw-border);
+}
+body[data-agent-page="finance"] .agent-wallet-ledger-footer > .agent-page-size{
+  flex:0 0 auto;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+body[data-agent-page="finance"] .agent-wallet-ledger-footer > .agent-page-size select{
+  width:auto!important;
+  min-width:68px;
+  max-width:96px;
+  height:36px;
+  padding:0 28px 0 10px;
+  border:1px solid var(--aw-border);
+  border-radius:8px;
+  background:#FFF8EB;
+  color:var(--aw-text);
+  font-size:12px;
+  font-weight:700;
+}
+body[data-agent-page="finance"] .agent-wallet-ledger-footer > #agentWalletShowing{
+  flex:1 1 auto;
+  text-align:center;
+  color:var(--aw-muted);
+  font-size:12px;
+  font-weight:600;
+  font-variant-numeric:tabular-nums;
+}
+body[data-agent-page="finance"] .agent-wallet-ledger-footer > .agent-pagination{
+  flex:0 0 auto;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+/* The page-size menu opens upwards. The widget's base rule drops it below its trigger
+   (`top:calc(100% + 6px)`), which is right in a filter bar and wrong in a footer: this band sits under
+   the table, so the menu covered the money panels below it (owner, with the screenshot: "show entries
+   展开后 应该向上开 而不是向下展开"). The reports, products and player_game_report footers already
+   re-point it at the wrapper's top edge; this is the same statement for this page. */
+html:not(#bo-charcoal-off) body[data-agent-page="finance"].agent-report-body.agent-modern .agent-wallet-ledger-footer .rounded-select-wrap .rounded-select-menu{
+  top:auto!important;
+  bottom:100%!important;
+  margin:0 0 6px 0!important;
+}
+
+/* Reimbursement: an operation, not another table. */
+body[data-agent-page="finance"] .agent-wallet-claim-note{
+  margin:14px 16px 0;
+  padding:10px 12px;
+  border-left:3px solid var(--aw-amber);
+  border-radius:0 8px 8px 0;
+  background:#FFF7E8;
+  color:#57534E;
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+}
+body[data-agent-page="finance"] .agent-wallet-claim-note > i{
+  margin-top:1px;
+  color:var(--aw-amber);
+  font-size:16px;
+}
+body[data-agent-page="finance"] .agent-wallet-claim-note div{
+  min-width:0;
+  display:grid;
+  gap:2px;
+}
+body[data-agent-page="finance"] .agent-wallet-claim-note strong{
+  color:var(--aw-text);
+  font-size:11.5px;
+  font-weight:800;
+}
+body[data-agent-page="finance"] .agent-wallet-claim-note span{
+  color:var(--aw-muted);
+  font-size:10.5px;
+  line-height:1.4;
+}
+body[data-agent-page="finance"] .agent-wallet-claim-form{
+  padding:14px 16px 16px;
+  gap:13px!important;
+}
+body[data-agent-page="finance"] .agent-wallet-claim-form .field{
+  min-width:0;
+  margin:0!important;
+}
+body[data-agent-page="finance"] .agent-wallet-claim-form .field > label:first-child{
+  display:block!important;
+  margin:0 0 6px!important;
+  font-size:12px!important;
+  font-weight:600!important;
+}
+/* The currency sits INSIDE the field, not in a frame around it.
+
+   The first version wrapped the input in a bordered group, which put two boxes on the same control: the
+   group's frame and the input's own. The input's could not be styled away either - the system states its
+   border and radius (bo-charcoal-legacy.css / bo-field-standard.css) at id-level specificity, so the
+   page-scoped `border:0;border-radius:0` lost and the field painted a rounded border inside the group
+   (owner, looking at the 6x crop: "claim amount 的 border radius 有点视觉上的不好").
+
+   Now the input keeps the system's own field frame - the same 1px #DCC9A8, radius, fill and 40px height
+   as the textarea beside it - and the RM cell is an overlay on its left padding. There is no second box to
+   style away, the field focuses like every other field on the portal, and the divider is the prefix's own
+   right edge. */
+body[data-agent-page="finance"] .agent-wallet-money-input{
+  position:relative;
+  display:block;
+  width:100%;
+  height:auto;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  overflow:visible;
+}
+body[data-agent-page="finance"] .agent-wallet-money-input > span{
+  position:absolute;
+  left:1px;
+  top:1px;
+  bottom:1px;
+  width:42px;
+  border-right:1px solid var(--aw-border);
+  border-radius:9px 0 0 9px;
+  color:#6B360C;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:11px;
+  font-weight:800;
+  pointer-events:none;
+}
+body[data-agent-page="finance"] .agent-wallet-money-input #agentReimburseAmount{
+  padding-left:54px!important;
+  font-variant-numeric:tabular-nums;
+  appearance:textfield;
+}
+body[data-agent-page="finance"] .agent-wallet-money-input #agentReimburseAmount::-webkit-inner-spin-button,
+body[data-agent-page="finance"] .agent-wallet-money-input #agentReimburseAmount::-webkit-outer-spin-button{
+  -webkit-appearance:none;
+  margin:0;
+}
+/* The receipt picker: a real control in the house field treatment, not the browser's default file box. */
+body[data-agent-page="finance"] .agent-wallet-upload{
+  width:100%;
+  min-height:68px;
+  margin:0!important;
+  padding:10px 11px!important;
+  border:1px dashed #D5B986;
+  border-radius:8px;
+  background:#FFF8EB;
+  color:var(--aw-text)!important;
+  display:grid!important;
+  grid-template-columns:36px minmax(0,1fr) auto;
+  align-items:center;
+  gap:10px!important;
+  cursor:pointer;
+}
+body[data-agent-page="finance"] .agent-wallet-upload:hover{
+  border-color:var(--aw-amber);
+  background:#FFF5DF;
+}
+body[data-agent-page="finance"] #agentReimburseProof:focus-visible + .agent-wallet-upload{
+  border-color:var(--aw-amber);
+  box-shadow:0 0 0 3px rgba(217,119,6,.12);
+}
+body[data-agent-page="finance"] #agentReimburseProof.visually-hidden{
+  position:absolute!important;
+  width:1px!important;
+  height:1px!important;
+  min-width:0!important;
+  min-height:0!important;
+  padding:0!important;
+  margin:-1px!important;
+  overflow:hidden!important;
+  clip:rect(0,0,0,0)!important;
+  white-space:nowrap!important;
+  border:0!important;
+}
+body[data-agent-page="finance"] .agent-wallet-upload-icon{
+  width:36px;
+  height:36px;
+  border-radius:9px;
+  background:#FFF0D5;
+  color:var(--aw-amber);
+  display:grid;
+  place-items:center;
+  font-size:17px;
+}
+body[data-agent-page="finance"] .agent-wallet-upload-copy{
+  min-width:0;
+  display:grid;
+  gap:2px;
+}
+body[data-agent-page="finance"] .agent-wallet-upload-copy strong{
+  overflow:hidden;
+  color:var(--aw-text);
+  font-size:11.5px;
+  font-weight:800;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+body[data-agent-page="finance"] .agent-wallet-upload-copy small{
+  overflow:hidden;
+  color:var(--aw-muted);
+  font-size:10px;
+  font-weight:500;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+body[data-agent-page="finance"] .agent-wallet-upload-action{
+  height:30px;
+  padding:0 10px;
+  border:1px solid var(--aw-border);
+  border-radius:7px;
+  background:#FFFCF7;
+  color:#57534E;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:10.5px;
+  font-weight:800;
+}
+body[data-agent-page="finance"] .agent-wallet-claim-form #agentReimburseRemark{
+  width:100%!important;
+  min-height:84px!important;
+  padding:9px 11px!important;
+  resize:vertical;
+  border:1px solid var(--aw-border)!important;
+  border-radius:8px!important;
+  background:#FFF8EB!important;
+  color:var(--aw-text)!important;
+  font-size:12px!important;
+  line-height:1.45;
+  outline:0!important;
+}
+body[data-agent-page="finance"] .agent-wallet-claim-form #agentReimburseRemark:focus{
+  border-color:var(--aw-amber)!important;
+  box-shadow:0 0 0 3px rgba(217,119,6,.12)!important;
+}
+body[data-agent-page="finance"] .agent-wallet-claim-form #agentReimburseSubmit{
+  width:100%!important;
+  margin:0!important;
+}
+body[data-agent-page="finance"] .agent-wallet-claim-form #agentReimburseSubmit:active{
+  transform:scale(.98);
+}
+@media (prefers-reduced-motion: reduce){
+  body[data-agent-page="finance"] .agent-wallet-claim-form #agentReimburseSubmit{transition:none!important}
+}
+
+/* Deductions: supporting activity in the narrower column, so it is a list of movements rather than a
+   four-column table squeezed into 390px. */
+body[data-agent-page="finance"] .agent-wallet-deductions-list{
+  min-height:122px;
+}
+body[data-agent-page="finance"] .agent-wallet-deduction{
+  min-height:70px;
+  padding:11px 14px;
+  border-bottom:1px solid rgba(234,220,200,.7);
+  display:grid;
+  grid-template-columns:34px minmax(0,1fr) auto;
+  align-items:center;
+  gap:10px;
+}
+body[data-agent-page="finance"] .agent-wallet-deduction:last-child{
+  border-bottom:0;
+}
+body[data-agent-page="finance"] .agent-wallet-deduction-icon{
+  width:34px;
+  height:34px;
+  border-radius:9px;
+  background:#FFF0D5;
+  color:var(--aw-amber);
+  display:grid;
+  place-items:center;
+  font-size:14px;
+}
+body[data-agent-page="finance"] .agent-wallet-deduction-copy{
+  min-width:0;
+  display:grid;
+  gap:2px;
+}
+body[data-agent-page="finance"] .agent-wallet-deduction-copy strong{
+  overflow:hidden;
+  color:var(--aw-text);
+  font-size:11.5px;
+  font-weight:800;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+body[data-agent-page="finance"] .agent-wallet-deduction-copy span{
+  overflow:hidden;
+  color:var(--aw-muted);
+  font-size:10px;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+body[data-agent-page="finance"] .agent-wallet-deduction-copy time{
+  color:#A8A29E;
+  font-size:9.5px;
+}
+body[data-agent-page="finance"] .agent-wallet-deduction-amount{
+  color:#B42318!important;
+  font-size:11.5px;
+  font-weight:800;
+  font-variant-numeric:tabular-nums;
+  white-space:nowrap;
+}
+body[data-agent-page="finance"] .agent-wallet-empty{
+  min-height:122px;
+  padding:20px;
+  color:var(--aw-muted);
+  display:grid;
+  place-items:center;
+  align-content:center;
+  gap:6px;
+  text-align:center;
+  font-size:11px;
+}
+body[data-agent-page="finance"] .agent-wallet-empty i{
+  color:#C4A97A;
+  font-size:22px;
+}
+
+/* Dark theme: the tokens the system already sets are not repeated, only the parts that are this page's
+   own (its footer, the claim controls, the receipt picker, the deductions list and the count pill). */
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-page{
+  --aw-border:rgba(255,255,255,.14);
+  --aw-text:#F5F5F4;
+  --aw-muted:#A1A1AA;
+  --aw-amber:#F59E0B;
+}
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-count,
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-upload-icon,
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-deduction-icon{
+  background:rgba(245,158,11,.16);
+  color:#FBBF24;
+}
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-claim-note{
+  background:rgba(245,158,11,.10);
+  color:#D4D4D8;
+}
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-claim-note strong,
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-upload-copy strong,
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-deduction-copy strong{
+  color:var(--aw-text);
+}
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-upload,
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-claim-form #agentReimburseRemark{
+  background:#2A2C36!important;
+  border-color:var(--aw-border)!important;
+  color:var(--aw-text)!important;
+}
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-money-input > span{
+  color:#FBBF24;
+  border-right-color:var(--aw-border);
+}
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-upload-action{
+  background:#383A46;
+  border-color:var(--aw-border);
+  color:#F5F5F4;
+}
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-ledger-footer > .agent-page-size select{
+  background:#383A46;
+  border-color:rgba(255,255,255,.14);
+  color:#F5F5F4;
+}
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-deduction{
+  border-bottom-color:rgba(255,255,255,.08);
+}
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-deduction-copy time{
+  color:#A1A1AA;
+}
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-deduction-amount{
+  color:#FCA5A5!important;
+}
+html[data-bo-theme="dark"] body[data-agent-page="finance"] .agent-wallet-empty i{
+  color:#8A7A5E;
+}
+
+@media(max-width:1450px){
+  body[data-agent-page="finance"] .agent-wallet-layout{grid-template-columns:1fr}
+  body[data-agent-page="finance"] .agent-wallet-side{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:1180px){
+  body[data-agent-page="finance"] .agent-wallet-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(max-width:880px){
+  body[data-agent-page="finance"] .agent-wallet-side{grid-template-columns:1fr}
+}
+@media(max-width:560px){
+  body[data-agent-page="finance"] .agent-wallet-kpis{grid-template-columns:1fr!important}
+  body[data-agent-page="finance"] .agent-wallet-upload{grid-template-columns:36px minmax(0,1fr)}
+  body[data-agent-page="finance"] .agent-wallet-upload-action{display:none}
+}

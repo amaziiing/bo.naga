@@ -215,7 +215,66 @@ html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.ag
   gap:6px!important;
 }
 
-/* 4. A floor under the history table, so a short or empty result still leaves the panel the height of a
+/* 4. The Manage Bank Accounts modal, onto the page's own components.
+
+   The modal itself already follows the theme (measured: #FFF8EB light, #383A46 dark - it is not a light
+   island), so nothing about its surface changes here. What was off is inside it:
+     - the `Default` badge is a `<span>` inside `.bank-main`, and that rule's `color:#667085` took the
+       badge's text colour: measured, a green pill with grey text. Its background is also hard light
+       (#ECFDF3) with no dark variant - the light-island class of bug again;
+     - the bank icon tile carries the neutral grey pair (#F5EBDC/#57534E light, #2A2C36/#D4D4D8 dark) while
+       every other icon tile on this page is amber;
+     - the form's labels read 11px/600 where the page's other forms are 12px/600.
+   The light rules carry the same `:not(#...)` guard the dark ones do: without it the badge's text colour and
+   the icon tint were silently outranked by the portal's id-level `.bank-main span` rule - measured, the
+   light badge kept its grey text while the dark one was already correct. */
+html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-bank-badge{
+  font-size:11px!important;
+  font-weight:800!important;
+  background:#DCFCE7!important;
+  color:#166534!important;
+  border:1px solid rgba(22,101,52,.22)!important;
+  border-radius:999px!important;
+  padding:3px 8px!important;
+}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-bank-badge{
+  background:rgba(16,185,129,.16)!important;
+  color:#34D399!important;
+  border-color:rgba(52,211,153,.28)!important;
+}
+html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-bank-icon{
+  background:#FFF0D5!important;
+  color:var(--awd-amber)!important;
+}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-bank-icon{
+  background:rgba(245,158,11,.16)!important;
+  color:#FBBF24!important;
+}
+body[data-agent-page="withdraw"] .agent-bank-account-form label{
+  font-size:12px!important;
+  font-weight:600!important;
+  color:var(--awd-muted)!important;
+}
+body[data-agent-page="withdraw"] .agent-bank-account-form input:not([type=checkbox]):not([type=hidden]){
+  height:38px!important;
+  border:1px solid var(--awd-border)!important;
+  border-radius:8px!important;
+  background:#FFF8EB!important;
+  color:#18191C!important;
+  font-size:13px!important;
+}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-bank-account-form input:not([type=checkbox]):not([type=hidden]){
+  background:#2A2C36!important;
+  border-color:rgba(255,255,255,.12)!important;
+  color:#F5F5F4!important;
+}
+/* Account Number sits on its own row in a two-column grid; spanning it keeps the form from carrying an
+   empty half-row beside it. */
+body[data-agent-page="withdraw"] .agent-bank-account-form label:has(#agentBankNumber){
+  grid-column:1/-1;
+}
+
+/* 5. A floor under the history table, so a short or empty result still leaves the panel the height of a
    real table (ten rows a page measure ~474px). */
 html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-withdraw-history .table-wrap{
   min-height:322px;
@@ -229,7 +288,7 @@ html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.ag
   vertical-align:middle!important;
 }
 
-/* 5. The KPI icons keep their colour in dark. The portal's light rules carry the five tints and its dark
+/* 6. The KPI icons keep their colour in dark. The portal's light rules carry the five tints and its dark
    block flattens every one of them to the same neutral grey (measured: #2A2C36 on #D4D4D8), which loses
    the one thing the tints are for. These are the BO's own dark chip values, the same set the wallet page
    uses, so the two Finance screens read alike. */

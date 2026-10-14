@@ -256,6 +256,9 @@ html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page="withdraw"
    head 18px 22px with a 21px title over a 13px subtitle, body 20px 22px, a two-column field grid at 14px,
    13px/800 labels, 42px inputs at radius 10, a 12px help line, and a 14px 22px footer band. Only the
    palette is this page's - the portal theme paints the surface and the borders, as it already did. */
+html:not(#bo-charcoal-off):not([data-bo-theme="dark"]) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-bank-modal{
+  background:#FFFCF7!important;
+}
 html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-bank-modal{
   width:min(760px,96vw)!important;
   max-width:min(760px,96vw)!important;
@@ -277,7 +280,7 @@ html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.ag
 html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-bank-modal-head h3{
   margin:0!important;
   font-size:21px!important;
-  font-weight:800!important;
+  font-weight:500!important;
   letter-spacing:-.01em;
 }
 html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-bank-modal-head p{
@@ -286,12 +289,18 @@ html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.ag
   color:var(--awd-muted)!important;
 }
 html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-bank-modal-head button{
-  width:38px!important;
-  height:38px!important;
-  min-width:38px!important;
-  border:1px solid var(--awd-border)!important;
-  border-radius:10px!important;
-  background:transparent!important;
+  width:36px!important;
+  height:36px!important;
+  min-width:36px!important;
+  border:1px solid #EADCC8!important;
+  border-radius:8px!important;
+  background:#FFF8EB!important;
+  color:#57534E!important;
+}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-bank-modal-head button{
+  border-color:rgba(255,255,255,.14)!important;
+  background:rgba(255,255,255,.06)!important;
+  color:#D4D4D8!important;
 }
 html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern #agentBankAccountForm{
   display:flex!important;
@@ -317,19 +326,15 @@ html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.ag
   margin:0!important;
   min-width:0!important;
 }
+/* The labels and inputs take the system's own `.field` treatment rather than a size written here: measured
+   on the reference, the rendered values are NOT the ones its inline CSS asks for - the theme overrides them
+   to 12px/900 labels and 40px radius-9 inputs at 12px/700. Writing the inline values here was how the first
+   version ended up at 13px/800 and 42px/radius-10. */
 html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-bank-fields label{
-  font-size:13px!important;
-  font-weight:800!important;
-  color:var(--awd-text,#334155)!important;
+  color:var(--awd-text,#18191C)!important;
 }
 html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-bank-fields input:not([type=checkbox]):not([type=hidden]){
-  height:42px!important;
-  border:1px solid var(--awd-border)!important;
-  border-radius:10px!important;
-  padding:0 12px!important;
-  background:#FFF8EB!important;
-  color:#18191C!important;
-  font-size:13px!important;
+  border-color:var(--awd-border)!important;
 }
 html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-bank-fields label:has(#agentBankNumber),
 html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-bank-fields .agent-bank-default,
@@ -343,6 +348,22 @@ html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.ag
   font-weight:400!important;
   color:var(--awd-muted)!important;
   line-height:1.5;
+}
+/* The reference's two footer buttons are the same component (measured on it: same gradient, same border,
+   same white 13px/700 label), but in this theme a dark-mode rule separates a `type=button` from the submit
+   beside it. Rather than hunt the exclusion, the clear button is given the values measured on its sibling
+   here, so the pair matches the reference in both themes. */
+html:not([data-bo-theme="dark"]):not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern #agentBankFormReset{
+  background-image:linear-gradient(180deg,#FBBF24 0%,#F59E0B 42%,#E88608 100%)!important;
+  background-color:transparent!important;
+  border-color:#E8901A!important;
+  color:#FFFFFF!important;
+}
+html[data-bo-theme="dark"]:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern #agentBankFormReset{
+  background-image:linear-gradient(180deg,#FBBF24 0%,#F59E0B 45%,#D97706 100%)!important;
+  background-color:transparent!important;
+  border-color:#F59E0B!important;
+  color:#2A2C36!important;
 }
 html:not(#bo-charcoal-off) body[data-agent-page="withdraw"].agent-report-body.agent-modern .agent-bank-modal-foot{
   flex:0 0 auto!important;

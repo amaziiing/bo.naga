@@ -757,10 +757,17 @@ html:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body.report-body.bo-wallet-t
 
 /* Top-up Reward is a scrolling edit page: the shell already clips .report-main / .report-content, so the page
    needs the frame turned into a column - scroll area above, the 73px action bar below it. This is a shell
-   metric on a shell selector, which is why it lives here rather than in the page's own sheet. */
+   metric on a shell selector, which is why it lives here rather than in the page's own sheet.
+
+   The padding needs the same guard as the gateway's focus mode: the frame's inset is declared by rules that
+   carry `!important`, so a plain `padding:0` loses - measured on this page, the frame computed
+   `12px 18px 22px` and the action bar therefore sat 18px in from each side (owner: "操作区没有定死跟sidebar对齐").
+   The selector mirrors the guarded shape and adds this page's body class; the inset itself is handed to the
+   scroll area, which carries the page's own 16/24 padding. */
+html:not(#bo-charcoal-off):not(#bo-charcoal-legacy) body.report-body.topup-reward-page .report-shell .report-main .report-content{
+  padding-top:0!important;padding-right:0!important;padding-bottom:0!important;padding-left:0!important}
 body.report-body.topup-reward-page .report-content{
   display:flex;
   flex-direction:column;
   min-height:0;
-  padding:0;
 }

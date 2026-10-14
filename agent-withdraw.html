@@ -8,7 +8,7 @@
 <link href="assets/css/reports.css?v=9c07f140" rel="stylesheet">
 <link href="assets/css/bo-ui-standard.css?v=817727e7" rel="stylesheet">
 <link href="assets/css/table-pagination-horizontal.css?v=e0d02694" rel="stylesheet">
-<link href="assets/css/agent-portal.css?v=f4733686" rel="stylesheet">
+<link href="assets/css/agent-portal.css?v=7420fa50" rel="stylesheet">
 <link href="assets/css/brand-agent-standard.css?v=4f68348a" rel="stylesheet">
 <link href="assets/css/bo-account-chip.css?v=c8730135" rel="stylesheet" />
 <link href="assets/css/bo-charcoal-shell.css?v=6ceb4a37" rel="stylesheet" />
@@ -73,7 +73,10 @@
   <div class="table-wrap"><table class="report-table agent-withdraw-table"><thead><tr><th>Request ID</th><th>Request Date & Time</th><th>Withdraw Method</th><th>Amount (RM)</th><th>Fee (RM)</th><th>You Will Receive (RM)</th><th>Status</th><th>Remark</th><th>Reference</th></tr></thead><tbody id="agentSettlementRows"></tbody></table></div>
   <div class="agent-table-footer agent-withdraw-history-footer"><div class="agent-page-size">Show <select id="agentWithdrawPageSize" aria-label="Rows per page"><option value="10">10</option><option value="20">20</option><option value="50">50</option><option value="100">100</option></select> entries</div><div id="withdrawHistoryShowing">Showing 0 to 0 of 0 records</div><div class="agent-pagination" id="agentWithdrawPagination"></div></div>
 </section>
-
+<!-- compatibility nodes retained for the existing settlement API logic -->
+<div class="d-none" id="agentSettlementMetrics"></div><span class="d-none" id="agentSettlementKpiBasis"></span><span class="d-none" id="agentSettlementAchieved"></span><span class="d-none" id="agentSettlementTarget"></span><span class="d-none" id="agentSettlementShortfall"></span><div class="d-none"><span id="agentSettlementBar"></span></div>
+</section>
+</main></div>
 <div class="agent-modal-backdrop" id="agentBankModal" hidden>
   <div class="agent-bank-modal" role="dialog" aria-modal="true" aria-labelledby="agentBankModalTitle">
     <div class="agent-bank-modal-head">
@@ -103,10 +106,7 @@
     </form>
   </div>
 </div>
-<!-- compatibility nodes retained for the existing settlement API logic -->
-<div class="d-none" id="agentSettlementMetrics"></div><span class="d-none" id="agentSettlementKpiBasis"></span><span class="d-none" id="agentSettlementAchieved"></span><span class="d-none" id="agentSettlementTarget"></span><span class="d-none" id="agentSettlementShortfall"></span><div class="d-none"><span id="agentSettlementBar"></span></div>
-</section>
-</main></div>
+
 <script src="assets/js/config.js?v=e7312672"></script>
 <script src="assets/js/main-currency-runtime.js?v=2b28e860"></script><script src="assets/js/reports.js?v=a96450f8"></script><script src="assets/js/bo-date-range.js?v=b1113dc8"></script><script src="assets/js/agent-portal.js?v=cf0605b2"></script><script src="assets/js/pagination-standardizer.js?v=9eb44c56"></script><script defer src="assets/js/bo-ui-standard.js?v=890f213b"></script>
 <script src="assets/js/currency-runtime.js?v=b63c89fb"></script>

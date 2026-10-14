@@ -3176,3 +3176,11 @@ html:not(#bo-charcoal-off) body[data-agent-page="dashboard"].agent-report-body.a
     transform:translateX(0)!important;
   }
 }
+
+/* The modal backdrop is an overlay of the whole app, and the reference for it is the BO's own modal
+   (index.html's Create User): that one dims the page AND blurs it behind the panel. The dim colour is
+   already the BO's rgba(15,23,42,.55); this adds the blur, for every portal modal that uses the class. */
+html:not(#bo-charcoal-off) body[data-agent-page] .agent-modal-backdrop{
+  -webkit-backdrop-filter:blur(2px);
+  backdrop-filter:blur(2px);
+}

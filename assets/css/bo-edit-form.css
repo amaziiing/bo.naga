@@ -225,3 +225,106 @@ html[data-bo-theme="dark"] body.bo-edit-form .bo-edit-head h4{color:#FBBF24}
 html[data-bo-theme="dark"] body.bo-edit-form .bo-edit-head p{color:#D4D4D8}
 html[data-bo-theme="dark"] body.bo-edit-form .bo-edit-note{color:#A1A1AA}
 html[data-bo-theme="dark"] body.bo-edit-form .bo-edit-bar{background:#383A46;border-top-color:rgba(255,255,255,.14)}
+
+/* ----------------------------------------------------------------------------
+   Button states, stated once so no edit page invents its own. Measured before
+   writing: the primary button already darkened on hover (#EA8608) while every
+   plain button had no hover at all - base and hover computed identically - and
+   the system's own danger hover is reports.css's `.clean-btn.danger:hover
+   {background:#fff1f2}`. Focus is bo-charcoal-primitives.css's 2px amber outline.
+   The plain hover is the amber tint this system already uses for a hovered
+   control (the same fill the module gives its inputs), not a new colour.
+   -------------------------------------------------------------------------- */
+body.bo-edit-form .clean-btn{
+  transition:background .14s ease,border-color .14s ease,box-shadow .14s ease,color .14s ease;
+}
+/* These buttons are filled with a `background-image` gradient, so a hover that only sets
+   `background`/`background-color` is painted over and measures as no change at all - the first
+   version of this rule did exactly that and the probe caught it. The states are gradients. */
+body.bo-edit-form .clean-btn:not(.primary):not(.danger):hover{
+  background-image:linear-gradient(180deg,#FFFCF7 0%,#F7E7CE 100%)!important;
+  border-color:#D97706;
+  color:#B45309;
+}
+body.bo-edit-form .clean-btn:not(.primary):not(.danger):active{
+  background-image:linear-gradient(180deg,#F5EBDC 0%,#EFE0C6 100%)!important;
+  box-shadow:inset 0 1px 2px rgba(92,74,48,.16);
+}
+body.bo-edit-form .clean-btn.danger:hover{
+  background-color:#fff1f2!important;
+  background-image:linear-gradient(180deg,#FFFFFF 0%,#FFE9EA 100%)!important;
+  border-color:#F3C6C6;
+  color:#B91C1C;
+}
+body.bo-edit-form .clean-btn.danger:active{
+  background-color:#FDE8E8!important;
+  background-image:linear-gradient(180deg,#FFE9EA 0%,#FBD5D5 100%)!important;
+  box-shadow:inset 0 1px 2px rgba(185,28,28,.14);
+}
+body.bo-edit-form .clean-btn.primary:hover{
+  background-image:linear-gradient(180deg,#FBBF24 0%,#EA8608 100%)!important;
+}
+body.bo-edit-form .clean-btn.primary:active{
+  background-image:linear-gradient(180deg,#EA8608 0%,#D97706 100%)!important;
+  box-shadow:inset 0 1px 2px rgba(92,74,48,.2);
+}
+body.bo-edit-form .clean-btn:focus-visible{
+  outline:2px solid #D97706;
+  outline-offset:2px;
+}
+/* Dark ladder - the same three states, on the dark rungs. */
+html[data-bo-theme="dark"] body.bo-edit-form .clean-btn:not(.primary):not(.danger):hover{
+  background-color:#2A2C36;
+  background-image:linear-gradient(180deg,#32343E 0%,#3A3C48 100%)!important;
+  border-color:#F59E0B;
+  color:#FBBF24;
+}
+html[data-bo-theme="dark"] body.bo-edit-form .clean-btn:not(.primary):not(.danger):active{
+  background-image:linear-gradient(180deg,#2A2C36 0%,#23252E 100%)!important}
+html[data-bo-theme="dark"] body.bo-edit-form .clean-btn:focus-visible{outline-color:#F59E0B}
+
+/* ----------------------------------------------------------------------------
+   The same three states again, in the shape of the rule that actually wins.
+   Measured with a canary declaration: the rules above DO apply (the canary landed
+   on the elements), but the module states the button's fill with
+   `html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal .clean-btn:not(.primary):not(...)`
+   plus `!important`, which outranks them - so the hover was painted over and the
+   computed gradient did not move. Mirroring that selector and adding this page's
+   body class is the repo's own way out of a tie like this.
+   -------------------------------------------------------------------------- */
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.bo-edit-form .clean-btn:not(.primary):not(.danger):hover{
+  background-image:linear-gradient(180deg,#FFFCF7 0%,#F7E7CE 100%)!important;
+  border-color:#D97706!important;
+  color:#B45309!important;
+}
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.bo-edit-form .clean-btn:not(.primary):not(.danger):active{
+  background-image:linear-gradient(180deg,#F5EBDC 0%,#EFE0C6 100%)!important;
+  box-shadow:inset 0 1px 2px rgba(92,74,48,.16)!important;
+}
+/* The losing rule does not exclude `.danger`, so the danger button is covered by it too - its own
+   selector has to carry the same exclusions to outrank it (measured: with my shorter selector the
+   danger button's gradient still came back as the plain cream one). */
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.bo-edit-form .clean-btn.danger:not(.primary):not(.bo-ui-button-primary):not(.mad-btn-primary):not(.mad-btn-navy):hover{
+  background-color:#fff1f2!important;
+  background-image:linear-gradient(180deg,#FFFFFF 0%,#FFE9EA 100%)!important;
+  border-color:#F3C6C6!important;
+  color:#B91C1C!important;
+}
+html:not([data-bo-theme="dark"]) body.report-body.bo-charcoal.bo-edit-form .clean-btn.danger:not(.primary):not(.bo-ui-button-primary):not(.mad-btn-primary):not(.mad-btn-navy):active{
+  background-image:linear-gradient(180deg,#FFE9EA 0%,#FBD5D5 100%)!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.bo-edit-form .clean-btn.danger:not(.primary):not(.bo-ui-button-primary):not(.mad-btn-primary):not(.mad-btn-navy):hover{
+  background-color:#3A2226!important;
+  background-image:linear-gradient(180deg,#43262B 0%,#4A2A30 100%)!important;
+  border-color:rgba(248,113,113,.45)!important;
+  color:#FCA5A5!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.bo-edit-form .clean-btn:not(.primary):not(.danger):hover{
+  background-color:#2A2C36!important;
+  background-image:linear-gradient(180deg,#32343E 0%,#3A3C48 100%)!important;
+  border-color:#F59E0B!important;
+  color:#FBBF24!important;
+}
+html[data-bo-theme="dark"] body.report-body.bo-charcoal.bo-edit-form .clean-btn:not(.primary):not(.danger):active{
+  background-image:linear-gradient(180deg,#2A2C36 0%,#23252E 100%)!important;
+}

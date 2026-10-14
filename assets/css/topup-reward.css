@@ -102,20 +102,14 @@ body.topup-reward-page .tr-table .clean-btn{
 }
 /* Hung off the rule that already wins on row geometry: alone, `[data-remove]` lost the border to a
    higher-specificity `!important` (measured: still #DCC9A8), while the same shape here takes it. */
+/* The remove button is the system's danger button at the row rung (36). It used to be a ghost with a
+   hand-mixed hover (#FDECEC, next to the system's #fff1f2) - both are gone: the states come from the
+   shared ladder in bo-edit-form.css, which the button carries as `.clean-btn.danger`. */
 body.topup-reward-page .tr-table .clean-btn[data-remove]{
   width:36px!important;
   min-width:36px!important;
   padding:0!important;
   justify-content:center;
-  border-color:transparent!important;
-  background:transparent!important;
-  box-shadow:none!important;
-  color:#B45309;
-}
-body.topup-reward-page .tr-table .clean-btn[data-remove]:hover{
-  background:#FDECEC!important;
-  border-color:#F3C6C6!important;
-  color:#B91C1C!important;
 }
 
 /* Dark ladder - colours only. */
